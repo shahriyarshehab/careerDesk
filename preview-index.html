@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="bn" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>চাকরি প্রস্তুতি ড্যাশবোর্ড — এক্সপেরিমেন্টাল প্রিভিউ</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20100%20100%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22g%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%238B7CFF%22/%3E%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%2333E0C7%22/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20width%3D%22100%22%20height%3D%22100%22%20rx%3D%2224%22%20fill%3D%22%230A0E17%22/%3E%3Crect%20x%3D%2212%22%20y%3D%2212%22%20width%3D%2276%22%20height%3D%2276%22%20rx%3D%2218%22%20fill%3D%22url%28%23g%29%22/%3E%3Ctext%20x%3D%2250%22%20y%3D%2267%22%20font-family%3D%22Arial%2C%20sans-serif%22%20font-size%3D%2246%22%20font-weight%3D%22700%22%20text-anchor%3D%22middle%22%20fill%3D%22%230A0E17%22%3E%E0%A6%9A%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+Da+2:wght@500;600;700;800&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/style.css">
+<link rel="stylesheet" href="assets/css/features.css">
+</head>
+<body>
+
+<div class="aurora"><span></span><span></span><span></span></div>
+
+<header class="masthead">
+  <div class="brand">
+    <div class="brand-badge">চ</div>
+    <div>
+      <h1>চাকরি প্রস্তুতি ড্যাশবোর্ড <span style="font-size:12px; opacity:0.8; font-weight:500; background:var(--accent1); color:#fff; padding:2px 8px; border-radius:999px; vertical-align:middle;">প্রিভিউ ভার্সন</span></h1>
+    </div>
+  </div>
+  <!-- ControlPillBar (কন্ট্রোল পিল বার) - Exclusive Ultra-Modern Preview Capsule -->
+  <div class="header-actions preview-control-capsule glass" id="ControlPillBar">
+    <div class="nav-clock control-item" id="navClock" aria-live="off" title="লাইভ সময়">
+      <span class="pulse-indicator"></span>
+      <span class="clock-time-text">১২:০০:০০</span>
+    </div>
+    <div class="control-divider"></div>
+    <button class="theme-toggle control-item" id="fullscreenToggle" title="ফুলস্ক্রিন চালু/বন্ধ" aria-label="ফুলস্ক্রিন চালু বা বন্ধ করুন">
+      <span class="control-icon">⛶</span>
+    </button>
+    <div class="control-divider"></div>
+    <button class="theme-toggle control-item" id="themeToggle" title="থিম পরিবর্তন করুন" aria-label="ডার্ক বা লাইট মোড টগল করুন">
+      <span class="control-icon" id="themeIconSpan">🌙</span>
+    </button>
+  </div>
+</header>
+
+<nav class="tabs" role="tablist">
+  <button class="tab-btn active" data-tab="routine" role="tab" aria-selected="true">রুটিন</button>
+  <button class="tab-btn" data-tab="notes" role="tab" aria-selected="false">নোট</button>
+  <button class="tab-btn" data-tab="tracker" role="tab" aria-selected="false">ট্র্যাকার ও ফোকাস</button>
+  <button class="tab-btn" data-tab="flashcards" role="tab" aria-selected="false">কুইজ ও ফ্ল্যাশকার্ড</button>
+  <button class="tab-btn" data-tab="countdown" role="tab" aria-selected="false">পরীক্ষার তারিখ</button>
+  <button class="tab-btn" data-tab="syllabus" role="tab" aria-selected="false">সিলেবাস</button>
+  <button class="tab-btn" data-tab="settings" role="tab" aria-selected="false">সেটিংস</button>
+</nav>
+
+<main>
+
+  <!-- ===== ROUTINE ===== -->
+  <section class="panel active" id="panel-routine">
+    <div style="height: 12px;"></div>
+    
+    <div class="quote-ticker glass" id="quoteTicker">
+      <span class="ticker-dot"></span>
+      <span class="ticker-text" id="tickerText">লক্ষ্যে পৌঁছানোর আগে থামা যাবে না।</span>
+    </div>
+
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 10px;">
+      <h2 class="section-title" style="margin: 0;">পড়ার রুটিন</h2>
+      <div class="routine-top-actions">
+        <button class="pill" id="todayRoutineBtn">আজ</button>
+        <button class="pill" id="monthlyRoutineBtn">মাসের সব রুটিন</button>
+        <select id="monthDropdown" class="pill" aria-label="মাস নির্বাচন"></select>
+      </div>
+    </div>
+    
+    <div class="date-slider-row">
+      <button class="date-nav-btn" id="datePrevBtn" title="আগের দিন">‹</button>
+      <div class="date-slider" id="dateSlider"></div>
+      <button class="date-nav-btn" id="dateNextBtn" title="পরের দিন">›</button>
+    </div>
+
+    <div class="routine-card glass" id="routineCardWrap"></div>
+    <div class="routine-actions">
+      <button class="pill solid" id="inlineAddRowBtn">নতুন সময় যোগ কর</button>
+      <button class="pill danger" id="resetRoutineBtn">আজকের জন্য ডিফল্ট রুটিন যোগ করো</button>
+    </div>
+    <p class="save-note" id="routineSaveNote">তোমার পরিবর্তন নিজে থেকেই সংরক্ষণ হয়ে যাবে — আগের সব তারিখের রুটিনও ইতিহাস হিসেবে থেকে যাবে।</p>
+    <div id="monthlyRoutineView" class="monthly-routines" hidden></div>
+  </section>
+
+  <!-- ===== NOTES ===== -->
+  <section class="panel" id="panel-notes">
+    <div class="panel-header-row">
+      <h2 class="section-title" style="margin:0;">নোট</h2>
+      <button class="pill solid toggle-form-btn" id="toggleNoteFormBtn"><span class="btn-icon">+</span> নতুন নোট লিখুন</button>
+    </div>
+    <div class="collapsible-form" id="noteFormWrap" style="display:none;">
+      <div class="entry-form">
+        <input type="text" id="noteTitle" class="fancy-input-title" placeholder="নোটের শিরোনাম...">
+        <div class="note-meta-row">
+          <span class="note-meta-label">ক্যাটাগরি:</span>
+          <select id="noteTag">
+            <option value="সাধারণ">সাধারণ</option>
+            <option value="বাংলা">বাংলা</option>
+            <option value="ইংরেজি">ইংরেজি</option>
+            <option value="গণিত">গণিত</option>
+            <option value="সাধারণ জ্ঞান">সাধারণ জ্ঞান</option>
+            <option value="জরুরি">জরুরি</option>
+          </select>
+        </div>
+        <textarea id="noteBody" class="fancy-textarea" placeholder="এখানে নোটের বিস্তারিত লিখুন..."></textarea>
+        <div class="quote-actions" style="justify-content:flex-end; margin-top:14px;">
+          <button class="pill solid" id="addNoteBtn">নোট সংরক্ষণ করুন</button>
+        </div>
+      </div>
+    </div>
+    <div class="note-toolbar">
+      <input type="search" id="noteSearch" placeholder="নোট খুঁজুন...">
+      <select id="noteFilterTag" class="pill">
+        <option value="all">সব ট্যাগ</option>
+        <option value="সাধারণ">সাধারণ</option>
+        <option value="বাংলা">বাংলা</option>
+        <option value="ইংরেজি">ইংরেজি</option>
+        <option value="গণিত">গণিত</option>
+        <option value="সাধারণ জ্ঞান">সাধারণ জ্ঞান</option>
+        <option value="জরুরি">জরুরি</option>
+      </select>
+    </div>
+    <div class="notes-grid" id="notesGrid"></div>
+  </section>
+
+  <!-- ===== TRACKER & FOCUS COMBINED ===== -->
+  <section class="panel" id="panel-tracker">
+    <h2 class="section-title">পড়ার সেশন ট্র্যাকার ও ফোকাস মোড</h2>
+
+    <div class="tracker-top">
+      <div class="session-card glass">
+        <div class="session-row">
+          <select id="sessionSubject"></select>
+          <input type="text" id="sessionCustomSubject" placeholder="বা নতুন বিষয় লিখো" style="display:none;">
+        </div>
+        <!-- Time Duration Selection Chips directly below subject selection -->
+        <div class="timer-duration-selector" id="timerDurationSelector" style="margin-top:10px; display:flex; gap:6px; flex-wrap:wrap; justify-content:center;">
+          <button class="chip timer-dur-chip active" data-duration="0">মুক্ত (স্টপওয়াচ)</button>
+          <button class="chip timer-dur-chip" data-duration="15">১৫ মি</button>
+          <button class="chip timer-dur-chip" data-duration="25">২৫ মি</button>
+          <button class="chip timer-dur-chip" data-duration="45">৪৫ মি</button>
+          <button class="chip timer-dur-chip" data-duration="60">৬০ মি</button>
+          <button class="chip timer-dur-chip" data-duration="5">৫ মি বিরতি</button>
+        </div>
+        <div class="clock-orb" id="clockOrb" style="margin-top:16px;">
+          <div class="timer-display" id="timerDisplay">00:00:00</div>
+        </div>
+        <div class="timer-sub" id="timerSub">বিষয় ও সময় নির্বাচন করে পড়া শুরু করো</div>
+        <div class="session-btn-row">
+          <button class="pill solid" id="startBtn">পড়তে বসলাম</button>
+          <button class="pill danger" id="stopBtn" style="display:none;">উঠে গেলাম</button>
+        </div>
+        <div class="sessions-list" id="todaySessions"></div>
+      </div>
+
+      <div class="target-card glass">
+        <div class="target-row">
+          <span>আজকের টার্গেট</span>
+          <input type="number" id="targetHours" min="0" max="16" step="0.5">
+          <span>ঘণ্টা</span>
+        </div>
+        <div>
+          <div class="progress-label"><span id="progressLabelLeft">০ মিনিট পড়া হয়েছে</span><span id="progressLabelRight">০%</span></div>
+          <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+        </div>
+        <div class="verdict" id="verdictBox">আজ এখনও পড়া শুরু হয়নি — শুরু করো!</div>
+        <div class="streak-line" id="streakLine"></div>
+      </div>
+    </div>
+
+    <!-- 24-Hour Activity Tracker Card -->
+    <div class="glass" style="padding:20px; margin-bottom:18px;">
+      <h2 class="section-title" style="font-size:17px; margin-bottom:14px;">২৪ ঘণ্টার পড়া ও বিরতি ট্র্যাকার</h2>
+      <div class="activity-24h-grid">
+        <div class="activity-box">
+          <span class="activity-label">আজকের পড়া</span>
+          <strong class="activity-value" id="actStudyVal">০ ঘণ্টা ০ মিনিট</strong>
+        </div>
+        <div class="activity-box">
+          <span class="activity-label">আজকের মোট বিরতি</span>
+          <strong class="activity-value" id="actBreakVal" style="color:var(--gold);">০ মিনিট</strong>
+        </div>
+        <div class="activity-box">
+          <span class="activity-label">২৪ ঘণ্টায় পড়া ও বিরতি</span>
+          <strong class="activity-value" id="actRatioVal" style="color:var(--accent2);">০% (০ ঘণ্টা/২৪ ঘণ্টা)</strong>
+        </div>
+      </div>
+    </div>
+
+    <div class="glass" style="padding:20px; margin-bottom:18px;">
+      <h2 class="section-title" style="font-size:17px;">আজকের বিষয়ভিত্তিক সময়</h2>
+      <div class="subject-bars" id="subjectBars"></div>
+    </div>
+
+    <div class="glass" style="padding:20px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:6px;">
+        <h2 class="section-title" style="font-size:17px; margin-bottom:0;">পর্যালোচনা</h2>
+        <span class="category-progress-text" id="reviewRangeLabel"></span>
+      </div>
+      <div class="quote-source-switch" id="reviewPeriodSwitch" style="margin:12px 0;">
+        <span class="chip active" data-period="week">সাপ্তাহিক</span>
+        <span class="chip" data-period="month">মাসিক</span>
+        <span class="chip" data-period="year">বাৎসরিক</span>
+        <span class="chip" data-period="custom">কাস্টম</span>
+      </div>
+      <div class="review-custom-range" id="reviewCustomRange" style="display:none;">
+        <input type="date" id="reviewCustomStart">
+        <span>থেকে</span>
+        <input type="date" id="reviewCustomEnd">
+        <button class="pill solid" id="reviewCustomApplyBtn">প্রয়োগ করো</button>
+      </div>
+      <div class="review-chart-3d">
+        <div class="bars-row" id="weekChart"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== EXAM COUNTDOWN ===== -->
+  <section class="panel" id="panel-countdown">
+    <div class="panel-header-row">
+      <h2 class="section-title" style="margin:0;">পরীক্ষার তারিখ ও লাইভ কাউন্টডাউন</h2>
+      <button class="pill solid toggle-form-btn" id="toggleExamFormBtn"><span class="btn-icon">+</span> নতুন পরীক্ষার টার্গেট যোগ করো</button>
+    </div>
+
+    <div class="collapsible-form" id="examFormWrap" style="display:none;">
+      <div class="entry-form">
+        <div class="entry-form-grid">
+          <input type="text" id="examNameInput" placeholder="পরীক্ষার নাম (যেমন: ৪৭তম বিসিএস)">
+          <input type="text" id="examCatInput" placeholder="ক্যাটাগরি (যেমন: বিসিএস, ব্যাংক, প্রাথমিক)">
+        </div>
+        <div style="margin-top:8px; margin-bottom:12px;">
+          <label style="font-size:13px; color:var(--text-soft); display:block; margin-bottom:4px;">পরীক্ষার তারিখ ও সময়:</label>
+          <input type="datetime-local" id="examDateInput" style="width:100%; padding:10px; border-radius:10px; border:1px solid var(--border); background:var(--surface); color:var(--text);">
+        </div>
+        <button class="pill solid" id="addExamTargetBtn">টাইমার সেভ করো</button>
+      </div>
+    </div>
+
+    <div class="countdown-grid" id="countdownGrid"></div>
+  </section>
+
+  <!-- ===== FLASHCARDS & QUIZ COMBINED ===== -->
+  <section class="panel" id="panel-flashcards">
+    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:16px;">
+      <h2 class="section-title" style="margin:0;">স্মার্ট কুইজ ও ফ্ল্যাশকার্ড</h2>
+      <div class="quote-source-switch" id="quizFlashSwitch">
+        <span class="chip active" data-view="flashcards">ফ্ল্যাশকার্ড</span>
+        <span class="chip" data-view="quiz">মক কুইজ</span>
+        <span class="chip" data-view="mistakes">দুর্বলতার খাতা</span>
+      </div>
+    </div>
+
+    <!-- Subview 1: Flashcards -->
+    <div id="subview-flashcards" class="combined-subview">
+      <div class="panel-header-row">
+        <span></span>
+        <button class="pill solid toggle-form-btn" id="toggleFlashFormBtn"><span class="btn-icon">+</span> নতুন ফ্ল্যাশকার্ড তৈরি করুন</button>
+      </div>
+      <div class="collapsible-form" id="flashFormWrap" style="display:none;">
+        <div class="entry-form">
+          <div class="flash-form-row">
+            <textarea id="flashFront" placeholder="সামনের পাশ — প্রশ্ন লেখো"></textarea>
+          </div>
+          <div class="flash-form-row">
+            <textarea id="flashBack" placeholder="পিছনের পাশ — উত্তর লেখো"></textarea>
+          </div>
+          <div class="flash-form-row">
+            <select id="flashCategory"><option value="">কোনো ক্যাটাগরি নেই</option></select>
+            <button class="pill solid" id="addFlashBtn">কার্ড যোগ করো</button>
+          </div>
+        </div>
+      </div>
+      <div class="flashcards-toolbar">
+        <select id="flashFilterCategory" class="pill"><option value="all">সব ক্যাটাগরি</option></select>
+        <button class="pill" id="startExamBtn">এক্সাম মোড শুরু করুন</button>
+      </div>
+      <div class="flash-grid" id="flashGrid"></div>
+    </div>
+
+    <!-- Subview 2: Mock Quiz -->
+    <div id="subview-quiz" class="combined-subview" style="display:none;">
+      <div class="glass quiz-box" id="quizBox"></div>
+    </div>
+
+    <!-- Subview 3: Mistake Bank -->
+    <div id="subview-mistakes" class="combined-subview" style="display:none;">
+      <div class="glass" style="padding:22px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:12px;">
+          <h2 class="section-title" style="font-size:17px; margin:0;">দুর্বলতার খাতা (Mistake Bank)</h2>
+          <button class="pill danger" id="clearMistakesBtn" style="font-size:12.5px; padding:6px 14px;">খাতা খালি করুন</button>
+        </div>
+        <p style="font-size:13px; color:var(--text-soft); margin-bottom:14px;">কুইজে যে যে উত্তরগুলো ভুল হবে, সেগুলো এখানে স্বয়ংক্রিয়ভাবে রিভিশনের জন্য সংরক্ষিত থাকবে।</p>
+        <div class="mistake-bank-list" id="mistakeBankList"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== SYLLABUS ===== -->
+  <section class="panel" id="panel-syllabus">
+    <h2 class="section-title">সিলেবাস</h2>
+    <div class="syllabus-overall glass">
+      <div class="overall-label"><span id="syllabusOverallLabel">০ / ০ টপিক শেষ হয়েছে</span><span id="syllabusOverallPct">০%</span></div>
+      <div class="progress-track"><div class="progress-fill" id="syllabusOverallFill" style="width:0%"></div></div>
+    </div>
+    <div class="entry-form">
+      <div class="entry-form-grid">
+        <input type="text" id="newCategoryInput" placeholder="ক্যাটাগরি/বিষয়ের নাম লিখুন">
+        <input type="text" id="newTopicInput" placeholder="প্রথম টপিক (ঐচ্ছিক)">
+      </div>
+      <button class="pill solid" id="addCategoryBtn">ক্যাটাগরি ও টপিক যোগ করুন</button>
+    </div>
+    <div id="categoryList"></div>
+  </section>
+
+  <!-- ===== SETTINGS ===== -->
+  <section class="panel" id="panel-settings">
+    <h2 class="section-title">সেটিংস</h2>
+
+    <div class="glass" style="padding:20px; margin-bottom:18px;">
+      <h2 class="section-title" style="font-size:16px;">থিম ও ডিসপ্লে</h2>
+      <div class="settings-row">
+        <span>থিম</span>
+        <div class="settings-btn-group">
+          <button class="pill" id="themeDarkBtn">ডার্ক</button>
+          <button class="pill" id="themeLightBtn">লাইট</button>
+        </div>
+      </div>
+      <div class="settings-row">
+        <span>ফুলস্ক্রিন</span>
+        <button class="pill" id="fullscreenToggleSettings">⛶ चालू/বন্ধ করো</button>
+      </div>
+    </div>
+
+    <div class="glass" style="padding:20px; margin-bottom:18px;">
+      <h2 class="section-title" style="font-size:16px;">পড়ার লক্ষ্য</h2>
+      <div class="settings-row">
+        <span>প্রতিদিনের টার্গেট (ঘণ্টা)</span>
+        <input type="number" id="targetHoursSettings" min="0" max="16" step="0.5" style="width:80px; padding:8px 10px; border-radius:10px; border:1px solid var(--border); background:var(--surface); color:var(--text);">
+      </div>
+    </div>
+
+    <div class="glass" style="padding:20px; margin-bottom:18px;">
+      <h2 class="section-title" style="font-size:16px;">অনুপ্রেরণামূলক উক্তি</h2>
+      <div class="settings-row">
+        <span>রুটিন পেজে অটো-স্লাইড শো</span>
+        <button class="pill solid" id="carouselToggleBtn">চালু আছে</button>
+      </div>
+      <div class="settings-row">
+        <span>স্লাইড ইন্টারভাল</span>
+        <select id="carouselIntervalSelect">
+          <option value="4">৪ সেকেন্ড</option>
+          <option value="6">৬ সেকেন্ড</option>
+          <option value="8">৮ সেকেন্ড</option>
+          <option value="10">১০ সেকেন্ড</option>
+          <option value="15">১৫ সেকেন্ড</option>
+        </select>
+      </div>
+      <div class="wallpaper-stage" style="margin-top:16px;">
+        <div class="wallpaper-card" id="stampCard">
+          <span class="wp-tag" id="wpTag">নিজের সংগ্রহ</span>
+          <p class="wp-quote" id="quoteText">লক্ষ্যে পৌঁছানোর আগে থামা যাবে না।</p>
+          <span class="wp-author" id="quoteAuthor"></span>
+        </div>
+      </div>
+      <div class="quote-actions">
+        <button class="pill" id="shuffleBtn">↻ নতুন উক্তি</button>
+        <button class="pill solid" id="downloadBtn">⬇ ডেস্কটপ ওয়ালপেপার ডাউনলোড করো</button>
+      </div>
+      <div class="quote-source-switch" id="sourceSwitch" style="margin-top:16px;">
+        <span class="chip active" data-src="all">সব</span>
+        <span class="chip" data-src="famous">বিখ্যাত ব্যক্তিদের উক্তি</span>
+        <span class="chip" data-src="own">নিজের সংগ্রহ</span>
+      </div>
+      <div class="custom-quote-form" style="margin-top:16px; padding:0;">
+        <label for="customQuoteInput">নিজের পছন্দের উক্তি যোগ করুন</label>
+        <textarea id="customQuoteInput" placeholder="যেমনঃ আজকের পরিশ্রমই আগামীর ফলাফল।"></textarea>
+        <div class="quote-actions" style="justify-content:flex-start; margin-top:4px;">
+          <button class="pill solid" id="addQuoteBtn">উক্তি যোগ করুন</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="glass data-management-card" style="padding:22px; border-color:var(--border);">
+      <h2 class="section-title" style="font-size:17px; margin-bottom:16px;">ডেটা ব্যবস্থাপনা ও ব্যাকআপ</h2>
+      
+      <!-- Auto Sync Sub-Section -->
+      <div class="auto-sync-box glass-sub">
+        <div class="auto-sync-header">
+          <div class="auto-sync-title">
+            <div>
+              <strong style="font-size:15px; display:block; color:var(--text);">মাদার ফোল্ডারে অটো ব্যাকআপ</strong>
+              <span style="font-size:12.5px; color:var(--text-soft);">ডেটা পরিবর্তন হলে প্রজেক্টের রুট ফোল্ডারে থাকা ফাইলে স্বয়ংক্রিয়ভাবে সংরক্ষিত হবে</span>
+            </div>
+          </div>
+          <div class="auto-sync-status-badge" id="autoSyncStatusBadge">
+            <span class="status-dot" id="autoSyncDot"></span>
+            <span id="autoSyncStatusText">সংযুক্ত নেই</span>
+          </div>
+        </div>
+        <div class="auto-sync-actions" style="margin-top:14px;">
+          <button class="pill theme-action-btn primary-glow" id="connectAutoSyncBtn">
+            মাদার ফোল্ডারে অটো ব্যাকআপ ফাইল সংযুক্ত করুন
+          </button>
+        </div>
+      </div>
+
+      <!-- Manual Import / Export Section -->
+      <div class="settings-row" style="margin-top:18px; padding-top:16px; border-top:1px solid var(--border);">
+        <div>
+          <strong style="font-size:15px; display:block; color:var(--text); margin-bottom:2px;">ম্যানুয়াল এক্সপোর্ট ও ইমপোর্ট</strong>
+          <span style="font-size:12.5px; color:var(--text-soft);">বর্তমান ডেটা অন্য ডিভাইসে নেওয়ার জন্য ব্যাকআপ ডাউনলোড বা রিস্টোর করুন</span>
+        </div>
+        <div class="settings-btn-group data-action-buttons">
+          <button class="pill theme-action-btn export-pill" id="exportDataBtn">
+            এক্সপোর্ট (JSON)
+          </button>
+          <label class="pill theme-action-btn import-pill" for="importDataInput">
+            ইমপোর্ট (JSON)
+          </label>
+          <input type="file" id="importDataInput" accept="application/json" style="display:none;">
+        </div>
+      </div>
+
+      <!-- Reset Data Section -->
+      <div class="settings-row" style="margin-top:14px; padding-top:16px; border-top:1px solid var(--border);">
+        <div>
+          <strong style="font-size:14.5px; display:block; color:var(--accent3);">ডেটা রিসেট</strong>
+          <span style="font-size:12.5px; color:var(--text-soft);">রুটিন, নোট, সিলেবাস, ফ্ল্যাশকার্ড, ট্র্যাকার — সব মুছে ফেলা হবে (থিম অপরিবর্তিত থাকবে)</span>
+        </div>
+        <button class="pill danger" id="resetAllBtn" style="white-space:nowrap;">সব ডেটা মুছুন</button>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- Cancel Session Confirmation Modal -->
+<div class="modal-overlay" id="cancelSessionModal">
+  <div class="glass modal-card" style="max-width:440px; padding:26px; text-align:center; position:relative;">
+    <h3 style="font-family:'Baloo Da 2',sans-serif; font-size:22px; margin:0 0 10px; color:var(--accent3);">সেশন কি মাঝপথে বাতিল করবেন?</h3>
+    <p id="cancelModalBodyText" style="font-size:14px; color:var(--text-soft); line-height:1.6; margin-bottom:20px;">
+      ফোকাস সেশনটি সম্পন্ন হতে এখনও কিছু সময় বাকি আছে। এখনই উঠে গেলে এই সেশনের পড়া দৈনিক টার্গেটে যুক্ত হবে না!
+    </p>
+    <div class="quote-actions" style="justify-content:center; gap:12px;">
+      <button class="pill solid" id="resumeSessionBtn" style="background:linear-gradient(135deg, var(--accent1), var(--accent2));">পড়া চালিয়ে যাও</button>
+      <button class="pill danger" id="confirmCancelSessionBtn">বাতিল করো (যুক্ত হবে না)</button>
+    </div>
+  </div>
+</div>
+
+<div id="examOverlay" style="display:none;"></div>
+
+<canvas id="exportCanvas" width="1920" height="1080" style="display:none;"></canvas>
+
+  <script src="assets/js/script.js"></script>
+  <script src="assets/js/features.js"></script>
+</body>
+</html>
