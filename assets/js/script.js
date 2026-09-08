@@ -531,6 +531,10 @@
       syncQuoteSettings();
     }
 
+    if (tabName === 'tracker') {
+      renderTrackerAll();
+    }
+
     if (window.lucide && typeof window.lucide.createIcons === 'function') {
       window.lucide.createIcons();
     }
@@ -2097,7 +2101,12 @@
     saveData();
   }
   targetHoursInput.addEventListener('change', () => setDailyTarget(targetHoursInput.value));
-  document.getElementById('targetHoursSettings').addEventListener('change', (e) => setDailyTarget(e.target.value));
+  targetHoursInput.addEventListener('input', () => setDailyTarget(targetHoursInput.value));
+  const targetHoursSettingsEl = document.getElementById('targetHoursSettings');
+  if (targetHoursSettingsEl) {
+    targetHoursSettingsEl.addEventListener('change', (e) => setDailyTarget(e.target.value));
+    targetHoursSettingsEl.addEventListener('input', (e) => setDailyTarget(e.target.value));
+  }
 
   function tickTimer() {
     if (window.isCustomCountdownActive || (window.selectedTimerDuration && window.selectedTimerDuration > 0)) return;
@@ -2445,8 +2454,9 @@
     renderSubjectManager();
     tickTimer();
     refreshTimerSub();
-    startBtn.style.display = state.activeSession ? 'none' : 'inline-flex';
-    stopBtn.style.display = state.activeSession ? 'inline-flex' : 'none';
+    const isRunning = !!state.activeSession || !!window.isCustomCountdownActive;
+    startBtn.style.display = isRunning ? 'none' : 'inline-flex';
+    stopBtn.style.display = isRunning ? 'inline-flex' : 'none';
     renderTodaySessions();
     renderProgress();
     renderSubjectBars();
@@ -3460,6 +3470,8 @@
   function syncTimerModeFields() {
     const hasMode = timerMode === 'study' || timerMode === 'break';
     if (studySubjectRow) studySubjectRow.hidden = timerMode !== 'study';
+    const quickSubjectContainer = document.getElementById('quickSubjectContainer');
+    if (quickSubjectContainer) quickSubjectContainer.hidden = timerMode !== 'study';
     if (breakReasonRow) breakReasonRow.hidden = timerMode !== 'break';
     if (durationSelector) durationSelector.hidden = !hasMode;
     const studyOpts = document.getElementById('studyDurationOptions');
@@ -3584,10 +3596,21 @@
     const startBtn = document.getElementById('startBtn');
     const stopBtn = document.getElementById('stopBtn');
     const orb = document.getElementById('clockOrb');
+    const sub = document.getElementById('timerSub');
 
     if (startBtn) startBtn.style.display = 'none';
     if (stopBtn) stopBtn.style.display = 'inline-flex';
     if (orb) orb.classList.add('active');
+
+    if (sub) {
+      if (timerMode === 'break') {
+        const reason = document.getElementById('breakReason')?.value || 'Refreshment';
+        sub.innerHTML = `<span class="timer-dot"></span> Taking a <strong>${escapeHtml(reason.toLowerCase())}</strong> break (${selectedDuration}m)`;
+      } else {
+        const subj = currentSubjectValue() || 'General';
+        sub.innerHTML = `<span class="timer-dot"></span> Focusing on <strong>${escapeHtml(subj)}</strong> (${selectedDuration}m)`;
+      }
+    }
 
     customCountdownInterval = setInterval(() => {
       if (customCountdownSecs > 0) {
@@ -3662,15 +3685,19 @@
 
     update24hActivityUI();
     renderTodaySessions();
+    refreshTimerSub();
   }
 
   document.addEventListener('click', (e) => {
     if (selectedDuration === 0) return;
 
-    if (e.target && e.target.id === 'startBtn') {
+    const startBtnClicked = e.target && (e.target.id === 'startBtn' || (e.target.closest && e.target.closest('#startBtn')));
+    const stopBtnClicked = e.target && (e.target.id === 'stopBtn' || (e.target.closest && e.target.closest('#stopBtn')));
+
+    if (startBtnClicked) {
       e.stopImmediatePropagation();
       startCustomCountdown();
-    } else if (e.target && e.target.id === 'stopBtn') {
+    } else if (stopBtnClicked) {
       e.stopImmediatePropagation();
       if (timerMode === 'break') {
         stopCustomCountdown(false);

@@ -3400,22 +3400,27 @@
   /* ===== Tracker ===== */
   .tracker-top {
     display: grid;
-    grid-template-columns: 1.1fr 0.9fr;
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
     gap: 18px;
     margin-bottom: 22px;
   }
 
-  @media (max-width:720px) {
+  @media (max-width:850px) {
     .tracker-top {
       grid-template-columns: 1fr;
     }
   }
 
   .session-card {
+    min-width: 0;
     padding: 22px;
     display: flex;
     flex-direction: column;
     gap: 12px;
+  }
+
+  .target-card {
+    min-width: 0;
   }
 
   .session-row {
@@ -6783,6 +6788,8 @@
   .quick-subject-container {
     margin: 8px 0 14px;
     width: 100%;
+    min-width: 0;
+    max-width: 100%;
   }
 
   .quick-subject-header {
@@ -6820,6 +6827,8 @@
     gap: 6px;
     overflow-x: auto;
     padding: 2px 2px 6px;
+    min-width: 0;
+    max-width: 100%;
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
   }
