@@ -1,0 +1,9 @@
+# CareerDesk AI Coding Rules
+
+1. Stack: Semantic HTML5, Vanilla CSS3 (Custom Properties & Glassmorphism), Vanilla ES6+ JS. No node frameworks or build tools.
+2. Numerals: English Arabic digits (0-9) across all timers, clocks, stats, and badges.
+3. Subjects: Always use masterSubjectList() and syncAllSubjectSelects(). Renames must cascade across routine, sessions, syllabus, and flashcards.
+4. Mobile UI: Button text hides on mobile (.cat-group-btn span), BUT dropdown menu items (.cat-del-menu-item span) must always remain visible with text and icon.
+5. Storage: Browser localStorage (key: 'jobprep-dashboard-data-v2'). Preserve backward compatibility and never overwrite existing user data.
+6. Icons: Use inline ICON svg object in dynamic JS; use <i data-lucide="..."></i> in static HTML.
+7. Verification: Run 'node --check assets/js/script.js' before committing.

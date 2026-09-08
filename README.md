@@ -110,9 +110,9 @@ CareerDesk/
 │   │   └── style.css       # Unified design system, glassmorphic UI, animations, mobile CSS
 │   ├── js/
 │   │   ├── script.js       # Core application engine, state management, timers, analytics
-│   │   ├── features.js     # Supplementary features & MCQ bank
 │   │   └── lucide.min.js   # Embedded Lucide icons library
-│   └── icons/              # Brand marks, app icons, and vectors
+│   └── icons/              # Curated SVG icons and preview gallery
+├── AGENTS.md               # AI coding assistant architecture & conventions specification
 └── README.md               # Project documentation
 ```
 
