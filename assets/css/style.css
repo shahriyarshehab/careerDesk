@@ -329,9 +329,18 @@
 
   .watch-action:hover {
     color: var(--text);
-    background: var(--surface-hover);
-    border-color: var(--accent2);
+    background: rgba(255, 255, 255, 0.12);
+    border-color: rgba(6, 182, 212, 0.45);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
     transform: translateY(-1px);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.16);
+  }
+
+  html[data-theme="light"] .watch-action:hover {
+    background: rgba(255, 255, 255, 0.75);
+    border-color: rgba(8, 145, 178, 0.4);
+    box-shadow: 0 4px 12px rgba(8, 145, 178, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.9);
   }
 
   .watch-action:focus-visible {
@@ -488,6 +497,18 @@
     border-radius: 18px;
     box-shadow: 0 10px 28px rgba(0, 0, 0, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.08);
     backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    transition: border-color .25s ease, box-shadow .25s ease;
+  }
+
+  nav.tabs:hover {
+    border-color: rgba(255, 255, 255, 0.18);
+    box-shadow: 0 14px 34px rgba(0, 0, 0, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  }
+
+  html[data-theme="light"] nav.tabs:hover {
+    border-color: rgba(79, 70, 229, 0.22);
+    box-shadow: 0 14px 34px rgba(79, 70, 229, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.95);
   }
 
   .tab-btn {
@@ -506,9 +527,12 @@
     padding: 10px 14px;
     border-radius: 12px;
     cursor: pointer;
-    transition: color .2s ease, background .2s ease, box-shadow .2s ease, transform .2s ease, border-color .2s ease;
+    transition: color .2s ease, background .2s ease, box-shadow .2s ease, transform .2s ease, border-color .2s ease, backdrop-filter .2s ease;
     white-space: nowrap;
     text-align: center;
+    position: relative;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
   }
 
   .tab-btn i[data-lucide] svg,
@@ -517,14 +541,41 @@
     width: 16px;
     height: 16px;
     flex-shrink: 0;
+    transition: transform .2s ease, color .2s ease, stroke .2s ease;
   }
 
-  .tab-btn:hover {
+  .tab-btn:hover:not(.active) {
     color: var(--text);
-    border-color: var(--accent1);
-    background: var(--surface-hover);
+    border-color: rgba(255, 255, 255, 0.22);
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.16), inset 0 1px 0 rgba(255, 255, 255, 0.18), 0 0 14px rgba(99, 102, 241, 0.14);
+  }
+
+  .tab-btn:hover:not(.active) i[data-lucide] svg,
+  .tab-btn:hover:not(.active) svg,
+  .tab-btn:hover:not(.active) .lucide {
+    transform: scale(1.08);
+    color: var(--accent2);
+    stroke: var(--accent2);
+  }
+
+  html[data-theme="light"] .tab-btn:hover:not(.active) {
+    color: var(--accent1);
+    border-color: rgba(79, 70, 229, 0.28);
+    background: rgba(255, 255, 255, 0.65);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    box-shadow: 0 6px 18px rgba(79, 70, 229, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.95);
+  }
+
+  html[data-theme="light"] .tab-btn:hover:not(.active) i[data-lucide] svg,
+  html[data-theme="light"] .tab-btn:hover:not(.active) svg,
+  html[data-theme="light"] .tab-btn:hover:not(.active) .lucide {
+    color: var(--accent1);
+    stroke: var(--accent1);
   }
 
   .tab-btn.active {
@@ -532,6 +583,15 @@
     color: #fff;
     border-color: transparent;
     box-shadow: 0 7px 18px rgba(99, 102, 241, 0.32);
+  }
+
+  .tab-btn.active:hover {
+    background: linear-gradient(135deg, var(--accent1), var(--accent2));
+    color: #fff;
+    border-color: transparent;
+    box-shadow: 0 8px 24px rgba(99, 102, 241, 0.45);
+    filter: brightness(1.06);
+    transform: translateY(-2px);
   }
 
   .tab-btn.active svg,
@@ -907,6 +967,17 @@
       stroke: var(--text-soft);
       opacity: 0.78;
       transition: transform 0.26s cubic-bezier(0.2, 0, 0, 1), stroke 0.26s ease, color 0.26s ease, filter 0.26s ease, opacity 0.26s ease;
+    }
+
+    .tab-btn:hover:not(.active) {
+      background: rgba(255, 255, 255, 0.09);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-radius: 14px;
+    }
+
+    html[data-theme="light"] .tab-btn:hover:not(.active) {
+      background: rgba(79, 70, 229, 0.08);
     }
 
     .tab-btn:hover i[data-lucide] svg,

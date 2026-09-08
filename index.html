@@ -169,10 +169,10 @@
       <div class="tracker-top">
         <div class="session-card glass">
           <div class="timer-mode-selector" id="timerModeSelector" aria-label="Choose timer mode">
-            <button class="chip timer-mode-chip" data-mode="study" type="button">Study</button>
+            <button class="chip timer-mode-chip active" data-mode="study" type="button">Study</button>
             <button class="chip timer-mode-chip" data-mode="break" type="button">Break</button>
           </div>
-          <div class="session-row" id="studySubjectRow" hidden>
+          <div class="session-row" id="studySubjectRow">
             <select id="sessionSubject"></select>
             <input type="text" id="sessionCustomSubject" placeholder="Or enter new subject" style="display:none;">
           </div>
@@ -185,8 +185,8 @@
               <option value="Other">Other</option>
             </select>
           </div>
-          <div class="timer-duration-selector" id="timerDurationSelector" aria-label="Select timer duration" hidden>
-            <div class="timer-duration-group" id="studyDurationOptions" hidden>
+          <div class="timer-duration-selector" id="timerDurationSelector" aria-label="Select timer duration">
+            <div class="timer-duration-group" id="studyDurationOptions">
               <button class="chip timer-dur-chip active" data-duration="0" type="button">Stopwatch</button>
               <button class="chip timer-dur-chip" data-duration="15" type="button">15m</button>
               <button class="chip timer-dur-chip" data-duration="25" type="button">25m (Pomodoro)</button>

@@ -1870,6 +1870,7 @@
     renderSubjectSelect();
     renderSubjectManager();
     tickTimer();
+    refreshTimerSub();
     startBtn.style.display = state.activeSession ? 'none' : 'inline-flex';
     stopBtn.style.display = state.activeSession ? 'inline-flex' : 'none';
     renderTodaySessions();
@@ -2701,7 +2702,7 @@
   // UNIFIED TIMER & 24H BREAK TRACKER
   // ==========================================
   let selectedDuration = 0;
-  let timerMode = null;
+  let timerMode = 'study';
   let customCountdownInterval = null;
   let customCountdownSecs = 0;
   window.selectedTimerDuration = 0;
@@ -2792,6 +2793,10 @@
     if (studySubjectRow) studySubjectRow.hidden = timerMode !== 'study';
     if (breakReasonRow) breakReasonRow.hidden = timerMode !== 'break';
     if (durationSelector) durationSelector.hidden = !hasMode;
+    const studyOpts = document.getElementById('studyDurationOptions');
+    const breakOpts = document.getElementById('breakDurationOptions');
+    if (studyOpts) studyOpts.hidden = timerMode !== 'study';
+    if (breakOpts) breakOpts.hidden = timerMode !== 'break';
     if (startBtn) {
       startBtn.textContent = timerMode === 'break' ? 'Start Break' : 'Start Studying';
       startBtn.disabled = !hasMode;
@@ -2800,11 +2805,16 @@
     if (!hasMode) {
       const sub = document.getElementById('timerSub');
       if (sub) sub.textContent = 'Choose Study or Break to begin';
+    } else {
+      refreshTimerSub();
     }
   }
 
   syncTimerModeFields();
   if (timerModeSelector) {
+    timerModeSelector.querySelectorAll('.timer-mode-chip').forEach(chip => {
+      chip.classList.toggle('active', chip.dataset.mode === timerMode);
+    });
     timerModeSelector.addEventListener('click', (e) => {
       const modeChip = e.target.closest('.timer-mode-chip');
       if (!modeChip || state.activeSession || window.isCustomCountdownActive) return;
