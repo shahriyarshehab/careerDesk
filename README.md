@@ -1,114 +1,155 @@
-# 🎯 CareerDesk (Career Preparation Workspace)
+# 🎯 CareerDesk — Career Preparation Workspace
 
 ![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white)
 ![CSS3](https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white)
 ![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)
 ![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)
+![Status](https://img.shields.io/badge/Status-Active%20Production-06B6D4?style=for-the-badge)
 
-**CareerDesk** is a sleek, ultra-modern, all-in-one study management and exam preparation web application designed for competitive exam candidates (Civil Service, Banking, Teaching, and standardized professional tests).
+**CareerDesk** is an ultra-modern, all-in-one productivity suite and exam preparation workspace engineered for competitive exam aspirants (Civil Service / BCS, Banking, Teaching, PSC, and professional entrance exams). 
 
-It features an interactive study routine planner, subject-wise focus stopwatch & Pomodoro timers, 24-hour activity ratio tracking, syllabus progress checklist, flashcards with interactive exam mode, mistake bank, live exam target countdowns, inspirational quote slideshows, and 1080p desktop wallpaper generation.
+Built with a glassmorphic Cyberpunk/Aurora aesthetic, CareerDesk integrates daily routine scheduling, deep-work Pomodoro tracking, a centralized subject manager, syllabus checklist, timed MCQ exam simulation, interactive flashcards, mistake diagnosis, exam countdowns, and HD desktop wallpaper generation into a lightning-fast, zero-dependency client application.
 
 ---
 
-## 🌟 Key Features
+## 📸 Overview & Highlights
 
-### 📅 1. Interactive Study Routine
-* **Date-Based Routine:** Seamlessly create and review study routines for any date with an intuitive calendar slider and month picker.
-* **Inline Editing:** Edit start/end times, subjects, and specific study tasks directly within the table.
-* **Monthly Overview:** View, edit, or delete full monthly study history.
-* **Default Template:** Load a balanced daily routine with a single click.
+- **⚡ Zero Build Dependencies:** Pure native Web stack (HTML5, CSS3, modern ES6+ JavaScript). Runs instantly in any browser.
+- **📱 Fully Responsive & Mobile-First:** Floating pill navigation bar, touch-friendly segmented controls, and compact responsive layouts.
+- **🎨 Deep Aurora Glassmorphism:** Tailored dark and light themes with smooth fluid transitions, glowing dials, and frosted glass panels.
+- **🔒 100% Client-Side Privacy:** Your study data stays entirely in your browser using persistent local storage and local backup sync.
 
-### 📝 2. Categorized Smart Notes
-* **Subject Tags:** Organize notes by General, English, Mathematics, Bengali, General Knowledge, or Important/High-Yield tags.
-* **Pin to Top:** Keep critical formulas and summaries pinned to the top of your board.
-* **Live Search & Filter:** Instantly filter notes by keyword or category tag.
-* **Inline Quick Edit:** Edit and update notes on the fly.
+---
 
-### ⏱️ 3. Study Session Tracker & Focus Mode
+## 🌟 Core Features & Modules
+
+### 1. 📅 Interactive Study Routine
+* **Date-Based Scheduling:** Seamless calendar slider and month selector to plan, review, and track study routines for any day.
+* **Inline Table Editing:** Edit start/end times, subjects (with autocomplete datalist), and specific topics directly inside the routine table.
+* **Monthly Overview Modal:** Toggle between single-day focus and full monthly aggregated view with date navigation auto-hiding.
+* **One-Click Routine Reset:** Instant default curriculum template loader for balanced daily preparation.
+
+### 2. ⏱️ Focus Mode & Study Tracker
 * **Glowing Clock Orb:** Minimalist digital stopwatch and countdown timer with animated pulse indicator.
-* **Quick Interval Presets:** Switch between open stopwatch, 15m, 25m Pomodoro, 45m deep work, 60m focus, and 5m refreshment break.
-* **24-Hour Activity Breakdown:** Real-time breakdown of today's study hours, total break time, and activity percentage over 24 hours.
-* **Daily Goal & Streak:** Set custom daily study targets (in hours) with automatic streak calculation.
-* **Analytics & 3D Review Charts:** Visualize study distribution by subject and view weekly, monthly, or yearly progress.
+* **Quick Interval Presets:** Switch instantly between Stopwatch, 15m, 25m Pomodoro, 45m Deep Work, 60m Focus, or 5m Refreshment Break.
+* **Quick Subject Chips Bar:** One-tap horizontal chip selector for fast subject switching with glowing gradient highlights.
+* **Header Mini-Timer:** Floating mini-timer in the top header widget that displays active subject and elapsed time while browsing other tabs.
+* **24-Hour Activity Analytics:** Real-time breakdown of today's study hours, total break duration, and active study percentage.
+* **Subject Breakdown Progress:** Visual distribution bar and today's subject progress cards.
 
-### ⏳ 4. Exam Target Countdowns
-* **Live Timers:** Add upcoming exam dates and track remaining days, hours, minutes, and seconds in real-time.
-* **Category Badges:** Label countdown targets by exam authority or category.
+### 3. 🗂️ Centralized Subject Manager (Settings)
+* **Single Master Subject Source:** Routine, Tracker, Syllabus, and Flashcards now share a synchronized subject repository.
+* **Live Statistics:** Subject cards display logged study time, session counts, routine block counts, syllabus progress, and card counts.
+* **Global Rename:** Renaming a subject in Settings propagates the update across all routine slots, historical sessions, active timers, syllabus categories, and flashcards with full data integrity.
+* **Delete, Hide & Restore:** Safely hide subjects without deleting past study records, with an Inactive/Hidden section for 1-tap restore.
+* **Curriculum Defaults Reset:** Restore all standard subjects (Bangla, English, Math, Science, ICT, Bangladesh & International Affairs) in one click.
+* **Global Datalist Autocomplete:** Typing or clicking subject fields in Routine or Syllabus automatically suggests active subjects.
 
-### 🃏 5. Flashcards, BCS & Govt Job MCQ Engine & Mistake Bank
-* **3D Flip Cards:** Create concept flashcards with 3D flip animation for quick revision and spaced repetition.
-* **BCS & Govt Job MCQ Bank:** Over 55+ authentic BCS Preliminary, PSC, and combined bank exam questions across Bangla Literature, Bangla Grammar, English, Mathematics, Bangladesh Affairs, International Affairs, General Science, and Computer & ICT.
-* **Auto-Shuffled Options:** Options are shuffled dynamically using Fisher-Yates while maintaining answer accuracy to prevent muscle memory bias.
-* **Timed 20-Question Exam Mode:** Real-time 15-minute exam countdown timer with BCS standard negative marking (+1.00 for correct, -0.50 for wrong) and detailed score analytics.
-* **Instant Explanations & Shortcuts:** Revealing step-by-step solutions and shortcut techniques immediately after each question.
-* **AI Question Curator & Importer:** Built-in AI question harvester (+8 high-yield questions) with JSON import/export capability.
-* **Mistake Bank (Weak Areas):** Missed questions automatically synchronize into the Mistake Bank with category tags, comparison of your answer vs. correct answer, and full reasoning.
+### 4. 📚 Syllabus Progress Checklist
+* **Hierarchical Organization:** Group learning objectives into subject categories and granular topic cards.
+* **Interactive Completion Progress:** Live progress percentages and animated progress meters for each category and overall syllabus.
+* **Refined Category Action Group:** Segmented button controls for Add Topic, Edit Category, and a 2-option Delete Menu (*Delete Subject* or *Interactive Topic Delete Mode*).
+* **Double-Click Inline Editing:** Double-click any category title or topic name to rename it on the fly.
 
-### 📚 6. Syllabus Progress Tracker
-* **Categories & Topics:** Create subject categories and add granular topics.
-* **Progress Percentage:** Automatically calculates completion percentage and displays dynamic progress bars.
+### 5. 📝 Categorized Smart Notes
+* **Tag-Based Filtering:** Organize notes by tags (Math, English, General, Bangla, Important, High-Yield formulas).
+* **Pin Critical Notes:** Pin essential formulas, mnemonic acronyms, and high-yield notes to the top of the board.
+* **Live Search & Filter:** Instant search query filtering across note titles and content.
+* **Inline Quick Edit:** Clean inline editing interface without modal clutter.
 
-### 🖼️ 7. Quotes & 1080p Desktop Wallpaper Generator
-* **Inspirational Carousel:** Displays curated quotes from famous thinkers alongside custom user-added quotes.
-* **HD Canvas Wallpaper Export:** Generate and download custom 1920x1080 desktop wallpapers in PNG format with a single click.
+### 6. 🧠 BCS & Competitive MCQ Engine & Mistake Bank
+* **Authentic MCQ Bank:** Over 55+ authentic questions curated from BCS Preliminary, PSC, and combined bank recruitment exams.
+* **Dynamic Option Shuffling:** Uses the Fisher-Yates shuffle to randomize options dynamically while keeping answer keys accurate, preventing positional muscle-memory bias.
+* **Timed 20-Question Exam Simulation:** 15-minute countdown timer with authentic BCS marking scheme (+1.00 for correct, -0.50 for incorrect penalty) and detailed score summary.
+* **Explanations & Shortcuts:** Instant explanations and mathematical shortcut techniques revealed for every question.
+* **Automated Mistake Bank:** Incorrectly answered questions are automatically logged into the Mistake Bank with category tags, comparison of your answer vs. correct answer, and reasoning for targeted revision.
+* **AI Harvester & JSON Import:** Harvest high-yield questions or import custom quiz banks.
 
-### 🎨 8. Ultra-Modern UI & Customization
-* **Dark & Light Modes:** Tailored color palettes with smooth transitions and persistent theme selection.
-* **Live Clock & Fullscreen:** Header capsule with live time indicator and fullscreen toggle.
-* **Local Data Backup:** Export/import all data via JSON files, plus experimental native File System Access auto-sync.
+### 7. 🃏 3D Spaced-Repetition Flashcards
+* **Smooth 3D Flip Animation:** Click to reveal answer and detailed explanation.
+* **Category Filtering:** Filter cards by master subject categories.
+* **MCQ to Flashcard Sync:** Convert high-yield questions directly into flashcards.
+
+### 8. ⏳ Live Exam Target Countdowns
+* **Live Countdown Clocks:** Real-time ticker showing remaining days, hours, minutes, and seconds until exam day.
+* **Target Categories:** Assign authority badges (e.g., BCS, BPSC, Combined 5 Banks, Primary).
+* **Custom Exam Dates:** Add and manage unlimited target exams.
+
+### 9. 💬 Quote Carousel & 1080p Wallpaper Generator
+* **Inspirational Quote Ticker:** Automatic ticker rotating motivational quotes with customizable intervals (30s to 1 hour).
+* **Quotes Manager:** Add, edit, or delete personal quotes and choose between Curated, Custom, or All quotes.
+* **1080p Desktop Wallpaper Export:** Generate and download custom 1920x1080 HD wallpapers via HTML5 Canvas with custom themes and quotes.
+
+### 10. ⚡ Command Palette & Productivity
+* **Quick Search (Ctrl+K / ⌘K):** Search across notes, syllabus topics, tabs, and actions with arrow-key navigation.
+* **Auto-Sync & Backup:** Export/import full workspace backups in JSON, plus native File System Access API support for automatic disk sync.
 
 ---
 
-## 🛠️ Tech Stack & Architecture
+## 🛠️ Technology Stack & Architecture
 
-| Layer | Technology |
-| :--- | :--- |
-| **Frontend Core** | HTML5 (Semantic Structure & Accessibility), Pure Vanilla JavaScript (ES6+) |
-| **Styling & Effects** | Vanilla CSS3 (Custom Properties, Glassmorphism, Aurora Gradients, Flexbox/Grid) |
-| **Typography** | Google Fonts (*Plus Jakarta Sans* & *Outfit*) |
-| **Data Persistence** | Browser `localStorage` with fallback adapter architecture |
-| **Canvas & Graphics** | HTML5 Canvas API for 1920x1080 HD Wallpaper Generation |
+| Layer | Technology | Details |
+| :--- | :--- | :--- |
+| **Markup** | HTML5 Semantic | Accessible, WAI-ARIA roles, clean landmarks |
+| **Styling** | Vanilla CSS3 | Custom properties, glassmorphism, Aurora glow, responsive media queries |
+| **Scripting** | Vanilla JavaScript (ES6+) | Object-oriented modular state architecture, no frameworks, zero runtime bloat |
+| **Icons** | Lucide Icons | Scalable, lightweight vector icon suite |
+| **Typography** | Google Fonts | *Plus Jakarta Sans* & *Outfit* |
+| **Storage** | LocalStorage + File System API | Fast persistent storage with local JSON export/import & automated disk backup |
+| **Graphics** | HTML5 Canvas API | 1920x1080 HD wallpaper generation & export |
 
 ---
 
-## 📁 Project Directory Structure
+## 📁 Directory Structure
 
-```
-chakri-prostuti-dashboard/
-├── index.html              # Main application markup & layout
+```text
+chakriProstutiDashboard/
+├── index.html              # Main application single-page layout
 ├── assets/
 │   ├── css/
-│   │   └── style.css       # Unified design system, glassmorphism, & animations
-│   └── js/
-│       └── script.js       # State management, timers, analytics, & event handlers
+│   │   └── style.css       # Unified design system, glassmorphic UI, animations, mobile CSS
+│   ├── js/
+│   │   ├── script.js       # Core application engine, state management, timers, analytics
+│   │   ├── features.js     # Supplementary features & MCQ bank
+│   │   └── lucide.min.js   # Embedded Lucide icons library
+│   └── icons/              # Brand marks, app icons, and vectors
 └── README.md               # Project documentation
 ```
 
 ---
 
-## 🚀 How to Run Locally
+## 🚀 Getting Started Locally
 
-No build tools or Node.js runtime required.
+No Node.js runtime, build tools, or package installations are required.
 
-1. **Clone or Download the Repository:**
-   ```bash
-   git clone https://github.com/shahriyarshehab/chakriProstutiDashboard.git
-   ```
-2. **Open in Browser:**
-   Simply double-click `index.html` or open it in any modern browser (Chrome, Edge, Firefox, Safari).
-3. **Optional (Live Server):**
-   If using VS Code, right-click `index.html` and choose **"Open with Live Server"**.
+### 1. Clone the repository
+```bash
+git clone https://github.com/shahriyarshehab/chakriProstutiDashboard.git
+cd chakriProstutiDashboard
+```
 
-4. **Serve it locally (recommended for a clean static preview):**
-   ```bash
-   cd chakriProstutiDashboard
-   python -m http.server 8000
-   ```
-   Then visit `http://localhost:8000` in your browser.
+### 2. Launch in Browser
+- **Direct open:** Double-click `index.html` in your file explorer.
+- **VS Code Live Server:** Right-click `index.html` and choose **"Open with Live Server"**.
+- **Python local server:**
+  ```bash
+  python -m http.server 8000
+  ```
+  Open `http://localhost:8000` in your web browser.
+
+---
+
+## ⌨️ Useful Keyboard Shortcuts
+
+| Shortcut | Action |
+| :--- | :--- |
+| `Ctrl + K` / `⌘ + K` | Open Command Palette & Quick Search |
+| `Escape` | Close active modals / Command Palette |
+| `Enter` | Submit inputs / select active command palette item |
+| `Double Click` | Edit topic or category name in Syllabus |
 
 ---
 
 ## 📄 License
 
-This project is open-source and available under the [MIT License](LICENSE).
+This project is licensed under the [MIT License](LICENSE) — free for personal and educational use.

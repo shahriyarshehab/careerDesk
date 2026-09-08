@@ -333,17 +333,17 @@
         if ((await autoBackupHandle.queryPermission(options)) === 'granted') {
           badge.classList.add('active');
           dot.classList.add('active');
-          text.textContent = 'অটো-ব্যাকআপ সক্রিয় (' + autoBackupHandle.name + ')';
+          text.textContent = 'Auto-backup active (' + autoBackupHandle.name + ')';
           return;
         }
       } catch (e) { }
       badge.classList.remove('active');
       dot.classList.remove('active');
-      text.textContent = 'পারমিশন প্রয়োজন (' + autoBackupHandle.name + ')';
+      text.textContent = 'Permission needed (' + autoBackupHandle.name + ')';
     } else {
       badge.classList.remove('active');
       dot.classList.remove('active');
-      text.textContent = 'সংযুক্ত নেই';
+      text.textContent = 'Not connected';
     }
   }
 
@@ -373,7 +373,7 @@
 
   async function connectAutoSyncFile() {
     if (!('showSaveFilePicker' in window)) {
-      showToast('আপনার ব্রাউজারে File System Access API সমর্থিত নয়। অনুগ্রহ করে আপডেটড Chrome বা Edge ব্যবহার করুন।', true);
+      showToast('File System Access API is not supported in this browser. Please use Chrome or Edge.', true);
       return;
     }
     try {
@@ -388,10 +388,10 @@
       await setStoredFileHandle(handle);
       await writeToAutoBackupFile();
       updateAutoSyncUI();
-      showToast('মাদার ফোল্ডারে অটো ব্যাকআপ ফাইল সফলভাবে সংযুক্ত হয়েছে! ✓');
+      showToast('Auto-backup file connected successfully! ✓');
     } catch (err) {
       if (err.name !== 'AbortError') {
-        showToast('ফাইল সংযুক্ত করতে সমস্যা হয়েছে।', true);
+        showToast('Failed to connect backup file.', true);
       }
     }
   }
@@ -402,10 +402,10 @@
     saveTimer = setTimeout(async () => {
       try {
         await storageAdapter.set(STORAGE_KEY, JSON.stringify(state));
-        if (note) { note.textContent = 'সংরক্ষণ হয়েছে ✓'; setTimeout(() => { note.textContent = 'তোমার পরিবর্তন নিজে থেকেই সংরক্ষণ হয়ে যাবে।'; }, 1600); }
+        if (note) { note.textContent = 'Changes saved ✓'; setTimeout(() => { note.textContent = 'Changes are saved automatically.'; }, 1600); }
         await writeToAutoBackupFile();
       } catch (e) {
-        if (note) { note.textContent = 'সংরক্ষণে সমস্যা হয়েছে, আবার চেষ্টা করো।'; }
+        if (note) { note.textContent = 'Failed to save changes, please try again.'; }
       }
     }, 400);
   }
@@ -498,13 +498,21 @@
   // ===== Tabs =====
   const ACTIVE_TAB_KEY = 'careerdesk-active-tab';
 
-  function activateTab(tabName, persist = false) {
-    if (!tabName) return;
+  function normalizeTabName(tabName) {
+    if (!tabName) return 'routine';
+    if (tabName === 'quiz') return 'flashcards';
+    if (tabName === 'exams') return 'countdown';
+    return tabName;
+  }
+
+  function activateTab(rawTabName, persist = false) {
+    const tabName = normalizeTabName(rawTabName);
     const targetPanel = document.getElementById('panel-' + tabName);
     if (!targetPanel) return;
 
     document.querySelectorAll('.tab-btn').forEach(b => {
-      const isActive = b.dataset.tab === tabName;
+      const bTab = normalizeTabName(b.dataset.tab);
+      const isActive = bTab === tabName;
       b.classList.toggle('active', isActive);
       b.setAttribute('aria-selected', String(isActive));
     });
@@ -535,25 +543,63 @@
   try {
     const hashTab = window.location.hash ? window.location.hash.replace('#', '') : null;
     const savedTab = localStorage.getItem(ACTIVE_TAB_KEY);
-    const initialTab = hashTab || savedTab || 'routine';
+    const initialTab = normalizeTabName(hashTab || savedTab || 'routine');
     if (initialTab) activateTab(initialTab, false);
   } catch (e) { }
 
   window.addEventListener('hashchange', () => {
-    const tab = window.location.hash ? window.location.hash.replace('#', '') : 'routine';
-    activateTab(tab, false);
+    const rawTab = window.location.hash ? window.location.hash.replace('#', '') : 'routine';
+    activateTab(normalizeTabName(rawTab), false);
   });
 
-  // ===== Header watch =====
-  function updateBrandWatch() {
-    const watch = document.getElementById('brandWatchTime');
-    if (!watch) return;
-    watch.textContent = new Intl.DateTimeFormat('en-GB', {
-      hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true
-    }).format(new Date());
+  // ===== Mini Floating Header Timer Widget =====
+  function syncMiniTimerWidget() {
+    const widget = document.getElementById('headerMiniTimer');
+    if (!widget) return;
+    const timeEl = document.getElementById('miniTimerTime');
+    const subjEl = document.getElementById('miniTimerSubject');
+
+    if (window.isCustomCountdownActive && typeof customCountdownSecs === 'number') {
+      widget.style.display = 'inline-flex';
+      const m = String(Math.floor(customCountdownSecs / 60)).padStart(2, '0');
+      const s = String(customCountdownSecs % 60).padStart(2, '0');
+      if (timeEl) timeEl.textContent = `${m}:${s}`;
+      if (subjEl) {
+        subjEl.textContent = timerMode === 'break' ? 'Break' : (typeof currentSubjectValue === 'function' ? (currentSubjectValue() || 'Focus') : 'Focus');
+      }
+    } else if (state && state.activeSession && state.activeSession.start) {
+      widget.style.display = 'inline-flex';
+      const secs = Math.floor((Date.now() - state.activeSession.start) / 1000);
+      const m = Math.floor(secs / 60);
+      const s = secs % 60;
+      if (timeEl) {
+        timeEl.textContent = m >= 60
+          ? `${Math.floor(m / 60)}h ${m % 60}m`
+          : `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+      }
+      if (subjEl) subjEl.textContent = state.activeSession.subject || 'Focus';
+    } else {
+      widget.style.display = 'none';
+    }
   }
-  updateBrandWatch();
-  setInterval(updateBrandWatch, 1000);
+
+  const headerMiniTimerEl = document.getElementById('headerMiniTimer');
+  if (headerMiniTimerEl) {
+    headerMiniTimerEl.addEventListener('click', (e) => {
+      if (e.target.closest('#miniTimerStopBtn')) {
+        e.stopPropagation();
+        if (window.isCustomCountdownActive && typeof stopCustomCountdown === 'function') {
+          stopCustomCountdown(false);
+        } else if (state && state.activeSession) {
+          const stopBtn = document.getElementById('stopBtn');
+          if (stopBtn) stopBtn.click();
+        }
+        syncMiniTimerWidget();
+        return;
+      }
+      activateTab('tracker', true);
+    });
+  }
 
   // ===== Routine =====
   const routineCardWrap = document.getElementById('routineCardWrap');
@@ -589,16 +635,32 @@
       } else {
         routineDateFilter = dateKey(new Date(currentViewYear, currentViewMonth, 1).getTime());
       }
-      renderDateSlider();
-      renderRoutine();
+      const mBox = document.getElementById('monthlyRoutineView');
+      if (mBox && !mBox.hidden) {
+        showMonthlyRoutines();
+      } else {
+        renderDateSlider();
+        renderRoutine();
+      }
     });
   }
 
   function buildDateSliderList() {
-    if (!Array.isArray(state.routine)) return [];
-    const dates = new Set(state.routine.map(r => r.date).filter(Boolean));
+    const dates = new Set();
+    // 1. Generate all days of current viewed month
+    const daysInMonth = new Date(currentViewYear, currentViewMonth + 1, 0).getDate();
+    for (let day = 1; day <= daysInMonth; day++) {
+      const d = new Date(currentViewYear, currentViewMonth, day);
+      dates.add(dateKey(d.getTime()));
+    }
+    // 2. Ensure today is present
     dates.add(dateKey(Date.now()));
+    // 3. Ensure routineDateFilter is present
     if (routineDateFilter) dates.add(routineDateFilter);
+    // 4. Add any other routine dates with existing entries
+    if (Array.isArray(state.routine)) {
+      state.routine.forEach(r => { if (r.date) dates.add(r.date); });
+    }
     return Array.from(dates).sort();
   }
 
@@ -606,17 +668,24 @@
     const box = document.getElementById('dateSlider');
     if (!box) return;
     const dayLabels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    const routineDates = new Set((state.routine || []).filter(r => r.subject).map(r => r.date));
     let html = '';
     buildDateSliderList().forEach(ds => {
       const d = new Date(ds + 'T00:00:00');
-      html += `<div class="date-chip ${routineDateFilter === ds ? 'active' : ''}" data-date="${ds}">
+      const hasDot = routineDates.has(ds) ? 'has-routine' : '';
+      const isAct = routineDateFilter === ds ? 'active' : '';
+      html += `<div class="date-chip ${isAct} ${hasDot}" data-date="${ds}">
         <span class="dc-day">${dayLabels[d.getDay()]}</span><span class="dc-num">${d.getDate()}</span>
       </div>`;
     });
     box.innerHTML = html;
 
     const activeChip = box.querySelector('.date-chip.active');
-    if (activeChip) activeChip.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+    if (activeChip) {
+      setTimeout(() => {
+        activeChip.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+      }, 50);
+    }
   }
 
   const dateSliderBox = document.getElementById('dateSlider');
@@ -660,9 +729,9 @@
       <tr>
         <td><input type="time" value="${row.startTime || ''}" data-field="startTime" data-id="${row.id}"></td>
         <td><input type="time" value="${row.endTime || ''}" data-field="endTime" data-id="${row.id}"></td>
-        <td><input type="text" value="${escapeAttr(row.subject || '')}" placeholder="Subject" data-field="subject" data-id="${row.id}"></td>
+        <td><input type="text" value="${escapeAttr(row.subject || '')}" placeholder="Subject" data-field="subject" data-id="${row.id}" list="appSubjectDatalist"></td>
         <td><input type="text" value="${escapeAttr(row.task || '')}" placeholder="Task description" data-field="task" data-id="${row.id}"></td>
-        <td><button class="del-row" title="Delete" data-id="${row.id}">${ICON.trash}</button></td>
+        <td><button class="del-row" title="Delete row" data-id="${row.id}">${ICON.x}</button></td>
       </tr>
     `;
   }
@@ -733,10 +802,22 @@
     let rows = state.routine.filter(r => r.date === todayTarget);
 
     if (!rows.length) {
-      const defaults = buildDefaultRoutine(todayTarget);
-      state.routine.push(...defaults);
-      rows = defaults;
-      saveData();
+      wrap.innerHTML = `
+        <div class="routine-empty-card">
+          <div class="routine-empty-icon"><i data-lucide="calendar-plus"></i></div>
+          <h4>No study routine planned for this day</h4>
+          <p>You can add your own custom study blocks or load the recommended BCS preliminary study routine.</p>
+          <div class="routine-empty-actions">
+            <button class="pill solid" id="emptyLoadDefaultsBtn" type="button"><i data-lucide="sparkles"></i> Load Recommended Routine</button>
+            <button class="pill" id="emptyAddBlockBtn" type="button"><i data-lucide="plus"></i> Add Study Block</button>
+          </div>
+        </div>
+      `;
+      if (window.lucide && typeof window.lucide.createIcons === 'function') {
+        window.lucide.createIcons();
+      }
+      renderTrackerRoutinePreview();
+      return;
     }
 
     rows.sort((a, b) => {
@@ -766,8 +847,7 @@
       if (row) {
         row[t.dataset.field] = t.value;
         if (t.dataset.field === 'subject') {
-          renderFlashCategoryOptions();
-          renderSubjectSelect();
+          syncAllSubjectSelects();
         }
         saveData();
       }
@@ -783,8 +863,7 @@
       saveData();
       renderRoutine();
       renderDateSlider();
-      renderFlashCategoryOptions();
-      renderSubjectSelect();
+      syncAllSubjectSelects();
       return;
     }
 
@@ -801,8 +880,7 @@
       });
       saveData();
       renderRoutine();
-      renderFlashCategoryOptions();
-      renderSubjectSelect();
+      syncAllSubjectSelects();
       showToast('New time slot added to routine');
       return;
     }
@@ -815,18 +893,64 @@
       saveData();
       renderDateSlider();
       renderRoutine();
-      renderFlashCategoryOptions();
-      renderSubjectSelect();
+      syncAllSubjectSelects();
       showToast('Default routine loaded for today');
       return;
     }
   });
 
+  function toggleMonthlyRoutineView(forceOpen) {
+    const mBox = document.getElementById('monthlyRoutineView');
+    const dateNav = document.querySelector('.date-slider-row');
+    const cardWrap = document.getElementById('routineCardWrap');
+    const routineActions = document.querySelector('.routine-actions');
+    const routineSaveNote = document.getElementById('routineSaveNote');
+    const titleEl = document.querySelector('.routine-hero-copy .section-title');
+    const leadEl = document.querySelector('.routine-hero-copy .routine-lead');
+    const mBtn = document.getElementById('monthlyRoutineBtn');
+
+    const shouldOpen = typeof forceOpen === 'boolean' ? forceOpen : (mBox && mBox.hidden);
+
+    if (shouldOpen) {
+      if (mBox) mBox.hidden = false;
+      if (dateNav) dateNav.hidden = true;
+      if (cardWrap) cardWrap.hidden = true;
+      if (routineActions) routineActions.hidden = true;
+      if (routineSaveNote) routineSaveNote.hidden = true;
+      if (mBtn) {
+        mBtn.classList.add('active');
+        mBtn.title = 'Switch to daily routine view';
+        mBtn.setAttribute('aria-label', 'Switch to daily routine view');
+      }
+      if (titleEl) titleEl.textContent = 'Monthly Study Overview';
+      if (leadEl) leadEl.textContent = 'Review all scheduled study sessions across the selected month.';
+      showMonthlyRoutines();
+    } else {
+      if (mBox) mBox.hidden = true;
+      if (dateNav) dateNav.hidden = false;
+      if (cardWrap) cardWrap.hidden = false;
+      if (routineActions) routineActions.hidden = false;
+      if (routineSaveNote) routineSaveNote.hidden = false;
+      if (mBtn) {
+        mBtn.classList.remove('active');
+        mBtn.title = 'Toggle monthly overview list';
+        mBtn.setAttribute('aria-label', 'Toggle Monthly Overview');
+      }
+      if (titleEl) titleEl.textContent = 'Daily Study Routine';
+      if (leadEl) leadEl.textContent = 'Plan your next study block and keep your momentum moving.';
+      renderDateSlider();
+      renderRoutine();
+    }
+    if (window.lucide && typeof window.lucide.createIcons === 'function') {
+      window.lucide.createIcons();
+    }
+  }
+
   function showMonthlyRoutines() {
     const box = document.getElementById('monthlyRoutineView');
     if (!box) return;
     const prefix = `${currentViewYear}-${String(currentViewMonth + 1).padStart(2, '0')}-`;
-    const byDate = state.routine.filter(r => r.date && r.date.startsWith(prefix)).reduce((map, row) => {
+    const byDate = (state.routine || []).filter(r => r.date && r.date.startsWith(prefix) && r.subject).reduce((map, row) => {
       (map[row.date] ||= []).push(row); return map;
     }, {});
     const dates = Object.keys(byDate).sort();
@@ -834,48 +958,113 @@
     box.innerHTML = dates.length ? dates.map(date => {
       const rows = byDate[date].sort((a, b) => (a.startTime || '').localeCompare(b.startTime || ''));
       return `<article class="monthly-routine-card" data-month-date="${date}">
-        <div class="monthly-routine-head"><strong>${bnDateLabel(date)}</strong>
-          <div class="monthly-routine-actions"><button class="pill action-btn-edit" data-month-edit="${date}" title="Edit Routine" aria-label="Edit">${ICON.edit} <span>Edit</span></button><button class="pill danger action-btn-del" data-month-delete="${date}" title="Delete Routine" aria-label="Delete">${ICON.trash} <span>Delete</span></button></div>
-        </div><table class="mini-routine"><tbody>${rows.map(r => `<tr><td>${escapeHtml(r.startTime || '--:--')}–${escapeHtml(r.endTime || '--:--')}</td><td>${escapeHtml(r.subject || 'No Subject')}</td><td>${escapeHtml(r.task || '')}</td></tr>`).join('')}</tbody></table>
+        <div class="monthly-routine-head">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <i data-lucide="calendar" style="width:16px; height:16px; color:var(--accent1);"></i>
+            <strong>${bnDateLabel(date)}</strong>
+            <span class="badge" style="font-size:11px; padding:2px 8px; border-radius:12px; background:var(--surface-strong); border:1px solid var(--border); color:var(--text-soft); font-weight:600;">${rows.length} ${rows.length === 1 ? 'block' : 'blocks'}</span>
+          </div>
+          <div class="monthly-routine-actions btn-group">
+            <button class="pill action-btn-edit" data-month-edit="${date}" title="Open this date in daily routine editor" aria-label="Edit Date Routine">${ICON.edit} <span>Open &amp; Edit</span></button>
+            <button class="pill danger action-btn-del" data-month-delete="${date}" title="Delete Routine for this date" aria-label="Delete Date Routine">${ICON.trash} <span>Delete</span></button>
+          </div>
+        </div>
+        <table class="mini-routine">
+          <thead>
+            <tr style="color:var(--text-muted); font-size:11.5px; text-transform:uppercase; letter-spacing:0.04em;">
+              <th style="text-align:left; padding:6px 4px; font-weight:600; width:25%;">Time</th>
+              <th style="text-align:left; padding:6px 4px; font-weight:600; width:30%;">Subject</th>
+              <th style="text-align:left; padding:6px 4px; font-weight:600;">Topic / Tasks</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${rows.map(r => `<tr>
+              <td style="font-family:var(--font-mono); font-size:12px; color:var(--accent2);">${escapeHtml(r.startTime || '--:--')} – ${escapeHtml(r.endTime || '--:--')}</td>
+              <td style="font-weight:600; color:var(--text);">${escapeHtml(r.subject || 'No Subject')}</td>
+              <td style="color:var(--text-soft);">${escapeHtml(r.task || '—')}</td>
+            </tr>`).join('')}
+          </tbody>
+        </table>
       </article>`;
-    }).join('') : '<div class="empty-state">No routines scheduled for this month.</div>';
+    }).join('') : `
+      <div class="empty-state glass" style="text-align:center; padding:36px 20px; border:1px dashed var(--border); border-radius:16px; margin: 10px 0;">
+        <div style="width:48px; height:48px; border-radius:50%; background:rgba(99,102,241,0.12); color:var(--accent1); display:flex; align-items:center; justify-content:center; margin:0 auto 12px;">
+          <i data-lucide="calendar-x" style="width:24px; height:24px;"></i>
+        </div>
+        <h4 style="margin:0 0 6px; font-size:16px; color:var(--text);">No routines scheduled for this month</h4>
+        <p style="margin:0 0 16px; color:var(--text-soft); font-size:13px;">You have no study blocks planned for ${document.getElementById('monthDropdown')?.selectedOptions[0]?.text || 'this month'}.</p>
+        <button class="pill solid" id="monthlyBackToDailyBtn" type="button" style="display:inline-flex; align-items:center; gap:8px;">
+          <i data-lucide="arrow-left"></i> Back to Daily Routine
+        </button>
+      </div>
+    `;
+    if (window.lucide && typeof window.lucide.createIcons === 'function') {
+      window.lucide.createIcons();
+    }
   }
 
   const todayRoutineBtn = document.getElementById('todayRoutineBtn');
   if (todayRoutineBtn) {
     todayRoutineBtn.addEventListener('click', () => {
-      const now = new Date(); currentViewYear = now.getFullYear(); currentViewMonth = now.getMonth(); routineDateFilter = dateKey(now.getTime());
+      const now = new Date();
+      currentViewYear = now.getFullYear();
+      currentViewMonth = now.getMonth();
+      routineDateFilter = dateKey(now.getTime());
       const mSel = document.getElementById('monthDropdown');
       if (mSel) mSel.value = `${currentViewYear}-${String(currentViewMonth + 1).padStart(2, '0')}`;
-      const mBox = document.getElementById('monthlyRoutineView');
-      if (mBox) mBox.hidden = true;
-      renderDateSlider(); renderRoutine();
+      toggleMonthlyRoutineView(false);
     });
   }
 
   const monthlyRoutineBtn = document.getElementById('monthlyRoutineBtn');
   if (monthlyRoutineBtn) {
     monthlyRoutineBtn.addEventListener('click', () => {
-      const mBox = document.getElementById('monthlyRoutineView');
-      if (mBox && !mBox.hidden) {
-        mBox.hidden = true;
-      } else {
-        showMonthlyRoutines();
-      }
+      toggleMonthlyRoutineView();
     });
   }
+
+  // Handle empty routine buttons
+  document.addEventListener('click', (e) => {
+    if (e.target.closest('#emptyLoadDefaultsBtn')) {
+      const todayTarget = routineDateFilter || dateKey(Date.now());
+      const defaults = buildDefaultRoutine(todayTarget);
+      if (!Array.isArray(state.routine)) state.routine = [];
+      state.routine.push(...defaults);
+      saveData();
+      renderRoutine();
+      if (typeof showToast === 'function') showToast('Recommended BCS routine loaded for today!');
+    } else if (e.target.closest('#emptyAddBlockBtn')) {
+      const inlineAdd = document.getElementById('inlineAddRowBtn');
+      if (inlineAdd) inlineAdd.click();
+    }
+  });
 
   const monthlyRoutineView = document.getElementById('monthlyRoutineView');
   if (monthlyRoutineView) {
     monthlyRoutineView.addEventListener('click', (e) => {
-      const edit = e.target.closest('[data-month-edit]'); const del = e.target.closest('[data-month-delete]');
+      const edit = e.target.closest('[data-month-edit]');
+      const del = e.target.closest('[data-month-delete]');
+      const back = e.target.closest('#monthlyBackToDailyBtn');
+      if (back) {
+        toggleMonthlyRoutineView(false);
+        return;
+      }
       if (edit) {
-        const d = new Date(edit.dataset.monthEdit + 'T00:00:00'); routineDateFilter = edit.dataset.monthEdit; currentViewYear = d.getFullYear(); currentViewMonth = d.getMonth();
+        const d = new Date(edit.dataset.monthEdit + 'T00:00:00');
+        routineDateFilter = edit.dataset.monthEdit;
+        currentViewYear = d.getFullYear();
+        currentViewMonth = d.getMonth();
         const mSel = document.getElementById('monthDropdown');
         if (mSel) mSel.value = `${currentViewYear}-${String(currentViewMonth + 1).padStart(2, '0')}`;
-        monthlyRoutineView.hidden = true; renderDateSlider(); renderRoutine();
+        toggleMonthlyRoutineView(false);
       }
-      if (del && window.confirm('Delete all routines for this date?')) { state.routine = state.routine.filter(r => r.date !== del.dataset.monthDelete); saveData(); renderDateSlider(); renderRoutine(); showMonthlyRoutines(); }
+      if (del && window.confirm('Delete all routines for this date?')) {
+        state.routine = state.routine.filter(r => r.date !== del.dataset.monthDelete);
+        saveData();
+        renderDateSlider();
+        renderRoutine();
+        showMonthlyRoutines();
+      }
     });
   }
 
@@ -968,7 +1157,7 @@
               <span class="quote-item-badge ${badgeClass}">${badgeText}</span>
             </div>
           </div>
-          <div class="quote-item-actions">
+          <div class="quote-item-actions btn-group">
             <button class="quote-action-btn edit-btn" data-edit-quote="${escapeAttr(entry.id)}" type="button" title="Edit Quote">
               ${ICON.edit} <span>Edit</span>
             </button>
@@ -1209,7 +1398,7 @@
 
       ctx.fillStyle = dark ? '#9BA5C0' : '#5B6178';
       ctx.font = '400 30px "Hind Siliguri", sans-serif';
-      ctx.fillText(item.a ? ('— ' + item.a) : ('চাকরি প্রস্তুতি  •  ' + bnDate()), W / 2, H - 90);
+      ctx.fillText(item.a ? ('— ' + item.a) : ('CareerDesk  •  ' + bnDate()), W / 2, H - 90);
 
       canvas.toBlob((blobFile) => {
         const url = URL.createObjectURL(blobFile);
@@ -1274,9 +1463,9 @@
         <div class="note-footer">
           <time class="note-date" datetime="${new Date(n.ts).toISOString()}">
             <span class="note-date-icon">${ICON.clock}</span>
-            <span>${d.toLocaleDateString('bn-BD')}</span>
+            <span>${d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
           </time>
-          <div class="note-actions">
+          <div class="note-actions btn-group">
             <button class="note-action-btn edit-btn" title="Edit note" aria-label="Edit note" data-id="${n.id}">
               ${ICON.edit} <span>Edit</span>
             </button>
@@ -1393,8 +1582,7 @@
   const stopBtn = document.getElementById('stopBtn');
   const targetHoursInput = document.getElementById('targetHours');
 
-  const bnDigitMap = { '0': '০', '1': '১', '2': '২', '3': '৩', '4': '৪', '5': '৫', '6': '৬', '7': '৭', '8': '৮', '9': '৯' };
-  function toBnDigits(n) { return String(n).replace(/[0-9]/g, d => bnDigitMap[d]); }
+  function toBnDigits(n) { return String(n); }
 
   function dateKey(ts) {
     const d = new Date(ts);
@@ -1454,112 +1642,389 @@
     });
   }
 
-  function subjectList() {
-    const defaultSubjects = [
-      'Bangla Literature',
-      'Bangla Grammar',
-      'English',
-      'Mathematics',
-      'Bangladesh Affairs',
-      'International Affairs',
-      'General Science',
-      'Computer & ICT'
-    ];
+  const DEFAULT_SUBJECTS = [
+    'Bangla Literature',
+    'Bangla Grammar',
+    'English',
+    'Mathematics',
+    'Bangladesh Affairs',
+    'International Affairs',
+    'General Science',
+    'Computer & ICT'
+  ];
+
+  function masterSubjectList(includeDeleted = false) {
     const fromRoutine = (state.routine || []).map(r => r.subject).filter(Boolean);
     const fromSessions = (state.sessions || []).map(s => s.subject).filter(Boolean);
     const fromCustom = Array.isArray(state.customSubjects) ? state.customSubjects : [];
-    const deleted = new Set((state.deletedSubjects || []).map(canonicalSubjectName));
-    return uniqueSubjectNames([...defaultSubjects, ...fromCustom, ...fromRoutine, ...fromSessions])
-      .filter(s => !deleted.has(s));
+    const fromSyllabus = (state.syllabus || []).map(c => c.name).filter(Boolean);
+    const fromFlashcards = (state.flashcards || []).map(f => f.category).filter(Boolean);
+    const fromDeleted = Array.isArray(state.deletedSubjects) ? state.deletedSubjects : [];
+
+    const all = uniqueSubjectNames([
+      ...DEFAULT_SUBJECTS,
+      ...fromCustom,
+      ...fromSyllabus,
+      ...fromRoutine,
+      ...fromSessions,
+      ...fromFlashcards,
+      ...(includeDeleted ? fromDeleted : [])
+    ]);
+
+    if (includeDeleted) return all;
+    const deletedSet = new Set((state.deletedSubjects || []).map(s => canonicalSubjectName(s).toLowerCase()));
+    return all.filter(s => !deletedSet.has(canonicalSubjectName(s).toLowerCase()));
+  }
+
+  function subjectList() {
+    return masterSubjectList(false);
   }
 
   function renderSubjectSelect() {
     const sel = document.getElementById('sessionSubject');
-    if (!sel) return;
+    const chipsContainer = document.getElementById('quickSubjectChips');
+    const datalist = document.getElementById('appSubjectDatalist');
     const subs = subjectList();
-    const previousValue = sel.value || (state.activeSession ? state.activeSession.subject : '') || '';
-    const previousCustomValue = sessionCustomInput ? sessionCustomInput.value : '';
 
-    sel.innerHTML = subs.map(s => `<option value="${escapeAttr(s)}">${escapeHtml(s)}</option>`).join('')
-      + '<option value="__custom__">+ Add New Subject</option>';
-
-    let nextValue = '';
-    if (previousValue === '__custom__' || (previousCustomValue && previousValue === '')) {
-      nextValue = '__custom__';
-    } else if (previousValue && subs.includes(previousValue)) {
-      nextValue = previousValue;
-    } else if (subs.length) {
-      nextValue = subs[0];
+    // 1. Sync global datalist for Routine and Syllabus
+    if (datalist) {
+      datalist.innerHTML = subs.map(s => `<option value="${escapeAttr(s)}"></option>`).join('');
     }
 
-    if (nextValue) {
-      sel.value = nextValue;
+    // 2. Populate Tracker dropdown
+    if (sel) {
+      const previousValue = sel.value || (state.activeSession ? state.activeSession.subject : '') || '';
+      const previousCustomValue = sessionCustomInput ? sessionCustomInput.value : '';
+
+      sel.innerHTML = subs.map(s => `<option value="${escapeAttr(s)}">${escapeHtml(s)}</option>`).join('')
+        + '<option value="__custom__">+ Add New Subject</option>';
+
+      let nextValue = '';
+      if (previousValue === '__custom__' || (previousCustomValue && previousValue === '')) {
+        nextValue = '__custom__';
+      } else if (previousValue && subs.includes(previousValue)) {
+        nextValue = previousValue;
+      } else if (subs.length) {
+        nextValue = subs[0];
+      }
+
+      if (nextValue) {
+        sel.value = nextValue;
+      }
+
+      if (sessionCustomInput) {
+        sessionCustomInput.style.display = sel.value === '__custom__' ? 'block' : 'none';
+        if (sel.value === '__custom__') {
+          sessionCustomInput.value = previousCustomValue || '';
+        } else {
+          sessionCustomInput.value = '';
+        }
+      }
     }
 
-    if (sessionCustomInput) {
-      sessionCustomInput.style.display = sel.value === '__custom__' ? 'block' : 'none';
-      if (sel.value === '__custom__') {
-        sessionCustomInput.value = previousCustomValue || '';
+    // 3. Populate Quick Select Chips in Tracker
+    if (chipsContainer) {
+      const currentSelected = sel ? sel.value : '';
+      if (!subs.length) {
+        chipsContainer.innerHTML = '<span style="font-size:12px; color:var(--text-soft); padding:4px 0;">No subjects added yet.</span>';
       } else {
-        sessionCustomInput.value = '';
+        chipsContainer.innerHTML = subs.map(s => `
+          <button type="button" class="chip subject-chip ${s === currentSelected ? 'active' : ''}" data-subject-chip="${escapeAttr(s)}" title="Switch to ${escapeAttr(s)}">
+            ${escapeHtml(s)}
+          </button>
+        `).join('');
       }
     }
   }
 
   // ===== Subject Manager (Settings Panel) =====
+  function getSubjectStats(s) {
+    const canonicalS = canonicalSubjectName(s).toLowerCase();
+    const sessions = (state.sessions || []).filter(sess => canonicalSubjectName(sess.subject).toLowerCase() === canonicalS);
+    const totalMin = sessions.reduce((acc, sess) => acc + (sess.duration || 0), 0);
+    const routineCount = (state.routine || []).filter(r => canonicalSubjectName(r.subject).toLowerCase() === canonicalS).length;
+    const syllabusCat = (state.syllabus || []).find(c => canonicalSubjectName(c.name).toLowerCase() === canonicalS);
+    const topicsCount = syllabusCat ? (syllabusCat.topics || []).length : 0;
+    const topicsDone = syllabusCat ? (syllabusCat.topics || []).filter(t => t.done).length : 0;
+    const cardCount = (state.flashcards || []).filter(f => canonicalSubjectName(f.category).toLowerCase() === canonicalS).length;
+
+    return {
+      sessionCount: sessions.length,
+      totalMin,
+      routineCount,
+      topicsCount,
+      topicsDone,
+      cardCount
+    };
+  }
+
   function renderSubjectManager() {
     const container = document.getElementById('subjectManagerList');
+    const deletedSection = document.getElementById('deletedSubjectSection');
+    const deletedContainer = document.getElementById('deletedSubjectList');
+    const countBadge = document.getElementById('subjectCountBadge');
     if (!container) return;
-    const allSubjects = (() => {
-      const defaultSubjects = [
-        'Bangla Literature', 'Bangla Grammar', 'English', 'Mathematics',
-        'Bangladesh Affairs', 'International Affairs', 'General Science', 'Computer & ICT'
-      ];
-      const fromRoutine = (state.routine || []).map(r => r.subject).filter(Boolean);
-      const fromSessions = (state.sessions || []).map(s => s.subject).filter(Boolean);
-      return uniqueSubjectNames([...defaultSubjects, ...fromRoutine, ...fromSessions]);
-    })();
-    const deleted = new Set((state.deletedSubjects || []).map(canonicalSubjectName));
-    if (!allSubjects.length) {
-      container.innerHTML = '<p style="color:var(--text-soft); font-size:13px;">No subjects found.</p>';
-      return;
+
+    const activeSubjects = masterSubjectList(false);
+    const deletedSet = new Set((state.deletedSubjects || []).map(s => canonicalSubjectName(s).toLowerCase()));
+    const allSubjects = masterSubjectList(true);
+    const deletedSubjects = allSubjects.filter(s => deletedSet.has(canonicalSubjectName(s).toLowerCase()));
+
+    if (countBadge) {
+      countBadge.textContent = `${activeSubjects.length} Active`;
     }
-    container.innerHTML = allSubjects.map(s => {
-      const isDeleted = deleted.has(s);
-      return `<div class="subject-manager-row ${isDeleted ? 'subject-deleted' : ''}">
-        <span class="subject-manager-name">${escapeHtml(s)}</span>
-        ${isDeleted
-          ? `<button class="pill subject-restore-btn" data-subject="${escapeAttr(s)}" title="Restore this subject" aria-label="Restore">${ICON.undo} <span>Restore</span></button>`
-          : `<button class="pill danger subject-delete-btn" data-subject="${escapeAttr(s)}" title="Remove this subject from the list" aria-label="Delete">${ICON.trash} <span>Delete</span></button>`
-        }
-      </div>`;
-    }).join('');
 
-    container.querySelectorAll('.subject-delete-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const subj = btn.dataset.subject;
-        const confirmed = confirm(`Delete subject "${subj}"?\n\nThis will remove it from your study session dropdown. Your past sessions and routine entries for this subject will not be deleted.`);
-        if (!confirmed) return;
-        if (!Array.isArray(state.deletedSubjects)) state.deletedSubjects = [];
-        if (!state.deletedSubjects.includes(subj)) {
-          state.deletedSubjects.push(subj);
+    if (!activeSubjects.length) {
+      container.innerHTML = '<p style="color:var(--text-soft); font-size:13px; margin:8px 0;">No active subjects found. Click "Reset Defaults" or add a new subject above.</p>';
+    } else {
+      container.innerHTML = activeSubjects.map(s => {
+        const stats = getSubjectStats(s);
+        const statPills = [];
+        if (stats.totalMin > 0) {
+          statPills.push(`<span class="subj-stat-pill" title="Total study logged">${ICON.clock} ${fmtHM(stats.totalMin)}</span>`);
+        } else if (stats.sessionCount > 0) {
+          statPills.push(`<span class="subj-stat-pill" title="Sessions logged">${stats.sessionCount} sessions</span>`);
         }
-        saveData();
-        renderSubjectSelect();
-        renderSubjectManager();
-        showToast(`"${subj}" removed from subject list.`);
+        if (stats.routineCount > 0) {
+          statPills.push(`<span class="subj-stat-pill" title="Routine blocks scheduled">${stats.routineCount} routine blocks</span>`);
+        }
+        if (stats.topicsCount > 0) {
+          statPills.push(`<span class="subj-stat-pill" title="Syllabus topics (${stats.topicsDone}/${stats.topicsCount} done)">${stats.topicsDone}/${stats.topicsCount} topics</span>`);
+        }
+        if (stats.cardCount > 0) {
+          statPills.push(`<span class="subj-stat-pill" title="Quiz / Flashcards">${stats.cardCount} cards</span>`);
+        }
+
+        const statsHtml = statPills.length
+          ? `<div class="subject-stats-badges">${statPills.join('')}</div>`
+          : '<span style="font-size:11.5px; color:var(--text-soft); opacity:0.7;">No logged activity</span>';
+
+        return `
+          <div class="subject-manager-row">
+            <div class="subject-info">
+              <span class="subject-manager-name">${escapeHtml(s)}</span>
+              ${statsHtml}
+            </div>
+            <div class="btn-group subject-row-actions">
+              <button class="pill subtle subject-rename-btn" data-rename-subject="${escapeAttr(s)}" type="button" title="Rename this subject everywhere">
+                ${ICON.edit} <span>Rename</span>
+              </button>
+              <button class="pill danger subject-delete-btn" data-subject="${escapeAttr(s)}" type="button" title="Hide/Delete this subject">
+                ${ICON.trash} <span>Delete</span>
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    if (deletedSection && deletedContainer) {
+      if (deletedSubjects.length > 0) {
+        deletedSection.style.display = 'block';
+        deletedContainer.innerHTML = deletedSubjects.map(s => `
+          <div class="subject-manager-row subject-deleted">
+            <div class="subject-info">
+              <span class="subject-manager-name">${escapeHtml(s)}</span>
+            </div>
+            <button class="pill subject-restore-btn" data-restore-subject="${escapeAttr(s)}" type="button" title="Restore this subject to active list">
+              ${ICON.undo} <span>Restore</span>
+            </button>
+          </div>
+        `).join('');
+      } else {
+        deletedSection.style.display = 'none';
+        deletedContainer.innerHTML = '';
+      }
+    }
+  }
+
+  function renameSubject(oldName, newName) {
+    if (!oldName || !newName || oldName === newName) return;
+    const oldCanonical = canonicalSubjectName(oldName).toLowerCase();
+
+    // 1. Routine
+    if (Array.isArray(state.routine)) {
+      state.routine.forEach(r => {
+        if (canonicalSubjectName(r.subject).toLowerCase() === oldCanonical) {
+          r.subject = newName;
+        }
       });
+    }
+
+    // 2. Sessions
+    if (Array.isArray(state.sessions)) {
+      state.sessions.forEach(s => {
+        if (canonicalSubjectName(s.subject).toLowerCase() === oldCanonical) {
+          s.subject = newName;
+        }
+      });
+    }
+
+    // 3. Active session
+    if (state.activeSession && canonicalSubjectName(state.activeSession.subject).toLowerCase() === oldCanonical) {
+      state.activeSession.subject = newName;
+    }
+
+    // 4. Custom subjects
+    if (Array.isArray(state.customSubjects)) {
+      const idx = state.customSubjects.findIndex(c => canonicalSubjectName(c).toLowerCase() === oldCanonical);
+      if (idx !== -1) {
+        state.customSubjects[idx] = newName;
+      } else {
+        state.customSubjects.push(newName);
+      }
+    } else {
+      state.customSubjects = [newName];
+    }
+
+    // 5. Syllabus categories
+    if (Array.isArray(state.syllabus)) {
+      state.syllabus.forEach(cat => {
+        if (canonicalSubjectName(cat.name).toLowerCase() === oldCanonical) {
+          cat.name = newName;
+        }
+      });
+    }
+
+    // 6. Flashcards
+    if (Array.isArray(state.flashcards)) {
+      state.flashcards.forEach(fc => {
+        if (canonicalSubjectName(fc.category).toLowerCase() === oldCanonical) {
+          fc.category = newName;
+        }
+      });
+    }
+
+    // 7. Deleted subjects
+    if (Array.isArray(state.deletedSubjects)) {
+      state.deletedSubjects = state.deletedSubjects.filter(s => canonicalSubjectName(s).toLowerCase() !== oldCanonical);
+    }
+
+    saveData();
+    syncAllSubjectSelects();
+    renderRoutine();
+    renderCategories();
+    renderFlashcards();
+    renderTrackerRoutinePreview();
+    showToast(`Renamed "${oldName}" to "${newName}" across all data.`);
+  }
+
+  function deleteSubject(subj) {
+    if (!subj) return;
+    const confirmed = confirm(`Delete / hide subject "${subj}"?\n\nThis will remove it from all subject pickers (Routine, Tracker, Syllabus, Quiz). Your past study sessions and routine entries will be safely preserved.`);
+    if (!confirmed) return;
+
+    if (!Array.isArray(state.deletedSubjects)) state.deletedSubjects = [];
+    const canonical = canonicalSubjectName(subj);
+    if (!state.deletedSubjects.some(s => canonicalSubjectName(s).toLowerCase() === canonical.toLowerCase())) {
+      state.deletedSubjects.push(canonical);
+    }
+    saveData();
+    syncAllSubjectSelects();
+    showToast(`"${subj}" removed from active subjects.`);
+  }
+
+  function restoreSubject(subj) {
+    if (!subj) return;
+    const canonical = canonicalSubjectName(subj).toLowerCase();
+    if (Array.isArray(state.deletedSubjects)) {
+      state.deletedSubjects = state.deletedSubjects.filter(s => canonicalSubjectName(s).toLowerCase() !== canonical);
+    }
+    saveData();
+    syncAllSubjectSelects();
+    showToast(`"${subj}" restored to active subjects.`);
+  }
+
+  function syncAllSubjectSelects() {
+    renderSubjectSelect();
+    renderFlashCategoryOptions();
+    renderSubjectManager();
+  }
+
+  // Quick subject chips click handler
+  const quickSubjectChipsEl = document.getElementById('quickSubjectChips');
+  if (quickSubjectChipsEl) {
+    quickSubjectChipsEl.addEventListener('click', (e) => {
+      const chip = e.target.closest('[data-subject-chip]');
+      if (!chip) return;
+      if (state.activeSession) {
+        showToast('A study session is currently active. Stop it before switching subjects.', true);
+        return;
+      }
+      const subj = chip.dataset.subjectChip;
+      const sel = document.getElementById('sessionSubject');
+      if (sel) {
+        sel.value = subj;
+        if (sessionCustomInput) {
+          sessionCustomInput.style.display = 'none';
+          sessionCustomInput.value = '';
+        }
+      }
+      quickSubjectChipsEl.querySelectorAll('.subject-chip').forEach(c => {
+        c.classList.toggle('active', c.dataset.subjectChip === subj);
+      });
+      refreshTimerSub();
     });
+  }
 
-    container.querySelectorAll('.subject-restore-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const subj = btn.dataset.subject;
-        state.deletedSubjects = (state.deletedSubjects || []).filter(d => d !== subj);
-        saveData();
-        renderSubjectSelect();
-        renderSubjectManager();
-        showToast(`"${subj}" restored to subject list.`);
-      });
+  // Quick link to manage subjects in settings
+  const manageSubjLink = document.querySelector('.manage-subjects-link');
+  if (manageSubjLink) {
+    manageSubjLink.addEventListener('click', (e) => {
+      e.preventDefault();
+      activateTab('settings', true);
+      setTimeout(() => {
+        const el = document.getElementById('subjectManagerList');
+        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 120);
+    });
+  }
+
+  // Subject Manager delegated click handlers (Rename, Delete)
+  const subjManagerListEl = document.getElementById('subjectManagerList');
+  if (subjManagerListEl) {
+    subjManagerListEl.addEventListener('click', (e) => {
+      const delBtn = e.target.closest('.subject-delete-btn');
+      if (delBtn) {
+        deleteSubject(delBtn.dataset.subject);
+        return;
+      }
+      const renameBtn = e.target.closest('.subject-rename-btn');
+      if (renameBtn) {
+        const oldName = renameBtn.dataset.renameSubject;
+        const newName = prompt(`Rename subject "${oldName}" across all routine, tracker, and syllabus data:`, oldName);
+        if (newName && newName.trim() && newName.trim() !== oldName) {
+          renameSubject(oldName, newName.trim());
+        }
+        return;
+      }
+    });
+  }
+
+  // Deleted Subject List restore button
+  const deletedListEl = document.getElementById('deletedSubjectList');
+  if (deletedListEl) {
+    deletedListEl.addEventListener('click', (e) => {
+      const restoreBtn = e.target.closest('.subject-restore-btn');
+      if (restoreBtn) {
+        restoreSubject(restoreBtn.dataset.restoreSubject);
+      }
+    });
+  }
+
+  // Reset default curriculum subjects
+  const resetDefaultsBtn = document.getElementById('resetDefaultSubjectsBtn');
+  if (resetDefaultsBtn) {
+    resetDefaultsBtn.addEventListener('click', () => {
+      const ok = confirm('Reset subjects to default curriculum list?\n\nThis will restore any default subjects that were hidden.');
+      if (!ok) return;
+      const defaultCanonicals = new Set(DEFAULT_SUBJECTS.map(s => canonicalSubjectName(s).toLowerCase()));
+      if (Array.isArray(state.deletedSubjects)) {
+        state.deletedSubjects = state.deletedSubjects.filter(s => !defaultCanonicals.has(canonicalSubjectName(s).toLowerCase()));
+      }
+      saveData();
+      syncAllSubjectSelects();
+      showToast('Default curriculum subjects restored.');
     });
   }
 
@@ -1584,6 +2049,13 @@
     sessionCustomInput.style.display = sessionSubjectSel.value === '__custom__' ? 'block' : 'none';
     if (sessionSubjectSel.value !== '__custom__') {
       sessionCustomInput.value = '';
+    }
+    const currentVal = sessionSubjectSel.value;
+    const chipsContainer = document.getElementById('quickSubjectChips');
+    if (chipsContainer) {
+      chipsContainer.querySelectorAll('.subject-chip').forEach(c => {
+        c.classList.toggle('active', c.dataset.subjectChip === currentVal);
+      });
     }
     refreshTimerSub();
   });
@@ -1637,6 +2109,7 @@
         timerSub.innerHTML = 'Select a subject and duration to begin focus session';
       }
       if (orb) orb.classList.remove('active');
+      syncMiniTimerWidget();
       return;
     }
     if (orb) orb.classList.add('active');
@@ -1645,6 +2118,7 @@
     if (timerSub) {
       timerSub.innerHTML = '<span class="timer-dot"></span> Studying <strong>' + escapeHtml(state.activeSession.subject) + '</strong> in progress';
     }
+    syncMiniTimerWidget();
     renderTodaySessions();
   }
 
@@ -1689,7 +2163,7 @@
           <div class="s-subject">${label}${isActive ? ' <span class="timer-dot"></span>' : ''}</div>
           <div style="display:flex; align-items:center; gap:6px;">
             <span class="s-badge">${isActive ? 'Live' : fmtHM(s.duration)}</span>
-            ${!isActive && !isBreak ? `<button class="s-del-btn" title="Delete session" data-delsession="${s.id}">${ICON.trash}</button>` : ''}
+            ${!isActive && !isBreak ? `<button class="s-del-btn" title="Delete session" data-delsession="${s.id}">${ICON.x}</button>` : ''}
           </div>
         </div>
         <div class="s-progress">
@@ -1848,7 +2322,7 @@
     }).join('');
 
     const { start, end } = getReviewRange();
-    const fmt = (d) => toBnDigits(d.getDate()) + '/' + toBnDigits(d.getMonth() + 1);
+    const fmt = (d) => d.getDate() + '/' + (d.getMonth() + 1);
     document.getElementById('reviewRangeLabel').textContent = fmt(start) + ' – ' + fmt(end);
   }
 
@@ -1866,6 +2340,106 @@
     renderWeekChart();
   });
 
+  // ===== GitHub-style Study Activity Heatmap =====
+  function renderStudyHeatmap() {
+    const grid = document.getElementById('studyHeatmapGrid');
+    if (!grid) return;
+
+    const today = new Date();
+    today.setHours(23, 59, 59, 999);
+
+    const dailyMinutes = {};
+    const dailySessionsCount = {};
+
+    if (Array.isArray(state.sessions)) {
+      state.sessions.forEach(s => {
+        if (!s.start) return;
+        const dk = dateKey(s.start);
+        const mins = s.duration || 0;
+        dailyMinutes[dk] = (dailyMinutes[dk] || 0) + mins;
+        dailySessionsCount[dk] = (dailySessionsCount[dk] || 0) + 1;
+      });
+    }
+
+    if (state.activeSession && state.activeSession.start) {
+      const todayDk = dateKey(Date.now());
+      const liveMins = Math.max(1, Math.floor((Date.now() - state.activeSession.start) / 60000));
+      dailyMinutes[todayDk] = (dailyMinutes[todayDk] || 0) + liveMins;
+      dailySessionsCount[todayDk] = (dailySessionsCount[todayDk] || 0) + 1;
+    }
+
+    const allMins = Object.values(dailyMinutes).reduce((a, b) => a + b, 0);
+    const totalHoursStr = (allMins / 60).toFixed(1) + 'h';
+    const activeDaysCount = Object.keys(dailyMinutes).filter(k => dailyMinutes[k] > 0).length;
+
+    let streak = 0;
+    let checkDate = new Date();
+    const todayKeyStr = dateKey(checkDate.getTime());
+    if (dailyMinutes[todayKeyStr] > 0) {
+      streak++;
+      checkDate.setDate(checkDate.getDate() - 1);
+    } else {
+      checkDate.setDate(checkDate.getDate() - 1);
+    }
+    while (dailyMinutes[dateKey(checkDate.getTime())] > 0) {
+      streak++;
+      checkDate.setDate(checkDate.getDate() - 1);
+    }
+
+    const streakEl = document.getElementById('heatmapStreakDays');
+    const totalEl = document.getElementById('heatmapTotalHours');
+    const activeEl = document.getElementById('heatmapActiveDays');
+    if (streakEl) streakEl.textContent = streak;
+    if (totalEl) totalEl.textContent = totalHoursStr;
+    if (activeEl) activeEl.textContent = activeDaysCount;
+
+    const currentDayOfWeek = today.getDay();
+    const numWeeks = 18;
+    const totalDays = numWeeks * 7;
+    const startDate = new Date(today);
+    startDate.setDate(today.getDate() - totalDays + (6 - currentDayOfWeek) + 1);
+    startDate.setHours(0, 0, 0, 0);
+
+    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    let html = '';
+    let cur = new Date(startDate);
+
+    for (let w = 0; w < numWeeks; w++) {
+      let colHtml = '<div class="heatmap-col">';
+      const colMonth = cur.getDate() <= 7 ? monthNames[cur.getMonth()] : '';
+      colHtml += `<div class="heatmap-col-header">${colMonth}</div>`;
+
+      for (let d = 0; d < 7; d++) {
+        const dk = dateKey(cur.getTime());
+        const isFuture = cur.getTime() > today.getTime();
+        const mins = dailyMinutes[dk] || 0;
+        const count = dailySessionsCount[dk] || 0;
+
+        let lvl = 0;
+        if (mins > 0 && mins < 60) lvl = 1;
+        else if (mins >= 60 && mins < 120) lvl = 2;
+        else if (mins >= 120 && mins < 240) lvl = 3;
+        else if (mins >= 240) lvl = 4;
+
+        const dateFormatted = cur.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
+        const timeStr = mins >= 60 ? `${Math.floor(mins / 60)}h ${mins % 60}m` : `${mins}m`;
+        const title = isFuture ? '' : `${dateFormatted}: ${mins > 0 ? `${timeStr} studied (${count} session${count > 1 ? 's' : ''})` : 'No study recorded'}`;
+
+        if (isFuture) {
+          colHtml += `<div class="heatmap-cell" style="opacity:0.06; pointer-events:none;"></div>`;
+        } else {
+          colHtml += `<div class="heatmap-cell lvl-${lvl}" data-date="${dk}" title="${title}"></div>`;
+        }
+
+        cur.setDate(cur.getDate() + 1);
+      }
+      colHtml += '</div>';
+      html += colHtml;
+    }
+
+    grid.innerHTML = html;
+  }
+
   function renderTrackerAll() {
     renderSubjectSelect();
     renderSubjectManager();
@@ -1879,11 +2453,14 @@
     renderWeekChart();
     renderTrackerRoutinePreview();
     update24hActivityUI();
+    renderStudyHeatmap();
+    syncMiniTimerWidget();
   }
 
   // ===== Syllabus =====
   const categoryList = document.getElementById('categoryList');
   const openCategoryIds = new Set();
+  const topicDeleteModeCategories = new Set();
 
   function syllabusTotals() {
     let total = 0, done = 0;
@@ -1894,7 +2471,7 @@
   function renderSyllabusOverall() {
     const { total, done } = syllabusTotals();
     const pct = total ? Math.round((done / total) * 100) : 0;
-    document.getElementById('syllabusOverallLabel').textContent = `${toBnDigits(done)} / ${toBnDigits(total)} topics completed`;
+    document.getElementById('syllabusOverallLabel').textContent = `${done} / ${total} topics completed`;
     document.getElementById('syllabusOverallPct').textContent = pct + '%';
     document.getElementById('syllabusOverallFill').style.width = pct + '%';
   }
@@ -1909,29 +2486,62 @@
       const total = cat.topics.length;
       const done = cat.topics.filter(t => t.done).length;
       const pct = total ? Math.round((done / total) * 100) : 0;
+      const isTopicDelActive = topicDeleteModeCategories.has(String(cat.id));
       const topicsHtml = cat.topics.length ? (
         '<div class="topic-tile-grid">' + cat.topics.map(t => `
           <div class="topic-tile ${t.done ? 'done' : ''}" data-cat="${cat.id}" data-topic="${t.id}">
             <span class="tile-label" data-topic-label="${t.id}" data-topic-cat="${cat.id}" title="Double-click to edit">${escapeHtml(t.name)}</span>
-            <button class="tile-del" data-cat="${cat.id}" data-topic="${t.id}" title="Delete">${ICON.trash}</button>
+            <button class="tile-del" data-cat="${cat.id}" data-topic="${t.id}" title="Delete Topic" aria-label="Delete Topic">${ICON.x}</button>
           </div>
         `).join('') + '</div>'
       ) : '<div class="empty-state" style="padding:20px;">No topics in this category yet.</div>';
+
+      const topicDelBanner = isTopicDelActive ? `
+        <div class="topic-del-active-banner">
+          <div class="del-banner-left">
+            <span class="del-pulse-dot"></span>
+            <span>Topic delete mode active — click <strong>✕</strong> on any topic to remove</span>
+          </div>
+          <button class="pill subtle mini-exit-del-btn" data-catdel-topics="${cat.id}" type="button">Done</button>
+        </div>
+      ` : '';
+
       return `
-        <div class="category-card glass open" data-cat="${cat.id}">
+        <div class="category-card glass open ${isTopicDelActive ? 'topic-delete-mode' : ''}" data-cat="${cat.id}">
           <div class="category-head">
             <div class="category-head-left">
               <h3 class="category-title" data-category-title="${cat.id}" title="Double-click to edit">${escapeHtml(cat.name)}</h3>
             </div>
             <div class="category-head-right">
-              <span class="category-progress-text">${toBnDigits(done)}/${toBnDigits(total)} • ${pct}%</span>
+              <span class="category-progress-text">${done}/${total} • ${pct}%</span>
               <div class="category-mini-track"><div class="category-mini-fill" style="width:${pct}%"></div></div>
-              <button class="pill subtle" data-edit-category="${cat.id}">${ICON.edit} Edit</button>
-              <button class="pill subtle" data-toggle-add-topic="${cat.id}">${ICON.plus} Add Topic</button>
-              <button class="cat-del-btn" data-catdel="${cat.id}" title="Delete Category">${ICON.trash}</button>
+              <div class="btn-group category-action-group">
+                <button class="cat-group-btn cat-add-btn" data-toggle-add-topic="${cat.id}" type="button" title="Add Topic" aria-label="Add Topic">
+                  ${ICON.plus} <span>Add Topic</span>
+                </button>
+                <button class="cat-group-btn cat-edit-btn" data-edit-category="${cat.id}" type="button" title="Edit Category" aria-label="Edit Category">
+                  ${ICON.edit} <span>Edit</span>
+                </button>
+                <div class="cat-del-dropdown-wrap">
+                  <button class="cat-group-btn cat-del-trigger ${isTopicDelActive ? 'active' : ''}" data-catdel-trigger="${cat.id}" type="button" title="Delete Options" aria-label="Delete Options">
+                    ${ICON.trash} <span>Delete</span>
+                  </button>
+                  <div class="cat-del-menu" data-catdel-dropdown="${cat.id}" style="display:none;">
+                    <button class="cat-del-menu-item item-subject" data-catdel-subject="${cat.id}" type="button">
+                      ${ICON.trash}
+                      <span>Delete Subject</span>
+                    </button>
+                    <button class="cat-del-menu-item item-topics ${isTopicDelActive ? 'active-mode' : ''}" data-catdel-topics="${cat.id}" type="button">
+                      ${ICON.x}
+                      <span>${isTopicDelActive ? 'Done Deleting' : 'Delete Topic'}</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
           <div class="category-body">
+            ${topicDelBanner}
             ${topicsHtml}
             <div class="add-topic-row" data-topic-form="${cat.id}" style="display:none;">
               <input type="text" placeholder="Enter topic name" data-topicinput="${cat.id}">
@@ -1947,7 +2557,7 @@
   function saveSyllabusAndRefresh() {
     saveData();
     renderCategories();
-    renderFlashCategoryOptions();
+    syncAllSubjectSelects();
   }
 
   document.getElementById('addCategoryBtn').addEventListener('click', () => {
@@ -1983,6 +2593,56 @@
 
   categoryList.addEventListener('click', (e) => {
     if (e.detail > 1) return;
+
+    // Delete trigger clicked: toggle dropdown menu
+    const delTrigger = e.target.closest('[data-catdel-trigger]');
+    if (delTrigger) {
+      const catId = delTrigger.dataset.catdelTrigger;
+      const menu = categoryList.querySelector(`[data-catdel-dropdown="${catId}"]`);
+      const isCurrentlyOpen = menu && menu.style.display === 'flex';
+      document.querySelectorAll('.cat-del-menu').forEach(m => m.style.display = 'none');
+      document.querySelectorAll('.cat-del-trigger').forEach(b => b.classList.remove('menu-open'));
+      if (!isCurrentlyOpen && menu) {
+        menu.style.display = 'flex';
+        delTrigger.classList.add('menu-open');
+      }
+      return;
+    }
+
+    // Delete Subject option
+    const subBtn = e.target.closest('[data-catdel-subject]');
+    if (subBtn) {
+      const catId = subBtn.dataset.catdelSubject;
+      const cat = state.syllabus.find(c => String(c.id) === catId);
+      const catName = cat && cat.name ? `"${cat.name}"` : 'this subject/category';
+      document.querySelectorAll('.cat-del-menu').forEach(m => m.style.display = 'none');
+      document.querySelectorAll('.cat-del-trigger').forEach(b => b.classList.remove('menu-open'));
+      if (!window.confirm(`Are you sure you want to delete subject ${catName} and all its topics?`)) return;
+      openCategoryIds.delete(catId);
+      topicDeleteModeCategories.delete(catId);
+      state.syllabus = state.syllabus.filter(c => String(c.id) !== catId);
+      saveSyllabusAndRefresh();
+      showToast('Subject deleted');
+      return;
+    }
+
+    // Delete Topic / Toggle topic delete mode option
+    const topBtn = e.target.closest('[data-catdel-topics]');
+    if (topBtn) {
+      const catId = String(topBtn.dataset.catdelTopics);
+      document.querySelectorAll('.cat-del-menu').forEach(m => m.style.display = 'none');
+      document.querySelectorAll('.cat-del-trigger').forEach(b => b.classList.remove('menu-open'));
+      if (topicDeleteModeCategories.has(catId)) {
+        topicDeleteModeCategories.delete(catId);
+        showToast('Topic delete mode disabled');
+      } else {
+        topicDeleteModeCategories.add(catId);
+        showToast('Topic delete mode enabled. Click ✕ on topics to delete.');
+      }
+      renderCategories();
+      return;
+    }
+
     const tile = e.target.closest('.topic-tile');
     if (tile && !e.target.closest('.tile-del')) {
       const cat = state.syllabus.find(c => String(c.id) === tile.dataset.cat);
@@ -1992,6 +2652,7 @@
       }
       return;
     }
+
     if (e.target.closest('.tile-del')) {
       const btn = e.target.closest('.tile-del');
       const cat = state.syllabus.find(c => String(c.id) === btn.dataset.cat);
@@ -2000,43 +2661,41 @@
         const topicName = topic && topic.name ? `"${topic.name}"` : 'this topic';
         if (!window.confirm(`Are you sure you want to delete topic ${topicName}?`)) return;
         cat.topics = cat.topics.filter(t => String(t.id) !== btn.dataset.topic);
+        if (!cat.topics.length) {
+          topicDeleteModeCategories.delete(String(cat.id));
+        }
         saveSyllabusAndRefresh();
         showToast('Topic deleted');
       }
       return;
     }
-    if (e.target.dataset.catdel) {
-      const catId = e.target.dataset.catdel;
-      const cat = state.syllabus.find(c => String(c.id) === catId);
-      const catName = cat && cat.name ? `"${cat.name}"` : 'this subject/category';
-      if (!window.confirm(`Are you sure you want to delete category ${catName} and all its topics?`)) return;
-      openCategoryIds.delete(catId);
-      state.syllabus = state.syllabus.filter(c => String(c.id) !== catId);
-      saveSyllabusAndRefresh();
-      showToast('Category deleted');
-      return;
-    }
-    if (e.target.dataset.addtopic) {
-      const catId = e.target.dataset.addtopic;
+
+    if (e.target.closest('[data-addtopic]')) {
+      const btn = e.target.closest('[data-addtopic]');
+      const catId = btn.dataset.addtopic;
       const input = categoryList.querySelector(`[data-topicinput="${catId}"]`);
-      const name = input.value.trim();
+      const name = input ? input.value.trim() : '';
       if (!name) return;
       const cat = state.syllabus.find(c => String(c.id) === catId);
       if (cat) { cat.topics.push({ id: Date.now(), name, done: false }); input.value = ''; saveSyllabusAndRefresh(); }
       return;
     }
-    if (e.target.dataset.toggleAddTopic) {
-      const catId = e.target.dataset.toggleAddTopic;
+
+    if (e.target.closest('[data-toggle-add-topic]')) {
+      const btn = e.target.closest('[data-toggle-add-topic]');
+      const catId = btn.dataset.toggleAddTopic;
       const panel = categoryList.querySelector(`[data-topic-form="${catId}"]`);
       if (panel) {
         panel.style.display = panel.style.display === 'flex' ? 'none' : 'flex';
         const input = panel.querySelector('input');
-        if (panel.style.display === 'flex') input.focus();
+        if (panel.style.display === 'flex' && input) input.focus();
       }
       return;
     }
-    if (e.target.dataset.editCategory) {
-      const catId = e.target.dataset.editCategory;
+
+    if (e.target.closest('[data-edit-category]')) {
+      const btn = e.target.closest('[data-edit-category]');
+      const catId = btn.dataset.editCategory;
       const cat = state.syllabus.find(c => String(c.id) === catId);
       if (!cat) return;
       const name = window.prompt('Enter new category name:', cat.name);
@@ -2046,6 +2705,14 @@
       cat.name = trimmed;
       saveSyllabusAndRefresh();
       return;
+    }
+  });
+
+  // Global click to dismiss category delete dropdowns when clicking outside
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('.cat-del-dropdown-wrap')) {
+      document.querySelectorAll('.cat-del-menu').forEach(m => m.style.display = 'none');
+      document.querySelectorAll('.cat-del-trigger').forEach(b => b.classList.remove('menu-open'));
     }
   });
 
@@ -2107,7 +2774,7 @@
     flashGrid.innerHTML = list.map(f => `
       <div class="flash-card" data-id="${f.id}">
         <div class="flash-card-actions">
-          <button data-del="${f.id}" title="Delete Card">${ICON.trash}</button>
+          <button data-del="${f.id}" title="Delete Card">${ICON.x}</button>
         </div>
         <div class="flash-card-inner">
           <div class="flash-face flash-front">
@@ -2540,16 +3207,16 @@
     addSubjectBtn.addEventListener('click', () => {
       const name = newSubjectInput.value.trim();
       if (!name) { newSubjectInput.focus(); return; }
-      // Remove from deletedSubjects if it was previously deleted
-      state.deletedSubjects = (state.deletedSubjects || []).filter(d => d !== name);
-      // Add to a custom subjects list so it persists even after sessions are cleared
+      const canonical = canonicalSubjectName(name).toLowerCase();
+      // Remove from deletedSubjects if it was previously deleted/hidden
+      state.deletedSubjects = (state.deletedSubjects || []).filter(d => canonicalSubjectName(d).toLowerCase() !== canonical);
+      // Add to custom subjects list so it persists
       if (!Array.isArray(state.customSubjects)) state.customSubjects = [];
-      if (!state.customSubjects.includes(name)) {
+      if (!state.customSubjects.some(c => canonicalSubjectName(c).toLowerCase() === canonical)) {
         state.customSubjects.push(name);
       }
       saveData();
-      renderSubjectSelect();
-      renderSubjectManager();
+      syncAllSubjectSelects();
       newSubjectInput.value = '';
       showToast(`"${name}" added to subject list.`);
     });
@@ -2618,19 +3285,21 @@
       const card = document.createElement('div');
       card.className = 'countdown-card glass';
       card.innerHTML = `
-        <button class="countdown-del-btn" data-id="${ex.id}" title="Delete">${ICON.trash}</button>
         <div class="countdown-head">
           <h3>${escapeHtml(ex.name)}</h3>
-          <span class="countdown-tag">${escapeHtml(ex.category || 'পরীক্ষা')}</span>
+          <div class="countdown-head-actions">
+            <span class="countdown-tag">${escapeHtml(ex.category || 'Exam')}</span>
+            <button class="countdown-del-btn" data-id="${ex.id}" title="Delete">${ICON.x}</button>
+          </div>
         </div>
         ${isExpired ? `
           <div style="padding: 16px 0; text-align:center; color: var(--accent3); font-weight:700;">Exam Date Passed / Target Reached!</div>
         ` : `
           <div class="countdown-timer-row">
-            <div class="time-box"><span class="time-num">${toBnDigits(days)}</span><span class="time-lbl">days</span></div>
-            <div class="time-box"><span class="time-num">${toBnDigits(hours)}</span><span class="time-lbl">h</span></div>
-            <div class="time-box"><span class="time-num">${toBnDigits(mins)}</span><span class="time-lbl">m</span></div>
-            <div class="time-box"><span class="time-num">${toBnDigits(secs)}</span><span class="time-lbl">s</span></div>
+            <div class="time-box"><span class="time-num">${days}</span><span class="time-lbl">days</span></div>
+            <div class="time-box"><span class="time-num">${hours}</span><span class="time-lbl">h</span></div>
+            <div class="time-box"><span class="time-num">${mins}</span><span class="time-lbl">m</span></div>
+            <div class="time-box"><span class="time-num">${secs}</span><span class="time-lbl">s</span></div>
           </div>
         `}
       `;
@@ -2681,7 +3350,7 @@
       exams.push({
         id: Date.now(),
         name: name,
-        category: cat || 'পরীক্ষা',
+        category: cat || 'Exam',
         targetDate: new Date(dateVal).toISOString()
       });
 
@@ -2927,11 +3596,13 @@
         const s = String(customCountdownSecs % 60).padStart(2, '0');
         if (display) display.textContent = `${m}:${s}`;
         renderTodaySessions();
+        syncMiniTimerWidget();
       } else {
         clearInterval(customCountdownInterval);
         stopCustomCountdown(true);
       }
     }, 1000);
+    syncMiniTimerWidget();
   }
 
   function stopCustomCountdown(isCompleted = false) {
@@ -2946,6 +3617,7 @@
     if (startBtn) startBtn.style.display = 'inline-flex';
     if (stopBtn) stopBtn.style.display = 'none';
     if (orb) orb.classList.remove('active');
+    syncMiniTimerWidget();
 
     const subject = currentSubjectValue() || 'General';
     const reason = document.getElementById('breakReason')?.value || 'Refreshment';
@@ -4528,7 +5200,7 @@
   let mcqAutoAdvanceEnabled = localStorage.getItem('jobprep_mcq_autoadvance') !== 'false';
   let flaggedQuestions = {};
 
-  const prefixList = ["ক", "খ", "গ", "ঘ"];
+  const prefixList = ["A", "B", "C", "D"];
 
   let mistakes = [];
 
@@ -4885,7 +5557,7 @@
     if (activeExamPool.length === 0) {
       const added = autoAddFreshQuestions();
       if (!added) {
-        if (qText) qText.innerHTML = "<strong>সকল প্রশ্ন সম্পূর্ণ আয়ত্ত (Mastered) হয়েছে!</strong><br><small style=\"color:var(--text-soft); font-weight:normal;\">আপনি এই বিষয়ের সকল প্রশ্নের সঠিক উত্তর দুবার দিয়েছেন। পুনরায় অনুশীলন করতে উপরে 'Restore Mastered' চাপুন অথবা অন্য বিষয় বেছে নিন।</small>";
+        if (qText) qText.innerHTML = "<strong>All questions in this subject are Mastered!</strong><br><small style=\"color:var(--text-soft); font-weight:normal;\">You have answered all questions correctly twice. Click 'Restore Mastered' above or pick another subject.</small>";
         if (optionsContainer) optionsContainer.innerHTML = "";
         if (explanationBox) explanationBox.classList.remove("show");
         if (prevBtn) prevBtn.style.display = "none";
@@ -4903,8 +5575,8 @@
 
     const q = activeExamPool[currentMCQIndex];
     if (currentIndexEl) currentIndexEl.textContent = (currentMCQIndex + 1) + " / " + activeExamPool.length;
-    if (qSubject) qSubject.textContent = q.subject || "বিসিএস প্রিলিমিনারি";
-    if (qSourceTag) qSourceTag.textContent = q.isCustom ? "কাস্টম প্রশ্ন" : "BCS Preliminary Standard";
+    if (qSubject) qSubject.textContent = q.subject || "BCS Preliminary";
+    if (qSourceTag) qSourceTag.textContent = q.isCustom ? "Custom Question" : "BCS Preliminary Standard";
     if (qText) qText.textContent = (currentMCQIndex + 1) + ". " + q.question;
     if (optionsContainer) optionsContainer.innerHTML = "";
     if (explanationBox) explanationBox.classList.remove("show");
@@ -4956,7 +5628,7 @@
             <span class="opt-text">${escapeHtml(opt)}</span>
           </div>
           <div class="opt-status-tag">
-            ${isSel ? '<span style="font-size:11px; color:var(--accent1); font-weight:700;">নির্বাচিত</span>' : ''}
+            ${isSel ? '<span style="font-size:11px; color:var(--accent1); font-weight:700;">Selected</span>' : ''}
           </div>
         `;
         btn.onclick = () => selectMCQOption(idx, q);
@@ -4999,10 +5671,10 @@
           btn.disabled = true;
           if (idx === q.correct) {
             btn.classList.add(rememberedAnswer.selectedIndex === q.correct ? "selected-correct" : "highlight-correct");
-            statusTagHtml = `${ICON.checkCircle} <span style="color:#10b981;">সঠিক উত্তর</span>`;
+            statusTagHtml = `${ICON.checkCircle} <span style="color:#10b981;">Correct</span>`;
           } else if (idx === rememberedAnswer.selectedIndex && !rememberedAnswer.isCorrect) {
             btn.classList.add("selected-wrong");
-            statusTagHtml = `${ICON.xCircle} <span style="color:#f43f5e;">আপনার উত্তর</span>`;
+            statusTagHtml = `${ICON.xCircle} <span style="color:#f43f5e;">Your Answer</span>`;
           }
         } else {
           btn.onclick = () => selectMCQOption(idx, q);
@@ -5021,9 +5693,9 @@
 
       if (rememberedAnswer !== undefined && explanationText && explanationBox) {
         if (rememberedAnswer.isCorrect) {
-          let expHtml = escapeHtml(q.explanation || "প্রাসঙ্গিক ব্যাখ্যা উপলব্ধ নেই।");
+          let expHtml = escapeHtml(q.explanation || "No explanation provided.");
           expHtml += `<div style="margin-top:10px; padding:8px 12px; background:rgba(16,185,129,0.12); border-radius:8px; border:1px solid rgba(16,185,129,0.25); color:#10b981; font-weight:600; font-size:12.5px;">
-            ✓ সঠিক উত্তর! বিসিএস মডেলে ২ বার সঠিক উত্তর দিলে প্রশ্নটি স্বয়ংক্রিয়ভাবে আয়ত্ত তালিকায় চলে যায়।
+            ✓ Correct! In the BCS Leitner model, answering correctly twice graduates the question to Mastered.
           </div>`;
           explanationText.innerHTML = expHtml;
         } else {
@@ -5031,13 +5703,13 @@
           const yourText = escapeHtml(q.options[rememberedAnswer.selectedIndex] || "");
           const correctText = escapeHtml(q.options[q.correct] || "");
           explanationText.innerHTML = `
-            <div class="wrong-feedback-badge">${ICON.xCircle} ভুল উত্তর</div>
+            <div class="wrong-feedback-badge">${ICON.xCircle} Incorrect</div>
             <div style="margin-bottom:8px; font-size:13px; line-height:1.6;">
-              <strong>আপনার উত্তর:</strong> <span style="color:#f43f5e; font-weight:600;">${yourText}</span> &nbsp;|&nbsp; 
-              <strong>সঠিক উত্তর:</strong> <span style="color:#10b981; font-weight:600;">${correctText}</span>
+              <strong>Your Answer:</strong> <span style="color:#f43f5e; font-weight:600;">${yourText}</span> &nbsp;|&nbsp; 
+              <strong>Correct Answer:</strong> <span style="color:#10b981; font-weight:600;">${correctText}</span>
             </div>
-            <div style="margin-bottom:8px;"><strong>ব্যাখ্যা ও টেকনিক:</strong> ${escapeHtml(q.explanation || "প্রাসঙ্গিক ব্যাখ্যা উপলব্ধ নেই।")}</div>
-            <div class="mistake-saved-badge">${ICON.flag} দুর্বল ক্ষেত্র হিসেবে Mistake Bank-এ সেভ করা হয়েছে</div>
+            <div style="margin-bottom:8px;"><strong>Explanation &amp; Shortcut:</strong> ${escapeHtml(q.explanation || "No explanation provided.")}</div>
+            <div class="mistake-saved-badge">${ICON.flag} Saved to Mistake Bank for review</div>
           `;
         }
         explanationBox.classList.add("show");
@@ -5068,7 +5740,7 @@
           const isSel = (idx === selectedIndex);
           btn.classList.toggle("selected-exam", isSel);
           const tag = btn.querySelector(".opt-status-tag");
-          if (tag) tag.innerHTML = isSel ? '<span style="font-size:11px; color:var(--accent1); font-weight:700;">নির্বাচিত</span>' : '';
+          if (tag) tag.innerHTML = isSel ? '<span style="font-size:11px; color:var(--accent1); font-weight:700;">Selected</span>' : '';
         });
       }
 
@@ -5109,10 +5781,10 @@
         const tag = btn.querySelector(".opt-status-tag");
         if (idx === q.correct) {
           btn.classList.add(selectedIndex === q.correct ? "selected-correct" : "highlight-correct");
-          if (tag) tag.innerHTML = `${ICON.checkCircle} <span style="color:#10b981;">সঠিক উত্তর</span>`;
+          if (tag) tag.innerHTML = `${ICON.checkCircle} <span style="color:#10b981;">Correct</span>`;
         } else if (idx === selectedIndex && !isCorrect) {
           btn.classList.add("selected-wrong");
-          if (tag) tag.innerHTML = `${ICON.xCircle} <span style="color:#f43f5e;">আপনার পছন্দ</span>`;
+          if (tag) tag.innerHTML = `${ICON.xCircle} <span style="color:#f43f5e;">Your Choice</span>`;
         }
       });
     }
@@ -5147,17 +5819,17 @@
 
       // Dynamic Streak / Correct Banner
       if (streakBanner) {
-        let streakTitle = "✓ সঠিক উত্তর! (+1.0 নম্বর অর্জিত)";
+        let streakTitle = "✓ Correct! (+1.0 point earned)";
         if (justMastered) {
-          streakTitle = `🏆 অভিনন্দন! প্রশ্নটি সম্পূর্ণ আয়ত্ত হয়েছে (Mastered 2/2)!`;
+          streakTitle = `🏆 Awesome! Question Mastered (2/2)!`;
         } else if (mcqStreak >= 10) {
-          streakTitle = `👑 ${mcqStreak}টি টানা সঠিক উত্তর! মেধা তালিকায় শীর্ষস্থান!`;
+          streakTitle = `👑 ${mcqStreak} Streak! Top of the leaderboard!`;
         } else if (mcqStreak >= 5) {
-          streakTitle = `⚡ ${mcqStreak}টি টানা সঠিক উত্তর! অপ্রতিরোধ্য স্পিড!`;
+          streakTitle = `⚡ ${mcqStreak} Streak! Unstoppable speed!`;
         } else if (mcqStreak >= 3) {
-          streakTitle = `🔥 ${mcqStreak}টি টানা সঠিক উত্তর! দারুণ মোমেন্টাম!`;
+          streakTitle = `🔥 ${mcqStreak} Streak! Great momentum!`;
         } else if (mcqStreak === 2) {
-          streakTitle = `🔥 ২টি টানা সঠিক উত্তর! দারুণ গতি!`;
+          streakTitle = `🔥 2 Streak! Keep going!`;
         }
 
         streakBanner.innerHTML = `
@@ -5168,14 +5840,14 @@
           <div class="streak-banner-controls">
             ${mcqAutoAdvanceEnabled ? `
               <span class="auto-advance-note" id="autoAdvanceNote" style="font-size:12px; color:var(--text-soft);">
-                পরবর্তী প্রশ্ন: <b id="countdownSecs">1.5s</b>
+                Next question: <b id="countdownSecs">1.5s</b>
               </span>
               <button class="pill subtle" id="pauseCountdownBtn" type="button" style="font-size:11.5px; padding:3px 10px;">
-                ${ICON.pause} বিরতি
+                ${ICON.pause} Pause
               </button>
             ` : ''}
             <button class="pill solid" id="bannerNextBtn" type="button" style="font-size:12px; padding:4px 12px;">
-              পরবর্তী প্রশ্ন ${ICON.arrowR}
+              Next Question ${ICON.arrowR}
             </button>
           </div>
         `;
@@ -5196,7 +5868,7 @@
             clearTimeout(autoNextTimeout);
             clearInterval(autoAdvanceCountdownInterval);
             const note = document.getElementById("autoAdvanceNote");
-            if (note) note.textContent = "অটো-অ্যাডভান্স বিরতি দেওয়া হয়েছে";
+            if (note) note.textContent = "Auto-advance paused";
             pauseBtn.remove();
           });
         }
@@ -5232,10 +5904,10 @@
         streakBanner.innerHTML = `
           <div class="streak-banner-title" style="color:#f43f5e;">
             ${ICON.xCircle}
-            <span>ভুল উত্তর! সঠিক উত্তর ও বিস্তারিত ব্যাখ্যাটি নিচে দেখে নিন।</span>
+            <span>Incorrect! See correct answer and explanation below.</span>
           </div>
           <div class="streak-banner-controls">
-            <span style="font-size:12px; color:var(--text-soft);">${ICON.flag} Mistake Bank-এ সেভ করা হয়েছে</span>
+            <span style="font-size:12px; color:var(--text-soft);">${ICON.flag} Saved to Mistake Bank</span>
           </div>
         `;
         streakBanner.style.display = "flex";
@@ -5257,7 +5929,7 @@
           subject: q.subject,
           yourAns: q.options[selectedIndex] || "",
           correctAns: q.options[q.correct] || "",
-          explain: q.explanation || "প্রাসঙ্গিক ব্যাখ্যা উপলব্ধ নেই।",
+          explain: q.explanation || "No explanation provided.",
           date: new Date().toLocaleDateString()
         });
         saveMistakes();
@@ -5289,27 +5961,27 @@
     // Explanation Box display
     if (explanationText && explanationBox) {
       if (isCorrect) {
-        let expHtml = escapeHtml(q.explanation || "প্রাসঙ্গিক ব্যাখ্যা উপলব্ধ নেই।");
+        let expHtml = escapeHtml(q.explanation || "No explanation provided.");
         if (justMastered) {
           expHtml += `<div style="margin-top:10px; padding:10px 14px; background:rgba(16,185,129,0.15); border-radius:8px; border:1px solid #10b981; color:#10b981; font-weight:700; font-size:13px; line-height:1.5;">
-            🏆 <strong>Mastered &amp; Graduated!</strong> আপনি এই প্রশ্নটি ২ বার সঠিকভাবে সমাধান করেছেন।
+            🏆 <strong>Mastered &amp; Graduated!</strong> You answered this question correctly twice.
           </div>`;
           showToast("Question Mastered! Answered correctly twice — saved to mastery.", false);
         } else if (newTimesCorrect === 1) {
-          expHtml += `<div style="margin-top:8px; color:#10b981; font-weight:700; font-size:12.5px;">✓ Correct (1/2)! আর ১ বার সঠিক উত্তর দিলে এটি সম্পূর্ণ আয়ত্ত হয়ে যাবে।</div>`;
+          expHtml += `<div style="margin-top:8px; color:#10b981; font-weight:700; font-size:12.5px;">✓ Correct (1/2)! 1 more correct answer to master this question.</div>`;
         }
         explanationText.innerHTML = expHtml;
       } else {
         const yourText = escapeHtml(q.options[selectedIndex] || "");
         const correctText = escapeHtml(q.options[q.correct] || "");
         explanationText.innerHTML = `
-          <div class="wrong-feedback-badge">${ICON.xCircle} ভুল উত্তর</div>
+          <div class="wrong-feedback-badge">${ICON.xCircle} Incorrect</div>
           <div style="margin-bottom:8px; font-size:13px; line-height:1.6;">
-            <strong>আপনার উত্তর:</strong> <span style="color:#f43f5e; font-weight:600;">${yourText}</span> &nbsp;|&nbsp; 
-            <strong>সঠিক উত্তর:</strong> <span style="color:#10b981; font-weight:600;">${correctText}</span>
+            <strong>Your Answer:</strong> <span style="color:#f43f5e; font-weight:600;">${yourText}</span> &nbsp;|&nbsp; 
+            <strong>Correct Answer:</strong> <span style="color:#10b981; font-weight:600;">${correctText}</span>
           </div>
-          <div><strong>ব্যাখ্যা ও টেকনিক:</strong> ${escapeHtml(q.explanation || "প্রাসঙ্গিক ব্যাখ্যা উপলব্ধ নেই।")}</div>
-          <div class="mistake-saved-badge">${ICON.flag} দুর্বল ক্ষেত্র হিসেবে Mistake Bank-এ সেভ করা হয়েছে</div>
+          <div><strong>Explanation &amp; Shortcut:</strong> ${escapeHtml(q.explanation || "No explanation provided.")}</div>
+          <div class="mistake-saved-badge">${ICON.flag} Saved to Mistake Bank for review</div>
         `;
       }
       explanationBox.classList.add("show");
@@ -5532,16 +6204,16 @@
     let gradeBadge = "";
     let gradeColor = "";
     if (netMarks >= 16) {
-      gradeBadge = "🌟 Outstanding! (মেধা তালিকায় শীর্ষস্থান)";
+      gradeBadge = "🌟 Outstanding! (Top Tier)";
       gradeColor = "#10b981";
     } else if (netMarks >= 12) {
-      gradeBadge = "✓ Passed Preliminary Cutoff (উত্তীর্ণ)";
+      gradeBadge = "✓ Passed Preliminary Cutoff";
       gradeColor = "#3b82f6";
     } else if (netMarks >= 9) {
-      gradeBadge = "⚠️ Marginal Score (অনুশীলন বাড়াতে হবে)";
+      gradeBadge = "⚠️ Marginal Score (Practice needed)";
       gradeColor = "#f59e0b";
     } else {
-      gradeBadge = "❌ Below Qualifying Cutoff (পুনর্বিবেচনা প্রয়োজন)";
+      gradeBadge = "❌ Below Qualifying Cutoff";
       gradeColor = "#f43f5e";
     }
 
@@ -5629,7 +6301,7 @@
             ${gradeBadge}
           </div>
           <h2 class="summary-title" style="margin-top:12px; margin-bottom:6px;">
-            ${is20ExamMode ? "বিসিএস ২০-প্রশ্ন মডেল টেস্ট সমাপ্ত!" : "MCQ Session Completed!"}
+            ${is20ExamMode ? "BCS 20-Question Model Test Completed!" : "MCQ Session Completed!"}
           </h2>
           <p style="color:var(--text-soft); font-size:13.5px; margin:0;">
             Standard BCS Preliminary Negative Marking Applied (+1.0 / -0.5)
@@ -5837,7 +6509,7 @@
 
     let html = `
       <button class="filter-pill ${currentSelectedSubject === 'all' ? 'active' : ''}" data-subject="all">
-        সকল বিষয় (All)
+        All Subjects
       </button>
     `;
 
@@ -5853,14 +6525,14 @@
 
     html += `
       <button class="filter-pill ${currentSelectedSubject === 'custom' ? 'active' : ''}" data-subject="custom">
-        কাস্টম প্রশ্ন
+        Custom Questions
       </button>
     `;
 
     if (userMCQProgress.removedSubjects.length > 0) {
       html += `
         <button class="restore-subjects-btn" id="restoreSubjectsBtn" title="Click to restore removed subjects">
-          ${ICON.rotccw} বিষয় পুনরুদ্ধার (${userMCQProgress.removedSubjects.length})
+          ${ICON.rotccw} Restore Subjects (${userMCQProgress.removedSubjects.length})
         </button>
       `;
     }
@@ -6338,9 +7010,260 @@
   }
 
 
+  // ===== Quick Command Palette (Ctrl + K / Cmd + K) =====
+  function initCommandPalette() {
+    const modal = document.getElementById('commandPaletteModal');
+    const input = document.getElementById('paletteSearchInput');
+    const results = document.getElementById('paletteResults');
+    const btn = document.getElementById('commandPaletteBtn');
+    const closeBtn = document.getElementById('closePaletteBtn');
+    if (!modal || !input || !results) return;
+
+    let selectedIndex = 0;
+    let currentItems = [];
+
+    const staticCommands = [
+      { id: 'tab-routine', category: 'Navigation', icon: 'calendar-days', title: 'Go to Routine', subtitle: 'View daily study schedule', action: () => activateTab('routine', true) },
+      { id: 'tab-notes', category: 'Navigation', icon: 'notebook-pen', title: 'Go to Smart Notes', subtitle: 'Study notes, formulas & tags', action: () => activateTab('notes', true) },
+      { id: 'tab-tracker', category: 'Navigation', icon: 'timer', title: 'Go to Tracker & Focus', subtitle: 'Pomodoro timer & activity stats', action: () => activateTab('tracker', true) },
+      { id: 'tab-quiz', category: 'Navigation', icon: 'brain', title: 'Go to Quiz & Cards', subtitle: 'Practice flashcards & MCQs', action: () => activateTab('flashcards', true) },
+      { id: 'tab-countdown', category: 'Navigation', icon: 'calendar-clock', title: 'Go to Exam Targets', subtitle: 'Exam countdowns & milestones', action: () => activateTab('countdown', true) },
+      { id: 'tab-syllabus', category: 'Navigation', icon: 'list-checks', title: 'Go to Syllabus', subtitle: 'BCS syllabus & topic progress', action: () => activateTab('syllabus', true) },
+      { id: 'tab-settings', category: 'Navigation', icon: 'settings', title: 'Go to Settings', subtitle: 'Theme, backups & options', action: () => activateTab('settings', true) },
+      {
+        id: 'act-pomodoro', category: 'Actions', icon: 'zap', title: 'Start 25m Pomodoro Focus', subtitle: 'Start 25-min deep focus session',
+        action: () => {
+          activateTab('tracker', true);
+          const dur25 = document.querySelector('.chip[data-duration="25"]');
+          if (dur25) dur25.click();
+          const sBtn = document.getElementById('startBtn');
+          if (sBtn && sBtn.style.display !== 'none') sBtn.click();
+        }
+      },
+      {
+        id: 'act-stop-timer', category: 'Actions', icon: 'square', title: 'Stop Active Timer', subtitle: 'End current session or countdown',
+        action: () => {
+          const stopBtn = document.getElementById('stopBtn');
+          if (stopBtn && stopBtn.style.display !== 'none') stopBtn.click();
+          else if (window.isCustomCountdownActive && typeof stopCustomCountdown === 'function') stopCustomCountdown(false);
+        }
+      },
+      {
+        id: 'act-add-note', category: 'Actions', icon: 'plus', title: 'Add New Note', subtitle: 'Quickly open new note form',
+        action: () => {
+          activateTab('notes', true);
+          const tBtn = document.getElementById('toggleNoteFormBtn');
+          if (tBtn) tBtn.click();
+          const nInput = document.getElementById('noteTitle');
+          if (nInput) nInput.focus();
+        }
+      },
+      {
+        id: 'act-add-routine', category: 'Actions', icon: 'calendar-plus', title: 'Add Study Block', subtitle: 'Insert new study session into today',
+        action: () => {
+          activateTab('routine', true);
+          const addBtn = document.getElementById('inlineAddRowBtn');
+          if (addBtn) addBtn.click();
+        }
+      },
+      {
+        id: 'act-theme', category: 'Actions', icon: 'sun-moon', title: 'Toggle Dark / Light Theme', subtitle: 'Switch color theme',
+        action: () => {
+          setTheme(state.theme === 'dark' ? 'light' : 'dark');
+        }
+      },
+      {
+        id: 'act-fullscreen', category: 'Actions', icon: 'maximize', title: 'Toggle Fullscreen', subtitle: 'Distraction-free fullscreen view',
+        action: () => {
+          toggleFullscreen();
+        }
+      }
+    ];
+
+    function openPalette() {
+      modal.style.display = 'flex';
+      void modal.offsetWidth;
+      modal.classList.add('open');
+      input.value = '';
+      selectedIndex = 0;
+      renderItems('');
+      setTimeout(() => input.focus(), 50);
+    }
+
+    function closePalette() {
+      modal.classList.remove('open');
+      setTimeout(() => {
+        if (!modal.classList.contains('open')) {
+          modal.style.display = 'none';
+        }
+      }, 150);
+      input.blur();
+    }
+
+    function renderItems(query) {
+      const q = query.trim().toLowerCase();
+      let matched = [];
+
+      if (!q) {
+        matched = [...staticCommands];
+      } else {
+        matched = staticCommands.filter(c => c.title.toLowerCase().includes(q) || c.subtitle.toLowerCase().includes(q));
+
+        if (Array.isArray(state.notes)) {
+          state.notes.forEach(note => {
+            const t = (note.title || '').toLowerCase();
+            const b = (note.body || '').toLowerCase();
+            const tag = (note.tag || '').toLowerCase();
+            if (t.includes(q) || b.includes(q) || tag.includes(q)) {
+              matched.push({
+                id: 'note-' + note.id,
+                category: 'Notes',
+                icon: 'notebook-pen',
+                title: note.title || 'Untitled Note',
+                subtitle: (note.tag ? `[${note.tag}] ` : '') + (note.body || '').slice(0, 45) + '...',
+                action: () => {
+                  activateTab('notes', true);
+                  setTimeout(() => {
+                    const el = document.querySelector(`[data-note-id="${note.id}"]`);
+                    if (el) {
+                      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                      el.style.outline = '2px solid var(--accent1)';
+                      setTimeout(() => el.style.outline = '', 2000);
+                    }
+                  }, 100);
+                }
+              });
+            }
+          });
+        }
+
+        if (Array.isArray(state.syllabus)) {
+          state.syllabus.forEach(cat => {
+            if (Array.isArray(cat.topics)) {
+              cat.topics.forEach(topic => {
+                if (topic.name && topic.name.toLowerCase().includes(q)) {
+                  matched.push({
+                    id: 'topic-' + topic.id,
+                    category: 'Syllabus: ' + cat.name,
+                    icon: 'list-checks',
+                    title: topic.name,
+                    subtitle: topic.done ? '✓ Completed' : 'Pending',
+                    action: () => {
+                      activateTab('syllabus', true);
+                      setTimeout(() => {
+                        const el = document.querySelector(`[data-topic="${topic.id}"]`);
+                        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                      }, 100);
+                    }
+                  });
+                }
+              });
+            }
+          });
+        }
+      }
+
+      currentItems = matched;
+      if (selectedIndex >= currentItems.length) selectedIndex = 0;
+
+      if (!currentItems.length) {
+        results.innerHTML = '<div style="padding:24px; text-align:center; color:var(--text-muted); font-size:13px;">No matching commands or notes found.</div>';
+        return;
+      }
+
+      let html = '';
+      let lastCat = '';
+      currentItems.forEach((item, idx) => {
+        if (item.category !== lastCat) {
+          html += `<div class="palette-section-title">${escapeHtml(item.category)}</div>`;
+          lastCat = item.category;
+        }
+        const isSel = idx === selectedIndex ? 'selected' : '';
+        html += `
+          <div class="palette-item ${isSel}" data-index="${idx}">
+            <div class="palette-item-left">
+              <span class="palette-item-icon"><i data-lucide="${item.icon}"></i></span>
+              <div>
+                <span class="palette-item-title">${escapeHtml(item.title)}</span>
+                <span class="palette-item-subtitle">${escapeHtml(item.subtitle)}</span>
+              </div>
+            </div>
+            ${item.id.startsWith('tab-') ? '<span class="palette-item-shortcut">Tab</span>' : ''}
+          </div>
+        `;
+      });
+
+      results.innerHTML = html;
+      if (window.lucide && typeof window.lucide.createIcons === 'function') {
+        window.lucide.createIcons();
+      }
+
+      const selEl = results.querySelector('.palette-item.selected');
+      if (selEl) selEl.scrollIntoView({ block: 'nearest' });
+    }
+
+    input.addEventListener('input', (e) => {
+      selectedIndex = 0;
+      renderItems(e.target.value);
+    });
+
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        if (currentItems.length) {
+          selectedIndex = (selectedIndex + 1) % currentItems.length;
+          renderItems(input.value);
+        }
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        if (currentItems.length) {
+          selectedIndex = (selectedIndex - 1 + currentItems.length) % currentItems.length;
+          renderItems(input.value);
+        }
+      } else if (e.key === 'Enter') {
+        e.preventDefault();
+        if (currentItems[selectedIndex]) {
+          const act = currentItems[selectedIndex].action;
+          closePalette();
+          if (act) act();
+        }
+      } else if (e.key === 'Escape') {
+        e.preventDefault();
+        closePalette();
+      }
+    });
+
+    results.addEventListener('click', (e) => {
+      const itemEl = e.target.closest('.palette-item');
+      if (itemEl && itemEl.dataset.index) {
+        const idx = parseInt(itemEl.dataset.index);
+        if (currentItems[idx]) {
+          const act = currentItems[idx].action;
+          closePalette();
+          if (act) act();
+        }
+      }
+    });
+
+    if (btn) btn.addEventListener('click', openPalette);
+    if (closeBtn) closeBtn.addEventListener('click', closePalette);
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) closePalette();
+    });
+
+    window.addEventListener('keydown', (e) => {
+      if ((e.ctrlKey || e.metaKey) && (e.key === 'k' || e.key === 'K')) {
+        e.preventDefault();
+        if (modal.classList.contains('open')) closePalette();
+        else openPalette();
+      }
+    });
+  }
+
   // ===== Init =====
   (async function init() {
     await loadData();
+    document.documentElement.setAttribute('data-theme', state.theme || 'dark');
     await initAutoSync();
     syncThemeButtons();
     initMonthDropdown();
@@ -6353,7 +7276,7 @@
     renderNotes();
     renderTrackerAll();
     renderCategories();
-    renderFlashCategoryOptions();
+    syncAllSubjectSelects();
     renderFlashcards();
 
     loadExams();
@@ -6364,6 +7287,9 @@
 
     initMCQEngine();
     renderMistakes();
+    initCommandPalette();
+    renderStudyHeatmap();
+    syncMiniTimerWidget();
 
     tickInterval = setInterval(() => { tickTimer(); }, 1000);
 
