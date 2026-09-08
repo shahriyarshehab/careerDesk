@@ -834,7 +834,7 @@
       const rows = byDate[date].sort((a, b) => (a.startTime || '').localeCompare(b.startTime || ''));
       return `<article class="monthly-routine-card" data-month-date="${date}">
         <div class="monthly-routine-head"><strong>${bnDateLabel(date)}</strong>
-          <div class="monthly-routine-actions"><button class="pill" data-month-edit="${date}">${ICON.edit} Edit</button><button class="pill danger" data-month-delete="${date}">${ICON.trash} Delete</button></div>
+          <div class="monthly-routine-actions"><button class="pill action-btn-edit" data-month-edit="${date}" title="Edit Routine" aria-label="Edit">${ICON.edit} <span>Edit</span></button><button class="pill danger action-btn-del" data-month-delete="${date}" title="Delete Routine" aria-label="Delete">${ICON.trash} <span>Delete</span></button></div>
         </div><table class="mini-routine"><tbody>${rows.map(r => `<tr><td>${escapeHtml(r.startTime || '--:--')}–${escapeHtml(r.endTime || '--:--')}</td><td>${escapeHtml(r.subject || 'No Subject')}</td><td>${escapeHtml(r.task || '')}</td></tr>`).join('')}</tbody></table>
       </article>`;
     }).join('') : '<div class="empty-state">No routines scheduled for this month.</div>';
@@ -1505,8 +1505,8 @@
       return `<div class="subject-manager-row ${isDeleted ? 'subject-deleted' : ''}">
         <span class="subject-manager-name">${escapeHtml(s)}</span>
         ${isDeleted
-          ? `<button class="pill subject-restore-btn" data-subject="${escapeAttr(s)}" title="Restore this subject">${ICON.undo} Restore</button>`
-          : `<button class="pill danger subject-delete-btn" data-subject="${escapeAttr(s)}" title="Remove this subject from the list">${ICON.trash} Delete</button>`
+          ? `<button class="pill subject-restore-btn" data-subject="${escapeAttr(s)}" title="Restore this subject" aria-label="Restore">${ICON.undo} <span>Restore</span></button>`
+          : `<button class="pill danger subject-delete-btn" data-subject="${escapeAttr(s)}" title="Remove this subject from the list" aria-label="Delete">${ICON.trash} <span>Delete</span></button>`
         }
       </div>`;
     }).join('');

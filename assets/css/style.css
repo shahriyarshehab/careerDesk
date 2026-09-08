@@ -550,6 +550,139 @@
     padding: 26px 24px 70px;
   }
 
+  /* =========================================================
+     MOBILE & TABLET VIEW: NATIVE ANDROID 16 (APK) REDESIGN
+     ========================================================= */
+
+  @media (max-width: 900px) {
+    /* Tablet & Mobile typography & density scaling */
+    .section-title {
+      font-size: 18px !important;
+      letter-spacing: -0.01em;
+      margin-bottom: 8px;
+    }
+
+    .brand-kicker,
+    .routine-eyebrow {
+      font-size: 9.5px !important;
+      letter-spacing: 0.08em;
+    }
+
+    .routine-lead,
+    .quote-list-hint,
+    .save-note {
+      font-size: 11px !important;
+      line-height: 1.45;
+    }
+
+    /* Compact Pill Buttons & Chips */
+    .pill {
+      font-size: 11.5px !important;
+      padding: 6px 12px !important;
+      min-height: 32px;
+      border-radius: 9999px !important;
+    }
+
+    .chip {
+      font-size: 11px !important;
+      padding: 4px 10px !important;
+      border-radius: 9999px !important;
+    }
+
+    /* Action buttons: Delete, Edit, Restore converted to clean icon-only buttons */
+    .monthly-routine-actions .pill span,
+    .quote-action-btn span,
+    .subject-delete-btn span,
+    .subject-restore-btn span,
+    #qFlagBtn #qFlagText {
+      display: none !important;
+    }
+
+    .monthly-routine-actions .pill,
+    .quote-action-btn,
+    .subject-delete-btn,
+    .subject-restore-btn {
+      min-width: 32px !important;
+      width: 32px !important;
+      height: 32px !important;
+      padding: 0 !important;
+      border-radius: 10px !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      font-size: 0 !important;
+    }
+
+    .monthly-routine-actions .pill svg,
+    .quote-action-btn svg,
+    .subject-delete-btn svg,
+    .subject-restore-btn svg,
+    .monthly-routine-actions .pill .lucide,
+    .quote-action-btn .lucide,
+    .subject-delete-btn .lucide,
+    .subject-restore-btn .lucide {
+      width: 15px !important;
+      height: 15px !important;
+      margin: 0 !important;
+    }
+
+    #qFlagBtn {
+      padding: 6px 9px !important;
+      border-radius: 10px !important;
+    }
+
+    .routine-action-btn .routine-action-copy small {
+      display: none !important;
+    }
+
+    .routine-action-btn {
+      padding: 8px 12px !important;
+      border-radius: 12px !important;
+      font-size: 12px !important;
+    }
+
+    /* Cards & Containers: Sleek Android Surface Styling */
+    .glass,
+    .card,
+    .session-card,
+    .target-card,
+    .routine-card,
+    .data-management-card,
+    .quote-manager-panel {
+      border-radius: 16px !important;
+      padding: 14px !important;
+      margin-bottom: 12px !important;
+    }
+
+    /* Native Android APK Input and Form Elements */
+    .entry-form input,
+    .entry-form textarea,
+    .entry-form select,
+    .fancy-input-title,
+    .fancy-textarea {
+      font-size: 12.5px !important;
+      padding: 8px 11px !important;
+      border-radius: 10px !important;
+    }
+
+    /* Grids on Tablet */
+    .notes-grid,
+    .flash-grid {
+      grid-template-columns: repeat(2, 1fr) !important;
+      gap: 12px !important;
+    }
+
+    /* Touch Feedback (Android Material Ripple/Depression) */
+    .pill:active,
+    .chip:active,
+    .option-btn:active,
+    .tab-btn:active,
+    .quote-action-btn:active {
+      transform: scale(0.95);
+      transition: transform 0.1s ease;
+    }
+  }
+
   @media (max-width: 720px) {
     html,
     body {
@@ -558,27 +691,94 @@
     }
 
     body {
-      padding-bottom: calc(84px + env(safe-area-inset-bottom, 0px));
+      padding-bottom: calc(88px + env(safe-area-inset-bottom, 0px));
       -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
     }
 
+    /* Android 16 Top App Bar (Header) */
     header.masthead {
-      padding: 16px 16px 8px;
+      padding: 10px 14px 6px;
       gap: 6px;
     }
 
     .brand-shell {
       width: 100%;
       gap: 8px;
-      padding: 6px 8px 6px 7px;
+      padding: 6px 10px 6px 8px;
       border-radius: 18px;
+      background: var(--surface-strong);
+      border: 1px solid var(--border);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(20px);
+    }
+
+    .brand {
+      gap: 10px;
+      padding: 0;
+    }
+
+    .brand-badge {
+      width: 36px;
+      height: 36px;
+      border-radius: 12px;
+      flex-shrink: 0;
+    }
+
+    .brand-badge .careerdesk-logo {
+      width: 30px;
+      height: 30px;
+    }
+
+    .brand-copy h1 {
+      font-size: 15px;
+      font-weight: 700;
+      margin: 0;
+      line-height: 1.2;
+    }
+
+    .brand-kicker {
+      font-size: 9px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--accent2);
+      font-weight: 700;
+      display: block;
+      margin-bottom: 1px;
+    }
+
+    .brand-sub {
+      display: none;
     }
 
     .watch-actions {
       padding-left: 0;
       border-left: 0;
+      gap: 6px;
     }
 
+    .watch-action {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text-soft);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+    }
+
+    .watch-action svg,
+    .watch-action .lucide {
+      width: 17px;
+      height: 17px;
+    }
+
+    /* =========================================================
+       ANDROID 16 / MATERIAL 3 EXPRESSIVE BOTTOM NAVBAR
+       ========================================================= */
     nav.tabs {
       position: fixed;
       z-index: 45;
@@ -593,51 +793,99 @@
       align-items: center;
       justify-content: space-between;
       gap: 4px;
-      padding: 6px;
-      background: rgba(11, 15, 25, 0.88);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      box-shadow: 0 12px 36px rgba(0, 0, 0, 0.45), 0 2px 8px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.1);
-      backdrop-filter: blur(24px) saturate(180%);
-      -webkit-backdrop-filter: blur(24px) saturate(180%);
+      padding: 6px 6px 10px;
+      background: rgba(13, 17, 26, 0.94);
+      border: 1px solid rgba(255, 255, 255, 0.09);
+      border-radius: 26px;
+      box-shadow: 0 16px 42px rgba(0, 0, 0, 0.52), 0 2px 8px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+      backdrop-filter: blur(28px) saturate(190%);
+      -webkit-backdrop-filter: blur(28px) saturate(190%);
       overflow: hidden;
     }
 
+    /* Android 16 Home Gesture Indicator Handle */
+    nav.tabs::after {
+      content: '';
+      position: absolute;
+      bottom: 3.5px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 38px;
+      height: 3px;
+      border-radius: 9999px;
+      background: rgba(255, 255, 255, 0.24);
+      pointer-events: none;
+    }
+
     html[data-theme="light"] nav.tabs {
-      background: rgba(255, 255, 255, 0.92);
+      background: rgba(255, 255, 255, 0.95);
       border-color: rgba(226, 232, 240, 0.95);
-      box-shadow: 0 12px 32px rgba(15, 23, 42, 0.12), 0 2px 8px rgba(0, 0, 0, 0.04), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+      box-shadow: 0 14px 36px rgba(15, 23, 42, 0.14), 0 2px 8px rgba(0, 0, 0, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.95);
+    }
+
+    html[data-theme="light"] nav.tabs::after {
+      background: rgba(15, 23, 42, 0.2);
     }
 
     nav.tabs::-webkit-scrollbar {
       display: none;
     }
 
+    /* Android 16 Material 3 Navigation Item */
     .tab-btn {
       flex: 1 1 0;
       min-width: 0;
-      max-width: 56px;
-      height: 44px;
-      min-height: 44px;
+      max-width: 58px;
+      height: 42px;
+      min-height: 42px;
       display: inline-flex;
-      flex-direction: row;
       align-items: center;
       justify-content: center;
-      gap: 0;
       padding: 0;
-      border-radius: 12px;
-      background: var(--surface);
-      border: 1px solid var(--border);
+      background: transparent;
+      border: none;
+      border-radius: 16px;
       color: var(--text-soft);
       position: relative;
       cursor: pointer;
       user-select: none;
       -webkit-user-select: none;
-      transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: all 0.26s cubic-bezier(0.2, 0, 0, 1);
     }
 
     .tab-btn span {
-      display: none;
+      display: none !important;
+    }
+
+    /* Android 16 M3 Stadium Capsule Active Indicator */
+    .tab-btn::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0.65);
+      width: 46px;
+      height: 30px;
+      border-radius: 9999px;
+      background: transparent;
+      opacity: 0;
+      transition: all 0.28s cubic-bezier(0.2, 0, 0, 1);
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    .tab-btn.active::before {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1);
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.35), rgba(6, 182, 212, 0.28));
+      border: 1px solid rgba(99, 102, 241, 0.48);
+      box-shadow: 0 2px 12px rgba(99, 102, 241, 0.32);
+    }
+
+    html[data-theme="light"] .tab-btn.active::before {
+      background: linear-gradient(135deg, rgba(79, 70, 229, 0.18), rgba(8, 145, 178, 0.16));
+      border: 1px solid rgba(79, 70, 229, 0.35);
+      box-shadow: 0 2px 8px rgba(79, 70, 229, 0.18);
     }
 
     .tab-btn i[data-lucide],
@@ -646,113 +894,162 @@
     .tab-btn .lucide {
       width: 20px;
       height: 20px;
-      stroke-width: 2px;
+      stroke-width: 2.2px;
       flex-shrink: 0;
-      transition: transform 0.22s cubic-bezier(0.4, 0, 0.2, 1), stroke 0.22s ease, filter 0.22s ease;
+      position: relative;
+      z-index: 2;
+      color: var(--text-soft);
+      stroke: var(--text-soft);
+      opacity: 0.78;
+      transition: transform 0.26s cubic-bezier(0.2, 0, 0, 1), stroke 0.26s ease, color 0.26s ease, filter 0.26s ease, opacity 0.26s ease;
     }
 
-    .tab-btn:hover {
-      background: var(--surface-hover);
+    .tab-btn:hover i[data-lucide] svg,
+    .tab-btn:hover svg,
+    .tab-btn:hover .lucide {
+      opacity: 1;
       color: var(--text);
-      border-color: rgba(255, 255, 255, 0.2);
-      transform: translateY(-1px);
+      stroke: var(--text);
+    }
+
+    .tab-btn.active i[data-lucide] svg,
+    .tab-btn.active svg,
+    .tab-btn.active .lucide {
+      opacity: 1;
+      color: #67e8f9;
+      stroke: #67e8f9;
+      transform: scale(1.08);
+      filter: drop-shadow(0 0 8px rgba(103, 232, 249, 0.65));
+    }
+
+    html[data-theme="light"] .tab-btn.active i[data-lucide] svg,
+    html[data-theme="light"] .tab-btn.active svg,
+    html[data-theme="light"] .tab-btn.active .lucide {
+      color: #4f46e5;
+      stroke: #4f46e5;
+      filter: drop-shadow(0 1px 4px rgba(79, 70, 229, 0.4));
     }
 
     .tab-btn:active {
       transform: scale(0.92);
     }
 
-    .tab-btn.active {
-      background: linear-gradient(135deg, var(--accent1), var(--accent2));
-      color: #ffffff;
-      border-color: rgba(255, 255, 255, 0.3);
-      box-shadow: 0 4px 16px rgba(99, 102, 241, 0.42), inset 0 1px 0 rgba(255, 255, 255, 0.35);
-      transform: translateY(-2px);
-    }
-
-    .tab-btn.active::after {
-      content: '';
-      position: absolute;
-      bottom: 3.5px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 4px;
-      height: 4px;
-      border-radius: 50%;
-      background: #ffffff;
-      box-shadow: 0 0 6px rgba(255, 255, 255, 0.9);
-    }
-
-    .tab-btn.active svg,
-    .tab-btn.active .lucide {
-      stroke: #ffffff;
-      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
-      transform: scale(1.08) translateY(-1px);
-    }
-
-    html[data-theme="light"] .tab-btn {
-      background: rgba(241, 245, 249, 0.75);
-      border-color: rgba(226, 232, 240, 0.9);
-      color: var(--text-soft);
-    }
-
-    html[data-theme="light"] .tab-btn:hover {
-      background: #ffffff;
-      color: var(--text);
-      border-color: var(--accent1);
-    }
-
-    html[data-theme="light"] .tab-btn.active {
-      background: linear-gradient(135deg, var(--accent1), var(--accent2));
-      color: #ffffff;
-      border-color: transparent;
-      box-shadow: 0 4px 14px rgba(79, 70, 229, 0.38);
-    }
-
+    /* Main Container Padding */
     main {
       width: 100%;
       max-width: 100%;
       box-sizing: border-box;
-      padding: 12px 12px 24px;
+      padding: 10px 12px 24px;
     }
 
+    /* Single Column Notes & Flashcards on Mobile */
+    .notes-grid,
+    .flash-grid {
+      grid-template-columns: 1fr !important;
+      gap: 10px !important;
+    }
+
+    .note-card {
+      padding: 12px !important;
+      border-radius: 14px !important;
+    }
+
+    .note-card-title {
+      font-size: 14px !important;
+    }
+
+    .note-card-body {
+      font-size: 12px !important;
+    }
+
+    .flash-card {
+      padding: 14px !important;
+      border-radius: 14px !important;
+      min-height: 105px !important;
+      font-size: 13px !important;
+    }
+
+    /* Focus & Timer: Android Native Clock Widget */
+    .clock-orb {
+      width: 156px !important;
+      height: 156px !important;
+      margin: 12px auto 8px !important;
+    }
+
+    .timer-display {
+      font-size: 25px !important;
+      font-weight: 700 !important;
+    }
+
+    .timer-sub {
+      font-size: 11.5px !important;
+      margin-bottom: 10px !important;
+    }
+
+    .activity-24h-grid {
+      grid-template-columns: repeat(3, 1fr) !important;
+      gap: 6px !important;
+    }
+
+    .activity-box {
+      padding: 8px 6px !important;
+      border-radius: 12px !important;
+    }
+
+    .activity-box .activity-label {
+      font-size: 9.5px !important;
+    }
+
+    .activity-box .activity-value {
+      font-size: 12px !important;
+    }
+
+    /* MCQ Question & Option Compact Styling */
+    .q-text {
+      font-size: 13.5px !important;
+      line-height: 1.5 !important;
+      margin-bottom: 10px !important;
+    }
+
+    .option-btn {
+      padding: 9px 12px !important;
+      border-radius: 12px !important;
+      font-size: 12.5px !important;
+    }
+
+    .stat-card {
+      padding: 7px 8px !important;
+      border-radius: 12px !important;
+    }
+
+    .stat-card .stat-value {
+      font-size: 15px !important;
+    }
+
+    .stat-card .stat-label {
+      font-size: 9px !important;
+    }
+
+    .mcq-stats-bar {
+      gap: 6px !important;
+      margin-bottom: 10px !important;
+    }
+
+    /* Routine Details */
     .routine-hero {
       align-items: stretch;
-      gap: 14px;
-      padding: 16px;
+      gap: 12px;
+      padding: 14px;
       border-radius: 16px;
-    }
-
-    .routine-lead {
-      font-size: 11px;
     }
 
     .routine-hero .routine-top-actions {
       width: 100%;
     }
 
-    .brand {
-      gap: 10px;
-      padding: 6px 12px 6px 7px;
-    }
-
-    .brand-badge {
-      width: 38px;
-      height: 38px;
-      font-size: 18px;
-    }
-
-    .brand h1 {
-      font-size: 17px;
-    }
-
-    .brand-sub {
-      display: none;
-    }
-
     .quote-ticker {
-      margin-bottom: 14px;
-      padding: 10px 12px;
+      margin-bottom: 12px;
+      padding: 8px 12px;
       border-radius: 12px;
       font-size: 11px;
     }
@@ -782,7 +1079,7 @@
 
     .date-slider-row {
       gap: 6px;
-      margin: 12px 0;
+      margin: 10px 0;
     }
 
     .date-slider {
@@ -791,9 +1088,10 @@
     }
 
     .date-nav-btn {
-      width: 34px;
-      height: 34px;
-      flex: 0 0 34px;
+      width: 32px;
+      height: 32px;
+      flex: 0 0 32px;
+      border-radius: 10px;
     }
 
     .routine-card {
