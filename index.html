@@ -13,7 +13,7 @@
     href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
     rel="stylesheet">
   <link rel="stylesheet" href="assets/css/style.css">
-  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+  <script src="assets/js/lucide.min.js"></script>
 </head>
 
 <body>
@@ -24,27 +24,28 @@
     <div class="brand-shell">
       <div class="brand">
         <div class="brand-badge" aria-label="CareerDesk logo">
-          <svg class="careerdesk-logo" viewBox="0 0 48 48" role="img" aria-label="CareerDesk monogram logo">
+          <svg class="careerdesk-logo" viewBox="0 0 48 48" role="img" aria-label="CareerDesk logo">
             <defs>
               <linearGradient id="careerLogoFace" x1="0" y1="0" x2="1" y2="1">
-                <stop offset="0" stop-color="#ffffff" stop-opacity="0.28"></stop>
-                <stop offset="1" stop-color="#67e8f9" stop-opacity="0.18"></stop>
+                <stop offset="0" stop-color="#ffffff" stop-opacity="0.32"></stop>
+                <stop offset="1" stop-color="#a5f3fc" stop-opacity="0.14"></stop>
               </linearGradient>
             </defs>
             <rect x="4" y="4" width="40" height="40" rx="13" fill="url(#careerLogoFace)" stroke="#ffffff"
-              stroke-opacity="0.22"></rect>
-            <path d="M22 14.5a10 10 0 1 0 0 19" fill="none" stroke="#ffffff" stroke-width="3.2" stroke-linecap="round">
-            </path>
-            <path d="M24 14.5h4.5a9.5 9.5 0 0 1 0 19H24z" fill="none" stroke="#dffafe" stroke-width="3.2"
+              stroke-opacity="0.24"></rect>
+            <path d="M12.5 15.5c4.5-2 8.5-1.2 11.5 1.5v18c-3-2.7-7-3.5-11.5-1.5z" fill="none" stroke="#ffffff"
+              stroke-width="2.6" stroke-linejoin="round"></path>
+            <path d="M35.5 15.5c-4.5-2-8.5-1.2-11.5 1.5v18c3-2.7 7-3.5 11.5-1.5z" fill="none" stroke="#dffafe"
+              stroke-width="2.6" stroke-linejoin="round"></path>
+            <path d="m17.5 25 3.4 3.4 9.2-9.2" fill="none" stroke="#67e8f9" stroke-width="3" stroke-linecap="round"
               stroke-linejoin="round"></path>
-            <path d="M13 36h22M17 39h14" fill="none" stroke="#ffffff" stroke-opacity="0.88" stroke-width="2"
-              stroke-linecap="round"></path>
-            <circle cx="35.5" cy="12.5" r="2" fill="#ffffff" opacity="0.85"></circle>
+            <circle cx="35.5" cy="12.5" r="2" fill="#ffffff" opacity="0.9"></circle>
           </svg>
         </div>
-        <div>
+        <div class="brand-copy">
+          <span class="brand-kicker">Career preparation</span>
           <h1>CareerDesk</h1>
-          <p class="brand-sub">Career Preparation Workspace</p>
+          <p class="brand-sub">Plan clearly. Practice confidently.</p>
         </div>
       </div>
       <div class="brand-actions watch-actions" aria-label="Quick controls">
@@ -60,20 +61,13 @@
   </header>
 
   <nav class="tabs" role="tablist">
-    <button class="tab-btn active" data-tab="routine" role="tab" aria-selected="true"><i
-        data-lucide="calendar-days"></i><span>Study Routine</span></button>
-    <button class="tab-btn" data-tab="notes" role="tab" aria-selected="false"><i
-        data-lucide="notebook-pen"></i><span>Smart Notes</span></button>
-    <button class="tab-btn" data-tab="tracker" role="tab" aria-selected="false"><i data-lucide="timer"></i><span>Tracker
-        &amp; Focus</span></button>
-    <button class="tab-btn" data-tab="flashcards" role="tab" aria-selected="false"><i
-        data-lucide="layers"></i><span>Quiz &amp; Cards</span></button>
-    <button class="tab-btn" data-tab="countdown" role="tab" aria-selected="false"><i
-        data-lucide="alarm-clock"></i><span>Exam Targets</span></button>
-    <button class="tab-btn" data-tab="syllabus" role="tab" aria-selected="false"><i
-        data-lucide="list-checks"></i><span>Syllabus</span></button>
-    <button class="tab-btn" data-tab="settings" role="tab" aria-selected="false"><i
-        data-lucide="settings"></i><span>Settings</span></button>
+    <button class="tab-btn active" data-tab="routine" role="tab" aria-selected="true"><i data-lucide="calendar-days"></i><span>Study Routine</span></button>
+    <button class="tab-btn" data-tab="notes" role="tab" aria-selected="false"><i data-lucide="notebook-pen"></i><span>Smart Notes</span></button>
+    <button class="tab-btn" data-tab="tracker" role="tab" aria-selected="false"><i data-lucide="timer"></i><span>Tracker &amp; Focus</span></button>
+    <button class="tab-btn" data-tab="flashcards" role="tab" aria-selected="false"><i data-lucide="brain"></i><span>Quiz &amp; Cards</span></button>
+    <button class="tab-btn" data-tab="countdown" role="tab" aria-selected="false"><i data-lucide="calendar-clock"></i><span>Exam Targets</span></button>
+    <button class="tab-btn" data-tab="syllabus" role="tab" aria-selected="false"><i data-lucide="list-checks"></i><span>Syllabus</span></button>
+    <button class="tab-btn" data-tab="settings" role="tab" aria-selected="false"><i data-lucide="settings"></i><span>Settings</span></button>
   </nav>
 
   <main>
@@ -112,9 +106,14 @@
 
       <div class="routine-card glass" id="routineCardWrap"></div>
       <div class="routine-actions">
-        <button class="pill solid" id="inlineAddRowBtn"><span>Add Time Slot</span><i data-lucide="plus"></i></button>
-        <button class="pill danger" id="resetRoutineBtn"><span>Load Standard Routine</span><i
-            data-lucide="rotate-ccw"></i></button>
+        <button class="pill routine-action-btn routine-action-add" id="inlineAddRowBtn">
+          <span class="routine-action-copy"><strong>Add study block</strong><small>Plan another study session</small></span>
+          <i data-lucide="calendar-plus"></i>
+        </button>
+        <button class="pill routine-action-btn routine-action-template" id="resetRoutineBtn">
+          <span class="routine-action-copy"><strong>Restore daily plan</strong><small>Load the recommended routine</small></span>
+          <i data-lucide="rotate-ccw"></i>
+        </button>
       </div>
       <p class="save-note" id="routineSaveNote">Changes save automatically — your past routine history remains
         permanently stored.</p>
@@ -370,56 +369,93 @@
 
       <!-- Subview 2: BCS & Govt Job MCQ System -->
       <div id="subview-quiz" class="combined-subview" style="display:none;">
-        <!-- MCQ Header Actions Bar -->
+        <!-- Redesigned MCQ Header & Control Center -->
         <div class="mcq-top-bar glass">
           <div class="mcq-title-group">
             <span class="mcq-brand-icon"><i data-lucide="target"></i></span>
             <div>
-              <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
-                <h3 class="mcq-title">BCS & Govt Job Practice</h3>
+              <div class="mcq-title-row" style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+                <h3 class="mcq-title">BCS &amp; Govt Job Preparation</h3>
+                <span class="mcq-mode-pill" id="mcqCurrentModeBadge">Practice Mode</span>
                 <span class="mcq-mastery-chip" id="mcqMasteryBadge"
                   title="Answer a question right 2 times in exam mode to remove it for this user"><i
                     data-lucide="trophy"></i> 0 Mastered</span>
-                <button class="pill" id="resetMasteredBtn" style="display:none; font-size:11px; padding:2px 8px;"
+                <button class="pill subtle" id="resetMasteredBtn" style="display:none; font-size:11px; padding:3px 10px;"
                   title="Restore mastered questions back to practice list">Restore Mastered</button>
               </div>
-              <p class="mcq-subtitle">Practice gives immediate feedback. In exam mode, answer 20 questions to see your
-                score; 2 correct exam attempts remove a question for this user.</p>
+              <p class="mcq-subtitle">Authentic preliminary questions mapped to the 200-mark BCS syllabus with instant explanations, negative marking, and real exam mode.</p>
             </div>
           </div>
           <div class="mcq-action-buttons">
-            <button class="pill solid btn-exam20" id="start-exam-20-btn"><i data-lucide="zap"></i> 20-Q Exam
-              (15m)</button>
-            <button class="pill" id="open-add-modal"><i data-lucide="plus"></i> Add / Import</button>
-            <button class="pill" id="reset-btn" title="Restart practice pool"><i data-lucide="rotate-ccw"></i>
-              Restart</button>
+            <div class="mcq-mode-toggle-group">
+              <button class="pill solid btn-mode-switch active" id="btnModePractice" title="Practice with instant feedback and explanations"><i data-lucide="book-open"></i> Practice</button>
+              <button class="pill btn-mode-switch btn-exam20" id="start-exam-20-btn" title="Start 20-question timed model test"><i data-lucide="clipboard-check"></i> 20-Q Exam (15m)</button>
+            </div>
+            <div class="mcq-quick-tools">
+              <button class="icon-btn" id="mcqSoundToggleBtn" title="Toggle Sound Feedback"><i data-lucide="volume-2"></i></button>
+              <button class="pill subtle" id="mcqAutoAdvanceToggle" title="Auto-advance when answered correctly"><i data-lucide="zap"></i> Auto: <b>ON</b></button>
+              <button class="pill subtle" id="open-add-modal" title="Add / Import custom questions"><i data-lucide="file-up"></i> Custom Qs</button>
+              <button class="pill subtle" id="reset-btn" title="Restart question pool"><i data-lucide="rotate-ccw"></i> Restart</button>
+            </div>
           </div>
         </div>
 
-        <!-- 20-Question Exam Mode Live Banner -->
-        <div class="mode-banner" id="mode-banner">
+        <!-- 20-Question Exam Mode Live Banner & Submit -->
+        <div class="mode-banner glass" id="mode-banner">
           <div class="mode-banner-info">
-            <div class="mode-banner-title">20-Question Model Test in Progress</div>
-            <div class="mode-banner-sub">Options are automatically shuffled • BCS Negative Marking (-0.5) Active</div>
+            <div class="mode-banner-title"><i data-lucide="clock" class="pulse-icon"></i> 20-Question Model Test in Progress</div>
+            <div class="mode-banner-sub">BCS Standard Negative Marking: <b>+1.0</b> for correct • <b>-0.5</b> for incorrect</div>
           </div>
-          <div class="exam-timer-display" id="exam-timer">15:00</div>
+          <div class="mode-banner-right">
+            <div class="exam-timer-display" id="exam-timer">15:00</div>
+            <button class="pill solid btn-finish-exam" id="finishEarlyBtn"><i data-lucide="check-circle-2"></i> Finish &amp; Submit</button>
+          </div>
         </div>
 
-        <!-- Stats Bar -->
-        <div class="dashboard-bar">
-          <div class="stat-card glass">
-            <div class="stat-value" id="current-index">1/55</div>
-            <div class="stat-label">Question Number</div>
+        <!-- Question Navigator Palette (Exam Mode 1..20 Quick Jump) -->
+        <div class="mcq-palette-container glass" id="mcq-palette-container" style="display:none;">
+          <div class="palette-header">
+            <span class="palette-title"><i data-lucide="layout-grid"></i> Question Navigator:</span>
+            <div class="palette-legend">
+              <span class="legend-item"><span class="legend-dot current"></span> Current</span>
+              <span class="legend-item"><span class="legend-dot answered"></span> Answered</span>
+              <span class="legend-item"><span class="legend-dot flagged"></span> Flagged</span>
+              <span class="legend-item"><span class="legend-dot unanswered"></span> Unanswered</span>
+            </div>
           </div>
-          <div class="stat-card glass">
+          <div class="mcq-palette-grid" id="mcq-palette-grid">
+            <!-- Palette bubbles 1..20 dynamically rendered -->
+          </div>
+        </div>
+
+        <!-- Redesigned Stats Bar with Progress Bar & Streak Counter -->
+        <div class="dashboard-bar mcq-stats-bar">
+          <div class="stat-card glass stat-progress-card">
+            <div class="stat-card-inner">
+              <div class="stat-value" id="current-index">1 / 55</div>
+              <div class="stat-label">Progress</div>
+            </div>
+            <div class="mcq-progress-track">
+              <div class="mcq-progress-bar" id="mcqProgressBar" style="width: 2%;"></div>
+            </div>
+          </div>
+
+          <div class="stat-card glass stat-correct-card">
             <div class="stat-value stat-correct" id="correct-count">0</div>
             <div class="stat-label">Correct (+1.0)</div>
           </div>
-          <div class="stat-card glass">
+
+          <div class="stat-card glass stat-wrong-card">
             <div class="stat-value stat-wrong" id="wrong-count">0</div>
             <div class="stat-label">Incorrect (-0.5)</div>
           </div>
-          <div class="stat-card glass">
+
+          <div class="stat-card glass stat-streak-card" id="mcqStreakCard">
+            <div class="stat-value stat-streak" id="mcqStreakCount">0</div>
+            <div class="stat-label">🔥 Streak (Best: <span id="mcqBestStreak">0</span>)</div>
+          </div>
+
+          <div class="stat-card glass stat-score-card">
             <div class="stat-value stat-score" id="score-val">0.00</div>
             <div class="stat-label">Net Score</div>
           </div>
@@ -456,10 +492,13 @@
           <div class="q-meta">
             <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
               <span class="q-badge" id="q-subject">Subject</span>
+              <span class="q-source-tag" id="q-source-tag">BCS Standard</span>
               <span class="q-history-badge" id="q-history-badge">Mastery: 0/2</span>
             </div>
             <div style="display:flex; align-items:center; gap:8px;">
-              <span class="auto-next-pill" title="Correct answers automatically advance to the next question"><i
+              <button class="pill subtle q-flag-btn" id="qFlagBtn" title="Flag this question for later review"><i
+                  data-lucide="flag"></i> <span id="qFlagText">Mark for Review</span></button>
+              <span class="auto-next-pill" id="qAutoNextPill" title="Correct answers automatically advance to the next question"><i
                   data-lucide="zap"></i> Auto-Next</span>
               <span class="shuffle-badge"><i data-lucide="shuffle"></i> Auto-Shuffled</span>
             </div>
@@ -471,9 +510,14 @@
             <!-- Dynamic Option Buttons -->
           </div>
 
+          <!-- Right Answer & Streak Celebration Banner -->
+          <div class="mcq-streak-banner" id="mcq-streak-banner" style="display:none;">
+            <!-- Dynamically populated on correct/wrong answers -->
+          </div>
+
           <!-- Explanation Box -->
           <div class="explanation-box" id="explanation-box">
-            <div class="exp-title"><i data-lucide="lightbulb"></i> Correct Explanation & Shortcut:</div>
+            <div class="exp-title"><i data-lucide="lightbulb"></i> Correct Explanation &amp; Shortcut Technique:</div>
             <div id="explanation-text">Explanation will appear here...</div>
           </div>
 
@@ -481,8 +525,7 @@
           <div class="nav-actions" style="display:flex; align-items:center; gap:10px;">
             <button class="pill" id="prev-btn" style="display:none;"><i data-lucide="arrow-left"></i> Previous</button>
             <div style="flex-grow:1;"></div>
-            <button class="pill btn-retry-mcq" id="retry-btn" style="display:none;"><i data-lucide="rotate-ccw"></i> Try
-              Again</button>
+            <button class="pill btn-retry-mcq" id="retry-btn" style="display:none;"><i data-lucide="rotate-ccw"></i> Try Again</button>
             <button class="pill solid" id="next-btn">Next <i data-lucide="arrow-right"></i></button>
           </div>
         </div>
@@ -495,8 +538,7 @@
             Total Questions: 0 | Correct: 0 | Wrong: 0 | Negative Marking: -0.5
           </div>
           <div class="summary-actions">
-            <button class="pill solid btn-exam20" id="retake-20-btn"><i data-lucide="zap"></i> Retake 20
-              Questions</button>
+            <button class="pill solid btn-exam20" id="retake-20-btn"><i data-lucide="zap"></i> Retake 20 Questions</button>
             <button class="pill" id="restart-btn"><i data-lucide="rotate-ccw"></i> Return to Bank</button>
           </div>
         </div>
@@ -566,39 +608,71 @@
         </div>
       </div>
 
-      <div class="glass" style="padding:20px; margin-bottom:18px;">
-        <h2 class="section-title" style="font-size:16px;">Inspirational Quotes & HD Wallpaper</h2>
-        <div class="settings-row">
-          <span>Auto-Slideshow on Routine Page</span>
-          <button class="pill solid" id="carouselToggleBtn">Enabled</button>
-        </div>
-        <div class="settings-row">
-          <span>Slide Interval</span>
-          <select id="carouselIntervalSelect" class="pill" aria-label="Select Slide Interval">
-            <option value="4">4 Seconds</option>
-            <option value="6">6 Seconds</option>
-            <option value="8">8 Seconds</option>
-            <option value="10">10 Seconds</option>
-            <option value="15">15 Seconds</option>
-          </select>
-        </div>
-        <div class="wallpaper-stage" style="margin-top:16px;">
-          <div class="wallpaper-card" id="stampCard">
-            <span class="wp-tag" id="wpTag">Personal Collection</span>
-            <p class="wp-quote" id="quoteText">Discipline is the bridge between goals and accomplishment.</p>
-            <span class="wp-author" id="quoteAuthor">Jim Rohn</span>
+      <!-- ===== Quotes Manager ===== -->
+      <div class="glass quote-manager-panel" style="padding:22px; margin-bottom:18px;">
+        <div class="quote-manager-head-top">
+          <div>
+            <span class="brand-kicker">DAILY MOTIVATION</span>
+            <h2 class="section-title" style="font-size:17px; margin:3px 0 0;">Quotes Manager</h2>
+            <p style="font-size:13px; color:var(--text-soft); margin:4px 0 0;">Control routine ticker speed and manage your motivational quote collection.</p>
+          </div>
+          <div class="quote-header-badge">
+            <i data-lucide="quote"></i>
           </div>
         </div>
-        <div class="quote-actions" style="margin-top:14px;">
-          <button class="pill" id="shuffleBtn"><i data-lucide="refresh-cw"></i> Next Quote</button>
-          <button class="pill solid" id="downloadBtn"><i data-lucide="download"></i> Download Wallpaper</button>
+
+        <!-- Slide Changing Time Setting -->
+        <div class="settings-row quote-interval-row">
+          <div>
+            <strong style="font-size:14px; display:block; color:var(--text); margin-bottom:2px;">Slide Changing Time</strong>
+            <span style="font-size:12px; color:var(--text-soft);">Change routine ticker quote display interval</span>
+          </div>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <i data-lucide="clock" style="width:16px; height:16px; color:var(--accent1);"></i>
+            <select id="quoteIntervalSelect" class="pill" aria-label="Select quote slide changing time" style="font-weight:600;">
+              <option value="10">10 Seconds</option>
+              <option value="30">30 Seconds</option>
+              <option value="60">1 Minute</option>
+              <option value="120">2 Minutes</option>
+              <option value="300" selected>5 Minutes (5m)</option>
+              <option value="600">10 Minutes (10m)</option>
+              <option value="900">15 Minutes (15m)</option>
+              <option value="1800">30 Minutes (30m)</option>
+              <option value="3600">1 Hour</option>
+            </select>
+          </div>
         </div>
-        <div class="custom-quote-form" style="margin-top:16px; padding:0;">
-          <label for="customQuoteInput">Add Your Own Favorite Quote</label>
-          <textarea id="customQuoteInput"
-            placeholder="e.g. Hard work beats talent when talent fails to work hard."></textarea>
-          <div class="quote-actions" style="justify-content:flex-start; margin-top:6px;">
-            <button class="pill solid" id="addQuoteBtn">Add Quote</button>
+
+        <!-- Quotes List (Fixed Height and Width Container) -->
+        <div class="quote-list-wrapper">
+          <div class="quote-list-header">
+            <div class="quote-list-title">
+              <span>Quotes Collection</span>
+              <span class="quote-count-badge" id="quoteCountBadge">0</span>
+            </div>
+            <span class="quote-list-hint">Fixed scroll container • Edit or delete anytime</span>
+          </div>
+          <div class="quote-manager-box" id="quoteManagerList">
+            <!-- Dynamic Quote Items with fixed height and width -->
+          </div>
+        </div>
+
+        <!-- Add Quote Form & Button -->
+        <div class="quote-add-box">
+          <div style="display:flex; align-items:center; gap:6px; margin-bottom:10px;">
+            <i data-lucide="plus-circle" style="width:16px; height:16px; color:var(--accent1);"></i>
+            <strong style="font-size:13.5px; color:var(--text);">Add New Quote</strong>
+          </div>
+          <div class="quote-add-form">
+            <textarea id="customQuoteInput" rows="2" placeholder="Enter motivational quote text... (যেমন: আজকের পরিশ্রমই আগামী দিনের শক্তি।)"
+              class="quote-textarea-field"></textarea>
+            <div class="quote-add-bottom-row">
+              <input type="text" id="customQuoteAuthorInput" placeholder="Author / Source (optional, e.g. APJ Abdul Kalam)"
+                class="quote-author-field">
+              <button class="pill solid" id="addQuoteBtn" type="button" style="padding:9px 18px; font-weight:600;">
+                <i data-lucide="plus"></i> Add Quote
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -800,9 +874,69 @@
     </div>
   </div>
 
-  <div id="examOverlay" style="display:none;"></div>
+  <!-- Edit Quote Modal -->
+  <div class="modal-overlay" id="editQuoteModal" style="display:none;">
+    <div class="glass modal-card" style="max-width:500px; width:92%; padding:24px; position:relative;">
+      <div class="modal-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+        <h3 class="modal-title" style="margin:0; font-family:var(--font-display); font-size:17px; color:var(--text); display:flex; align-items:center; gap:8px;">
+          <i data-lucide="pencil" style="width:18px; height:18px; color:var(--accent1);"></i> Edit Quote
+        </h3>
+        <button class="modal-close" id="closeEditQuoteModal" type="button" aria-label="Close modal"
+          style="background:none; border:none; color:var(--text-soft); cursor:pointer; display:flex; align-items:center; justify-content:center; padding:4px;">
+          <i data-lucide="x"></i>
+        </button>
+      </div>
+      <div class="form-group" style="margin-bottom:12px;">
+        <label style="display:block; font-size:13px; font-weight:600; margin-bottom:6px; color:var(--text-soft);">Quote Text:</label>
+        <textarea id="editQuoteTextInput" rows="3" required
+          style="width:100%; padding:10px 12px; border-radius:10px; border:1px solid var(--border); background:var(--surface); color:var(--text); font-family:inherit; font-size:13px; resize:vertical;"></textarea>
+      </div>
+      <div class="form-group" style="margin-bottom:18px;">
+        <label style="display:block; font-size:13px; font-weight:600; margin-bottom:6px; color:var(--text-soft);">Author / Source:</label>
+        <input type="text" id="editQuoteAuthorInput" placeholder="Author name (optional)"
+          style="width:100%; padding:9px 12px; border-radius:10px; border:1px solid var(--border); background:var(--surface); color:var(--text); font-family:inherit; font-size:13px;">
+      </div>
+      <div style="display:flex; justify-content:flex-end; gap:10px;">
+        <button class="pill" id="cancelEditQuoteBtn" type="button">Cancel</button>
+        <button class="pill solid" id="saveEditQuoteBtn" type="button"><i data-lucide="check"></i> Save Changes</button>
+      </div>
+    </div>
+  </div>
 
-  <canvas id="exportCanvas" width="1920" height="1080" style="display:none;"></canvas>
+  <!-- Exam Submission Confirmation Modal -->
+  <div class="modal-overlay" id="examSubmitModal">
+    <div class="modal-card glass" style="max-width:440px; text-align:center; padding:28px 24px;">
+      <div style="width:52px; height:52px; border-radius:50%; background:rgba(99,102,241,0.15); color:var(--accent1); display:flex; align-items:center; justify-content:center; margin:0 auto 16px;">
+        <i data-lucide="clipboard-check" style="width:26px; height:26px;"></i>
+      </div>
+      <h3 style="font-family:var(--font-display); font-size:1.3rem; margin:0 0 8px; color:var(--text);">Submit Model Test?</h3>
+      <p style="font-size:13.5px; color:var(--text-soft); line-height:1.5; margin-bottom:20px;">
+        Review your progress before final evaluation. Unanswered questions will receive 0 marks.
+      </p>
+
+      <div class="exam-submit-stats-row" style="display:grid; grid-template-columns:repeat(3, 1fr); gap:10px; margin-bottom:22px; text-align:center;">
+        <div style="background:var(--surface); border:1px solid var(--border); padding:10px; border-radius:10px;">
+          <div style="font-weight:800; font-size:18px; color:#10b981;" id="modalTallyAnswered">0</div>
+          <div style="font-size:11px; color:var(--text-soft); text-transform:uppercase; font-weight:600; margin-top:2px;">Answered</div>
+        </div>
+        <div style="background:var(--surface); border:1px solid var(--border); padding:10px; border-radius:10px;">
+          <div style="font-weight:800; font-size:18px; color:#f43f5e;" id="modalTallyUnanswered">20</div>
+          <div style="font-size:11px; color:var(--text-soft); text-transform:uppercase; font-weight:600; margin-top:2px;">Unanswered</div>
+        </div>
+        <div style="background:var(--surface); border:1px solid var(--border); padding:10px; border-radius:10px;">
+          <div style="font-weight:800; font-size:18px; color:#f59e0b;" id="modalTallyFlagged">0</div>
+          <div style="font-size:11px; color:var(--text-soft); text-transform:uppercase; font-weight:600; margin-top:2px;">Flagged</div>
+        </div>
+      </div>
+
+      <div style="display:flex; justify-content:center; gap:12px;">
+        <button class="pill" id="btnCancelSubmitExam" type="button" style="padding:9px 18px;">Return &amp; Review</button>
+        <button class="pill solid btn-exam20" id="btnConfirmSubmitExam" type="button" style="padding:9px 20px;"><i data-lucide="check-circle"></i> Yes, Submit Exam</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="examOverlay" style="display:none;"></div>
 
   <script src="assets/js/script.js"></script>
   <script>

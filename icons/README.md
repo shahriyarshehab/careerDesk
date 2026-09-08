@@ -1,0 +1,77 @@
+# CareerDesk Icon Pack (71 Icons)
+
+This folder contains all standalone, high-quality vector `.svg` icons collected for the application.
+
+### Icons List
+
+1. `arrow-left.svg`
+2. `arrow-right.svg`
+3. `award.svg`
+4. `book-open.svg`
+5. `brain.svg`
+6. `calendar-clock.svg`
+7. `calendar-days.svg`
+8. `calendar-plus.svg`
+9. `check-circle-2.svg`
+10. `check-circle.svg`
+11. `check.svg`
+12. `chevron-left.svg`
+13. `chevron-right.svg`
+14. `clipboard-check.svg`
+15. `clock.svg`
+16. `edit-2.svg`
+17. `edit-3.svg`
+18. `edit.svg`
+19. `eye-off.svg`
+20. `eye.svg`
+21. `file-down.svg`
+22. `file-text.svg`
+23. `file-up.svg`
+24. `filter.svg`
+25. `flag.svg`
+26. `flame.svg`
+27. `folder.svg`
+28. `heart.svg`
+29. `help-circle.svg`
+30. `info.svg`
+31. `layers.svg`
+32. `layout-grid.svg`
+33. `lightbulb.svg`
+34. `list-checks.svg`
+35. `lock.svg`
+36. `maximize-2.svg`
+37. `maximize.svg`
+38. `minimize-2.svg`
+39. `minimize.svg`
+40. `moon.svg`
+41. `notebook-pen.svg`
+42. `pause.svg`
+43. `pencil.svg`
+44. `pin.svg`
+45. `play.svg`
+46. `plus-circle.svg`
+47. `plus.svg`
+48. `quote.svg`
+49. `rotate-ccw.svg`
+50. `save.svg`
+51. `search.svg`
+52. `settings.svg`
+53. `share-2.svg`
+54. `shuffle.svg`
+55. `sparkles.svg`
+56. `star.svg`
+57. `sun.svg`
+58. `target.svg`
+59. `timer.svg`
+60. `trash-2.svg`
+61. `trash.svg`
+62. `trending-up.svg`
+63. `trophy.svg`
+64. `undo-2.svg`
+65. `undo.svg`
+66. `user.svg`
+67. `volume-2.svg`
+68. `volume-x.svg`
+69. `x-circle.svg`
+70. `x.svg`
+71. `zap.svg`

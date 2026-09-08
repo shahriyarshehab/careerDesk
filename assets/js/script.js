@@ -20,6 +20,15 @@
     plus: '<svg class="btn-icon-svg" xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>',
     target: '<svg class="btn-icon-svg" xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>',
     bulb: '<svg class="btn-icon-svg" xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/></svg>',
+    checkCircle: '<svg class="btn-icon-svg" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>',
+    xCircle: '<svg class="btn-icon-svg" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg>',
+    flame: '<svg class="btn-icon-svg" xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>',
+    flag: '<svg class="btn-icon-svg" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" x2="4" y1="22" y2="15"/></svg>',
+    volume2: '<svg class="btn-icon-svg" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>',
+    volumeX: '<svg class="btn-icon-svg" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="22" x2="16" y1="9" y2="15"/><line x1="16" x2="22" y1="9" y2="15"/></svg>',
+    sparkles: '<svg class="btn-icon-svg" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/><path d="M5 3v4"/><path d="M19 17v4"/><path d="M3 5h4"/><path d="M17 19h4"/></svg>',
+    pause: '<svg class="btn-icon-svg" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>',
+    award: '<svg class="btn-icon-svg" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg>',
   };
 
   // window.storage only exists inside the Claude.ai artifact viewer.
@@ -113,9 +122,10 @@
         { id: 25, front: "ইন্টারনেটে নিরাপদ ব্রাউজিংয়ের প্রোটোকল HTTPS এর ডিফল্ট পোর্ট নম্বর কত?", back: "✓ Port 443\n\n💡 ব্যাখ্যা: HTTPS এনক্রিপ্টেড যোগাযোগের জন্য পোর্ট ৪৪৩ এবং সাধারণ HTTP পোর্ট ৮০ ব্যবহার করে।", category: "কম্পিউটার ও আইসিটি" }
       ],
       quoteCarouselEnabled: true,
-      quoteCarouselInterval: 6,
+      quoteCarouselInterval: 300,
       deletedSubjects: [],
-      customSubjects: []
+      customSubjects: [],
+      deletedQuotes: []
     };
   }
 
@@ -197,8 +207,8 @@
     routine: null, notes: [], customQuotes: [], quoteIdx: 0, quoteSource: 'all', theme: 'dark',
     sessions: [], activeSession: null, dailyTargetMinutes: 240,
     syllabus: [], flashcards: [],
-    quoteCarouselEnabled: true, quoteCarouselInterval: 6,
-    deletedSubjects: [], customSubjects: []
+    quoteCarouselEnabled: true, quoteCarouselInterval: 300,
+    deletedSubjects: [], customSubjects: [], deletedQuotes: []
   };
   let saveTimer = null;
   let tickInterval = null;
@@ -228,9 +238,10 @@
         state.syllabus = Array.isArray(p.syllabus) ? p.syllabus : [];
         state.flashcards = Array.isArray(p.flashcards) && p.flashcards.length >= 5 ? p.flashcards : getDefaultState().flashcards;
         state.quoteCarouselEnabled = typeof p.quoteCarouselEnabled === 'boolean' ? p.quoteCarouselEnabled : true;
-        state.quoteCarouselInterval = typeof p.quoteCarouselInterval === 'number' ? p.quoteCarouselInterval : 15;
+        state.quoteCarouselInterval = typeof p.quoteCarouselInterval === 'number' ? p.quoteCarouselInterval : 300;
         state.deletedSubjects = Array.isArray(p.deletedSubjects) ? p.deletedSubjects : [];
         state.customSubjects = Array.isArray(p.customSubjects) ? p.customSubjects : [];
+        state.deletedQuotes = Array.isArray(p.deletedQuotes) ? p.deletedQuotes : [];
       } else {
         const def = getDefaultState();
         state = { ...state, ...def };
@@ -419,19 +430,26 @@
   const lightBtn = document.getElementById('themeLightBtn');
   if (lightBtn) lightBtn.addEventListener('click', () => setTheme('light'));
 
-  // ===== Fullscreen toggle (Settings) =====
+  // ===== Fullscreen & Theme watch controls =====
   function syncWatchControls() {
     const themeBtn = document.getElementById('watchThemeToggle');
     const fullscreenBtn = document.getElementById('watchFullscreenToggle');
     if (themeBtn) {
-      const themeLabel = state.theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode';
+      const isDark = state.theme === 'dark';
+      const themeLabel = isDark ? 'Switch to light mode' : 'Switch to dark mode';
       themeBtn.title = themeLabel;
       themeBtn.setAttribute('aria-label', themeLabel);
+      themeBtn.innerHTML = `<i data-lucide="${isDark ? 'sun' : 'moon'}"></i>`;
     }
     if (fullscreenBtn) {
-      const fullscreenLabel = document.fullscreenElement ? 'Exit fullscreen' : 'Enter fullscreen';
+      const isFull = !!document.fullscreenElement;
+      const fullscreenLabel = isFull ? 'Exit fullscreen' : 'Enter fullscreen';
       fullscreenBtn.title = fullscreenLabel;
       fullscreenBtn.setAttribute('aria-label', fullscreenLabel);
+      fullscreenBtn.innerHTML = `<i data-lucide="${isFull ? 'minimize' : 'maximize'}"></i>`;
+    }
+    if (window.lucide && typeof window.lucide.createIcons === 'function') {
+      window.lucide.createIcons();
     }
   }
 
@@ -457,24 +475,72 @@
   syncWatchControls();
 
   // ===== Generic modal handling =====
-  function openModal(id) { document.getElementById(id).classList.add('open'); }
-  function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+  function openModal(id) {
+    const el = document.getElementById(id);
+    if (el) {
+      el.classList.add('open');
+      if (window.lucide && typeof window.lucide.createIcons === 'function') {
+        window.lucide.createIcons();
+      }
+    }
+  }
+  function closeModal(id) {
+    const el = document.getElementById(id);
+    if (el) el.classList.remove('open');
+  }
   document.addEventListener('click', (e) => {
     const closeBtn = e.target.closest('[data-close]');
     if (closeBtn) { closeModal(closeBtn.dataset.close); return; }
     if (e.target.classList.contains('modal-overlay') && e.target.classList.contains('open')) { e.target.classList.remove('open'); }
   });
-  // Notes, flashcards and syllabus use always-visible entry forms.
 
   // ===== Tabs =====
-  document.querySelectorAll('.tab-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('.tab-btn').forEach(b => { b.classList.remove('active'); b.setAttribute('aria-selected', 'false'); });
-      document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-      btn.classList.add('active'); btn.setAttribute('aria-selected', 'true');
-      document.getElementById('panel-' + btn.dataset.tab).classList.add('active');
-      if (btn.dataset.tab === 'settings') renderSubjectManager();
+  const ACTIVE_TAB_KEY = 'careerdesk-active-tab';
+
+  function activateTab(tabName, persist = false) {
+    if (!tabName) return;
+    const targetPanel = document.getElementById('panel-' + tabName);
+    if (!targetPanel) return;
+
+    document.querySelectorAll('.tab-btn').forEach(b => {
+      const isActive = b.dataset.tab === tabName;
+      b.classList.toggle('active', isActive);
+      b.setAttribute('aria-selected', String(isActive));
     });
+    document.querySelectorAll('.panel').forEach(p => {
+      p.classList.toggle('active', p.id === 'panel-' + tabName);
+    });
+
+    if (persist) {
+      try { localStorage.setItem(ACTIVE_TAB_KEY, tabName); } catch (e) { }
+      try { if (window.location.hash !== '#' + tabName) history.replaceState(null, '', '#' + tabName); } catch (e) { }
+    }
+
+    if (tabName === 'settings') {
+      renderSubjectManager();
+      renderQuoteManager();
+      syncQuoteSettings();
+    }
+
+    if (window.lucide && typeof window.lucide.createIcons === 'function') {
+      window.lucide.createIcons();
+    }
+  }
+
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => activateTab(btn.dataset.tab, true));
+  });
+
+  try {
+    const hashTab = window.location.hash ? window.location.hash.replace('#', '') : null;
+    const savedTab = localStorage.getItem(ACTIVE_TAB_KEY);
+    const initialTab = hashTab || savedTab || 'routine';
+    if (initialTab) activateTab(initialTab, false);
+  } catch (e) { }
+
+  window.addEventListener('hashchange', () => {
+    const tab = window.location.hash ? window.location.hash.replace('#', '') : 'routine';
+    activateTab(tab, false);
   });
 
   // ===== Header watch =====
@@ -812,23 +878,49 @@
     });
   }
 
-  // ===== Quotes =====
+  // ===== Quotes Manager =====
   const quoteTextEl = document.getElementById('quoteText');
   const quoteAuthorEl = document.getElementById('quoteAuthor');
-  const wpTagEl = document.getElementById('wpTag');
-
-  function currentPool() {
-    const own = ownQuotes.concat(state.customQuotes.map(q => q.text || '')).map(q => typeof q === 'string' ? { q, a: null } : { q: q.text || '', a: q.author || null });
-    if (state.quoteSource === 'own') return own;
-    if (state.quoteSource === 'famous') return famousQuotes;
-    return own.concat(famousQuotes);
-  }
+  const quoteIntervals = [10, 30, 60, 120, 300, 600, 900, 1800, 3600];
+  let quoteRotationTimer = null;
+  let editingQuoteId = null;
 
   function quoteManagerEntries() {
-    const customEntries = state.customQuotes.map(q => ({ id: q.id, text: q.text, author: q.author || null, source: 'custom' }));
-    const ownEntries = ownQuotes.map((q, i) => ({ id: `own-${i}`, text: q, author: null, source: 'own' }));
-    const famousEntries = famousQuotes.map((q, i) => ({ id: `famous-${i}`, text: q.q, author: q.a, source: 'famous' }));
-    return [...ownEntries, ...customEntries, ...famousEntries];
+    const deleted = new Set(state.deletedQuotes || []);
+
+    // 1. User's custom quotes
+    const customEntries = (state.customQuotes || []).map(q => ({
+      id: String(q.id),
+      text: q.text,
+      author: q.author || null,
+      source: 'custom'
+    })).filter(e => !deleted.has(e.id));
+
+    // 2. Curated routine quotes
+    const ownEntries = ownQuotes.map((q, i) => ({
+      id: `builtin-own-${i}`,
+      text: typeof q === 'string' ? q : q.text,
+      author: 'CareerDesk',
+      source: 'builtin'
+    })).filter(e => !deleted.has(e.id));
+
+    // 3. Famous figures quotes
+    const famousEntries = famousQuotes.map((q, i) => ({
+      id: `builtin-famous-${i}`,
+      text: q.q,
+      author: q.a,
+      source: 'famous'
+    })).filter(e => !deleted.has(e.id));
+
+    return [...customEntries, ...ownEntries, ...famousEntries];
+  }
+
+  function currentPool() {
+    const entries = quoteManagerEntries();
+    if (!entries.length) {
+      return [{ q: 'ছোট ছোট প্রতিদিনের চেষ্টাই একদিন বড় সাফল্য তৈরি করে।', a: 'CareerDesk' }];
+    }
+    return entries.map(e => ({ q: e.text, a: e.author }));
   }
 
   function renderQuote() {
@@ -837,27 +929,51 @@
     if (state.quoteIdx >= pool.length) state.quoteIdx = 0;
     const item = pool[state.quoteIdx];
     if (quoteTextEl) quoteTextEl.textContent = item.q;
-    if (quoteAuthorEl) quoteAuthorEl.textContent = item.a ? '— ' + item.a : bnDate() + ' • প্রস্তুতি চলছে';
-    if (wpTagEl) wpTagEl.textContent = item.a ? 'Famous Figures' : 'Personal Collection';
+    if (quoteAuthorEl) quoteAuthorEl.textContent = item.a ? '— ' + item.a : 'CareerDesk • Daily practice';
     updateTicker(item.a ? item.q + ' — ' + item.a : item.q);
-    renderQuoteManager();
   }
 
   function renderQuoteManager() {
     const list = document.getElementById('quoteManagerList');
+    const countBadge = document.getElementById('quoteCountBadge');
     if (!list) return;
-    list.innerHTML = quoteManagerEntries().map(entry => {
-      const isCustom = entry.source === 'custom';
-      const text = entry.author ? `${escapeHtml(entry.text)} — ${escapeHtml(entry.author)}` : escapeHtml(entry.text);
+
+    const entries = quoteManagerEntries();
+    if (countBadge) countBadge.textContent = String(entries.length);
+
+    if (!entries.length) {
+      list.innerHTML = `
+        <div class="quote-empty-state">
+          <svg style="width:28px; height:28px; opacity:0.6;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <path d="M3 21c3 0 7-1 7-8V5c0-1.25-.75-2-2-2H4c-1.25 0-2 .75-2 2v6c0 7 1 8 3 8z"/>
+            <path d="M17 21c3 0 7-1 7-8V5c0-1.25-.75-2-2-2h-4c-1.25 0-2 .75-2 2v6c0 7 1 8 3 8z"/>
+          </svg>
+          <span>No active quotes found. Add a quote below to start rotation.</span>
+        </div>`;
+      return;
+    }
+
+    list.innerHTML = entries.map(entry => {
+      const badgeClass = entry.source === 'custom' ? 'badge-custom' : (entry.source === 'famous' ? 'badge-famous' : 'badge-builtin');
+      const badgeText = entry.source === 'custom' ? 'Custom' : (entry.source === 'famous' ? 'Famous' : 'Curated');
+      const authorText = entry.author ? escapeHtml(entry.author) : 'CareerDesk';
+
       return `
-        <div class="quote-manager-item">
-          <div>
-            <strong>${text}</strong>
-            <span>${entry.source === 'famous' ? 'Famous' : (entry.source === 'custom' ? 'Custom Added' : 'Personal Collection')}</span>
+        <div class="quote-item-card" data-quote-id="${escapeAttr(entry.id)}">
+          <div class="quote-item-body">
+            <div class="quote-item-text">${escapeHtml(entry.text)}</div>
+            <div class="quote-item-meta">
+              <span class="quote-item-author">— ${authorText}</span>
+              <span class="quote-item-badge ${badgeClass}">${badgeText}</span>
+            </div>
           </div>
-          <div class="quote-manager-actions">
-            <button data-edit-quote="${entry.id}" type="button">এডিট</button>
-            ${isCustom ? `<button data-delete-quote="${entry.id}" type="button">মুছুন</button>` : ''}
+          <div class="quote-item-actions">
+            <button class="quote-action-btn edit-btn" data-edit-quote="${escapeAttr(entry.id)}" type="button" title="Edit Quote">
+              ${ICON.edit} <span>Edit</span>
+            </button>
+            <button class="quote-action-btn delete-btn" data-delete-quote="${escapeAttr(entry.id)}" type="button" title="Delete Quote">
+              ${ICON.trash} <span>Delete</span>
+            </button>
           </div>
         </div>
       `;
@@ -871,121 +987,184 @@
     setTimeout(() => { el.textContent = text; el.classList.remove('fade'); }, 220);
   }
 
-  const sourceSwitch = document.getElementById('sourceSwitch');
-  if (sourceSwitch) {
-    sourceSwitch.addEventListener('click', (e) => {
-      if (!e.target.classList.contains('chip')) return;
-      sourceSwitch.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
-      e.target.classList.add('active');
-      state.quoteSource = e.target.dataset.src;
-      state.quoteIdx = 0;
-      renderQuote(); saveData();
-    });
-  }
-
   function nextQuote() {
     const pool = currentPool();
     if (!pool.length) return;
-    let next;
-    do { next = Math.floor(Math.random() * pool.length); } while (pool.length > 1 && next === state.quoteIdx);
-    state.quoteIdx = next;
-    renderQuote(); saveData();
-  }
-  const shuffleBtn = document.getElementById('shuffleBtn');
-  if (shuffleBtn) {
-    shuffleBtn.addEventListener('click', nextQuote);
+    state.quoteIdx = (state.quoteIdx + 1) % pool.length;
+    renderQuote();
   }
 
-  // ===== Quote auto-carousel (Settings-controlled) =====
-  let quoteCarouselTimer = null;
-  function startQuoteCarousel() {
-    clearInterval(quoteCarouselTimer);
-    if (state.quoteCarouselEnabled) {
-      quoteCarouselTimer = setInterval(nextQuote, (state.quoteCarouselInterval || 6) * 1000);
+  function startQuoteRotation() {
+    clearInterval(quoteRotationTimer);
+    const interval = typeof state.quoteCarouselInterval === 'number' && state.quoteCarouselInterval >= 5
+      ? state.quoteCarouselInterval
+      : 300;
+    state.quoteCarouselInterval = interval;
+    quoteRotationTimer = setInterval(nextQuote, interval * 1000);
+  }
+
+  function syncQuoteSettings() {
+    const intervalSelect = document.getElementById('quoteIntervalSelect');
+    if (intervalSelect) {
+      const current = typeof state.quoteCarouselInterval === 'number' ? state.quoteCarouselInterval : 300;
+      let opt = intervalSelect.querySelector(`option[value="${current}"]`);
+      if (opt) {
+        intervalSelect.value = String(current);
+      } else {
+        const newOpt = document.createElement('option');
+        newOpt.value = String(current);
+        newOpt.textContent = current < 60 ? `${current} Seconds` : `${Math.round(current / 60)} Minutes`;
+        intervalSelect.appendChild(newOpt);
+        intervalSelect.value = String(current);
+      }
     }
   }
-  function syncCarouselControls() {
-    const toggleBtn = document.getElementById('carouselToggleBtn');
-    const intervalSel = document.getElementById('carouselIntervalSelect');
-    if (toggleBtn) {
-      toggleBtn.textContent = state.quoteCarouselEnabled ? 'Enabled' : 'Disabled';
-      toggleBtn.classList.toggle('solid', state.quoteCarouselEnabled);
-    }
-    if (intervalSel) {
-      intervalSel.value = String(state.quoteCarouselInterval || 6);
-    }
-  }
-  const carouselToggleBtn = document.getElementById('carouselToggleBtn');
-  if (carouselToggleBtn) {
-    carouselToggleBtn.addEventListener('click', () => {
-      state.quoteCarouselEnabled = !state.quoteCarouselEnabled;
-      syncCarouselControls();
-      startQuoteCarousel();
+
+  // Alias for compatibility
+  function startQuoteCarousel() { startQuoteRotation(); }
+  function syncCarouselControls() { syncQuoteSettings(); }
+
+  const quoteIntervalSelect = document.getElementById('quoteIntervalSelect');
+  if (quoteIntervalSelect) {
+    quoteIntervalSelect.addEventListener('change', (event) => {
+      const val = parseInt(event.target.value, 10) || 300;
+      state.quoteCarouselInterval = val;
+      startQuoteRotation();
       saveData();
-    });
-  }
-  const carouselIntervalSelect = document.getElementById('carouselIntervalSelect');
-  if (carouselIntervalSelect) {
-    carouselIntervalSelect.addEventListener('change', (e) => {
-      state.quoteCarouselInterval = parseInt(e.target.value, 10) || 6;
-      startQuoteCarousel();
-      saveData();
+      const label = val < 60 ? `${val} seconds` : `${Math.round(val / 60)} minutes`;
+      showToast(`Quotes rotation interval set to ${label}`);
     });
   }
 
+  // Add new quote
+  const addQuoteBtn = document.getElementById('addQuoteBtn');
+  if (addQuoteBtn) {
+    addQuoteBtn.addEventListener('click', () => {
+      const input = document.getElementById('customQuoteInput');
+      const authorInput = document.getElementById('customQuoteAuthorInput');
+      const text = input ? input.value.trim() : '';
+      const author = authorInput ? authorInput.value.trim() || null : null;
+      if (!text) {
+        showToast('Please enter a quote text', true);
+        if (input) input.focus();
+        return;
+      }
+      if (!Array.isArray(state.customQuotes)) state.customQuotes = [];
+      state.customQuotes.unshift({ id: Date.now(), text, author, source: 'custom' });
+      state.quoteIdx = 0;
+      if (input) input.value = '';
+      if (authorInput) authorInput.value = '';
+      renderQuoteManager();
+      renderQuote();
+      saveData();
+      showToast('New quote added to your rotation');
+    });
+  }
+
+  // Quote list actions (Edit & Delete delegation)
   const quoteManagerList = document.getElementById('quoteManagerList');
   if (quoteManagerList) {
     quoteManagerList.addEventListener('click', (e) => {
       const editBtn = e.target.closest('[data-edit-quote]');
       const deleteBtn = e.target.closest('[data-delete-quote]');
       if (editBtn) {
-        const id = editBtn.dataset.editQuote;
-        const entry = quoteManagerEntries().find(item => item.id === id);
-        if (!entry) return;
-        const currentText = entry.author ? `${entry.text} — ${entry.author}` : entry.text;
-        const nextValue = window.prompt('Edit quote text:', currentText);
-        if (nextValue === null) return;
-        const trimmed = nextValue.trim();
-        if (!trimmed) return;
-        const parts = trimmed.split('—').map(item => item.trim());
-        const text = parts[0] || trimmed;
-        const author = parts.length > 1 ? parts[1] : null;
-        if (entry.source === 'custom') {
-          const target = state.customQuotes.find(item => item.id === id);
-          if (target) {
-            target.text = text;
-            target.author = author;
-          }
-        } else {
-          state.customQuotes.push({ id: Date.now(), text, author, source: 'custom' });
-        }
-        renderQuote(); saveData();
+        openEditQuoteModal(editBtn.dataset.editQuote);
       }
       if (deleteBtn) {
-        const id = deleteBtn.dataset.deleteQuote;
-        state.customQuotes = state.customQuotes.filter(item => item.id !== id);
-        renderQuote(); saveData();
+        deleteQuoteEntry(deleteBtn.dataset.deleteQuote);
       }
     });
   }
 
-  const addQuoteBtn = document.getElementById('addQuoteBtn');
-  if (addQuoteBtn) {
-    addQuoteBtn.addEventListener('click', () => {
-      const ta = document.getElementById('customQuoteInput');
-      const val = ta ? ta.value.trim() : '';
-      if (!val) return;
-      state.customQuotes.push({ id: Date.now(), text: val, author: null, source: 'custom' });
-      if (ta) ta.value = '';
-      const currentSourceSwitch = document.getElementById('sourceSwitch');
-      if (currentSourceSwitch) {
-        currentSourceSwitch.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
-        const ownChip = currentSourceSwitch.querySelector('.chip[data-src="own"]');
-        if (ownChip) ownChip.classList.add('active');
+  function openEditQuoteModal(id) {
+    const entry = quoteManagerEntries().find(item => item.id === id);
+    if (!entry) return;
+    editingQuoteId = id;
+    const modal = document.getElementById('editQuoteModal');
+    const textInput = document.getElementById('editQuoteTextInput');
+    const authorInput = document.getElementById('editQuoteAuthorInput');
+    if (textInput) textInput.value = entry.text || '';
+    if (authorInput) authorInput.value = entry.author || '';
+    if (modal) {
+      modal.style.display = 'flex';
+      if (textInput) textInput.focus();
+    }
+  }
+
+  function closeEditQuoteModal() {
+    const modal = document.getElementById('editQuoteModal');
+    if (modal) modal.style.display = 'none';
+    editingQuoteId = null;
+  }
+
+  function saveEditedQuote() {
+    if (!editingQuoteId) return;
+    const textInput = document.getElementById('editQuoteTextInput');
+    const authorInput = document.getElementById('editQuoteAuthorInput');
+    const text = textInput ? textInput.value.trim() : '';
+    const author = authorInput ? authorInput.value.trim() || null : null;
+    if (!text) {
+      showToast('Quote text cannot be empty', true);
+      return;
+    }
+
+    if (editingQuoteId.startsWith('builtin-')) {
+      if (!Array.isArray(state.deletedQuotes)) state.deletedQuotes = [];
+      if (!state.deletedQuotes.includes(editingQuoteId)) {
+        state.deletedQuotes.push(editingQuoteId);
       }
-      state.quoteSource = 'own';
-      state.quoteIdx = ownQuotes.length + state.customQuotes.length - 1;
-      renderQuote(); saveData();
+      if (!Array.isArray(state.customQuotes)) state.customQuotes = [];
+      state.customQuotes.unshift({ id: Date.now(), text, author, source: 'custom' });
+    } else {
+      const target = (state.customQuotes || []).find(item => String(item.id) === editingQuoteId);
+      if (target) {
+        target.text = text;
+        target.author = author;
+      } else {
+        if (!Array.isArray(state.customQuotes)) state.customQuotes = [];
+        state.customQuotes.unshift({ id: Date.now(), text, author, source: 'custom' });
+      }
+    }
+
+    closeEditQuoteModal();
+    saveData();
+    renderQuoteManager();
+    renderQuote();
+    showToast('Quote updated successfully');
+  }
+
+  function deleteQuoteEntry(id) {
+    const entry = quoteManagerEntries().find(item => item.id === id);
+    const preview = entry ? `"${entry.text.slice(0, 35)}${entry.text.length > 35 ? '...' : ''}"` : 'this quote';
+    if (!window.confirm(`Delete ${preview}?\n\nIt will be removed from your routine rotation.`)) return;
+
+    if (id.startsWith('builtin-')) {
+      if (!Array.isArray(state.deletedQuotes)) state.deletedQuotes = [];
+      if (!state.deletedQuotes.includes(id)) {
+        state.deletedQuotes.push(id);
+      }
+    } else {
+      state.customQuotes = (state.customQuotes || []).filter(item => String(item.id) !== id);
+    }
+
+    saveData();
+    renderQuoteManager();
+    renderQuote();
+    showToast('Quote deleted');
+  }
+
+  // Modal event listeners
+  const closeEditModalBtn = document.getElementById('closeEditQuoteModal');
+  const cancelEditModalBtn = document.getElementById('cancelEditQuoteBtn');
+  const saveEditModalBtn = document.getElementById('saveEditQuoteBtn');
+  const editModalEl = document.getElementById('editQuoteModal');
+
+  if (closeEditModalBtn) closeEditModalBtn.addEventListener('click', closeEditQuoteModal);
+  if (cancelEditModalBtn) cancelEditModalBtn.addEventListener('click', closeEditQuoteModal);
+  if (saveEditModalBtn) saveEditModalBtn.addEventListener('click', saveEditedQuote);
+  if (editModalEl) {
+    editModalEl.addEventListener('click', (e) => {
+      if (e.target === editModalEl) closeEditQuoteModal();
     });
   }
 
@@ -2256,7 +2435,10 @@
           syllabus: Array.isArray(imported.syllabus) ? imported.syllabus : [],
           flashcards: Array.isArray(imported.flashcards) ? imported.flashcards : [],
           quoteCarouselEnabled: typeof imported.quoteCarouselEnabled === 'boolean' ? imported.quoteCarouselEnabled : true,
-          quoteCarouselInterval: typeof imported.quoteCarouselInterval === 'number' ? imported.quoteCarouselInterval : 6
+          quoteCarouselInterval: typeof imported.quoteCarouselInterval === 'number' ? imported.quoteCarouselInterval : 300,
+          deletedSubjects: Array.isArray(imported.deletedSubjects) ? imported.deletedSubjects : [],
+          customSubjects: Array.isArray(imported.customSubjects) ? imported.customSubjects : [],
+          deletedQuotes: Array.isArray(imported.deletedQuotes) ? imported.deletedQuotes : []
         };
         if (Array.isArray(imported.exams)) {
           exams = imported.exams;
@@ -2310,8 +2492,8 @@
       routine: buildDefaultRoutine(dateKey(Date.now())), notes: [], customQuotes: [], quoteIdx: 0, quoteSource: 'all', theme: keepTheme,
       sessions: [], activeSession: null, dailyTargetMinutes: 240,
       syllabus: [], flashcards: [],
-      quoteCarouselEnabled: true, quoteCarouselInterval: 6,
-      deletedSubjects: [], customSubjects: []
+      quoteCarouselEnabled: true, quoteCarouselInterval: 300,
+      deletedSubjects: [], customSubjects: [], deletedQuotes: []
     };
     try {
       localStorage.removeItem(EXAMS_KEY);
@@ -4303,6 +4485,14 @@
   let examTimerInterval = null;
   let timeRemaining = 900; // 15 minutes = 900s
   let autoNextTimeout = null;
+  let autoAdvanceCountdownInterval = null;
+
+  // Streak & Audio & Exam Flagging States
+  let mcqStreak = 0;
+  let mcqBestStreak = parseInt(localStorage.getItem('jobprep_mcq_best_streak') || '0', 10);
+  let mcqSoundEnabled = localStorage.getItem('jobprep_mcq_sound') !== 'false';
+  let mcqAutoAdvanceEnabled = localStorage.getItem('jobprep_mcq_autoadvance') !== 'false';
+  let flaggedQuestions = {};
 
   const prefixList = ["ক", "খ", "গ", "ঘ"];
 
@@ -4319,34 +4509,209 @@
     try { localStorage.setItem(MISTAKES_KEY, JSON.stringify(mistakes)); } catch (e) { }
   }
 
+  // Pure Web Audio API Synthesizer (No external sound files required)
+  function playMCQAudio(type) {
+    if (!mcqSoundEnabled) return;
+    try {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (!AudioCtx) return;
+      if (!window._mcqAudioCtx) {
+        window._mcqAudioCtx = new AudioCtx();
+      }
+      const ctx = window._mcqAudioCtx;
+      if (ctx.state === 'suspended') {
+        ctx.resume();
+      }
+      const now = ctx.currentTime;
+      if (type === 'correct') {
+        // High-pitched cheerful two-tone chime (D5 -> A5 -> D6)
+        const osc1 = ctx.createOscillator();
+        const osc2 = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc1.type = 'sine';
+        osc1.frequency.setValueAtTime(587.33, now);
+        osc1.frequency.exponentialRampToValueAtTime(880, now + 0.12);
+        osc2.type = 'sine';
+        osc2.frequency.setValueAtTime(880, now + 0.12);
+        osc2.frequency.exponentialRampToValueAtTime(1174.66, now + 0.28);
+        gain.gain.setValueAtTime(0.14, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.42);
+        osc1.connect(gain);
+        osc2.connect(gain);
+        gain.connect(ctx.destination);
+        osc1.start(now);
+        osc1.stop(now + 0.14);
+        osc2.start(now + 0.12);
+        osc2.stop(now + 0.42);
+      } else if (type === 'streak') {
+        // Triumphant 3-step ascending arpeggio (C5 -> E5 -> C6)
+        [523.25, 659.25, 1046.50].forEach((freq, i) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(freq, now + i * 0.08);
+          gain.gain.setValueAtTime(0.16, now + i * 0.08);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.08 + 0.32);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now + i * 0.08);
+          osc.stop(now + i * 0.08 + 0.32);
+        });
+      } else if (type === 'mastered') {
+        // Sparkly harp chime for question graduation
+        [440, 554.37, 659.25, 880, 1108.73, 1318.51].forEach((freq, i) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(freq, now + i * 0.06);
+          gain.gain.setValueAtTime(0.12, now + i * 0.06);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.06 + 0.4);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now + i * 0.06);
+          osc.stop(now + i * 0.06 + 0.4);
+        });
+      } else if (type === 'wrong') {
+        // Soft low tone buzz
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(240, now);
+        osc.frequency.exponentialRampToValueAtTime(160, now + 0.22);
+        gain.gain.setValueAtTime(0.12, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.26);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.26);
+      }
+    } catch (e) { /* ignore if audio blocked */ }
+  }
+
+  // Floating +1.0 animation
+  function spawnFloatingPoints(targetEl, text) {
+    if (!targetEl) return;
+    try {
+      const rect = targetEl.getBoundingClientRect();
+      const floatEl = document.createElement("div");
+      floatEl.className = "mcq-floating-points";
+      floatEl.textContent = text;
+      floatEl.style.left = (rect.left + rect.width / 2 - 20) + "px";
+      floatEl.style.top = (rect.top + window.scrollY - 10) + "px";
+      document.body.appendChild(floatEl);
+      setTimeout(() => { floatEl.remove(); }, 850);
+    } catch (e) { }
+  }
+
+  // Exam Question Navigator Palette
+  function renderMCQPalette() {
+    const container = document.getElementById("mcq-palette-container");
+    const grid = document.getElementById("mcq-palette-grid");
+    if (!container || !grid) return;
+
+    if (!is20ExamMode) {
+      container.style.display = "none";
+      return;
+    }
+
+    container.style.display = "block";
+    grid.innerHTML = "";
+
+    activeExamPool.forEach((q, idx) => {
+      const qKey = String(q.id !== undefined ? q.id : idx);
+      const isCurrent = (idx === currentMCQIndex);
+      const isAnswered = (sessionAnswered[qKey] && sessionAnswered[qKey].selectedIndex !== undefined);
+      const isFlagged = Boolean(flaggedQuestions[qKey]);
+
+      const chip = document.createElement("button");
+      chip.type = "button";
+      chip.className = "palette-chip" +
+        (isCurrent ? " current" : "") +
+        (isAnswered ? " answered" : "") +
+        (isFlagged ? " flagged" : "");
+      chip.textContent = String(idx + 1);
+      chip.title = `Question ${idx + 1}${isFlagged ? " (Flagged)" : (isAnswered ? " (Answered)" : "")}`;
+      chip.addEventListener("click", () => {
+        goToMCQQuestion(idx);
+      });
+      grid.appendChild(chip);
+    });
+  }
+
+  function goToMCQQuestion(idx) {
+    clearTimeout(autoNextTimeout);
+    clearInterval(autoAdvanceCountdownInterval);
+    if (idx < 0 || idx >= activeExamPool.length) return;
+    currentMCQIndex = idx;
+    renderMCQQuestion();
+    updateMCQStats();
+  }
+
+  function toggleFlagCurrentQuestion() {
+    if (!activeExamPool[currentMCQIndex]) return;
+    const q = activeExamPool[currentMCQIndex];
+    const qKey = String(q.id !== undefined ? q.id : currentMCQIndex);
+    flaggedQuestions[qKey] = !flaggedQuestions[qKey];
+
+    const flagBtn = document.getElementById("qFlagBtn");
+    const flagText = document.getElementById("qFlagText");
+    if (flagBtn) flagBtn.classList.toggle("flagged", Boolean(flaggedQuestions[qKey]));
+    if (flagText) flagText.textContent = flaggedQuestions[qKey] ? "Flagged for Review" : "Mark for Review";
+
+    renderMCQPalette();
+  }
+
   function updateMCQStats() {
     const currentIndexEl = document.getElementById("current-index");
+    const progressBar = document.getElementById("mcqProgressBar");
     const correctCountEl = document.getElementById("correct-count");
     const wrongCountEl = document.getElementById("wrong-count");
     const scoreValEl = document.getElementById("score-val");
+    const streakCountEl = document.getElementById("mcqStreakCount");
+    const bestStreakEl = document.getElementById("mcqBestStreak");
+    const streakCard = document.getElementById("mcqStreakCard");
     const masteryBadge = document.getElementById("mcqMasteryBadge");
     const resetMasteredBtn = document.getElementById("resetMasteredBtn");
+    const modeBadge = document.getElementById("mcqCurrentModeBadge");
+
+    if (bestStreakEl) bestStreakEl.textContent = mcqBestStreak;
+    if (streakCountEl) streakCountEl.textContent = mcqStreak;
+    if (streakCard) streakCard.classList.toggle("active-streak", mcqStreak >= 2);
+
+    if (modeBadge) {
+      modeBadge.textContent = is20ExamMode ? "20-Q Exam Mode" : "Practice Mode";
+    }
 
     if (is20ExamMode) {
       const answeredCount = Object.keys(sessionAnswered).length;
-      if (currentIndexEl) currentIndexEl.textContent = activeExamPool.length ? (currentMCQIndex + 1) + " / " + activeExamPool.length : "0 / 20";
+      const totalQs = activeExamPool.length || EXAM_QUESTION_COUNT;
+      if (currentIndexEl) currentIndexEl.textContent = `${currentMCQIndex + 1} / ${totalQs}`;
+      if (progressBar) {
+        const pct = Math.min(100, Math.round(((currentMCQIndex + 1) / totalQs) * 100));
+        progressBar.style.width = pct + "%";
+      }
       if (correctCountEl) {
         correctCountEl.textContent = answeredCount;
         const lbl = correctCountEl.nextElementSibling;
         if (lbl) lbl.textContent = "Answered";
       }
       if (wrongCountEl) {
-        wrongCountEl.textContent = Math.max(0, activeExamPool.length - answeredCount);
+        wrongCountEl.textContent = Math.max(0, totalQs - answeredCount);
         const lbl = wrongCountEl.nextElementSibling;
         if (lbl) lbl.textContent = "Remaining";
       }
       if (scoreValEl) {
         scoreValEl.textContent = "Locked";
         const lbl = scoreValEl.nextElementSibling;
-        if (lbl) lbl.textContent = "Revealed after 20 Qs";
+        if (lbl) lbl.textContent = "Results on Submit";
       }
     } else {
-      if (currentIndexEl) currentIndexEl.textContent = activeExamPool.length ? (currentMCQIndex + 1) + " / " + activeExamPool.length : "0 / 0";
+      const totalQs = activeExamPool.length;
+      if (currentIndexEl) currentIndexEl.textContent = totalQs ? `${currentMCQIndex + 1} / ${totalQs}` : "0 / 0";
+      if (progressBar) {
+        const pct = totalQs ? Math.min(100, Math.round(((currentMCQIndex + 1) / totalQs) * 100)) : 0;
+        progressBar.style.width = pct + "%";
+      }
       if (correctCountEl) {
         correctCountEl.textContent = correctAnswers;
         const lbl = correctCountEl.nextElementSibling;
@@ -4372,6 +4737,8 @@
     if (resetMasteredBtn) {
       resetMasteredBtn.style.display = masteredCount > 0 ? "inline-flex" : "none";
     }
+
+    renderMCQPalette();
   }
 
   // Automatically add fresh questions from extendedQuestionPool
@@ -4440,7 +4807,7 @@
       renderMCQQuestion();
     } else {
       if (is20ExamMode) {
-        showMCQSummary();
+        openExamSubmitModal();
         return;
       }
       const added = autoAddFreshQuestions();
@@ -4460,6 +4827,7 @@
     if (summaryCard) summaryCard.style.display = "none";
 
     const qSubject = document.getElementById("q-subject");
+    const qSourceTag = document.getElementById("q-source-tag");
     const qText = document.getElementById("q-text");
     const optionsContainer = document.getElementById("options-container");
     const explanationBox = document.getElementById("explanation-box");
@@ -4469,15 +4837,21 @@
     const currentIndexEl = document.getElementById("current-index");
     const historyBadge = document.getElementById("q-history-badge");
     const retryBtn = document.getElementById("retry-btn");
+    const qFlagBtn = document.getElementById("qFlagBtn");
+    const qFlagText = document.getElementById("qFlagText");
+    const autoNextPill = document.getElementById("qAutoNextPill");
+    const streakBanner = document.getElementById("mcq-streak-banner");
 
     if (!quizCard) return;
     clearTimeout(autoNextTimeout);
+    clearInterval(autoAdvanceCountdownInterval);
     if (retryBtn) retryBtn.style.display = "none";
+    if (streakBanner) streakBanner.style.display = "none";
 
     if (activeExamPool.length === 0) {
       const added = autoAddFreshQuestions();
       if (!added) {
-        if (qText) qText.innerHTML = "<strong>All questions in this category have been mastered!</strong><br><small style=\"color:var(--text-soft); font-weight:normal;\">You answered all available questions correctly twice. Click 'Restore Mastered' in the top bar to practice them again, or switch categories.</small>";
+        if (qText) qText.innerHTML = "<strong>সকল প্রশ্ন সম্পূর্ণ আয়ত্ত (Mastered) হয়েছে!</strong><br><small style=\"color:var(--text-soft); font-weight:normal;\">আপনি এই বিষয়ের সকল প্রশ্নের সঠিক উত্তর দুবার দিয়েছেন। পুনরায় অনুশীলন করতে উপরে 'Restore Mastered' চাপুন অথবা অন্য বিষয় বেছে নিন।</small>";
         if (optionsContainer) optionsContainer.innerHTML = "";
         if (explanationBox) explanationBox.classList.remove("show");
         if (prevBtn) prevBtn.style.display = "none";
@@ -4495,7 +4869,8 @@
 
     const q = activeExamPool[currentMCQIndex];
     if (currentIndexEl) currentIndexEl.textContent = (currentMCQIndex + 1) + " / " + activeExamPool.length;
-    if (qSubject) qSubject.textContent = q.subject;
+    if (qSubject) qSubject.textContent = q.subject || "বিসিএস প্রিলিমিনারি";
+    if (qSourceTag) qSourceTag.textContent = q.isCustom ? "কাস্টম প্রশ্ন" : "BCS Preliminary Standard";
     if (qText) qText.textContent = (currentMCQIndex + 1) + ". " + q.question;
     if (optionsContainer) optionsContainer.innerHTML = "";
     if (explanationBox) explanationBox.classList.remove("show");
@@ -4504,7 +4879,7 @@
     if (nextBtn) {
       if (is20ExamMode) {
         if (currentMCQIndex === activeExamPool.length - 1) {
-          nextBtn.innerHTML = `Finish &amp; View Score ${ICON.check}`;
+          nextBtn.innerHTML = `Finish &amp; Submit ${ICON.checkCircle}`;
         } else {
           nextBtn.innerHTML = `Next ${ICON.arrowR}`;
         }
@@ -4515,12 +4890,20 @@
 
     const qKey = String(q.id !== undefined ? q.id : currentMCQIndex);
 
+    // Flag button state
+    if (qFlagBtn) {
+      qFlagBtn.style.display = is20ExamMode ? "inline-flex" : "none";
+      const isFlagged = Boolean(flaggedQuestions[qKey]);
+      qFlagBtn.classList.toggle("flagged", isFlagged);
+      if (qFlagText) {
+        qFlagText.textContent = isFlagged ? "Flagged for Review" : "Mark for Review";
+      }
+    }
+
     if (is20ExamMode) {
-      // IN 20-QUESTION EXAM MODE:
-      // Do not reveal right or wrong, do not show explanation, do not disable options
+      // IN 20-QUESTION EXAM MODE
       if (explanationBox) explanationBox.classList.remove("show");
       if (historyBadge) historyBadge.style.display = "none";
-      const autoNextPill = document.querySelector(".auto-next-pill");
       if (autoNextPill) autoNextPill.style.display = "none";
       if (retryBtn) retryBtn.style.display = "none";
 
@@ -4530,17 +4913,28 @@
 
       q.options.forEach((opt, idx) => {
         const btn = document.createElement("button");
-        btn.className = "option-btn" + (userChoice === idx ? " selected-exam" : "");
+        const isSel = (userChoice === idx);
+        btn.className = "option-btn" + (isSel ? " selected-exam" : "");
         btn.type = "button";
-        btn.innerHTML = `<span class="opt-prefix">${prefixList[idx] || (idx + 1)}</span> <span>${escapeHtml(opt)}</span>`;
+        btn.innerHTML = `
+          <div class="opt-left">
+            <span class="opt-prefix">${prefixList[idx] || (idx + 1)}</span>
+            <span class="opt-text">${escapeHtml(opt)}</span>
+          </div>
+          <div class="opt-status-tag">
+            ${isSel ? '<span style="font-size:11px; color:var(--accent1); font-weight:700;">নির্বাচিত</span>' : ''}
+          </div>
+        `;
         btn.onclick = () => selectMCQOption(idx, q);
         if (optionsContainer) optionsContainer.appendChild(btn);
       });
     } else {
-      // IN QUESTION BANK PRACTICE MODE:
+      // IN QUESTION BANK PRACTICE MODE
       if (historyBadge) historyBadge.style.display = "inline-flex";
-      const autoNextPill = document.querySelector(".auto-next-pill");
-      if (autoNextPill) autoNextPill.style.display = "inline-flex";
+      if (autoNextPill) {
+        autoNextPill.style.display = "inline-flex";
+        autoNextPill.innerHTML = `${ICON.zap} Auto-Next: ${mcqAutoAdvanceEnabled ? 'ON' : 'OFF'}`;
+      }
 
       const rememberedAnswer = sessionAnswered[qKey] || userMCQProgress.answers[qKey];
       const prevStat = userMCQProgress.answers[qKey] || { timesCorrect: 0 };
@@ -4550,10 +4944,10 @@
       if (historyBadge) {
         if (timesCorrect >= 2) {
           historyBadge.className = "q-history-badge mastered";
-          historyBadge.innerHTML = `${ICON.trophy} Mastered (2/2)`;
+          historyBadge.innerHTML = `${ICON.trophy} Mastered (2/2) ⭐⭐`;
         } else if (timesCorrect === 1) {
           historyBadge.className = "q-history-badge has-correct";
-          historyBadge.textContent = "✓ 1/2 Right (1 more to master)";
+          historyBadge.innerHTML = `⭐ 1/2 Right (1 more to master)`;
         } else {
           historyBadge.className = "q-history-badge";
           historyBadge.textContent = "Mastery: 0/2";
@@ -4564,68 +4958,93 @@
         const btn = document.createElement("button");
         btn.className = "option-btn";
         btn.type = "button";
-        btn.innerHTML = `<span class="opt-prefix">${prefixList[idx] || (idx + 1)}</span> <span>${escapeHtml(opt)}</span>`;
+
+        let statusTagHtml = "";
 
         if (rememberedAnswer !== undefined) {
           btn.disabled = true;
           if (idx === q.correct) {
             btn.classList.add(rememberedAnswer.selectedIndex === q.correct ? "selected-correct" : "highlight-correct");
+            statusTagHtml = `${ICON.checkCircle} <span style="color:#10b981;">সঠিক উত্তর</span>`;
           } else if (idx === rememberedAnswer.selectedIndex && !rememberedAnswer.isCorrect) {
             btn.classList.add("selected-wrong");
+            statusTagHtml = `${ICON.xCircle} <span style="color:#f43f5e;">আপনার উত্তর</span>`;
           }
         } else {
           btn.onclick = () => selectMCQOption(idx, q);
         }
+
+        btn.innerHTML = `
+          <div class="opt-left">
+            <span class="opt-prefix">${prefixList[idx] || (idx + 1)}</span>
+            <span class="opt-text">${escapeHtml(opt)}</span>
+          </div>
+          <div class="opt-status-tag">${statusTagHtml}</div>
+        `;
+
         if (optionsContainer) optionsContainer.appendChild(btn);
       });
 
       if (rememberedAnswer !== undefined && explanationText && explanationBox) {
         if (rememberedAnswer.isCorrect) {
-          let expHtml = escapeHtml(q.explanation || "No explanation provided.");
-          expHtml += `<div style="margin-top:8px; color:#10b981; font-weight:700; font-size:12.5px;">✓ Correct. Exam mode tracks two correct attempts before removing this question for you.</div>`;
+          let expHtml = escapeHtml(q.explanation || "প্রাসঙ্গিক ব্যাখ্যা উপলব্ধ নেই।");
+          expHtml += `<div style="margin-top:10px; padding:8px 12px; background:rgba(16,185,129,0.12); border-radius:8px; border:1px solid rgba(16,185,129,0.25); color:#10b981; font-weight:600; font-size:12.5px;">
+            ✓ সঠিক উত্তর! বিসিএস মডেলে ২ বার সঠিক উত্তর দিলে প্রশ্নটি স্বয়ংক্রিয়ভাবে আয়ত্ত তালিকায় চলে যায়।
+          </div>`;
           explanationText.innerHTML = expHtml;
         } else {
-          // Show wrong answer feedback and show Retry button
           if (retryBtn) retryBtn.style.display = "inline-flex";
           const yourText = escapeHtml(q.options[rememberedAnswer.selectedIndex] || "");
           const correctText = escapeHtml(q.options[q.correct] || "");
           explanationText.innerHTML = `
-            <div class="wrong-feedback-badge">${ICON.x} Incorrect Choice</div>
+            <div class="wrong-feedback-badge">${ICON.xCircle} ভুল উত্তর</div>
             <div style="margin-bottom:8px; font-size:13px; line-height:1.6;">
-              <strong>Your Answer:</strong> <span style="color:#f43f5e; font-weight:600;">${yourText}</span> &nbsp;|&nbsp; 
-              <strong>Correct Answer:</strong> <span style="color:#10b981; font-weight:600;">${correctText}</span>
+              <strong>আপনার উত্তর:</strong> <span style="color:#f43f5e; font-weight:600;">${yourText}</span> &nbsp;|&nbsp; 
+              <strong>সঠিক উত্তর:</strong> <span style="color:#10b981; font-weight:600;">${correctText}</span>
             </div>
-            <div><strong>Explanation:</strong> ${escapeHtml(q.explanation || "No explanation provided.")}</div>
-            <div class="mistake-saved-badge">Saved to Mistake Bank &amp; scheduled for revision</div>
+            <div style="margin-bottom:8px;"><strong>ব্যাখ্যা ও টেকনিক:</strong> ${escapeHtml(q.explanation || "প্রাসঙ্গিক ব্যাখ্যা উপলব্ধ নেই।")}</div>
+            <div class="mistake-saved-badge">${ICON.flag} দুর্বল ক্ষেত্র হিসেবে Mistake Bank-এ সেভ করা হয়েছে</div>
           `;
         }
         explanationBox.classList.add("show");
       }
     }
+
+    renderMCQPalette();
   }
 
   function selectMCQOption(selectedIndex, q) {
     clearTimeout(autoNextTimeout);
+    clearInterval(autoAdvanceCountdownInterval);
     const qKey = String(q.id !== undefined ? q.id : currentMCQIndex);
+    const optionsContainer = document.getElementById("options-container");
+    const streakBanner = document.getElementById("mcq-streak-banner");
+    const explanationBox = document.getElementById("explanation-box");
+    const explanationText = document.getElementById("explanation-text");
+    const retryBtn = document.getElementById("retry-btn");
+    const nextBtn = document.getElementById("next-btn");
 
     if (is20ExamMode) {
       // IN 20-QUESTION EXAM MODE:
-      // Simply record the chosen option without revealing if it is right or wrong!
+      // Neutral recording without immediate spoilers
       sessionAnswered[qKey] = { selectedIndex };
 
-      const optionsContainer = document.getElementById("options-container");
       if (optionsContainer) {
         Array.from(optionsContainer.children).forEach((btn, idx) => {
-          btn.classList.toggle("selected-exam", idx === selectedIndex);
+          const isSel = (idx === selectedIndex);
+          btn.classList.toggle("selected-exam", isSel);
+          const tag = btn.querySelector(".opt-status-tag");
+          if (tag) tag.innerHTML = isSel ? '<span style="font-size:11px; color:var(--accent1); font-weight:700;">নির্বাচিত</span>' : '';
         });
       }
 
       updateMCQStats();
+      renderMCQPalette();
 
-      // Smooth auto-advance after 450ms (allows candidate to review or change with Previous/Next)
+      // Smooth advance after 380ms
       autoNextTimeout = setTimeout(() => {
         advanceToNextMCQQuestion();
-      }, 450);
+      }, 380);
       return;
     }
 
@@ -4633,10 +5052,10 @@
     const isCorrect = (selectedIndex === q.correct);
     sessionAnswered[qKey] = { selectedIndex, isCorrect };
 
-    // Update persistent progress in localStorage
+    // Update persistent progress
     const prev = userMCQProgress.answers[qKey] || { timesCorrect: 0, timesAnswered: 0 };
-    // Only exam submissions contribute to the two-correct removal rule.
-    const newTimesCorrect = prev.timesCorrect;
+    let newTimesCorrect = prev.timesCorrect || 0;
+    if (isCorrect) newTimesCorrect++;
     const newTimesAnswered = (prev.timesAnswered || 0) + 1;
 
     userMCQProgress.answers[qKey] = {
@@ -4648,36 +5067,154 @@
     };
 
     let justMastered = false;
-    const retryBtn = document.getElementById("retry-btn");
-    const nextBtn = document.getElementById("next-btn");
+
+    // Highlight all option buttons with status icons
+    if (optionsContainer) {
+      Array.from(optionsContainer.children).forEach((btn, idx) => {
+        btn.disabled = true;
+        const tag = btn.querySelector(".opt-status-tag");
+        if (idx === q.correct) {
+          btn.classList.add(selectedIndex === q.correct ? "selected-correct" : "highlight-correct");
+          if (tag) tag.innerHTML = `${ICON.checkCircle} <span style="color:#10b981;">সঠিক উত্তর</span>`;
+        } else if (idx === selectedIndex && !isCorrect) {
+          btn.classList.add("selected-wrong");
+          if (tag) tag.innerHTML = `${ICON.xCircle} <span style="color:#f43f5e;">আপনার পছন্দ</span>`;
+        }
+      });
+    }
 
     if (isCorrect) {
       correctAnswers++;
+      mcqStreak++;
+      if (mcqStreak > mcqBestStreak) {
+        mcqBestStreak = mcqStreak;
+        try { localStorage.setItem('jobprep_mcq_best_streak', String(mcqBestStreak)); } catch (e) { }
+      }
+
+      // Audio feedback
+      playMCQAudio(mcqStreak >= 3 ? 'streak' : 'correct');
+
+      // Floating points animation
+      if (optionsContainer && optionsContainer.children[selectedIndex]) {
+        spawnFloatingPoints(optionsContainer.children[selectedIndex], "+1.0");
+      }
+
       if (retryBtn) retryBtn.style.display = "none";
 
-      // Mastery and auto-removal are applied only when the exam is submitted.
-      // Practice mode should keep the question available for learning.
-      const delay = 750;
-      if (nextBtn) {
-        nextBtn.innerHTML = `Next ${ICON.arrowR} <span class="auto-advance-indicator">${ICON.zap}</span>`;
+      // Check mastery (2-correct Leitner rule)
+      if (newTimesCorrect >= 2) {
+        const strId = String(q.id !== undefined ? q.id : qKey);
+        if (!userMCQProgress.masteredIds.map(String).includes(strId)) {
+          userMCQProgress.masteredIds.push(q.id !== undefined ? q.id : qKey);
+          justMastered = true;
+          playMCQAudio('mastered');
+        }
       }
-      autoNextTimeout = setTimeout(() => {
-        advanceToNextMCQQuestion();
-      }, delay);
+
+      // Dynamic Streak / Correct Banner
+      if (streakBanner) {
+        let streakTitle = "✓ সঠিক উত্তর! (+1.0 নম্বর অর্জিত)";
+        if (justMastered) {
+          streakTitle = `🏆 অভিনন্দন! প্রশ্নটি সম্পূর্ণ আয়ত্ত হয়েছে (Mastered 2/2)!`;
+        } else if (mcqStreak >= 10) {
+          streakTitle = `👑 ${mcqStreak}টি টানা সঠিক উত্তর! মেধা তালিকায় শীর্ষস্থান!`;
+        } else if (mcqStreak >= 5) {
+          streakTitle = `⚡ ${mcqStreak}টি টানা সঠিক উত্তর! অপ্রতিরোধ্য স্পিড!`;
+        } else if (mcqStreak >= 3) {
+          streakTitle = `🔥 ${mcqStreak}টি টানা সঠিক উত্তর! দারুণ মোমেন্টাম!`;
+        } else if (mcqStreak === 2) {
+          streakTitle = `🔥 ২টি টানা সঠিক উত্তর! দারুণ গতি!`;
+        }
+
+        streakBanner.innerHTML = `
+          <div class="streak-banner-title">
+            ${justMastered ? ICON.trophy : (mcqStreak >= 3 ? ICON.flame : ICON.checkCircle)}
+            <span>${streakTitle}</span>
+          </div>
+          <div class="streak-banner-controls">
+            ${mcqAutoAdvanceEnabled ? `
+              <span class="auto-advance-note" id="autoAdvanceNote" style="font-size:12px; color:var(--text-soft);">
+                পরবর্তী প্রশ্ন: <b id="countdownSecs">1.5s</b>
+              </span>
+              <button class="pill subtle" id="pauseCountdownBtn" type="button" style="font-size:11.5px; padding:3px 10px;">
+                ${ICON.pause} বিরতি
+              </button>
+            ` : ''}
+            <button class="pill solid" id="bannerNextBtn" type="button" style="font-size:12px; padding:4px 12px;">
+              পরবর্তী প্রশ্ন ${ICON.arrowR}
+            </button>
+          </div>
+        `;
+        streakBanner.style.display = "flex";
+
+        const bannerNextBtn = document.getElementById("bannerNextBtn");
+        if (bannerNextBtn) {
+          bannerNextBtn.addEventListener("click", () => {
+            clearTimeout(autoNextTimeout);
+            clearInterval(autoAdvanceCountdownInterval);
+            advanceToNextMCQQuestion();
+          });
+        }
+
+        const pauseBtn = document.getElementById("pauseCountdownBtn");
+        if (pauseBtn) {
+          pauseBtn.addEventListener("click", () => {
+            clearTimeout(autoNextTimeout);
+            clearInterval(autoAdvanceCountdownInterval);
+            const note = document.getElementById("autoAdvanceNote");
+            if (note) note.textContent = "অটো-অ্যাডভান্স বিরতি দেওয়া হয়েছে";
+            pauseBtn.remove();
+          });
+        }
+      }
+
+      if (mcqAutoAdvanceEnabled) {
+        let timeLeft = 1.5;
+        clearInterval(autoAdvanceCountdownInterval);
+        autoAdvanceCountdownInterval = setInterval(() => {
+          timeLeft -= 0.1;
+          const cdEl = document.getElementById("countdownSecs");
+          if (cdEl) cdEl.textContent = Math.max(0, timeLeft).toFixed(1) + "s";
+          if (timeLeft <= 0) {
+            clearInterval(autoAdvanceCountdownInterval);
+          }
+        }, 100);
+
+        autoNextTimeout = setTimeout(() => {
+          clearInterval(autoAdvanceCountdownInterval);
+          advanceToNextMCQQuestion();
+        }, 1500);
+      }
 
     } else {
-      // WRONG ANSWER REMEDIATION LOGIC:
+      // WRONG ANSWER HANDLING
       clearTimeout(autoNextTimeout);
+      clearInterval(autoAdvanceCountdownInterval);
       wrongAnswers++;
+      mcqStreak = 0;
+      playMCQAudio('wrong');
 
-      // Re-queue this missed question 3-4 spots ahead in active pool for spaced practice
+      if (streakBanner) {
+        streakBanner.innerHTML = `
+          <div class="streak-banner-title" style="color:#f43f5e;">
+            ${ICON.xCircle}
+            <span>ভুল উত্তর! সঠিক উত্তর ও বিস্তারিত ব্যাখ্যাটি নিচে দেখে নিন।</span>
+          </div>
+          <div class="streak-banner-controls">
+            <span style="font-size:12px; color:var(--text-soft);">${ICON.flag} Mistake Bank-এ সেভ করা হয়েছে</span>
+          </div>
+        `;
+        streakBanner.style.display = "flex";
+      }
+
+      // Re-queue question 3-4 spots later in practice pool for spaced repetition
       const laterIdx = activeExamPool.findIndex((item, idx) => idx > currentMCQIndex && String(item.id) === String(q.id));
       if (laterIdx === -1 && !is20ExamMode && activeExamPool.length > 2) {
         const insertPos = Math.min(activeExamPool.length, currentMCQIndex + 4);
         activeExamPool.splice(insertPos, 0, autoShuffleOptions({ ...q, _isReattempt: true }));
       }
 
-      // Automatically add to Mistake Bank
+      // Automatically log to Mistake Bank
       const exists = mistakes.some(m => (m.q === q.question || String(m.id) === String(q.id)));
       if (!exists) {
         mistakes.unshift({
@@ -4686,7 +5223,7 @@
           subject: q.subject,
           yourAns: q.options[selectedIndex] || "",
           correctAns: q.options[q.correct] || "",
-          explain: q.explanation || "No explanation provided.",
+          explain: q.explanation || "প্রাসঙ্গিক ব্যাখ্যা উপলব্ধ নেই।",
           date: new Date().toLocaleDateString()
         });
         saveMistakes();
@@ -4700,66 +5237,50 @@
     saveMCQProgress();
     updateMCQStats();
 
-    // Highlight options in UI
-    const optionsContainer = document.getElementById("options-container");
-    if (optionsContainer) {
-      Array.from(optionsContainer.children).forEach((btn, idx) => {
-        btn.disabled = true;
-        if (idx === q.correct) {
-          btn.classList.add(selectedIndex === q.correct ? "selected-correct" : "highlight-correct");
-        } else if (idx === selectedIndex && !isCorrect) {
-          btn.classList.add("selected-wrong");
-        }
-      });
-    }
-
-    // Update history badge
+    // Update history badge in real time
     const historyBadge = document.getElementById("q-history-badge");
     if (historyBadge) {
       if (newTimesCorrect >= 2) {
         historyBadge.className = "q-history-badge mastered";
-        historyBadge.innerHTML = `${ICON.trophy} Mastered (2/2)`;
+        historyBadge.innerHTML = `${ICON.trophy} Mastered (2/2) ⭐⭐`;
       } else if (newTimesCorrect === 1) {
         historyBadge.className = "q-history-badge has-correct";
-        historyBadge.textContent = "✓ 1/2 Right (1 more to master)";
+        historyBadge.innerHTML = `⭐ 1/2 Right (1 more to master)`;
       } else {
         historyBadge.className = "q-history-badge";
         historyBadge.textContent = "Mastery: 0/2";
       }
     }
 
-    // Show Explanation Box with enhanced feedback
-    const explanationBox = document.getElementById("explanation-box");
-    const explanationText = document.getElementById("explanation-text");
+    // Explanation Box display
     if (explanationText && explanationBox) {
       if (isCorrect) {
-        let expHtml = escapeHtml(q.explanation || "No explanation provided.");
+        let expHtml = escapeHtml(q.explanation || "প্রাসঙ্গিক ব্যাখ্যা উপলব্ধ নেই।");
         if (justMastered) {
           expHtml += `<div style="margin-top:10px; padding:10px 14px; background:rgba(16,185,129,0.15); border-radius:8px; border:1px solid #10b981; color:#10b981; font-weight:700; font-size:13px; line-height:1.5;">
-            <strong>Mastered &amp; Graduated!</strong> You answered this question correctly 2 times. Auto-advancing to next question...
+            🏆 <strong>Mastered &amp; Graduated!</strong> আপনি এই প্রশ্নটি ২ বার সঠিকভাবে সমাধান করেছেন।
           </div>`;
-          showToast("Question Mastered! Answered correctly twice — removed from active practice.", false);
+          showToast("Question Mastered! Answered correctly twice — saved to mastery.", false);
         } else if (newTimesCorrect === 1) {
-          expHtml += `<div style="margin-top:8px; color:#10b981; font-weight:700; font-size:12.5px;">✓ Correct (1/2)! Answer right once more in any session to graduate this question.</div>`;
+          expHtml += `<div style="margin-top:8px; color:#10b981; font-weight:700; font-size:12.5px;">✓ Correct (1/2)! আর ১ বার সঠিক উত্তর দিলে এটি সম্পূর্ণ আয়ত্ত হয়ে যাবে।</div>`;
         }
         explanationText.innerHTML = expHtml;
       } else {
         const yourText = escapeHtml(q.options[selectedIndex] || "");
         const correctText = escapeHtml(q.options[q.correct] || "");
         explanationText.innerHTML = `
-          <div class="wrong-feedback-badge">${ICON.x} Incorrect Choice</div>
+          <div class="wrong-feedback-badge">${ICON.xCircle} ভুল উত্তর</div>
           <div style="margin-bottom:8px; font-size:13px; line-height:1.6;">
-            <strong>Your Answer:</strong> <span style="color:#f43f5e; font-weight:600;">${yourText}</span> &nbsp;|&nbsp; 
-            <strong>Correct Answer:</strong> <span style="color:#10b981; font-weight:600;">${correctText}</span>
+            <strong>আপনার উত্তর:</strong> <span style="color:#f43f5e; font-weight:600;">${yourText}</span> &nbsp;|&nbsp; 
+            <strong>সঠিক উত্তর:</strong> <span style="color:#10b981; font-weight:600;">${correctText}</span>
           </div>
-          <div><strong>Explanation:</strong> ${escapeHtml(q.explanation || "No explanation provided.")}</div>
-          <div class="mistake-saved-badge">Saved to Mistake Bank &amp; re-queued for spaced practice</div>
+          <div><strong>ব্যাখ্যা ও টেকনিক:</strong> ${escapeHtml(q.explanation || "প্রাসঙ্গিক ব্যাখ্যা উপলব্ধ নেই।")}</div>
+          <div class="mistake-saved-badge">${ICON.flag} দুর্বল ক্ষেত্র হিসেবে Mistake Bank-এ সেভ করা হয়েছে</div>
         `;
       }
       explanationBox.classList.add("show");
     }
 
-    // Check if user has answered all questions in active pool
     checkSessionCompletion();
   }
 
@@ -4780,6 +5301,31 @@
     }
   }
 
+  function openExamSubmitModal() {
+    const modal = document.getElementById("examSubmitModal");
+    if (!modal) {
+      showMCQSummary();
+      return;
+    }
+    const total = activeExamPool.length || EXAM_QUESTION_COUNT;
+    const answered = Object.keys(sessionAnswered).length;
+    const unanswered = Math.max(0, total - answered);
+    const flagged = Object.values(flaggedQuestions).filter(Boolean).length;
+
+    const elAns = document.getElementById("modalTallyAnswered");
+    const elUnans = document.getElementById("modalTallyUnanswered");
+    const elFlag = document.getElementById("modalTallyFlagged");
+
+    if (elAns) elAns.textContent = answered;
+    if (elUnans) elUnans.textContent = unanswered;
+    if (elFlag) elFlag.textContent = flagged;
+
+    modal.classList.add("open");
+    if (window.lucide && typeof window.lucide.createIcons === "function") {
+      window.lucide.createIcons();
+    }
+  }
+
   function setup20QuestionExam() {
     clearTimeout(autoNextTimeout);
     is20ExamMode = true;
@@ -4788,9 +5334,16 @@
     const examTimerEl = document.getElementById("exam-timer");
     const quizCard = document.getElementById("quiz-card");
     const summaryCard = document.getElementById("summary-card");
+    const paletteContainer = document.getElementById("mcq-palette-container");
+    const btnPractice = document.getElementById("btnModePractice");
+    const btnExam20 = document.getElementById("start-exam-20-btn");
 
     if (modeBanner) modeBanner.classList.add("active");
+    if (paletteContainer) paletteContainer.style.display = "block";
     if (filterBar) filterBar.style.display = "none";
+    if (btnPractice) btnPractice.classList.remove("active");
+    if (btnExam20) btnExam20.classList.add("active");
+    flaggedQuestions = {};
 
     // Refresh active pool excluding mastered
     allQuestions = getActiveQuestionsPool();
@@ -4804,7 +5357,10 @@
     if (allQuestions.length < EXAM_QUESTION_COUNT) {
       is20ExamMode = false;
       if (modeBanner) modeBanner.classList.remove("active");
+      if (paletteContainer) paletteContainer.style.display = "none";
       if (filterBar) filterBar.style.display = "flex";
+      if (btnPractice) btnPractice.classList.add("active");
+      if (btnExam20) btnExam20.classList.remove("active");
       showToast(`At least ${EXAM_QUESTION_COUNT} questions are required to start an exam.`, true);
       return;
     }
@@ -4850,9 +5406,13 @@
     clearInterval(examTimerInterval);
     const quizCard = document.getElementById("quiz-card");
     const summaryCard = document.getElementById("summary-card");
+    const paletteContainer = document.getElementById("mcq-palette-container");
+    const modeBanner = document.getElementById("mode-banner");
 
     if (quizCard) quizCard.style.display = "none";
     if (summaryCard) summaryCard.style.display = "block";
+    if (paletteContainer) paletteContainer.style.display = "none";
+    if (modeBanner) modeBanner.classList.remove("active");
 
     let examCorrect = 0;
     let examWrong = 0;
@@ -4933,6 +5493,7 @@
     const attemptedCount = examCorrect + examWrong;
     const accuracy = attemptedCount > 0 ? Math.round((examCorrect / attemptedCount) * 100) : 0;
     const percentage = totalQuestions > 0 ? Math.round((netMarks / totalQuestions) * 100) : 0;
+    const flaggedCount = Object.values(flaggedQuestions).filter(Boolean).length;
 
     let gradeBadge = "";
     let gradeColor = "";
@@ -4957,6 +5518,7 @@
       const selectedIdx = userAns ? userAns.selectedIndex : undefined;
       const isCorrect = (selectedIdx === q.correct);
       const isSkipped = (selectedIdx === undefined);
+      const isFlagged = Boolean(flaggedQuestions[qKey]);
       const stat = userMCQProgress.answers[qKey] || { timesCorrect: 0 };
       const timesCorrect = stat.timesCorrect || 0;
       const isMastered = userMCQProgress.masteredIds.map(String).includes(String(q.id !== undefined ? q.id : qKey));
@@ -4967,6 +5529,10 @@
         : (isCorrect
           ? `<span class="review-status-pill pill-correct">✓ Correct (+1.0)</span>`
           : `<span class="review-status-pill pill-wrong">✕ Incorrect (-0.5)</span>`);
+
+      let flagPillHtml = isFlagged
+        ? `<span class="review-status-pill pill-flagged" style="background:rgba(245,158,11,0.15); color:#f59e0b; border:1px solid rgba(245,158,11,0.3); font-size:11px;">${ICON.flag} Flagged</span>`
+        : "";
 
       let masteryPillHtml = "";
       if (isMastered) {
@@ -5000,12 +5566,13 @@
       });
 
       reviewItemsHtml += `
-        <div class="review-card glass ${cardStatusClass}">
+        <div class="review-card glass ${cardStatusClass}" data-review-status="${isSkipped ? 'skipped' : (isCorrect ? 'correct' : 'wrong')}" data-flagged="${isFlagged ? 'true' : 'false'}">
           <div class="review-card-top">
             <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
               <span class="q-badge" style="font-size:11px;">${escapeHtml(q.subject || "General")}</span>
               <span style="font-weight:700; font-size:13.5px; color:var(--text-soft);">Question ${idx + 1}</span>
               ${masteryPillHtml}
+              ${flagPillHtml}
             </div>
             <div>${statusPillHtml}</div>
           </div>
@@ -5098,11 +5665,20 @@
         </div>
 
         <div class="exam-review-section">
-          <div class="exam-review-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; border-bottom:1px solid var(--border); padding-bottom:12px;">
-            <h3 style="margin:0; font-size:16.5px; font-weight:700; color:var(--text);">
-              Detailed Question Review (${totalQuestions} Questions)
-            </h3>
-            <span style="font-size:12.5px; color:var(--text-soft);">Solutions &amp; Explanations</span>
+          <div class="exam-review-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; border-bottom:1px solid var(--border); padding-bottom:12px; flex-wrap:wrap; gap:10px;">
+            <div>
+              <h3 style="margin:0; font-size:16.5px; font-weight:700; color:var(--text);">
+                Detailed Question Review (${totalQuestions} Questions)
+              </h3>
+              <span style="font-size:12.5px; color:var(--text-soft);">Solutions, Keys &amp; Explanations</span>
+            </div>
+            <div class="review-filter-chips" style="display:flex; gap:6px; flex-wrap:wrap;">
+              <button class="pill subtle review-filter-pill active" data-review-filter="all" style="font-size:11.5px; padding:4px 10px;">All (${totalQuestions})</button>
+              <button class="pill subtle review-filter-pill" data-review-filter="correct" style="font-size:11.5px; padding:4px 10px; color:#10b981;">✓ Correct (${examCorrect})</button>
+              <button class="pill subtle review-filter-pill" data-review-filter="wrong" style="font-size:11.5px; padding:4px 10px; color:#f43f5e;">✕ Wrong (${examWrong})</button>
+              <button class="pill subtle review-filter-pill" data-review-filter="skipped" style="font-size:11.5px; padding:4px 10px;">— Skipped (${examSkipped})</button>
+              ${flaggedCount > 0 ? `<button class="pill subtle review-filter-pill" data-review-filter="flagged" style="font-size:11.5px; padding:4px 10px; color:#f59e0b;">Flagged (${flaggedCount})</button>` : ''}
+            </div>
           </div>
 
           <div class="exam-review-list">
@@ -5111,6 +5687,28 @@
         </div>
       </div>
     `;
+
+    const reviewFilterPills = summaryCard.querySelectorAll(".review-filter-pill");
+    reviewFilterPills.forEach(pill => {
+      pill.addEventListener("click", () => {
+        reviewFilterPills.forEach(p => p.classList.remove("active", "solid"));
+        pill.classList.add("active", "solid");
+        const filterVal = pill.getAttribute("data-review-filter");
+        summaryCard.querySelectorAll(".review-card").forEach(card => {
+          if (filterVal === "all") {
+            card.style.display = "block";
+          } else if (filterVal === "correct") {
+            card.style.display = card.getAttribute("data-review-status") === "correct" ? "block" : "none";
+          } else if (filterVal === "wrong") {
+            card.style.display = card.getAttribute("data-review-status") === "wrong" ? "block" : "none";
+          } else if (filterVal === "skipped") {
+            card.style.display = card.getAttribute("data-review-status") === "skipped" ? "block" : "none";
+          } else if (filterVal === "flagged") {
+            card.style.display = card.getAttribute("data-flagged") === "true" ? "block" : "none";
+          }
+        });
+      });
+    });
 
     const retakeBtn = document.getElementById("summary-retake-20-btn");
     const returnBankBtn = document.getElementById("summary-return-bank-btn");
@@ -5140,8 +5738,16 @@
     const filterBar = document.getElementById("filter-bar");
     const quizCard = document.getElementById("quiz-card");
     const summaryCard = document.getElementById("summary-card");
+    const paletteContainer = document.getElementById("mcq-palette-container");
+    const btnPractice = document.getElementById("btnModePractice");
+    const btnExam20 = document.getElementById("start-exam-20-btn");
 
     if (modeBanner) modeBanner.classList.remove("active");
+    if (paletteContainer) paletteContainer.style.display = "none";
+    if (btnPractice) btnPractice.classList.add("active");
+    if (btnExam20) btnExam20.classList.remove("active");
+    flaggedQuestions = {};
+
     currentSelectedSubject = "all";
     if (filterBar) {
       filterBar.style.display = "flex";
@@ -5301,6 +5907,13 @@
     const retryBtn = document.getElementById("retry-btn");
     const filterBar = document.getElementById("filter-bar");
     const resetMasteredBtn = document.getElementById("resetMasteredBtn");
+    const btnModePractice = document.getElementById("btnModePractice");
+    const mcqSoundToggleBtn = document.getElementById("mcqSoundToggleBtn");
+    const mcqAutoAdvanceToggle = document.getElementById("mcqAutoAdvanceToggle");
+    const qFlagBtn = document.getElementById("qFlagBtn");
+    const finishEarlyBtn = document.getElementById("finishEarlyBtn");
+    const btnCancelSubmit = document.getElementById("btnCancelSubmitExam");
+    const btnConfirmSubmit = document.getElementById("btnConfirmSubmitExam");
 
     const addModal = document.getElementById("add-modal");
     const openAddModalBtn = document.getElementById("open-add-modal");
@@ -5314,6 +5927,71 @@
     const btnImportJson = document.getElementById("btn-import-json");
     const btnExportMcqJson = document.getElementById("btn-export-mcq-json");
     const agentImportText = document.getElementById("agent-import-text");
+
+    if (btnModePractice) {
+      btnModePractice.addEventListener("click", () => {
+        if (is20ExamMode) {
+          if (window.confirm("Switch to Practice Mode? Current 20-question exam will be closed.")) {
+            resetMCQQuiz();
+          }
+        } else {
+          resetMCQQuiz();
+        }
+      });
+    }
+
+    if (mcqSoundToggleBtn) {
+      mcqSoundToggleBtn.innerHTML = mcqSoundEnabled ? ICON.volume2 : ICON.volumeX;
+      mcqSoundToggleBtn.title = mcqSoundEnabled ? "Sound Feedback: Enabled" : "Sound Feedback: Muted";
+      mcqSoundToggleBtn.addEventListener("click", () => {
+        mcqSoundEnabled = !mcqSoundEnabled;
+        try { localStorage.setItem('jobprep_mcq_sound', mcqSoundEnabled ? '1' : '0'); } catch (e) { }
+        mcqSoundToggleBtn.innerHTML = mcqSoundEnabled ? ICON.volume2 : ICON.volumeX;
+        mcqSoundToggleBtn.title = mcqSoundEnabled ? "Sound Feedback: Enabled" : "Sound Feedback: Muted";
+        showToast(mcqSoundEnabled ? "Audio feedback enabled" : "Audio feedback muted");
+      });
+    }
+
+    if (mcqAutoAdvanceToggle) {
+      mcqAutoAdvanceToggle.innerHTML = `${ICON.zap} Auto: <b>${mcqAutoAdvanceEnabled ? 'ON' : 'OFF'}</b>`;
+      mcqAutoAdvanceToggle.addEventListener("click", () => {
+        mcqAutoAdvanceEnabled = !mcqAutoAdvanceEnabled;
+        try { localStorage.setItem('jobprep_mcq_autoadvance', mcqAutoAdvanceEnabled ? '1' : '0'); } catch (e) { }
+        mcqAutoAdvanceToggle.innerHTML = `${ICON.zap} Auto: <b>${mcqAutoAdvanceEnabled ? 'ON' : 'OFF'}</b>`;
+        const autoNextPill = document.getElementById("qAutoNextPill");
+        if (autoNextPill) {
+          autoNextPill.innerHTML = `${ICON.zap} Auto-Next: ${mcqAutoAdvanceEnabled ? 'ON' : 'OFF'}`;
+        }
+        showToast(mcqAutoAdvanceEnabled ? "Auto-advance enabled (1.5s countdown)" : "Auto-advance paused");
+      });
+    }
+
+    if (qFlagBtn) {
+      qFlagBtn.addEventListener("click", () => {
+        toggleFlagCurrentQuestion();
+      });
+    }
+
+    if (finishEarlyBtn) {
+      finishEarlyBtn.addEventListener("click", () => {
+        openExamSubmitModal();
+      });
+    }
+
+    if (btnCancelSubmit) {
+      btnCancelSubmit.addEventListener("click", () => {
+        const modal = document.getElementById("examSubmitModal");
+        if (modal) modal.classList.remove("open");
+      });
+    }
+
+    if (btnConfirmSubmit) {
+      btnConfirmSubmit.addEventListener("click", () => {
+        const modal = document.getElementById("examSubmitModal");
+        if (modal) modal.classList.remove("open");
+        showMCQSummary();
+      });
+    }
 
     if (startExam20Btn) startExam20Btn.addEventListener("click", setup20QuestionExam);
     if (retake20Btn) retake20Btn.addEventListener("click", setup20QuestionExam);
@@ -5631,17 +6309,18 @@
     await loadData();
     await initAutoSync();
     syncThemeButtons();
-    syncCarouselControls();
     initMonthDropdown();
     renderDateSlider();
     renderRoutine();
     renderQuote();
+    renderQuoteManager();
+    syncQuoteSettings();
+    startQuoteRotation();
     renderNotes();
     renderTrackerAll();
     renderCategories();
     renderFlashCategoryOptions();
     renderFlashcards();
-    startQuoteCarousel();
 
     loadExams();
     renderExams();
