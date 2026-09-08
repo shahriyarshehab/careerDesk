@@ -103,7 +103,7 @@ Built with a glassmorphic Cyberpunk/Aurora aesthetic, CareerDesk integrates dail
 ## 📁 Directory Structure
 
 ```text
-chakriProstutiDashboard/
+CareerDesk/
 ├── index.html              # Main application single-page layout
 ├── assets/
 │   ├── css/
@@ -124,8 +124,8 @@ No Node.js runtime, build tools, or package installations are required.
 
 ### 1. Clone the repository
 ```bash
-git clone https://github.com/shahriyarshehab/chakriProstutiDashboard.git
-cd chakriProstutiDashboard
+git clone https://github.com/shahriyarshehab/CareerDesk.git
+cd CareerDesk
 ```
 
 ### 2. Launch in Browser

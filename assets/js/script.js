@@ -378,7 +378,7 @@
     }
     try {
       const handle = await window.showSaveFilePicker({
-        suggestedName: 'chakri-prostuti-backup.json',
+        suggestedName: 'careerdesk-backup.json',
         types: [{
           description: 'JSON Backup File',
           accept: { 'application/json': ['.json'] }
@@ -1403,7 +1403,7 @@
       canvas.toBlob((blobFile) => {
         const url = URL.createObjectURL(blobFile);
         const a = document.createElement('a');
-        a.href = url; a.download = 'chakri-prostuti-wallpaper.png';
+        a.href = url; a.download = 'careerdesk-wallpaper.png';
         document.body.appendChild(a); a.click(); a.remove();
         URL.revokeObjectURL(url);
       }, 'image/png');
@@ -3098,7 +3098,7 @@
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'chakri-prostuti-data.json';
+    a.download = 'careerdesk-data.json';
     document.body.appendChild(a); a.click(); a.remove();
     URL.revokeObjectURL(url);
     await writeToAutoBackupFile();
