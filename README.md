@@ -1,106 +1,107 @@
-# 🎓 চাকরি প্রস্তুতি ড্যাশবোর্ড (Job Preparation Dashboard)
+# 🎯 Job Prep Dashboard (Study Management & Exam Tracker)
 
 ![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white)
 ![CSS3](https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white)
 ![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)
 ![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)
 
-**চাকরি প্রস্তুতি ড্যাশবোর্ড** হলো সরকারি ও বেসরকারি চাকরিপ্রার্থীদের (BCS, Bank, Primary, NTRCA ইত্যাদি) জন্য একটি আধুনিক, দৃষ্টিনন্দন এবং অল-ইন-ওয়ান স্টাডি ম্যানেজমেন্ট ওয়েব অ্যাপ্লিকেশন। এতে রয়েছে স্টাডি রুটিন মেকার, বিষয়ভিত্তিক স্টাডি টাইম ট্র্যাকার, সিলেবাস প্রোগ্রেস ট্র্যাকার, ফ্ল্যাশকার্ড ও এক্সাম মোড, নোট ম্যানেজার, অনুপ্রেরণামূলক উক্তি স্লাইডশো, এইচডি ওয়ালপেপার জেনারেটর এবং ডার্ক/লাইট মোড সমর্থন।
+**Job Prep Dashboard** is a sleek, ultra-modern, all-in-one study management and exam preparation web application designed for competitive exam candidates (Civil Service, Banking, Teaching, and standardized professional tests). 
+
+It features an interactive study routine planner, subject-wise focus stopwatch & Pomodoro timers, 24-hour activity ratio tracking, syllabus progress checklist, flashcards with interactive exam mode, mistake bank, live exam target countdowns, inspirational quote slideshows, and 1080p desktop wallpaper generation.
 
 ---
 
-## 🌟 প্রধান বৈশিষ্ঠ্যসমূহ (Key Features)
+## 🌟 Key Features
 
-### 📅 ১. পড়ার রুটিন (Interactive Study Routine)
-* **তারিখভিত্তিক রুটিন:** ক্যালেন্ডার স্লাইডার ও মাস ড্রপডাউনের মাধ্যমে যেকোনো তারিখের রুটিন সহজে তৈরি ও দেখার সুবিধা।
-* **ইনলাইন এডিটিং:** সরাসরি টেবিল থেকে শুরু/শেষের সময়, বিষয় এবং টাস্ক পরিবর্তনের সুবিধা।
-* **মাসের সব রুটিন:** সম্পূর্ণ মাসের রুটিনের ইতিহাস দেখা, এডিট বা ডিলিট করার ব্যবস্থা।
-* **ডিফল্ট টেমপ্লেট:** এক ক্লিকে আজকের জন্য স্ট্যান্ডার্ড পড়ার রুটিন তৈরি।
+### 📅 1. Interactive Study Routine
+* **Date-Based Routine:** Seamlessly create and review study routines for any date with an intuitive calendar slider and month picker.
+* **Inline Editing:** Edit start/end times, subjects, and specific study tasks directly within the table.
+* **Monthly Overview:** View, edit, or delete full monthly study history.
+* **Default Template:** Load a balanced daily routine with a single click.
 
-### 📝 ২. স্মার্ট নোটস (Categorized Notes System)
-* **বিষয়ভিত্তিক ট্যাগ:** সাধারণ, বাংলা, ইংরেজি, গণিত, সাধারণ জ্ঞান, জরুরি ইত্যাদি ট্যাগ যোগ করার সুবিধা।
-* **পিন সুবিধা (Pin to Top):** গুরুত্বপূর্ণ নোটগুলোকে উপরে পিন করে রাখার অপশন।
-* **লাইভ সার্চ ও ফিল্টার:** কি-ওয়ার্ড বা বিষয়ভিত্তিক ট্যাগ দিয়ে মুহূর্তে নোট খুঁজে পাওয়ার সুবিধা।
-* **ইনলাইন এডিট:** যেকোনো সময় নোট সহজে সম্পাদন ও আপডেট।
+### 📝 2. Categorized Smart Notes
+* **Subject Tags:** Organize notes by General, English, Mathematics, Bengali, General Knowledge, or Important/High-Yield tags.
+* **Pin to Top:** Keep critical formulas and summaries pinned to the top of your board.
+* **Live Search & Filter:** Instantly filter notes by keyword or category tag.
+* **Inline Quick Edit:** Edit and update notes on the fly.
 
-### ⏱️ ৩. পড়ার সেশন ট্র্যাকার ও পর্যালোচনা (Study Tracker & Analytics)
-* **স্টপওয়াচ টাইমার:** অ্যানিমেটেড গ্লোয়িং অর্ব (Glowing Clock Orb) সহ লাইভ স্টাডি টাইমার।
-* **বিষয়ভিত্তিক হিসাব:** আজকের দিনে কোন বিষয়ে কত সময় পড়া হয়েছে তার ভিজ্যুয়াল বার চার্ট।
-* **টার্গেট ও স্ট্রিক (Streak Counter):** দৈনিক পড়ার টার্গেট (ঘণ্টায়) সেট করা এবং টানা কতদিন টার্গেট পূরণ হয়েছে তা অটোমেটিক হিসাব রাখা।
-* **৩ডি অ্যানালিটিক্স চার্ট (3D Review Chart):** সাপ্তাহিক, মাসিক, বাৎসরিক বা কাস্টম তারিখ অনুযায়ী পড়ার পরিসংখ্যানের ৩ডি ভিজ্যুয়ালাইজেশন।
+### ⏱️ 3. Study Session Tracker & Focus Mode
+* **Glowing Clock Orb:** Minimalist digital stopwatch and countdown timer with animated pulse indicator.
+* **Quick Interval Presets:** Switch between open stopwatch, 15m, 25m Pomodoro, 45m deep work, 60m focus, and 5m refreshment break.
+* **24-Hour Activity Breakdown:** Real-time breakdown of today's study hours, total break time, and activity percentage over 24 hours.
+* **Daily Goal & Streak:** Set custom daily study targets (in hours) with automatic streak calculation.
+* **Analytics & 3D Review Charts:** Visualize study distribution by subject and view weekly, monthly, or yearly progress.
 
-### 📚 ৪. সিলেবাস প্রোগ্রেস ট্র্যাকার (Syllabus Tracker)
-* **ক্যাটাগরি ও টপিক প্রোগ্রেস:** বিষয়ভিত্তিক ক্যাটাগরি তৈরি করে তার অধীনে ছোট ছোট টপিক যুক্ত করার সুবিধা।
-* **সামগ্রিক অগ্রগতি:** মোট কত শতাংশ সিলেবাস শেষ হয়েছে তা স্বয়ংক্রিয় প্রোগ্রেস বারে প্রদর্শন।
-* **ইন্টারেক্টিভ টগল:** টপিক শেষ হলে এক ক্লিকে সম্পন্ন হিসেবে চিহ্নিত করার ব্যবস্থা।
+### ⏳ 4. Exam Target Countdowns
+* **Live Timers:** Add upcoming exam dates and track remaining days, hours, minutes, and seconds in real-time.
+* **Category Badges:** Label countdown targets by exam authority or category.
 
-### 🃏 ৫. ফ্ল্যাশকার্ড ও এক্সাম মোড (Flashcards & Exam Mode)
-* **৩ডি ফ্লিপ কার্ড:** প্রশ্ন ও উত্তর লিখে রাখা এবং ক্লিক করে ৩ডি অ্যানিমেশনে রিভিশন দেওয়ার সুযোগ।
-* **ক্যাটাগরি ফিল্টার:** বিষয়ভিত্তিক ফ্ল্যাশকার্ড আলাদা করে পড়ার সুবিধা।
-* **ইন্টারেক্টিভ এক্সাম মোড:** টাইপ করে উত্তর দেওয়া, লাইভ স্কোর (সঠিক/ভুল), এবং এক্সাম শেষে বিস্তারিত ফলাফল রিপোর্ট প্রদর্শন।
+### 🃏 5. Flashcards, BCS & Govt Job MCQ Engine & Mistake Bank
+* **3D Flip Cards:** Create concept flashcards with 3D flip animation for quick revision and spaced repetition.
+* **BCS & Govt Job MCQ Bank:** Over 55+ authentic BCS Preliminary, PSC, and combined bank exam questions across Bangla Literature, Bangla Grammar, English, Mathematics, Bangladesh Affairs, International Affairs, General Science, and Computer & ICT.
+* **Auto-Shuffled Options:** Options are shuffled dynamically using Fisher-Yates while maintaining answer accuracy to prevent muscle memory bias.
+* **Timed 20-Question Exam Mode:** Real-time 15-minute exam countdown timer with BCS standard negative marking (+1.00 for correct, -0.50 for wrong) and detailed score analytics.
+* **Instant Explanations & Shortcuts:** Revealing step-by-step solutions and shortcut techniques immediately after each question.
+* **AI Question Curator & Importer:** Built-in AI question harvester (+8 high-yield questions) with JSON import/export capability.
+* **Mistake Bank (Weak Areas):** Missed questions automatically synchronize into the Mistake Bank with category tags, comparison of your answer vs. correct answer, and full reasoning.
 
-### 🖼️ ৬. অনুপ্রেরণামূলক উক্তি ও ওয়ালপেপার জেনারেটর (Quotes & HD Wallpaper Generator)
-* **উক্তি স্লাইডশো:** বিখ্যাত ব্যক্তি ও নিজস্ব সংগ্রহের মোটিভেশনাল উক্তি অটো-কারোসেল সহ প্রদর্শন।
-* **এইচডি ওয়ালপেপার ডাউনলোড (1920x1080 Canvas):** যেকোনো উক্তি দিয়ে এক ক্লিকে ডেস্কটপের জন্য কাস্টম ১৯২০x১০৮০ পিএইচডি পিএনজি (PNG) ওয়ালপেপার তৈরি ও ডাউনলোডের সুবিধা।
+### 📚 6. Syllabus Progress Tracker
+* **Categories & Topics:** Create subject categories and add granular topics.
+* **Progress Percentage:** Automatically calculates completion percentage and displays dynamic progress bars.
 
-### 🎨 ৭. আধুনিক ইউআই ও সেটিংস (Modern UI & Customization)
-* **ডার্ক ও লাইট মোড (Dark/Light Theme):** চোখের সুরক্ষায় কাস্টম কালার প্যালেট ও ডার্ক-লাইট থিম টগল।
-* **লাইভ বাংলা ঘড়ি:** হেডারে অ্যানিমেটেড লাইভ ডিজিটাল বাংলা ঘড়ি।
-* **ফুলস্ক্রিন মোড:** ফুলস্ক্রিন টগল করে নিবিষ্ট হয়ে পড়ার সুবিধা।
-* **ডেটা ব্যাকআপ ও রিসেট (JSON Export/Import):** এক ক্লিকে সব ডেটা JSON ফাইল হিসেবে এক্সপোর্ট/ইমপোর্ট করা এবং প্রয়োজনে রিসেট করার ব্যবস্থা।
+### 🖼️ 7. Quotes & 1080p Desktop Wallpaper Generator
+* **Inspirational Carousel:** Displays curated quotes from famous thinkers alongside custom user-added quotes.
+* **HD Canvas Wallpaper Export:** Generate and download custom 1920x1080 desktop wallpapers in PNG format with a single click.
+
+### 🎨 8. Ultra-Modern UI & Customization
+* **Dark & Light Modes:** Tailored color palettes with smooth transitions and persistent theme selection.
+* **Live Clock & Fullscreen:** Header capsule with live time indicator and fullscreen toggle.
+* **Local Data Backup:** Export/import all data via JSON files, plus experimental native File System Access auto-sync.
 
 ---
 
-## 🛠️ প্রযুক্তিগত বিবরণ (Tech Stack & Architecture)
+## 🛠️ Tech Stack & Architecture
 
-| Layer | Technology Used |
+| Layer | Technology |
 | :--- | :--- |
 | **Frontend Core** | HTML5 (Semantic Structure & Accessibility), Pure Vanilla JavaScript (ES6+) |
-| **Styling & Effects** | Vanilla CSS3 (Custom Properties, Glassmorphism, Animated Backdrop Aurora, Flexbox/Grid) |
-| **Typography** | Google Fonts (*Baloo Da 2* & *Hind Siliguri*) for native Bengali rendering |
-| **Data Persistence** | Browser `localStorage` with fallback adapter system |
-| **Canvas & Graphics** | HTML5 Canvas API for 1920x1080 Desktop Wallpaper Generation |
+| **Styling & Effects** | Vanilla CSS3 (Custom Properties, Glassmorphism, Aurora Gradients, Flexbox/Grid) |
+| **Typography** | Google Fonts (*Plus Jakarta Sans* & *Outfit*) |
+| **Data Persistence** | Browser `localStorage` with fallback adapter architecture |
+| **Canvas & Graphics** | HTML5 Canvas API for 1920x1080 HD Wallpaper Generation |
 
 ---
 
-## 📁 প্রজেক্ট ডিরেক্টরি স্ট্রাকচার (Project Directory Structure)
+## 📁 Project Directory Structure
 
 ```
 chakri-prostuti-dashboard/
-├── index.html              # প্রধান এইচটিএমএল স্ট্রাকচার ও লেআউট
+├── index.html              # Main application markup & layout
 ├── assets/
 │   ├── css/
-│   │   └── style.css       # থিম ভেরিয়েবল, গ্লাসনিজম, অ্যানিমেশন ও স্টাইলিং
+│   │   └── style.css       # Unified design system, glassmorphism, & animations
 │   └── js/
-│       └── script.js       # স্টেট ম্যানেজমেন্ট, টাইমার, ফিল্টার, ক্যালকুলেশন ও ইভেন্ট হ্যান্ডলার
-└── README.md               # প্রজেক্ট ডকুমেন্টেশন
+│       └── script.js       # State management, timers, analytics, & event handlers
+└── README.md               # Project documentation
 ```
 
 ---
 
-## 🚀 কীভাবে চালাবেন (How to Run Locally)
+## 🚀 How to Run Locally
 
-কোনো ফ্রেসওয়ার্ক বা বিল্ড টুল (Build tools / Node.js) ইনস্টল করার প্রয়োজন নেই।
+No build tools or Node.js runtime required.
 
-1. **রিপোজিটরি ক্লোন অথবা ডাউনলোড করুন:**
+1. **Clone or Download the Repository:**
    ```bash
    git clone https://github.com/your-username/chakri-prostuti-dashboard.git
    ```
-2. **সরাসরি ব্রাউজারে খুলুন:**
-   `index.html` ফাইলটিতে ডাবল ক্লিক করুন অথবা যেকোনো ব্রাউজারে (Chrome, Edge, Firefox, Safari) ওপেন করুন।
-3. **অথবা Live Server ব্যবহার করুন:**
-   VS Code ব্যবহার করলে `Live Server` এক্সটেনশন অন করে `index.html` রান করতে পারেন।
+2. **Open in Browser:**
+   Simply double-click `index.html` or open it in any modern browser (Chrome, Edge, Firefox, Safari).
+3. **Optional (Live Server):**
+   If using VS Code, right-click `index.html` and choose **"Open with Live Server"**.
 
 ---
 
-## 💾 ডেটা স্টোরেজ ও ব্যাকআপ (Data Storage & Backup)
+## 📄 License
 
-- সব রুটিন, নোট, ট্র্যাকার সেশন, সিলেবাস ও ফ্ল্যাশকার্ডের ডেটা ব্রাউজারের **Local Storage**-এ সুরক্ষিত থাকে।
-- **ডেটা এক্সপোর্ট করতে:** `সেটিংস` ট্যাবে গিয়ে **"⬇ এক্সপোর্ট"** বাটনে ক্লিক করলে সম্পূর্ণ ডেটা `chakri-prostuti-data.json` নামে ডাউনলোড হবে।
-- **ডেটা ইমপোর্ট করতে:** **"⬆ ইমপোর্ট"** বাটনে ক্লিক করে সংরক্ষিত JSON ফাইল সিলেক্ট করলেই সব ডেটা পুনরুদ্ধার হবে।
-
----
-
-## 📄 লাইসেন্স (License)
-
-এই প্রজেক্টটি [MIT License](LICENSE)-এর অধীনে উন্মুক্ত। আপনি ফ্রিতে এটি ব্যবহার, পরিবর্তন বা শেয়ার করতে পারেন।
+This project is open-source and available under the [MIT License](LICENSE).

@@ -1,6 +1,27 @@
 (function () {
   const STORAGE_KEY = 'jobprep-dashboard-data-v2';
 
+  // Inline SVG icon strings for dynamic innerHTML templates
+  const ICON = {
+    x:      '<svg class="btn-icon-svg" xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>',
+    trash:  '<svg class="btn-icon-svg" xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>',
+    pin:    '<svg class="btn-icon-svg" xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="17" x2="12" y2="22"/><path d="M5 17h14v-1.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V6h1a2 2 0 0 0 0-4H8a2 2 0 0 0 0 4h1v4.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24Z"/></svg>',
+    edit:   '<svg class="btn-icon-svg" xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4Z"/></svg>',
+    undo:   '<svg class="btn-icon-svg" xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg>',
+    rotccw: '<svg class="btn-icon-svg" xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>',
+    trophy: '<svg class="btn-icon-svg" xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>',
+    zap:    '<svg class="btn-icon-svg" xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>',
+    star:   '<svg class="btn-icon-svg" xmlns="http://www.w3.org/2000/svg" width="44" height="44" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="0.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>',
+    layers: '<svg class="btn-icon-svg" xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>',
+    arrowR: '<svg class="btn-icon-svg" xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>',
+    arrowL: '<svg class="btn-icon-svg" xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>',
+    eye:    '<svg class="btn-icon-svg" xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>',
+    check:  '<svg class="btn-icon-svg" xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>',
+    plus:   '<svg class="btn-icon-svg" xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>',
+    target: '<svg class="btn-icon-svg" xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>',
+    bulb:   '<svg class="btn-icon-svg" xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/></svg>',
+  };
+
   // window.storage only exists inside the Claude.ai artifact viewer.
   // When this file runs as a standalone app (opened directly or via a local server),
   // fall back to localStorage so data still persists across reloads.
@@ -23,126 +44,88 @@
   };
 
   function getDefaultState() {
+    const today = dateKey(Date.now());
     return {
-      routine: [
-        { "id": 1785724321054, "date": "2026-08-03", "startTime": "06:00", "endTime": "07:00", "subject": "বাংলা", "task": "ব্যাকরণ ও সাহিত্য রিভিশন" },
-        { "id": 1785724321055, "date": "2026-08-03", "startTime": "07:00", "endTime": "08:00", "subject": "ইংরেজি", "task": "গ্রামার ও ভোকাবুলারি" },
-        { "id": 1785724321056, "date": "2026-08-03", "startTime": "08:00", "endTime": "09:00", "subject": "গণিত", "task": "পাটিগণিত অনুশীলন" },
-        { "id": 1785724321057, "date": "2026-08-03", "startTime": "18:00", "endTime": "19:00", "subject": "সাধারণ জ্ঞান", "task": "বাংলাদেশ ও আন্তর্জাতিক বিষয়াবলি" },
-        { "id": 1785724321058, "date": "2026-08-03", "startTime": "19:00", "endTime": "20:00", "subject": "কম্পিউটার ও দৈনন্দিন বিজ্ঞান", "task": "পূর্বের পড়া রিভিশন" },
-        { "id": 1785725533808, "date": "2026-08-02", "startTime": "06:00", "endTime": "07:00", "subject": "বাংলা", "task": "ব্যাকরণ ও সাহিত্য রিভিশন" },
-        { "id": 1785725533809, "date": "2026-08-02", "startTime": "08:00", "endTime": "09:00", "subject": "ইংরেজি", "task": "গ্রামার ও ভোকাবুলারি" },
-        { "id": 1785725533810, "date": "2026-08-02", "startTime": "11:00", "endTime": "12:30", "subject": "গণিত", "task": "পাটিগণিত অনুশীলন" },
-        { "id": 1785725533811, "date": "2026-08-02", "startTime": "15:00", "endTime": "16:00", "subject": "সাধারণ জ্ঞান", "task": "বাংলাদেশ ও আন্তর্জাতিক বিষয়াবলি" },
-        { "id": 1785725533812, "date": "2026-08-02", "startTime": "20:00", "endTime": "21:00", "subject": "কম্পিউটার ও দৈনন্দিন বিজ্ঞান", "task": "পূর্বের পড়া রিভিশন" },
-        { "id": 1785725544067, "date": "2026-08-04", "startTime": "06:00", "endTime": "07:00", "subject": "বাংলা", "task": "ব্যাকরণ ও সাহিত্য রিভিশন" },
-        { "id": 1785725544068, "date": "2026-08-04", "startTime": "08:00", "endTime": "09:00", "subject": "ইংরেজি", "task": "গ্রামার ও ভোকাবুলারি" },
-        { "id": 1785725544069, "date": "2026-08-04", "startTime": "11:00", "endTime": "12:30", "subject": "গণিত", "task": "পাটিগণিত অনুশীলন" },
-        { "id": 1785725544070, "date": "2026-08-04", "startTime": "15:00", "endTime": "16:00", "subject": "সাধারণ জ্ঞান", "task": "বাংলাদেশ ও আন্তর্জাতিক বিষয়াবলি" },
-        { "id": 1785725544071, "date": "2026-08-04", "startTime": "20:00", "endTime": "21:00", "subject": "কম্পিউটার ও দৈনন্দিন বিজ্ঞান", "task": "পূর্বের পড়া রিভিশন" },
-        { "id": 1785725548671, "date": "2026-08-05", "startTime": "06:00", "endTime": "07:00", "subject": "বাংলা", "task": "ব্যাকরণ ও সাহিত্য রিভিশন" },
-        { "id": 1785725548672, "date": "2026-08-05", "startTime": "08:00", "endTime": "09:00", "subject": "ইংরেজি", "task": "গ্রামার ও ভোকাবুলারি" },
-        { "id": 1785725548673, "date": "2026-08-05", "startTime": "11:00", "endTime": "12:30", "subject": "গণিত", "task": "পাটিগণিত অনুশীলন" },
-        { "id": 1785725548674, "date": "2026-08-05", "startTime": "15:00", "endTime": "16:00", "subject": "সাধারণ জ্ঞান", "task": "বাংলাদেশ ও আন্তর্জাতিক বিষয়াবলি" },
-        { "id": 1785725548675, "date": "2026-08-05", "startTime": "20:00", "endTime": "21:00", "subject": "কম্পিউটার ও দৈনন্দিন বিজ্ঞান", "task": "পূর্বের পড়া রিভিশন" },
-        { "id": 1785725552700, "date": "2026-08-06", "startTime": "06:00", "endTime": "07:00", "subject": "বাংলা", "task": "ব্যাকরণ ও সাহিত্য রিভিশন" },
-        { "id": 1785725552701, "date": "2026-08-06", "startTime": "08:00", "endTime": "09:00", "subject": "ইংরেজি", "task": "গ্রামার ও ভোকাবুলারি" },
-        { "id": 1785725552702, "date": "2026-08-06", "startTime": "11:00", "endTime": "12:30", "subject": "গণিত", "task": "পাটিগণিত অনুশীলন" },
-        { "id": 1785725552703, "date": "2026-08-06", "startTime": "15:00", "endTime": "16:00", "subject": "সাধারণ জ্ঞান", "task": "বাংলাদেশ ও আন্তর্জাতিক বিষয়াবলি" },
-        { "id": 1785725552704, "date": "2026-08-06", "startTime": "20:00", "endTime": "21:00", "subject": "কম্পিউটার ও দৈনন্দিন বিজ্ঞান", "task": "পূর্বের পড়া রিভিশন" },
-        { "id": 1785725557473, "date": "2026-08-07", "startTime": "06:00", "endTime": "07:00", "subject": "বাংলা", "task": "ব্যাকরণ ও সাহিত্য রিভিশন" },
-        { "id": 1785725557474, "date": "2026-08-07", "startTime": "08:00", "endTime": "09:00", "subject": "ইংরেজি", "task": "গ্রামার ও ভোকাবুলারি" },
-        { "id": 1785725557475, "date": "2026-08-07", "startTime": "11:00", "endTime": "12:30", "subject": "গণিত", "task": "পাটিগণিত অনুশীলন" },
-        { "id": 1785725557476, "date": "2026-08-07", "startTime": "15:00", "endTime": "16:00", "subject": "সাধারণ জ্ঞান", "task": "বাংলাদেশ ও আন্তর্জাতিক বিষয়াবলি" },
-        { "id": 1785725557477, "date": "2026-08-07", "startTime": "20:00", "endTime": "21:00", "subject": "কম্পিউটার ও দৈনন্দিন বিজ্ঞান", "task": "পূর্বের পড়া রিভিশন" },
-        { "id": 1785725561664, "date": "2026-08-08", "startTime": "06:00", "endTime": "07:00", "subject": "বাংলা", "task": "ব্যাকরণ ও সাহিত্য রিভিশন" },
-        { "id": 1785725561665, "date": "2026-08-08", "startTime": "08:00", "endTime": "09:00", "subject": "ইংরেজি", "task": "গ্রামার ও ভোকাবুলারি" },
-        { "id": 1785725561667, "date": "2026-08-08", "startTime": "11:00", "endTime": "12:30", "subject": "গণিত", "task": "পাটিগণিত অনুশীলন" },
-        { "id": 1785725561668, "date": "2026-08-08", "startTime": "15:00", "endTime": "16:00", "subject": "সাধারণ জ্ঞান", "task": "বাংলাদেশ ও আন্তর্জাতিক বিষয়াবলি" },
-        { "id": 1785725561669, "date": "2026-08-08", "startTime": "20:00", "endTime": "21:00", "subject": "কম্পিউটার ও দৈনন্দিন বিজ্ঞান", "task": "পূর্বের পড়া রিভিশন" },
-        { "id": 1785725565718, "date": "2026-08-09", "startTime": "06:00", "endTime": "07:00", "subject": "বাংলা", "task": "ব্যাকরণ ও সাহিত্য রিভিশন" },
-        { "id": 1785725565719, "date": "2026-08-09", "startTime": "08:00", "endTime": "09:00", "subject": "ইংরেজি", "task": "গ্রামার ও ভোকাবুলারি" },
-        { "id": 1785725565720, "date": "2026-08-09", "startTime": "11:00", "endTime": "12:30", "subject": "গণিত", "task": "পাটিগণিত অনুশীলন" },
-        { "id": 1785725565721, "date": "2026-08-09", "startTime": "15:00", "endTime": "16:00", "subject": "সাধারণ জ্ঞান", "task": "বাংলাদেশ ও আন্তর্জাতিক বিষয়াবলি" },
-        { "id": 1785725565722, "date": "2026-08-09", "startTime": "20:00", "endTime": "21:00", "subject": "কম্পিউটার ও দৈনন্দিন বিজ্ঞান", "task": "পূর্বের পড়া রিভিশন" },
-        { "id": 1785725569753, "date": "2026-08-10", "startTime": "06:00", "endTime": "07:00", "subject": "বাংলা", "task": "ব্যাকরণ ও সাহিত্য রিভিশন" },
-        { "id": 1785725569754, "date": "2026-08-10", "startTime": "08:00", "endTime": "09:00", "subject": "ইংরেজি", "task": "গ্রামার ও ভোকাবুলারি" },
-        { "id": 1785725569755, "date": "2026-08-10", "startTime": "11:00", "endTime": "12:30", "subject": "গণিত", "task": "পাটিগণিত অনুশীলন" },
-        { "id": 1785725569756, "date": "2026-08-10", "startTime": "15:00", "endTime": "16:00", "subject": "সাধারণ জ্ঞান", "task": "বাংলাদেশ ও আন্তর্জাতিক বিষয়াবলি" },
-        { "id": 1785725569757, "date": "2026-08-10", "startTime": "20:00", "endTime": "21:00", "subject": "কম্পিউটার ও দৈনন্দিন বিজ্ঞান", "task": "পূর্বের পড়া রিভিশন" },
-        { "id": 1785725573519, "date": "2026-08-11", "startTime": "06:00", "endTime": "07:00", "subject": "বাংলা", "task": "ব্যাকরণ ও সাহিত্য রিভিশন" },
-        { "id": 1785725573520, "date": "2026-08-11", "startTime": "08:00", "endTime": "09:00", "subject": "ইংরেজি", "task": "গ্রামার ও ভোকাবুলারি" },
-        { "id": 1785725573521, "date": "2026-08-11", "startTime": "11:00", "endTime": "12:30", "subject": "গণিত", "task": "পাটিগণিত অনুশীলন" },
-        { "id": 1785725573522, "date": "2026-08-11", "startTime": "15:00", "endTime": "16:00", "subject": "সাধারণ জ্ঞান", "task": "বাংলাদেশ ও আন্তর্জাতিক বিষয়াবলি" },
-        { "id": 1785725573523, "date": "2026-08-11", "startTime": "20:00", "endTime": "21:00", "subject": "কম্পিউটার ও দৈনন্দিন বিজ্ঞান", "task": "পূর্বের পড়া রিভিশন" },
-        { "id": 1785725577725, "date": "2026-08-12", "startTime": "06:00", "endTime": "07:00", "subject": "বাংলা", "task": "ব্যাকরণ ও সাহিত্য রিভিশন" },
-        { "id": 1785725577726, "date": "2026-08-12", "startTime": "08:00", "endTime": "09:00", "subject": "ইংরেজি", "task": "গ্রামার ও ভোকাবুলারি" },
-        { "id": 1785725577727, "date": "2026-08-12", "startTime": "11:00", "endTime": "12:30", "subject": "গণিত", "task": "পাটিগণিত অনুশীলন" },
-        { "id": 1785725577728, "date": "2026-08-12", "startTime": "15:00", "endTime": "16:00", "subject": "সাধারণ জ্ঞান", "task": "বাংলাদেশ ও আন্তর্জাতিক বিষয়াবলি" },
-        { "id": 1785725577729, "date": "2026-08-12", "startTime": "20:00", "endTime": "21:00", "subject": "কম্পিউটার ও দৈনন্দিন বিজ্ঞান", "task": "পূর্বের পড়া রিভিশন" },
-        { "id": 1785725582019, "date": "2026-08-13", "startTime": "06:00", "endTime": "07:00", "subject": "বাংলা", "task": "ব্যাকরণ ও সাহিত্য রিভিশন" },
-        { "id": 1785725582020, "date": "2026-08-13", "startTime": "08:00", "endTime": "09:00", "subject": "ইংরেজি", "task": "গ্রামার ও ভোকাবুলারি" },
-        { "id": 1785725582021, "date": "2026-08-13", "startTime": "11:00", "endTime": "12:30", "subject": "গণিত", "task": "পাটিগণিত অনুশীলন" },
-        { "id": 1785725582022, "date": "2026-08-13", "startTime": "15:00", "endTime": "16:00", "subject": "সাধারণ জ্ঞান", "task": "বাংলাদেশ ও আন্তর্জাতিক বিষয়াবলি" },
-        { "id": 1785725582023, "date": "2026-08-13", "startTime": "20:00", "endTime": "21:00", "subject": "কম্পিউটার ও দৈনন্দিন বিজ্ঞান", "task": "পূর্বের পড়া রিভিশন" },
-        { "id": 1785725585236, "date": "2026-08-14", "startTime": "06:00", "endTime": "07:00", "subject": "বাংলা", "task": "ব্যাকরণ ও সাহিত্য রিভিশন" },
-        { "id": 1785725585237, "date": "2026-08-14", "startTime": "08:00", "endTime": "09:00", "subject": "ইংরেজি", "task": "গ্রামার ও ভোকাবুলারি" },
-        { "id": 1785725585238, "date": "2026-08-14", "startTime": "11:00", "endTime": "12:30", "subject": "গণিত", "task": "পাটিগণিত অনুশীলন" },
-        { "id": 1785725585239, "date": "2026-08-14", "startTime": "15:00", "endTime": "16:00", "subject": "সাধারণ জ্ঞান", "task": "বাংলাদেশ ও আন্তর্জাতিক বিষয়াবলি" },
-        { "id": 1785725585240, "date": "2026-08-14", "startTime": "20:00", "endTime": "21:00", "subject": "কম্পিউটার ও দৈনন্দিন বিজ্ঞান", "task": "পূর্বের পড়া রিভিশন" },
-        { "id": 1785725589086, "date": "2026-08-15", "startTime": "06:00", "endTime": "07:00", "subject": "বাংলা", "task": "ব্যাকরণ ও সাহিত্য রিভিশন" },
-        { "id": 1785725589087, "date": "2026-08-15", "startTime": "08:00", "endTime": "09:00", "subject": "ইংরেজি", "task": "গ্রামার ও ভোকাবুলারি" },
-        { "id": 1785725589088, "date": "2026-08-15", "startTime": "11:00", "endTime": "12:30", "subject": "গণিত", "task": "পাটিগণিত অনুশীলন" },
-        { "id": 1785725589089, "date": "2026-08-15", "startTime": "15:00", "endTime": "16:00", "subject": "সাধারণ জ্ঞান", "task": "বাংলাদেশ ও আন্তর্জাতিক বিষয়াবলি" },
-        { "id": 1785725589090, "date": "2026-08-15", "startTime": "20:00", "endTime": "21:00", "subject": "কম্পিউটার ও দৈনন্দিন বিজ্ঞান", "task": "পূর্বের পড়া রিভিশন" },
-        { "id": 1785725592536, "date": "2026-08-16", "startTime": "06:00", "endTime": "07:00", "subject": "বাংলা", "task": "ব্যাকরণ ও সাহিত্য রিভিশন" },
-        { "id": 1785725592537, "date": "2026-08-16", "startTime": "08:00", "endTime": "09:00", "subject": "ইংরেজি", "task": "গ্রামার ও ভোকাবুলারি" },
-        { "id": 1785725592538, "date": "2026-08-16", "startTime": "11:00", "endTime": "12:30", "subject": "গণিত", "task": "পাটিগণিত অনুশীলন" },
-        { "id": 1785725592539, "date": "2026-08-16", "startTime": "15:00", "endTime": "16:00", "subject": "সাধারণ জ্ঞান", "task": "বাংলাদেশ ও আন্তর্জাতিক বিষয়াবলি" },
-        { "id": 1785725592540, "date": "2026-08-16", "startTime": "20:00", "endTime": "21:00", "subject": "কম্পিউটার ও দৈনন্দিন বিজ্ঞান", "task": "পূর্বের পড়া রিভিশন" },
-        { "id": 1785725596493, "date": "2026-08-17", "startTime": "06:00", "endTime": "07:00", "subject": "বাংলা", "task": "ব্যাকরণ ও সাহিত্য রিভিশন" },
-        { "id": 1785725596494, "date": "2026-08-17", "startTime": "08:00", "endTime": "09:00", "subject": "ইংরেজি", "task": "গ্রামার ও ভোকাবুলারি" },
-        { "id": 1785725596495, "date": "2026-08-17", "startTime": "11:00", "endTime": "12:30", "subject": "গণিত", "task": "পাটিগণিত অনুশীলন" },
-        { "id": 1785725596496, "date": "2026-08-17", "startTime": "15:00", "endTime": "16:00", "subject": "সাধারণ জ্ঞান", "task": "বাংলাদেশ ও আন্তর্জাতিক বিষয়াবলি" },
-        { "id": 1785725596497, "date": "2026-08-17", "startTime": "20:00", "endTime": "21:00", "subject": "কম্পিউটার ও দৈনন্দিন বিজ্ঞান", "task": "পূর্বের পড়া রিভিশন" }
-      ],
+      routine: buildDefaultRoutine(today),
       notes: [
         {
-          "id": 1785728326261,
-          "title": "আমার সোনার বাংলা",
-          "body": "আমার সোনার বাংলা",
-          "tag": "সাধারণ",
-          "pinned": true,
-          "ts": 1785728326261
+          id: 1785728326261,
+          title: "Key Quantitative Aptitude Formulas",
+          body: "Speed = Distance / Time; Work Done = Men × Days × Hours; Compound Interest A = P(1 + r/n)^(nt).",
+          tag: "Math",
+          pinned: true,
+          ts: Date.now()
         }
       ],
       customQuotes: [],
-      quoteIdx: 4,
+      quoteIdx: 0,
       quoteSource: "all",
       theme: "dark",
-      sessions: [
-        { "id": 1785676964815, "subject": "বাংলা", "start": 1785676961358, "end": 1785676964815, "duration": 1 },
-        { "id": 1785728334405, "subject": "বাংলা", "start": 1785728332448, "end": 1785728334405, "duration": 1 }
-      ],
+      sessions: [],
       activeSession: null,
       dailyTargetMinutes: 240,
-      syllabus: [],
-      flashcards: [],
+      syllabus: [
+        {
+          id: 1,
+          name: "English Language & Literature",
+          topics: [
+            { id: 101, name: "Parts of Speech & Identification", done: true },
+            { id: 102, name: "Subject-Verb Agreement", done: true },
+            { id: 103, name: "High-Yield Idioms & Phrases", done: false },
+            { id: 104, name: "Literary Terms & Eras", done: false }
+          ]
+        },
+        {
+          id: 2,
+          name: "Mathematics & Mental Ability",
+          topics: [
+            { id: 201, name: "Percentages, Profit & Loss", done: true },
+            { id: 202, name: "Ratios, Proportions & Mixtures", done: false },
+            { id: 203, name: "Geometry & Coordinate Basics", done: false }
+          ]
+        }
+      ],
+      flashcards: [
+        { id: 1, front: "What is the synonym of 'Ephemeral'?", back: "✓ Short-lived / Transient / Fleeting\n\n💡 Explanation: 'Ephemeral' refers to anything that lasts for a very short period of time.", category: "English" },
+        { id: 2, front: "What is the antonym of 'Venerate'?", back: "✓ Condemn / Despise / Disparage\n\n💡 Explanation: 'Venerate' means to treat with deep respect or reverence.", category: "English" },
+        { id: 3, front: "What is the correct spelling of 'Millennium'?", back: "✓ Millennium\n\n💡 Explanation: Spelled with double 'l' and double 'n' (M-i-l-l-e-n-n-i-u-m).", category: "English" },
+        { id: 4, front: "What is the meaning of the idiom 'To kick the bucket'?", back: "✓ To die\n\n💡 Explanation: An informal English idiom meaning someone has passed away.", category: "English" },
+        { id: 5, front: "Which verb form follows the prepositional phrase 'Look forward to'?", back: "✓ Gerund (Verb + ing)\n\n💡 Explanation: Example: 'I look forward to meeting you.'", category: "English" },
+        { id: 6, front: "‘চর্যাপদ’ মূলত কোন ছন্দে রচিত?", back: "✓ মাত্রাবৃত্ত (পাদাকুলক)\n\n💡 ব্যাখ্যা: চর্যাপদ মূলত মাত্রাবৃত্ত বা পাদাকুলক মাত্রার ছন্দে রচিত প্রাচীনতম বাংলা কাব্যগ্রন্থ।", category: "বাংলা সাহিত্য" },
+        { id: 7, front: "বাংলা সাহিত্যের প্রথম ‘সার্থক’ উপন্যাস কোনটি এবং কার লেখা?", back: "✓ দুর্গেশনন্দিনী (বঙ্কিমচন্দ্র চট্টোপাধ্যায়, ১৮৬৫)\n\n💡 ব্যাখ্যা: ১৮৬৫ সালে প্রকাশিত দুর্গেশনন্দিনী বাংলা সাহিত্যের প্রথম সার্থক উপন্যাস হিসেবে স্বীকৃত।", category: "বাংলা সাহিত্য" },
+        { id: 8, front: "‘গীতাঞ্জলি’ কাব্যের জন্য রবীন্দ্রনাথ ঠাকুর কত সালে নোবেল পুরস্কার লাভ করেন?", back: "✓ ১৯১৩ সালে\n\n💡 ব্যাখ্যা: ১৯১৩ সালে ‘Song Offerings’ (গীতাঞ্জলি) এর অনুবাদের জন্য তিনি সাহিত্যে এশিয়ার প্রথম নোবেল জয়ী হন।", category: "বাংলা সাহিত্য" },
+        { id: 9, front: "কাজী নজরুল ইসলাম কোন বিখ্যাত পত্রিকার সম্পাদক ছিলেন?", back: "✓ ধূমকেতু (১৯২২)\n\n💡 ব্যাখ্যা: ১৯২২ সালের ১১ আগস্ট তাঁর সম্পাদনায় অর্ধ-সাপ্তাহিক ‘ধূমকেতু’ প্রকাশিত হয়।", category: "বাংলা সাহিত্য" },
+        { id: 10, front: "মুনীর চৌধুরীর ‘রক্তাক্ত প্রান্তর’ নাটকটির ঐতিহাসিক পটভূমি কী?", back: "✓ পানিপথের তৃতীয় যুদ্ধ (১৭৬১)\n\n💡 ব্যাখ্যা: নাটকটি ১৭৬১ সালে সংঘটিত ঐতিহাসিক পানিপথের তৃতীয় যুদ্ধের পটভূমিতে রচিত।", category: "বাংলা সাহিত্য" },
+        { id: 11, front: "‘সন্ধি’ বাংলা ব্যাকরণের কোন অংশে আলোচিত হয়?", back: "✓ ধ্বনিতত্ত্ব (Phonology)\n\n💡 ব্যাখ্যা: সন্ধি হলো পাশাপাশি অবস্থিত দুটি ধ্বনির মিলন, তাই এটি ধ্বনিতত্ত্বে আলোচিত হয়।", category: "বাংলা ব্যাকরণ" },
+        { id: 12, front: "‘সূর্য’ শব্দের প্রধান কয়েকটি সমার্থক শব্দ কী কী?", back: "✓ মিহির, আদিত্য, ভাস্কর, তপন, রবি, দিনমণি, দিবাকর\n\n💡 ব্যাখ্যা: বিসিএস ও পিএসসি পরীক্ষায় ‘সূর্য’ এর সমার্থক শব্দ প্রায়শই আসে।", category: "বাংলা ব্যাকরণ" },
+        { id: 13, front: "যেকোনো ত্রিভুজের তিন কোণের সমষ্টি কত ডিগ্রি?", back: "✓ ১৮০° (বা দুই সমকোণ)\n\n💡 ব্যাখ্যা: ইউক্লিডীয় জ্যামিতি অনুসারে যেকোনো ত্রিভুজের তিনটি অন্তঃস্থ কোণের যোগফল সর্বদা ১৮০ ডিগ্রি।", category: "গণিত" },
+        { id: 14, front: "২০ থেকে ৩০ এর মধ্যে মৌলিক সংখ্যা (Prime numbers) কয়টি ও কী কী?", back: "✓ ২টি (২৩ এবং ২৯)\n\n💡 ব্যাখ্যা: ২০ থেকে ৩০ এর মধ্যে একমাত্র ২৩ ও ২৯ কেবল ১ এবং ঐ সংখ্যা ব্যতীত অন্য কোনো সংখ্যা দ্বারা বিভাজ্য নয়।", category: "গণিত" },
+        { id: 15, front: "বৃত্তের ক্ষেত্রফল (Area) এবং পরিধির (Circumference) সূত্র কী?", back: "✓ ক্ষেত্রফল = πr², পরিধি = 2πr\n\n💡 ব্যাখ্যা: এখানে r হলো বৃত্তের ব্যাসার্ধ (Radius) এবং π ≈ ৩.১৪১৬।", category: "গণিত" },
+        { id: 16, front: "x + y = 7 এবং x - y = 3 হলে, x এর মান কত?", back: "✓ x = 5\n\n💡 ব্যাখ্যা: সমীকরণ দুটি যোগ করলে: 2x = 10 ➔ x = 5 (এবং y = 2)।", category: "গণিত" },
+        { id: 17, front: "মুজিবনগর সরকার কবে আনুষ্ঠানিকভাবে শপথ গ্রহণ করে?", back: "✓ ১৭ এপ্রিল ১৯৭১\n\n💡 ব্যাখ্যা: ১৯৭১ সালের ১৭ এপ্রিল মেহেরপুরের বৈদ্যনাথতলার (বর্তমান মুজিবনগর) আম্রকাননে গণপ্রজাতন্ত্রী বাংলাদেশ সরকারের শপথ গ্রহণ অনুষ্ঠিত হয়।", category: "বাংলাদেশ বিষয়াবলী" },
+        { id: 18, front: "বাংলাদেশের জাতীয় সংসদের মোট আসন সংখ্যা কত?", back: "✓ ৩৫০টি\n\n💡 ব্যাখ্যা: সাধারণ আসন ৩০০টি এবং নারীদের জন্য সংরক্ষিত ৫০টি আসন।", category: "বাংলাদেশ বিষয়াবলী" },
+        { id: 19, front: "বাংলাদেশের দীর্ঘতম ও প্রশস্ততম নদী কোনটি?", back: "✓ মেঘনা নদী\n\n💡 ব্যাখ্যা: পানি নিষ্কাশন ও প্রশস্ততার দিক থেকে মেঘনা বাংলাদেশের বৃহত্তম নদী।", category: "বাংলাদেশ বিষয়াবলী" },
+        { id: 20, front: "জাতিসংঘের (United Nations) মূল সদর দপ্তর কোথায় অবস্থিত?", back: "✓ নিউ ইয়র্ক সিটি, যুক্তরাষ্ট্র\n\n💡 ব্যাখ্যা: ১৯৪৫ সালের ২৪ অক্টোবর জাতিসংঘ প্রতিষ্ঠিত হয়। এর মূল সদর দপ্তর নিউ ইয়র্কে অবস্থিত।", category: "আন্তর্জাতিক বিষয়াবলী" },
+        { id: 21, front: "জাপানের মুদ্রার নাম কী?", back: "✓ ইয়েন (Japanese Yen / JPY)\n\n💡 ব্যাখ্যা: জাপানের রাজধানী টোকিও এবং সরকারি মুদ্রা ইয়েন।", category: "আন্তর্জাতিক বিষয়াবলী" },
+        { id: 22, front: "বিশ্বের বৃহত্তম উষ্ণ মরুভূমি কোনটি?", back: "✓ সাহারা মরুভূমি\n\n💡 ব্যাখ্যা: আফ্রিকা মহাদেশে অবস্থিত সাহারা মরুভূমি বিশ্বের বৃহত্তম উষ্ণ মরুভূমি।", category: "আন্তর্জাতিক বিষয়াবলী" },
+        { id: 23, front: "কম্পিউটারের ‘মস্তিষ্ক’ (Brain of the Computer) কাকে বলা হয়?", back: "✓ CPU (Central Processing Unit)\n\n💡 ব্যাখ্যা: সিপিইউ কম্পিউটারের সমস্ত নির্দেশনা প্রক্রিয়াকরণ ও নিয়ন্ত্রণ করে।", category: "কম্পিউটার ও আইসিটি" },
+        { id: 24, front: "মানবদেহে রক্ত জমাট বাঁধতে কোন ভিটামিন সরাসরি সহায়তা করে?", back: "✓ ভিটামিন K\n\n💡 ব্যাখ্যা: ভিটামিন কে রক্তে প্রথম্বিন সংশ্লেষণে অংশ নিয়ে রক্ত তঞ্চন বা জমাট বাঁধায় সাহায্য করে।", category: "সাধারণ বিজ্ঞান" },
+        { id: 25, front: "ইন্টারনেটে নিরাপদ ব্রাউজিংয়ের প্রোটোকল HTTPS এর ডিফল্ট পোর্ট নম্বর কত?", back: "✓ Port 443\n\n💡 ব্যাখ্যা: HTTPS এনক্রিপ্টেড যোগাযোগের জন্য পোর্ট ৪৪৩ এবং সাধারণ HTTP পোর্ট ৮০ ব্যবহার করে।", category: "কম্পিউটার ও আইসিটি" }
+      ],
       quoteCarouselEnabled: true,
-      quoteCarouselInterval: 15
+      quoteCarouselInterval: 6,
+      deletedSubjects: [],
+      customSubjects: []
     };
   }
 
   function buildDefaultRoutine(dateStr) {
-    const defState = getDefaultState();
-    const rows = defState.routine.filter(r => r.date === dateStr);
-    if (rows.length) return rows;
     const template = [
-      { startTime: '06:00', endTime: '07:00', subject: 'বাংলা', task: 'ব্যাকরণ ও সাহিত্য রিভিশন' },
-      { startTime: '08:00', endTime: '09:00', subject: 'ইংরেজি', task: 'গ্রামার ও ভোকাবুলারি' },
-      { startTime: '11:00', endTime: '12:30', subject: 'গণিত', task: 'পাটিগণিত অনুশীলন' },
-      { startTime: '15:00', endTime: '16:00', subject: 'সাধারণ জ্ঞান', task: 'বাংলাদেশ ও আন্তর্জাতিক বিষয়াবলি' },
-      { startTime: '20:00', endTime: '21:00', subject: 'কম্পিউটার ও দৈনন্দিন বিজ্ঞান', task: 'পূর্বের পড়া রিভিশন' },
+      { startTime: '06:30', endTime: '08:00', subject: 'English', task: 'Grammar & High-Yield Vocabulary Review' },
+      { startTime: '09:00', endTime: '10:30', subject: 'Mathematics', task: 'Quantitative Aptitude & Problem Solving' },
+      { startTime: '11:30', endTime: '13:00', subject: 'General Knowledge', task: 'Current Affairs & Bangladesh History' },
+      { startTime: '15:30', endTime: '17:00', subject: 'General Science', task: 'Everyday Science & ICT Fundamentals' },
+      { startTime: '20:00', endTime: '21:30', subject: 'Analytical Ability', task: 'Critical Reasoning & Previous Exam Papers' },
     ];
     return template.map((t, i) => ({ id: Date.now() + i, date: dateStr, ...t }));
   }
@@ -152,54 +135,45 @@
   }
 
   const ownQuotes = [
-    'লক্ষ্যে পৌঁছানোর আগে থামা যাবে না।',
-    'আজকের পরিশ্রমই আগামীর ফলাফল।',
-    'হাজারো ব্যর্থতা একটি সফলতার গল্প তৈরি করে।',
-    'ধৈর্য আর নিয়মিত অধ্যবসায়ই সাফল্যের মূল চাবিকাঠি।',
-    'নিজের সাথে প্রতিযোগিতা করো, গতকালের চেয়ে আজ ভালো হও।',
-    'স্বপ্ন দেখা বন্ধ করো না, প্রস্তুতি বন্ধ করো না।',
-    'প্রতিটি ভোর একটি নতুন সুযোগ নিয়ে আসে।',
-    'যে পরিশ্রম করে, সময় তার পক্ষেই কথা বলে।',
-    'ছোট ছোট অগ্রগতিই একদিন বড় সাফল্যে রূপ নেয়।',
-    'নিজেকে বিশ্বাস করো, বাকিটা প্রস্তুতি ঠিক করে দেবে।',
-    'আজ যা রোপণ করবে, আগামীকাল তাই ফসল হয়ে ফিরবে।',
-    'সময়ের সঙ্গে দৌড়াও, সময়ের অপেক্ষায় থেকোবিধা নাই।',
-    'একটুখানি অগ্রগতিও অগ্রগতি — থেমে থেকো না।',
-    'নিজের সীমাবদ্ধতাকে অজুহাত না বানিয়ে শক্তি বানাও।',
-    'কঠিন পথই সবচেয়ে ভালো শিক্ষক।',
-    'আজকের কষ্টটাই আগামীর গর্বের কারণ হবে।',
-    'মনোযোগ ধরে রাখো, ফলাফল নিজেই কথা বলবে।',
-    'প্রতিটি প্রচেষ্টা তোমাকে লক্ষ্যের কাছাকাছি নিয়ে যায়।',
+    'Discipline is the bridge between goals and accomplishment.',
+    'Small daily improvements over time lead to stunning results.',
+    'Push yourself because no one else is going to do it for you.',
+    'Success does not come from what you do occasionally; it comes from what you do consistently.',
+    'Focus on the process, and the results will take care of themselves.',
+    'Your future is created by what you do today, not tomorrow.',
+    'Hard work beats talent when talent fails to work hard.',
+    'Study while others are sleeping; prepare while others are playing.',
+    'Do not decrease the goal. Increase the effort.',
+    'Every expert was once a beginner.',
+    'Believe you can and you are halfway there.',
+    'It always seems impossible until it is done.',
+    'The secret of getting ahead is getting started.',
+    'The harder you work for something, the greater you will feel when you achieve it.',
+    'Wake up with determination. Go to bed with satisfaction.',
+    'Do something today that your future self will thank you for.'
   ];
 
   const famousQuotes = [
-    { q: 'তুমি পারবে এটা বিশ্বাস করো, তাহলে অর্ধেক পথ তুমি এমনিতেই পার হয়ে যাবে।', a: 'থিওডোর রুজভেল্ট' },
-    { q: 'সাফল্য আসলে প্রতিদিনের ছোট ছোট চেষ্টার সমষ্টি।', a: 'রবার্ট কলিয়ার' },
-    { q: 'ভবিষ্যৎ অনুমান করার সবচেয়ে ভালো উপায় হলো নিজেই তা তৈরি করা।', a: 'আব্রাহাম লিংকন' },
-    { q: 'যা তুমি করতে পারো না, তা যেন যা করতে পারো তার পথে বাধা না হয়।', a: 'জন উডেন' },
-    { q: 'বড় কিছু করার একমাত্র উপায় হলো নিজের কাজকে ভালোবাসা।', a: 'স্টিভ জবস' },
-    { q: 'যেখানে আছ সেখান থেকেই শুরু করো, যা আছে তাই দিয়ে কাজ করো, যতটুকু পারো ততটুকুই করো।', a: 'আর্থার অ্যাশ' },
-    { q: 'প্রস্তুতি, কঠোর পরিশ্রম, আর ব্যর্থতা থেকে শেখাই সাফল্যের মূল রহস্য।', a: 'কলিন পাওয়েল' },
-    { q: 'এগিয়ে যাওয়ার গোপন রহস্য হলো শুরু করা।', a: 'মার্ক টোয়েইন' },
-    { q: 'কঠোর পরিশ্রমের কোনো বিকল্প নেই।', a: 'টমাস এডিসন' },
-    { q: 'সাফল্য হলো একটি সার্থক লক্ষ্যের দিকে ধাপে ধাপে এগিয়ে যাওয়া।', a: 'আর্ল নাইটিঙ্গেল' },
-    { q: 'যে মানুষ কখনো ভুল করেনি, সে কখনো নতুন কিছু চেষ্টাও করেনি।', a: 'আলবার্ট আইনস্টাইন' },
-    { q: 'পৃথিবী বদলে দেওয়ার সবচেয়ে শক্তিশালী অস্ত্র হলো শিক্ষা।', a: 'নেলসন ম্যান্ডেলা' },
-    { q: 'পরিশ্রম কখনো বৃথা যায় না।', a: 'এ.পি.জে আবদুল কালাম' },
-    { q: 'ধৈর্য আর অধ্যবসায়ের এক জাদুকরী শক্তি আছে, যার সামনে সব বাধা মিলিয়ে যায়।', a: 'জন কুইন্সি অ্যাডামস' },
-    { q: 'তুমি যতটা ভাবো তার চেয়েও সাহসী, যতটা মনে হয় তার চেয়েও শক্তিশালী, আর যতটা মনে করো তার চেয়েও বুদ্ধিমান।', a: 'এ. এ. মিলন' },
-    { q: 'আমরা যা বারবার করি, তাই আমরা। তাই উৎকর্ষ কোনো কাজ নয়, এটা একটা অভ্যাস।', a: 'অ্যারিস্টটল' },
-    { q: 'শুরু করার উপায় হলো কথা বলা বন্ধ করে কাজ শুরু করা।', a: 'ওয়াল্ট ডিজনি' },
-    { q: 'তুমি পারবে ভাবো বা না পারবে ভাবো — দুটোই ঠিক।', a: 'হেনরি ফোর্ড' },
-    { q: 'সাফল্য চূড়ান্ত নয়, ব্যর্থতা মারাত্মক নয় — এগিয়ে যাওয়ার সাহসটাই আসল।', a: 'উইনস্টন চার্চিল' },
-    { q: 'আমি বারবার ব্যর্থ হয়েছি জীবনে, আর সেজন্যই আমি সফল হয়েছি।', a: 'মাইকেল জর্ডান' },
-    { q: 'তুমি বহুবার হারতে পারো, কিন্তু হার মেনে নিতে পারো না।', a: 'মায়া অ্যাঞ্জেলো' },
-    { q: 'ভবিষ্যৎ তাদেরই, যারা নিজেদের স্বপ্নের সৌন্দর্যে বিশ্বাস করে।', a: 'এলিনর রুজভেল্ট' },
-    { q: 'শুরু করার জন্য সেরা হতে হয় না, কিন্তু সেরা হতে হলে শুরু করতেই হয়।', a: 'জিগ জিগলার' },
-    { q: 'পড়ে যাওয়াটা বিষয় নয়, আবার উঠে দাঁড়ানোটাই আসল বিষয়।', a: 'ভিন্স লম্বার্ডি' },
-    { q: 'সাফল্য মাপা হয় কতটা বাধা পেরিয়েছ তা দিয়ে, কতটা উঁচুতে পৌঁছেছ তা দিয়ে নয়।', a: 'বুকার টি. ওয়াশিংটন' },
-    { q: 'তুমি কত ধীরে যাচ্ছ তা বড় কথা নয়, থামছো না এটাই আসল।', a: 'কনফুসিয়াস' },
-    { q: 'মন যা কল্পনা করতে আর বিশ্বাস করতে পারে, তা অর্জনও করতে পারে।', a: 'নেপোলিয়ন হিল' },
+    { q: 'Believe you can and you are halfway there.', a: 'Theodore Roosevelt' },
+    { q: 'Success is the sum of small efforts, repeated day in and day out.', a: 'Robert Collier' },
+    { q: 'The best way to predict the future is to create it.', a: 'Abraham Lincoln' },
+    { q: 'Do not let what you cannot do interfere with what you can do.', a: 'John Wooden' },
+    { q: 'The only way to do great work is to love what you do.', a: 'Steve Jobs' },
+    { q: 'Start where you are. Use what you have. Do what you can.', a: 'Arthur Ashe' },
+    { q: 'There are no secrets to success. It is the result of preparation, hard work, and learning from failure.', a: 'Colin Powell' },
+    { q: 'The secret of getting ahead is getting started.', a: 'Mark Twain' },
+    { q: 'There is no substitute for hard work.', a: 'Thomas Edison' },
+    { q: 'Success is the progressive realization of a worthy goal.', a: 'Earl Nightingale' },
+    { q: 'A person who never made a mistake never tried anything new.', a: 'Albert Einstein' },
+    { q: 'Education is the most powerful weapon which you can use to change the world.', a: 'Nelson Mandela' },
+    { q: 'We are what we repeatedly do. Excellence, then, is not an act, but a habit.', a: 'Aristotle' },
+    { q: 'The way to get started is to quit talking and begin doing.', a: 'Walt Disney' },
+    { q: 'Whether you think you can or think you cannot, you are right.', a: 'Henry Ford' },
+    { q: 'Success is not final, failure is not fatal: It is the courage to continue that counts.', a: 'Winston Churchill' },
+    { q: 'I have failed over and over again in my life. And that is why I succeed.', a: 'Michael Jordan' },
+    { q: 'The future belongs to those who believe in the beauty of their dreams.', a: 'Eleanor Roosevelt' },
+    { q: 'It does not matter how slowly you go as long as you do not stop.', a: 'Confucius' },
+    { q: 'Whatever the mind of man can conceive and believe, it can achieve.', a: 'Napoleon Hill' }
   ];
 
   function normalizeCustomQuotes(quotes) {
@@ -223,7 +197,8 @@
     routine: null, notes: [], customQuotes: [], quoteIdx: 0, quoteSource: 'all', theme: 'dark',
     sessions: [], activeSession: null, dailyTargetMinutes: 240,
     syllabus: [], flashcards: [],
-    quoteCarouselEnabled: true, quoteCarouselInterval: 6
+    quoteCarouselEnabled: true, quoteCarouselInterval: 6,
+    deletedSubjects: [], customSubjects: []
   };
   let saveTimer = null;
   let tickInterval = null;
@@ -232,7 +207,7 @@
   let currentViewYear = new Date().getFullYear();
 
   function bnDate() {
-    const days = ['রবি', 'সোম', 'মঙ্গল', 'বুধ', 'বৃহ', 'শুক্র', 'শনি'];
+    const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
     return days[new Date().getDay()];
   }
 
@@ -251,9 +226,11 @@
         state.activeSession = p.activeSession || null;
         state.dailyTargetMinutes = typeof p.dailyTargetMinutes === 'number' ? p.dailyTargetMinutes : 240;
         state.syllabus = Array.isArray(p.syllabus) ? p.syllabus : [];
-        state.flashcards = Array.isArray(p.flashcards) ? p.flashcards : [];
+        state.flashcards = Array.isArray(p.flashcards) && p.flashcards.length >= 5 ? p.flashcards : getDefaultState().flashcards;
         state.quoteCarouselEnabled = typeof p.quoteCarouselEnabled === 'boolean' ? p.quoteCarouselEnabled : true;
         state.quoteCarouselInterval = typeof p.quoteCarouselInterval === 'number' ? p.quoteCarouselInterval : 15;
+        state.deletedSubjects = Array.isArray(p.deletedSubjects) ? p.deletedSubjects : [];
+        state.customSubjects = Array.isArray(p.customSubjects) ? p.customSubjects : [];
       } else {
         const def = getDefaultState();
         state = { ...state, ...def };
@@ -264,13 +241,7 @@
       state = { ...state, ...def };
     }
     document.documentElement.setAttribute('data-theme', state.theme);
-    const themeToggle = document.getElementById('themeToggle');
-    const themeIconSpan = document.getElementById('themeIconSpan');
-    if (themeIconSpan) {
-      themeIconSpan.textContent = state.theme === 'dark' ? '🌙' : '☀️';
-    } else if (themeToggle) {
-      themeToggle.textContent = state.theme === 'dark' ? '🌙' : '☀️';
-    }
+    syncThemeButtons();
   }
 
   function migrateRoutine(rows) {
@@ -427,17 +398,10 @@
     }, 400);
   }
 
-  // ===== Theme toggle =====
+  // ===== Theme settings =====
   function setTheme(newTheme) {
     state.theme = newTheme;
     document.documentElement.setAttribute('data-theme', state.theme);
-    const themeToggle = document.getElementById('themeToggle');
-    const themeIconSpan = document.getElementById('themeIconSpan');
-    if (themeIconSpan) {
-      themeIconSpan.textContent = state.theme === 'dark' ? '🌙' : '☀️';
-    } else if (themeToggle) {
-      themeToggle.textContent = state.theme === 'dark' ? '🌙' : '☀️';
-    }
     syncThemeButtons();
     saveData();
   }
@@ -449,53 +413,22 @@
       lightBtn.classList.toggle('active-theme', state.theme === 'light');
     }
   }
-  document.getElementById('themeToggle').addEventListener('click', () => {
-    setTheme(state.theme === 'dark' ? 'light' : 'dark');
-  });
-  document.getElementById('themeDarkBtn').addEventListener('click', () => setTheme('dark'));
-  document.getElementById('themeLightBtn').addEventListener('click', () => setTheme('light'));
+  const darkBtn = document.getElementById('themeDarkBtn');
+  if (darkBtn) darkBtn.addEventListener('click', () => setTheme('dark'));
+  const lightBtn = document.getElementById('themeLightBtn');
+  if (lightBtn) lightBtn.addEventListener('click', () => setTheme('light'));
 
-  // ===== Nav bar live clock =====
-  const bnDigitMap = { '0': '০', '1': '১', '2': '২', '3': '৩', '4': '৪', '5': '৫', '6': '৬', '7': '৭', '8': '৮', '9': '৯' };
-  function toBnDigits(str) { return String(str).replace(/[0-9]/g, d => bnDigitMap[d]); }
-  function updateNavClock() {
-    const d = new Date();
-    let h = d.getHours();
-    const m = String(d.getMinutes()).padStart(2, '0');
-    h = h % 12; if (h === 0) h = 12;
-    const hh = String(h).padStart(2, '0');
-    const clockEl = document.getElementById('navClock');
-    if (clockEl) {
-      const timeStr = toBnDigits(hh + ':' + m);
-      const textSpan = clockEl.querySelector('.clock-time-text');
-      if (textSpan) {
-        textSpan.textContent = timeStr;
+  // ===== Fullscreen toggle (Settings) =====
+  const fullscreenToggleSettings = document.getElementById('fullscreenToggleSettings');
+  if (fullscreenToggleSettings) {
+    fullscreenToggleSettings.addEventListener('click', () => {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(() => { });
       } else {
-        clockEl.textContent = timeStr;
+        document.exitFullscreen().catch(() => { });
       }
-    }
+    });
   }
-
-  // ===== Fullscreen toggle =====
-  const fullscreenToggle = document.getElementById('fullscreenToggle');
-  fullscreenToggle.addEventListener('click', () => {
-    if (!document.fullscreenElement) {
-      document.documentElement.requestFullscreen().catch(() => { });
-    } else {
-      document.exitFullscreen().catch(() => { });
-    }
-  });
-  document.addEventListener('fullscreenchange', () => {
-    const isFs = !!document.fullscreenElement;
-    const icon = fullscreenToggle.querySelector('.control-icon');
-    if (icon) {
-      icon.textContent = isFs ? '⤢' : '⛶';
-    } else {
-      fullscreenToggle.textContent = isFs ? '⤢' : '⛶';
-    }
-    fullscreenToggle.title = isFs ? 'ফুলস্ক্রিন বন্ধ করো' : 'ফুলস্ক্রিন চালু করো';
-  });
-  document.getElementById('fullscreenToggleSettings').addEventListener('click', () => fullscreenToggle.click());
 
   // ===== Generic modal handling =====
   function openModal(id) { document.getElementById(id).classList.add('open'); }
@@ -514,6 +447,7 @@
       document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
       btn.classList.add('active'); btn.setAttribute('aria-selected', 'true');
       document.getElementById('panel-' + btn.dataset.tab).classList.add('active');
+      if (btn.dataset.tab === 'settings') renderSubjectManager();
     });
   });
 
@@ -524,13 +458,13 @@
   function initMonthDropdown() {
     const sel = document.getElementById('monthDropdown');
     if (!sel) return;
-    const bnMonths = ['জানুয়ারি', 'ফেব্রুয়ারি', 'মার্চ', 'এপ্রিল', 'মে', 'জুন', 'জুলাই', 'আগস্ট', 'সেপ্টেম্বর', 'অক্টোবর', 'নভেম্বর', 'ডিসেম্বর'];
+    const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
     let html = '';
     const baseYear = new Date().getFullYear();
     for (let y = baseYear - 1; y <= baseYear + 2; y++) {
       for (let m = 0; m < 12; m++) {
         const val = `${y}-${String(m + 1).padStart(2, '0')}`;
-        const label = `${bnMonths[m]} ${toBnDigits(y)}`;
+        const label = `${months[m]} ${y}`;
         const selected = (y === currentViewYear && m === currentViewMonth) ? 'selected' : '';
         html += `<option value="${val}" ${selected}>${label}</option>`;
       }
@@ -567,7 +501,7 @@
   function renderDateSlider() {
     const box = document.getElementById('dateSlider');
     if (!box) return;
-    const dayLabels = ['রবি', 'সোম', 'মঙ্গল', 'বুধ', 'বৃহ', 'শুক্র', 'শনি'];
+    const dayLabels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
     let html = '';
     buildDateSliderList().forEach(ds => {
       const d = new Date(ds + 'T00:00:00');
@@ -615,16 +549,16 @@
   const nextDateBtn = document.getElementById('dateNextBtn');
   if (nextDateBtn) nextDateBtn.addEventListener('click', () => shiftRoutineDate(1));
 
-  const ROUTINE_HEAD = '<thead><tr><th style="width:16%">শুরু</th><th style="width:16%">শেষ</th><th style="width:26%">বিষয়</th><th>কী পড়বে</th><th style="width:40px"></th></tr></thead>';
+  const ROUTINE_HEAD = '<thead><tr><th style="width:16%">Start</th><th style="width:16%">End</th><th style="width:26%">Subject</th><th>Topic / Task</th><th style="width:40px"></th></tr></thead>';
 
   function routineRowHtml(row) {
     return `
       <tr>
         <td><input type="time" value="${row.startTime || ''}" data-field="startTime" data-id="${row.id}"></td>
         <td><input type="time" value="${row.endTime || ''}" data-field="endTime" data-id="${row.id}"></td>
-        <td><input type="text" value="${escapeAttr(row.subject || '')}" placeholder="বিষয়" data-field="subject" data-id="${row.id}"></td>
-        <td><input type="text" value="${escapeAttr(row.task || '')}" placeholder="কী পড়বে" data-field="task" data-id="${row.id}"></td>
-        <td><button class="del-row" title="মুছুন" data-id="${row.id}">✕</button></td>
+        <td><input type="text" value="${escapeAttr(row.subject || '')}" placeholder="Subject" data-field="subject" data-id="${row.id}"></td>
+        <td><input type="text" value="${escapeAttr(row.task || '')}" placeholder="Task description" data-field="task" data-id="${row.id}"></td>
+        <td><button class="del-row" title="Delete" data-id="${row.id}">${ICON.trash}</button></td>
       </tr>
     `;
   }
@@ -639,7 +573,7 @@
     const entries = Object.entries(byTotal).sort((a, b) => b[1] - a[1]).slice(0, 4);
 
     if (!entries.length) {
-      box.innerHTML = '<div class="tracker-routine-title">আজকের বিষয়ভিত্তিক সময়</div><div class="empty-state">আজও কোনো সেশন নেই।</div>';
+      box.innerHTML = '<div class="tracker-routine-title">Today\'s Subject Breakdown</div><div class="empty-state">No study sessions recorded today.</div>';
       return;
     }
 
@@ -660,7 +594,7 @@
       </div>
     `).join('');
 
-    box.innerHTML = `<div class="tracker-routine-title">আজকের বিষয়ভিত্তিক সময়</div>${rowsHtml}`;
+    box.innerHTML = `<div class="tracker-routine-title">Today\'s Subject Breakdown</div>${rowsHtml}`;
   }
 
   function renderRoutine() {
@@ -673,7 +607,7 @@
       state.routine.forEach(r => { (byDate[r.date] = byDate[r.date] || []).push(r); });
       const dates = Object.keys(byDate).sort().reverse();
       if (!dates.length) {
-        wrap.innerHTML = '<div class="empty-state" style="border:none; margin:16px;">এখনও কোনো রুটিন এন্ট্রি নেই।</div>';
+        wrap.innerHTML = '<div class="empty-state" style="border:none; margin:16px;">No routine entries for this date.</div>';
         return;
       }
       wrap.innerHTML = dates.map(ds => {
@@ -715,7 +649,9 @@
   function bnDateLabel(dateStr) {
     if (!dateStr) return '';
     const d = new Date(dateStr + 'T00:00:00');
-    return toBnDigits(d.getDate()) + '/' + toBnDigits(d.getMonth() + 1) + '/' + toBnDigits(d.getFullYear());
+    const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    return `${dayNames[d.getDay()]}, ${monthNames[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`;
   }
 
   document.addEventListener('input', (e) => {
@@ -737,6 +673,7 @@
   document.addEventListener('click', (e) => {
     const delBtn = e.target.closest('.del-row');
     if (delBtn && delBtn.closest('#routineCardWrap')) {
+      if (!window.confirm('Are you sure you want to delete this routine slot?')) return;
       if (!Array.isArray(state.routine)) state.routine = [];
       state.routine = state.routine.filter(r => String(r.id) !== delBtn.dataset.id);
       saveData();
@@ -762,7 +699,7 @@
       renderRoutine();
       renderFlashCategoryOptions();
       renderSubjectSelect();
-      showToast('নতুন সময় সারিতে যোগ করা হয়েছে');
+      showToast('New time slot added to routine');
       return;
     }
 
@@ -776,7 +713,7 @@
       renderRoutine();
       renderFlashCategoryOptions();
       renderSubjectSelect();
-      showToast('আজকের দিনের রুটিন রিসেট করা হয়েছে');
+      showToast('Default routine loaded for today');
       return;
     }
   });
@@ -794,10 +731,10 @@
       const rows = byDate[date].sort((a, b) => (a.startTime || '').localeCompare(b.startTime || ''));
       return `<article class="monthly-routine-card" data-month-date="${date}">
         <div class="monthly-routine-head"><strong>${bnDateLabel(date)}</strong>
-          <div class="monthly-routine-actions"><button class="pill" data-month-edit="${date}">✎ এডিট</button><button class="pill danger" data-month-delete="${date}">✕ মুছুন</button></div>
-        </div><table class="mini-routine"><tbody>${rows.map(r => `<tr><td>${escapeHtml(r.startTime || '--:--')}–${escapeHtml(r.endTime || '--:--')}</td><td>${escapeHtml(r.subject || 'বিষয় নেই')}</td><td>${escapeHtml(r.task || '')}</td></tr>`).join('')}</tbody></table>
+          <div class="monthly-routine-actions"><button class="pill" data-month-edit="${date}">${ICON.edit} Edit</button><button class="pill danger" data-month-delete="${date}">${ICON.trash} Delete</button></div>
+        </div><table class="mini-routine"><tbody>${rows.map(r => `<tr><td>${escapeHtml(r.startTime || '--:--')}–${escapeHtml(r.endTime || '--:--')}</td><td>${escapeHtml(r.subject || 'No Subject')}</td><td>${escapeHtml(r.task || '')}</td></tr>`).join('')}</tbody></table>
       </article>`;
-    }).join('') : '<div class="empty-state">এই মাসে কোনো রুটিন সংরক্ষিত নেই।</div>';
+    }).join('') : '<div class="empty-state">No routines scheduled for this month.</div>';
   }
 
   const todayRoutineBtn = document.getElementById('todayRoutineBtn');
@@ -813,7 +750,16 @@
   }
 
   const monthlyRoutineBtn = document.getElementById('monthlyRoutineBtn');
-  if (monthlyRoutineBtn) monthlyRoutineBtn.addEventListener('click', showMonthlyRoutines);
+  if (monthlyRoutineBtn) {
+    monthlyRoutineBtn.addEventListener('click', () => {
+      const mBox = document.getElementById('monthlyRoutineView');
+      if (mBox && !mBox.hidden) {
+        mBox.hidden = true;
+      } else {
+        showMonthlyRoutines();
+      }
+    });
+  }
 
   const monthlyRoutineView = document.getElementById('monthlyRoutineView');
   if (monthlyRoutineView) {
@@ -825,7 +771,7 @@
         if (mSel) mSel.value = `${currentViewYear}-${String(currentViewMonth + 1).padStart(2, '0')}`;
         monthlyRoutineView.hidden = true; renderDateSlider(); renderRoutine();
       }
-      if (del && window.confirm('এই দিনের সব রুটিন মুছে ফেলতে চাও?')) { state.routine = state.routine.filter(r => r.date !== del.dataset.monthDelete); saveData(); renderDateSlider(); renderRoutine(); showMonthlyRoutines(); }
+      if (del && window.confirm('Delete all routines for this date?')) { state.routine = state.routine.filter(r => r.date !== del.dataset.monthDelete); saveData(); renderDateSlider(); renderRoutine(); showMonthlyRoutines(); }
     });
   }
 
@@ -849,14 +795,13 @@
   }
 
   function renderQuote() {
-    if (!quoteTextEl || !quoteAuthorEl || !wpTagEl) return;
     const pool = currentPool();
     if (!pool.length) return;
     if (state.quoteIdx >= pool.length) state.quoteIdx = 0;
     const item = pool[state.quoteIdx];
-    quoteTextEl.textContent = item.q;
-    quoteAuthorEl.textContent = item.a ? '— ' + item.a : bnDate() + ' • প্রস্তুতি চলছে';
-    wpTagEl.textContent = item.a ? 'বিখ্যাত ব্যক্তিদের উক্তি' : 'নিজের সংগ্রহ';
+    if (quoteTextEl) quoteTextEl.textContent = item.q;
+    if (quoteAuthorEl) quoteAuthorEl.textContent = item.a ? '— ' + item.a : bnDate() + ' • প্রস্তুতি চলছে';
+    if (wpTagEl) wpTagEl.textContent = item.a ? 'Famous Figures' : 'Personal Collection';
     updateTicker(item.a ? item.q + ' — ' + item.a : item.q);
     renderQuoteManager();
   }
@@ -871,7 +816,7 @@
         <div class="quote-manager-item">
           <div>
             <strong>${text}</strong>
-            <span>${entry.source === 'famous' ? 'বিখ্যাত' : (entry.source === 'custom' ? 'নিজের যোগ করা' : 'নিজের সংগ্রহ')}</span>
+            <span>${entry.source === 'famous' ? 'Famous' : (entry.source === 'custom' ? 'Custom Added' : 'Personal Collection')}</span>
           </div>
           <div class="quote-manager-actions">
             <button data-edit-quote="${entry.id}" type="button">এডিট</button>
@@ -926,7 +871,7 @@
     const toggleBtn = document.getElementById('carouselToggleBtn');
     const intervalSel = document.getElementById('carouselIntervalSelect');
     if (toggleBtn) {
-      toggleBtn.textContent = state.quoteCarouselEnabled ? 'চালু আছে' : 'বন্ধ আছে';
+      toggleBtn.textContent = state.quoteCarouselEnabled ? 'Enabled' : 'Disabled';
       toggleBtn.classList.toggle('solid', state.quoteCarouselEnabled);
     }
     if (intervalSel) {
@@ -961,7 +906,7 @@
         const entry = quoteManagerEntries().find(item => item.id === id);
         if (!entry) return;
         const currentText = entry.author ? `${entry.text} — ${entry.author}` : entry.text;
-        const nextValue = window.prompt('উক্তি সম্পাদনা করুন:', currentText);
+        const nextValue = window.prompt('Edit quote text:', currentText);
         if (nextValue === null) return;
         const trimmed = nextValue.trim();
         if (!trimmed) return;
@@ -1091,7 +1036,7 @@
     const list = filteredNotes();
     notesGrid.innerHTML = '';
     if (!list.length) {
-      notesGrid.innerHTML = '<div class="empty-state">কোনো নোট পাওয়া যায়নি। উপরে লিখে নতুন নোট যোগ করো।</div>';
+      notesGrid.innerHTML = '<div class="empty-state">No notes found. Create a new note using the button above.</div>';
       return;
     }
     list.forEach(n => {
@@ -1101,13 +1046,13 @@
       card.innerHTML = `
         <div class="note-top">
           <div>
-            <h3>${escapeHtml(n.title || 'শিরোনামহীন')}</h3>
-            <span class="note-tag">${escapeHtml(n.tag || 'সাধারণ')}</span>
+            <h3>${escapeHtml(n.title || 'Untitled')}</h3>
+            <span class="note-tag">${escapeHtml(n.tag || 'General')}</span>
           </div>
           <div class="note-icon-btns">
-            <button class="pin-btn ${n.pinned ? 'pin-active' : ''}" title="পিন করুন" data-id="${n.id}">★</button>
-            <button class="edit-btn" title="এডিট করুন" data-id="${n.id}">✎</button>
-            <button class="del-btn" title="মুছুন" data-id="${n.id}">✕</button>
+            <button class="pin-btn ${n.pinned ? 'pin-active' : ''}" title="Pin note" data-id="${n.id}">${ICON.pin}</button>
+            <button class="edit-btn" title="Edit note" data-id="${n.id}">${ICON.edit}</button>
+            <button class="del-btn" title="Delete" data-id="${n.id}">${ICON.trash}</button>
           </div>
         </div>
         <p>${escapeHtml(n.body || '')}</p>
@@ -1119,15 +1064,21 @@
   function escapeHtml(s) { return String(s).replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c])); }
 
   notesGrid.addEventListener('click', (e) => {
-    const id = e.target.dataset.id;
+    const btn = e.target.closest('button');
+    if (!btn) return;
+    const id = btn.dataset.id;
     if (!id) return;
-    if (e.target.classList.contains('del-btn')) {
+    if (btn.classList.contains('del-btn')) {
+      const n = state.notes.find(n => String(n.id) === id);
+      const title = n && n.title ? `"${n.title}"` : 'this note';
+      if (!window.confirm(`Are you sure you want to delete ${title}?`)) return;
       state.notes = state.notes.filter(n => String(n.id) !== id);
       renderNotes(); saveData();
-    } else if (e.target.classList.contains('pin-btn')) {
+      showToast('Note deleted');
+    } else if (btn.classList.contains('pin-btn')) {
       const n = state.notes.find(n => String(n.id) === id);
       if (n) { n.pinned = !n.pinned; renderNotes(); saveData(); }
-    } else if (e.target.classList.contains('edit-btn')) {
+    } else if (btn.classList.contains('edit-btn')) {
       startEdit(id);
     }
   });
@@ -1142,8 +1093,8 @@
         <input type="text" value="${escapeHtml(n.title || '')}" id="edit-title-${id}">
         <textarea rows="4" id="edit-body-${id}">${escapeHtml(n.body || '')}</textarea>
         <div class="quote-actions" style="justify-content:flex-start;">
-          <button class="pill solid" data-save="${id}">সংরক্ষণ করো</button>
-          <button class="pill" data-cancel="${id}">বাতিল</button>
+          <button class="pill solid" data-save="${id}">Save</button>
+          <button class="pill" data-cancel="${id}">Cancel</button>
         </div>
       </div>
     `;
@@ -1162,7 +1113,7 @@
     toggleNoteBtn.addEventListener('click', () => {
       const isOpen = noteWrap.style.display !== 'none';
       noteWrap.style.display = isOpen ? 'none' : 'block';
-      toggleNoteBtn.innerHTML = isOpen ? '<span class="btn-icon">+</span> নতুন নোট লিখুন' : '✕ ফর্ম বন্ধ করুন';
+      toggleNoteBtn.innerHTML = isOpen ? `${ICON.plus} New Note` : `${ICON.x} Close Form`;
       toggleNoteBtn.classList.toggle('active-open', !isOpen);
       if (!isOpen) {
         const input = document.getElementById('noteTitle');
@@ -1184,10 +1135,10 @@
 
     if (noteWrap && toggleNoteBtn) {
       noteWrap.style.display = 'none';
-      toggleNoteBtn.innerHTML = '<span class="btn-icon">+</span> নতুন নোট লিখুন';
+      toggleNoteBtn.innerHTML = `${ICON.plus} New Note`;
       toggleNoteBtn.classList.remove('active-open');
     }
-    showToast('নতুন নোট সংরক্ষিত হয়েছে!');
+    showToast('Note saved successfully!');
   });
 
   noteSearch.addEventListener('input', renderNotes);
@@ -1202,6 +1153,9 @@
   const stopBtn = document.getElementById('stopBtn');
   const targetHoursInput = document.getElementById('targetHours');
 
+  const bnDigitMap = { '0': '০', '1': '১', '2': '২', '3': '৩', '4': '৪', '5': '৫', '6': '৬', '7': '৭', '8': '৮', '9': '৯' };
+  function toBnDigits(n) { return String(n).replace(/[0-9]/g, d => bnDigitMap[d]); }
+
   function dateKey(ts) {
     const d = new Date(ts);
     return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
@@ -1209,7 +1163,7 @@
   function todayKey() { return dateKey(Date.now()); }
   function fmtHM(mins) {
     const h = Math.floor(mins / 60), m = Math.round(mins % 60);
-    return h > 0 ? (h + ' ঘণ্টা ' + m + ' মিনিট') : (m + ' মিনিট');
+    return h > 0 ? (`${h}h ${m}m`) : (`${m}m`);
   }
   function fmtClock(secs) {
     const h = String(Math.floor(secs / 3600)).padStart(2, '0');
@@ -1219,10 +1173,22 @@
   }
 
   function subjectList() {
-    const defaultSubjects = ['বাংলা', 'ইংরেজি', 'গণিত', 'সাধারণ জ্ঞান', 'দৈনন্দিন বিজ্ঞান', 'কম্পিউটার ও তথ্যপ্রযুক্তি'];
+    const defaultSubjects = [
+      'বাংলা সাহিত্য',
+      'বাংলা ব্যাকরণ',
+      'English',
+      'গণিত',
+      'বাংলাদেশ বিষয়াবলী',
+      'আন্তর্জাতিক বিষয়াবলী',
+      'সাধারণ বিজ্ঞান',
+      'কম্পিউটার ও আইসিটি'
+    ];
     const fromRoutine = (state.routine || []).map(r => r.subject).filter(Boolean);
     const fromSessions = (state.sessions || []).map(s => s.subject).filter(Boolean);
-    return Array.from(new Set([...defaultSubjects, ...fromRoutine, ...fromSessions]));
+    const fromCustom = Array.isArray(state.customSubjects) ? state.customSubjects : [];
+    const deleted = new Set(state.deletedSubjects || []);
+    return Array.from(new Set([...defaultSubjects, ...fromCustom, ...fromRoutine, ...fromSessions]))
+      .filter(s => !deleted.has(s));
   }
 
   function renderSubjectSelect() {
@@ -1233,7 +1199,7 @@
     const previousCustomValue = sessionCustomInput ? sessionCustomInput.value : '';
 
     sel.innerHTML = subs.map(s => `<option value="${escapeAttr(s)}">${escapeHtml(s)}</option>`).join('')
-      + '<option value="__custom__">+ নতুন বিষয়</option>';
+      + '<option value="__custom__">+ Add New Subject</option>';
 
     let nextValue = '';
     if (previousValue === '__custom__' || (previousCustomValue && previousValue === '')) {
@@ -1257,12 +1223,88 @@
       }
     }
   }
+
+  // ===== Subject Manager (Settings Panel) =====
+  function renderSubjectManager() {
+    const container = document.getElementById('subjectManagerList');
+    if (!container) return;
+    const allSubjects = (() => {
+      const defaultSubjects = [
+        'বাংলা সাহিত্য', 'বাংলা ব্যাকরণ', 'English', 'গণিত',
+        'বাংলাদেশ বিষয়াবলী', 'আন্তর্জাতিক বিষয়াবলী', 'সাধারণ বিজ্ঞান', 'কম্পিউটার ও আইসিটি'
+      ];
+      const fromRoutine = (state.routine || []).map(r => r.subject).filter(Boolean);
+      const fromSessions = (state.sessions || []).map(s => s.subject).filter(Boolean);
+      return Array.from(new Set([...defaultSubjects, ...fromRoutine, ...fromSessions]));
+    })();
+    const deleted = new Set(state.deletedSubjects || []);
+    if (!allSubjects.length) {
+      container.innerHTML = '<p style="color:var(--text-soft); font-size:13px;">No subjects found.</p>';
+      return;
+    }
+    container.innerHTML = allSubjects.map(s => {
+      const isDeleted = deleted.has(s);
+      return `<div class="subject-manager-row ${isDeleted ? 'subject-deleted' : ''}">
+        <span class="subject-manager-name">${escapeHtml(s)}</span>
+        ${isDeleted
+          ? `<button class="pill subject-restore-btn" data-subject="${escapeAttr(s)}" title="Restore this subject">${ICON.undo} Restore</button>`
+          : `<button class="pill danger subject-delete-btn" data-subject="${escapeAttr(s)}" title="Remove this subject from the list">${ICON.trash} Delete</button>`
+        }
+      </div>`;
+    }).join('');
+
+    container.querySelectorAll('.subject-delete-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const subj = btn.dataset.subject;
+        const confirmed = confirm(`Delete subject "${subj}"?\n\nThis will remove it from your study session dropdown. Your past sessions and routine entries for this subject will not be deleted.`);
+        if (!confirmed) return;
+        if (!Array.isArray(state.deletedSubjects)) state.deletedSubjects = [];
+        if (!state.deletedSubjects.includes(subj)) {
+          state.deletedSubjects.push(subj);
+        }
+        saveData();
+        renderSubjectSelect();
+        renderSubjectManager();
+        showToast(`"${subj}" removed from subject list.`);
+      });
+    });
+
+    container.querySelectorAll('.subject-restore-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const subj = btn.dataset.subject;
+        state.deletedSubjects = (state.deletedSubjects || []).filter(d => d !== subj);
+        saveData();
+        renderSubjectSelect();
+        renderSubjectManager();
+        showToast(`"${subj}" restored to subject list.`);
+      });
+    });
+  }
+
+  function refreshTimerSub() {
+    if (state.activeSession || window.isCustomCountdownActive) return;
+    const sub = document.getElementById('timerSub');
+    if (!sub) return;
+    const subject = currentSubjectValue() || 'General';
+    if (selectedDuration === 0) {
+      sub.innerHTML = `<strong>${escapeHtml(subject)}</strong> — Stopwatch mode — click Start to track time`;
+    } else if (selectedDuration === 5) {
+      sub.innerHTML = `<strong>5-minute</strong> refreshment break`;
+    } else {
+      sub.innerHTML = `<strong>${escapeHtml(subject)}</strong> — ${selectedDuration} minute focus session`;
+    }
+  }
+
   sessionSubjectSel.addEventListener('change', () => {
     sessionCustomInput.style.display = sessionSubjectSel.value === '__custom__' ? 'block' : 'none';
     if (sessionSubjectSel.value !== '__custom__') {
       sessionCustomInput.value = '';
     }
+    refreshTimerSub();
   });
+  if (sessionCustomInput) {
+    sessionCustomInput.addEventListener('input', refreshTimerSub);
+  }
 
   function currentSubjectValue() {
     if (sessionSubjectSel.value === '__custom__') return sessionCustomInput.value.trim();
@@ -1300,16 +1342,21 @@
   function tickTimer() {
     if (window.isCustomCountdownActive || (window.selectedTimerDuration && window.selectedTimerDuration > 0)) return;
     const orb = document.getElementById('clockOrb');
+    if (!timerDisplay) return;
     if (!state.activeSession) {
       timerDisplay.textContent = '00:00:00';
-      timerSub.innerHTML = '';
-      orb.classList.remove('active');
+      if (timerSub && !timerSub.textContent.trim()) {
+        timerSub.innerHTML = 'Select a subject and duration to begin focus session';
+      }
+      if (orb) orb.classList.remove('active');
       return;
     }
-    orb.classList.add('active');
+    if (orb) orb.classList.add('active');
     const secs = Math.floor((Date.now() - state.activeSession.start) / 1000);
     timerDisplay.textContent = fmtClock(secs);
-    timerSub.innerHTML = '<span class="timer-dot"></span>' + escapeHtml(state.activeSession.subject) + ' পড়া চলছে';
+    if (timerSub) {
+      timerSub.innerHTML = '<span class="timer-dot"></span> Studying <strong>' + escapeHtml(state.activeSession.subject) + '</strong> in progress';
+    }
   }
 
   function renderTodaySessions() {
@@ -1319,11 +1366,14 @@
     box.innerHTML = list.map(s => {
       const st = new Date(s.start), en = new Date(s.end);
       const timeStr = st.toLocaleTimeString('bn-BD', { hour: '2-digit', minute: '2-digit' }) + ' – ' + en.toLocaleTimeString('bn-BD', { hour: '2-digit', minute: '2-digit' });
-      const pct = Math.min(100, Math.max(8, Math.round((s.duration / Math.max(1, state.dailyTargetMinutes / 60)) * 100)));
+      const pct = Math.min(100, Math.max(8, Math.round((s.duration / Math.max(1, state.dailyTargetMinutes)) * 100)));
       return `<div class="session-item">
         <div class="session-item-header">
           <div class="s-subject">${escapeHtml(s.subject)}</div>
-          <div class="s-badge">${fmtHM(s.duration)}</div>
+          <div style="display:flex; align-items:center; gap:6px;">
+            <span class="s-badge">${fmtHM(s.duration)}</span>
+            <button class="s-del-btn" title="Delete session" data-delsession="${s.id}">${ICON.trash}</button>
+          </div>
         </div>
         <div class="s-progress">
           <div class="s-progress-track">
@@ -1335,28 +1385,42 @@
     }).join('');
   }
 
+  const todaySessionsBox = document.getElementById('todaySessions');
+  if (todaySessionsBox) {
+    todaySessionsBox.addEventListener('click', (e) => {
+      const del = e.target.closest('[data-delsession]');
+      if (del) {
+        const id = del.dataset.delsession;
+        state.sessions = state.sessions.filter(s => String(s.id) !== id);
+        saveData();
+        renderTrackerAll();
+        showToast('Session deleted');
+      }
+    });
+  }
+
   function renderProgress() {
     const todayTotal = state.sessions.filter(s => dateKey(s.start) === todayKey()).reduce((a, s) => a + s.duration, 0);
     const target = state.dailyTargetMinutes || 1;
     const pct = Math.min(100, Math.round((todayTotal / target) * 100));
     document.getElementById('progressFill').style.width = pct + '%';
-    document.getElementById('progressLabelLeft').textContent = fmtHM(todayTotal) + ' পড়া হয়েছে';
+    document.getElementById('progressLabelLeft').textContent = fmtHM(todayTotal) + ' studied';
     document.getElementById('progressLabelRight').textContent = pct + '%';
     targetHoursInput.value = (state.dailyTargetMinutes / 60).toString();
     const settingsTargetInput = document.getElementById('targetHoursSettings');
     if (settingsTargetInput) settingsTargetInput.value = (state.dailyTargetMinutes / 60).toString();
 
     const verdict = document.getElementById('verdictBox');
-    if (todayTotal === 0) {
-      verdict.textContent = 'আজ এখনও পড়া শুরু হয়নি — শুরু করো, তুমি পারবে!';
+        if (todayTotal === 0) {
+      verdict.textContent = 'No study logged yet today — start your first session, you can do it!';
     } else if (pct >= 100) {
-      verdict.textContent = '🎉 আজকের টার্গেট পূরণ হয়েছে! দুর্দান্ত পরিশ্রম করেছ।';
+      verdict.textContent = 'Daily target completed! Outstanding effort today.';
     } else if (pct >= 75) {
-      verdict.textContent = 'প্রায় পৌঁছে গেছ — আর একটু চেষ্টা করলেই টার্গেট পূরণ হবে।';
+      verdict.textContent = 'Almost there — just a little more focus to reach your goal.';
     } else if (pct >= 40) {
-      verdict.textContent = 'ভালো শুরু হয়েছে, তবে আরও কিছুটা সময় দিতে হবে।';
+      verdict.textContent = 'Good start, keep up the momentum with another session.';
     } else {
-      verdict.textContent = 'আজ পড়াশোনায় সময় কম দেওয়া হয়েছে — এখনই আরেকটা সেশন শুরু করো।';
+      verdict.textContent = 'Study time is low today — jump into another focused session now.';
     }
 
     let streak = 0;
@@ -1368,8 +1432,8 @@
     }
     if (pct >= 100) streak++;
     document.getElementById('streakLine').textContent = streak > 0
-      ? '🔥 টার্গেট পূরণের ধারাবাহিকতা: ' + streak + ' দিন'
-      : 'ধারাবাহিকতা শুরু করো — আজই প্রথম দিন হোক!';
+      ? 'Target Streak: ' + streak + (streak === 1 ? ' day' : ' days')
+      : 'Start your study streak today!';
   }
 
   function renderSubjectBars() {
@@ -1379,7 +1443,7 @@
     const byTotal = {};
     today.forEach(s => { byTotal[s.subject] = (byTotal[s.subject] || 0) + s.duration; });
     const entries = Object.entries(byTotal).sort((a, b) => b[1] - a[1]);
-    if (!entries.length) { box.innerHTML = '<div class="empty-state">আজ এখনও কোনো সেশন লগ হয়নি।</div>'; return; }
+    if (!entries.length) { box.innerHTML = '<div class="empty-state">No study sessions logged today yet.</div>'; return; }
     const max = Math.max(...entries.map(e => e[1]));
     box.innerHTML = entries.map(([subj, min]) => `
       <div class="subj-bar-row">
@@ -1418,8 +1482,8 @@
   function buildReviewBuckets() {
     const { start, end, granularity } = getReviewRange();
     const buckets = [];
-    const dayLabels = ['রবি', 'সোম', 'মঙ্গল', 'বুধ', 'বৃহ', 'শুক্র', 'শনি'];
-    const monthLabels = ['জানু', 'ফেব্রু', 'মার্চ', 'এপ্রি', 'মে', 'জুন', 'জুল', 'আগ', 'সেপ্ট', 'অক্টো', 'নভে', 'ডিসে'];
+    const dayLabels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    const monthLabels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
     if (granularity === 'day') {
       let cur = new Date(start);
@@ -1436,7 +1500,7 @@
         const wkEnd = new Date(cur); wkEnd.setDate(wkEnd.getDate() + 6); wkEnd.setHours(23, 59, 59, 999);
         const cappedEnd = wkEnd < end ? wkEnd : end;
         const total = state.sessions.filter(s => { const d = new Date(s.start); return d >= wkStart && d <= cappedEnd; }).reduce((a, s) => a + s.duration, 0);
-        buckets.push({ label: 'স ' + toBnDigits(wk), total, isToday: false });
+        buckets.push({ label: 'Wk ' + wk, total, isToday: false });
         cur.setDate(cur.getDate() + 7); wk++;
       }
     } else {
@@ -1487,6 +1551,7 @@
 
   function renderTrackerAll() {
     renderSubjectSelect();
+    renderSubjectManager();
     tickTimer();
     startBtn.style.display = state.activeSession ? 'none' : 'inline-flex';
     stopBtn.style.display = state.activeSession ? 'inline-flex' : 'none';
@@ -1495,6 +1560,7 @@
     renderSubjectBars();
     renderWeekChart();
     renderTrackerRoutinePreview();
+    update24hActivityUI();
   }
 
   // ===== Syllabus =====
@@ -1510,14 +1576,14 @@
   function renderSyllabusOverall() {
     const { total, done } = syllabusTotals();
     const pct = total ? Math.round((done / total) * 100) : 0;
-    document.getElementById('syllabusOverallLabel').textContent = `${toBnDigits(done)} / ${toBnDigits(total)} টপিক শেষ হয়েছে`;
+    document.getElementById('syllabusOverallLabel').textContent = `${toBnDigits(done)} / ${toBnDigits(total)} topics completed`;
     document.getElementById('syllabusOverallPct').textContent = pct + '%';
     document.getElementById('syllabusOverallFill').style.width = pct + '%';
   }
 
   function renderCategories() {
     if (!state.syllabus.length) {
-      categoryList.innerHTML = '<div class="empty-state">এখনও কোনো ক্যাটাগরি যোগ করা হয়নি। উপরে লিখে শুরু করো।</div>';
+      categoryList.innerHTML = '<div class="empty-state">No categories yet. Add one above to begin your syllabus.</div>';
       renderSyllabusOverall();
       return;
     }
@@ -1528,30 +1594,30 @@
       const topicsHtml = cat.topics.length ? (
         '<div class="topic-tile-grid">' + cat.topics.map(t => `
           <div class="topic-tile ${t.done ? 'done' : ''}" data-cat="${cat.id}" data-topic="${t.id}">
-            <span class="tile-label" data-topic-label="${t.id}" data-topic-cat="${cat.id}" title="ডাবল ক্লিক করে এডিট">${escapeHtml(t.name)}</span>
-            <button class="tile-del" data-cat="${cat.id}" data-topic="${t.id}" title="মুছুন">✕</button>
+            <span class="tile-label" data-topic-label="${t.id}" data-topic-cat="${cat.id}" title="Double-click to edit">${escapeHtml(t.name)}</span>
+            <button class="tile-del" data-cat="${cat.id}" data-topic="${t.id}" title="Delete">${ICON.trash}</button>
           </div>
         `).join('') + '</div>'
-      ) : '<div class="empty-state" style="padding:20px;">এই ক্যাটাগরিতে এখনও কোনো টপিক নেই।</div>';
+      ) : '<div class="empty-state" style="padding:20px;">No topics in this category yet.</div>';
       return `
         <div class="category-card glass open" data-cat="${cat.id}">
           <div class="category-head">
             <div class="category-head-left">
-              <h3 class="category-title" data-category-title="${cat.id}" title="ডাবল ক্লিক করে এডিট">${escapeHtml(cat.name)}</h3>
+              <h3 class="category-title" data-category-title="${cat.id}" title="Double-click to edit">${escapeHtml(cat.name)}</h3>
             </div>
             <div class="category-head-right">
               <span class="category-progress-text">${toBnDigits(done)}/${toBnDigits(total)} • ${pct}%</span>
               <div class="category-mini-track"><div class="category-mini-fill" style="width:${pct}%"></div></div>
-              <button class="pill subtle" data-edit-category="${cat.id}">✎ এডিট</button>
-              <button class="pill subtle" data-toggle-add-topic="${cat.id}">+ টপিক যোগ</button>
-              <button class="cat-del-btn" data-catdel="${cat.id}" title="ক্যাটাগরি মুছুন">✕</button>
+              <button class="pill subtle" data-edit-category="${cat.id}">${ICON.edit} Edit</button>
+              <button class="pill subtle" data-toggle-add-topic="${cat.id}">${ICON.plus} Add Topic</button>
+              <button class="cat-del-btn" data-catdel="${cat.id}" title="Delete Category">${ICON.trash}</button>
             </div>
           </div>
           <div class="category-body">
             ${topicsHtml}
             <div class="add-topic-row" data-topic-form="${cat.id}" style="display:none;">
-              <input type="text" placeholder="নতুন টপিক লেখো" data-topicinput="${cat.id}">
-              <button class="pill" data-addtopic="${cat.id}">যোগ করো</button>
+              <input type="text" placeholder="Enter topic name" data-topicinput="${cat.id}">
+              <button class="pill" data-addtopic="${cat.id}">Add</button>
             </div>
           </div>
         </div>
@@ -1579,13 +1645,13 @@
         const normalizedTopic = firstTopic.toLowerCase();
         const alreadyExists = existingCat.topics.some(t => String(t.name).trim().toLowerCase() === normalizedTopic);
         if (alreadyExists) {
-          showToast('এই টপিক আগেই আছে।', true);
+          showToast('This topic already exists in this category.', true);
         } else {
           existingCat.topics.push({ id: Date.now(), name: firstTopic, done: false });
-          showToast('টপিকটি বিদ্যমান ক্যাটাগরিতে যোগ করা হয়েছে।');
+          showToast('Topic added to existing category.');
         }
       } else {
-        showToast('এই ক্যাটাগরি আগে থেকেই আছে।', true);
+        showToast('This category already exists.', true);
       }
       input.value = ''; topicInput.value = '';
       saveSyllabusAndRefresh();
@@ -1611,13 +1677,25 @@
     if (e.target.closest('.tile-del')) {
       const btn = e.target.closest('.tile-del');
       const cat = state.syllabus.find(c => String(c.id) === btn.dataset.cat);
-      if (cat) { cat.topics = cat.topics.filter(t => String(t.id) !== btn.dataset.topic); saveSyllabusAndRefresh(); }
+      if (cat) {
+        const topic = cat.topics.find(t => String(t.id) === btn.dataset.topic);
+        const topicName = topic && topic.name ? `"${topic.name}"` : 'this topic';
+        if (!window.confirm(`Are you sure you want to delete topic ${topicName}?`)) return;
+        cat.topics = cat.topics.filter(t => String(t.id) !== btn.dataset.topic);
+        saveSyllabusAndRefresh();
+        showToast('Topic deleted');
+      }
       return;
     }
     if (e.target.dataset.catdel) {
-      openCategoryIds.delete(e.target.dataset.catdel);
-      state.syllabus = state.syllabus.filter(c => String(c.id) !== e.target.dataset.catdel);
+      const catId = e.target.dataset.catdel;
+      const cat = state.syllabus.find(c => String(c.id) === catId);
+      const catName = cat && cat.name ? `"${cat.name}"` : 'this subject/category';
+      if (!window.confirm(`Are you sure you want to delete category ${catName} and all its topics?`)) return;
+      openCategoryIds.delete(catId);
+      state.syllabus = state.syllabus.filter(c => String(c.id) !== catId);
       saveSyllabusAndRefresh();
+      showToast('Category deleted');
       return;
     }
     if (e.target.dataset.addtopic) {
@@ -1643,7 +1721,7 @@
       const catId = e.target.dataset.editCategory;
       const cat = state.syllabus.find(c => String(c.id) === catId);
       if (!cat) return;
-      const name = window.prompt('ক্যাটাগরির নতুন নাম লিখুন:', cat.name);
+      const name = window.prompt('Enter new category name:', cat.name);
       if (name === null) return;
       const trimmed = name.trim();
       if (!trimmed) return;
@@ -1660,7 +1738,7 @@
       if (!cat) return;
       const topic = cat.topics.find(t => String(t.id) === label.dataset.topicLabel);
       if (!topic) return;
-      const name = window.prompt('টপিকের নতুন নাম লিখুন:', topic.name);
+      const name = window.prompt('Enter new topic name:', topic.name);
       if (name === null) return;
       const trimmed = name.trim();
       if (!trimmed) return;
@@ -1672,7 +1750,7 @@
     if (title) {
       const cat = state.syllabus.find(c => String(c.id) === title.dataset.categoryTitle);
       if (!cat) return;
-      const name = window.prompt('ক্যাটাগরির নতুন নাম লিখুন:', cat.name);
+      const name = window.prompt('Enter new category name:', cat.name);
       if (name === null) return;
       const trimmed = name.trim();
       if (!trimmed) return;
@@ -1686,44 +1764,57 @@
   const flashCategorySel = document.getElementById('flashCategory');
   const flashFilterSel = document.getElementById('flashFilterCategory');
 
-  function routineSubjects() {
-    return Array.from(new Set((state.routine || []).map(r => r.subject).filter(Boolean)));
-  }
-
   function renderFlashCategoryOptions() {
-    const opts = routineSubjects().map(s => `<option value="${escapeAttr(s)}">${escapeHtml(s)}</option>`).join('');
-    flashCategorySel.innerHTML = '<option value="">কোনো বিষয় নেই</option>' + opts;
-    flashFilterSel.innerHTML = '<option value="all">সব বিষয়</option>' + opts;
+    const routineSubjs = subjectList();
+    const flashSubjs = Array.from(new Set(state.flashcards.map(f => f.category).filter(Boolean)));
+    const allSubjs = Array.from(new Set([...routineSubjs, ...flashSubjs]));
+
+    const opts = allSubjs.map(s => `<option value="${escapeAttr(s)}">${escapeHtml(s)}</option>`).join('');
+    if (flashCategorySel) flashCategorySel.innerHTML = '<option value="">No Category</option>' + opts;
+    if (flashFilterSel) flashFilterSel.innerHTML = '<option value="all">All Subjects</option>' + opts;
   }
 
   function renderFlashcards() {
     const filter = flashFilterSel.value || 'all';
     const list = filter === 'all' ? state.flashcards : state.flashcards.filter(f => f.category === filter);
+    const countBadge = document.getElementById('flashCountBadge');
+    if (countBadge) {
+      countBadge.innerHTML = `${ICON.layers} ${list.length} ${list.length === 1 ? 'Card' : 'Cards'}`;
+    }
+
     if (!list.length) {
-      flashGrid.innerHTML = '<div class="empty-state">এখনও কোনো ফ্ল্যাশকার্ড যোগ করা হয়নি।</div>';
+      flashGrid.innerHTML = '<div class="empty-state">No flashcards in this category. Click "Sync from MCQs" or "Create Card" above.</div>';
       return;
     }
     flashGrid.innerHTML = list.map(f => `
       <div class="flash-card" data-id="${f.id}">
         <div class="flash-card-actions">
-          <button data-del="${f.id}" title="মুছুন">✕</button>
+          <button data-del="${f.id}" title="Delete Card">${ICON.trash}</button>
         </div>
         <div class="flash-card-inner">
           <div class="flash-face flash-front">
             ${f.category ? `<span class="flash-card-tag">${escapeHtml(f.category)}</span>` : ''}
-            ${escapeHtml(f.front)}
+            <div style="font-weight:600; padding:0 6px;">${escapeHtml(f.front)}</div>
+            <div style="position:absolute; bottom:8px; font-size:10.5px; opacity:0.6;">Click to reveal</div>
           </div>
-          <div class="flash-face flash-back">${escapeHtml(f.back)}</div>
+          <div class="flash-face flash-back">
+            <div style="font-size:13px; line-height:1.6; white-space:pre-wrap; max-height:100%; overflow-y:auto; padding:4px;">${escapeHtml(f.back)}</div>
+          </div>
         </div>
       </div>
     `).join('');
   }
 
   flashGrid.addEventListener('click', (e) => {
-    if (e.target.dataset.del) {
-      state.flashcards = state.flashcards.filter(f => String(f.id) !== e.target.dataset.del);
-      renderFlashcards();
-      saveData();
+    const delBtn = e.target.closest('[data-del]');
+    if (delBtn) {
+      if (window.confirm('Are you sure you want to delete this flashcard?')) {
+        state.flashcards = state.flashcards.filter(f => String(f.id) !== delBtn.dataset.del);
+        renderFlashcards();
+        renderFlashCategoryOptions();
+        saveData();
+        showToast('Flashcard deleted');
+      }
       return;
     }
     const card = e.target.closest('.flash-card');
@@ -1737,7 +1828,7 @@
     toggleFlashBtn.addEventListener('click', () => {
       const isOpen = flashWrap.style.display !== 'none';
       flashWrap.style.display = isOpen ? 'none' : 'block';
-      toggleFlashBtn.innerHTML = isOpen ? '<span class="btn-icon">+</span> নতুন ফ্ল্যাশকার্ড তৈরি করুন' : '✕ ফর্ম বন্ধ করুন';
+      toggleFlashBtn.innerHTML = isOpen ? `${ICON.plus} Create Card` : `${ICON.x} Close Form`;
       toggleFlashBtn.classList.toggle('active-open', !isOpen);
       if (!isOpen) {
         const front = document.getElementById('flashFront');
@@ -1751,23 +1842,74 @@
     const backEl = document.getElementById('flashBack');
     const front = frontEl.value.trim();
     const back = backEl.value.trim();
-    if (!front || !back) return;
-    state.flashcards.push({ id: Date.now(), front, back, category: flashCategorySel.value || '' });
+    if (!front || !back) {
+      showToast('Please provide both question and answer', true);
+      return;
+    }
+    state.flashcards.push({ id: Date.now(), front, back, category: flashCategorySel.value || 'General' });
     frontEl.value = ''; backEl.value = '';
+    renderFlashCategoryOptions();
     renderFlashcards();
     saveData();
 
     if (flashWrap && toggleFlashBtn) {
       flashWrap.style.display = 'none';
-      toggleFlashBtn.innerHTML = '<span class="btn-icon">+</span> নতুন ফ্ল্যাশকার্ড তৈরি করুন';
+      toggleFlashBtn.innerHTML = `${ICON.plus} Create Card`;
       toggleFlashBtn.classList.remove('active-open');
     }
-    showToast('নতুন ফ্ল্যাশকার্ড তৈরি হয়েছে!');
+    showToast('Flashcard created successfully!');
   });
+
+  // ===== Sync Flashcards directly from BCS MCQs =====
+  function syncFlashcardsFromMCQs() {
+    const mcqPool = (typeof allQuestions !== 'undefined' && Array.isArray(allQuestions) && allQuestions.length > 0)
+      ? allQuestions
+      : (typeof defaultQuestions !== 'undefined' ? defaultQuestions : []);
+
+    if (!mcqPool.length) {
+      showToast('No MCQ questions available to sync from', true);
+      return;
+    }
+
+    let addedCount = 0;
+    mcqPool.forEach(q => {
+      const qText = (q.question || '').trim();
+      if (!qText) return;
+      const exists = state.flashcards.some(f => f.front.trim() === qText);
+      if (!exists) {
+        const correctOpt = (Array.isArray(q.options) && q.options[q.correct] !== undefined)
+          ? q.options[q.correct]
+          : 'See explanation';
+        const exp = (q.explanation && q.explanation.trim()) ? q.explanation.trim() : 'Authentic BCS High-Yield Concept.';
+
+        state.flashcards.push({
+          id: 'mcq_fc_' + (q.id || (Date.now() + Math.random().toString(36).substr(2, 4))),
+          front: qText,
+          back: `✓ Correct Answer: ${correctOpt}\n\n💡 Explanation: ${exp}`,
+          category: q.subject || 'General'
+        });
+        addedCount++;
+      }
+    });
+
+    if (addedCount > 0) {
+      renderFlashCategoryOptions();
+      renderFlashcards();
+      saveData();
+      showToast(`Added ${addedCount} flashcards directly from BCS & Govt MCQ Bank!`);
+    } else {
+      showToast('All MCQ questions are already synced to your flashcard deck.');
+    }
+  }
+
+  const syncFlashcardsBtn = document.getElementById('syncFlashcardsBtn');
+  if (syncFlashcardsBtn) {
+    syncFlashcardsBtn.addEventListener('click', syncFlashcardsFromMCQs);
+  }
 
   flashFilterSel.addEventListener('change', renderFlashcards);
 
-  // ===== Exam mode =====
+  // ===== Interactive Flashcard Exam Mode =====
   const examOverlay = document.getElementById('examOverlay');
   let examState = null;
 
@@ -1783,7 +1925,10 @@
   document.getElementById('startExamBtn').addEventListener('click', () => {
     const filter = flashFilterSel.value || 'all';
     const pool = filter === 'all' ? state.flashcards : state.flashcards.filter(f => f.category === filter);
-    if (!pool.length) { return; }
+    if (!pool.length) {
+      showToast('No flashcards found! Click "Sync from MCQs" to instantly load cards.', true);
+      return;
+    }
     examState = { cards: shuffle(pool), idx: 0, correct: 0, wrong: 0, flipped: false, finished: false, userAnswer: '' };
     renderExam();
     examOverlay.style.display = 'flex';
@@ -1795,15 +1940,17 @@
       const total = examState.correct + examState.wrong;
       const pct = total ? Math.round((examState.correct / total) * 100) : 0;
       examOverlay.innerHTML = `
-        <div class="exam-overlay">
-          <button class="theme-toggle exam-close" id="examCloseBtn" title="বন্ধ করো">✕</button>
-          <div class="exam-summary">
-            <h3>${pct >= 70 ? '🎉' : '💪'} এক্সাম শেষ!</h3>
-            <p>${toBnDigits(examState.correct)}টা সঠিক, ${toBnDigits(examState.wrong)}টা ভুল — মোট ${toBnDigits(total)}টার মধ্যে ${pct}%</p>
-            <div class="quote-actions">
-              <button class="pill solid" id="examRestartBtn">আবার শুরু করো</button>
-              <button class="pill" id="examExitBtn">বন্ধ করো</button>
-            </div>
+        <div class="exam-modal-card glass" style="text-align:center;">
+          <button class="icon-btn exam-close" id="examCloseBtn" title="Exit Exam">${ICON.x}</button>
+          <div class="exam-result-icon">${ICON.star}</div>
+          <h2 style="font-size:24px; font-weight:800; margin:0 0 6px;">Flashcard Exam Completed!</h2>
+          <div style="font-size:36px; font-weight:800; color:var(--accent1); margin:10px 0;">${pct}%</div>
+          <p style="color:var(--text-soft); font-size:14px; margin-bottom:24px;">
+            ${examState.correct} Correct &nbsp;•&nbsp; ${examState.wrong} Needs Review &nbsp;•&nbsp; Total ${total} Cards
+          </p>
+          <div class="exam-actions" style="justify-content:center;">
+            <button class="pill solid" id="examRestartBtn">${ICON.rotccw} Retake Exam</button>
+            <button class="pill" id="examExitBtn">${ICON.arrowL} Return to Deck</button>
           </div>
         </div>
       `;
@@ -1814,54 +1961,129 @@
       });
       return;
     }
+
     const card = examState.cards[examState.idx];
+    const totalCards = examState.cards.length;
+    const progressPct = Math.round(((examState.idx + 1) / totalCards) * 100);
 
     if (!examState.flipped) {
       examOverlay.innerHTML = `
-        <div class="exam-overlay">
-          <button class="theme-toggle exam-close" id="examCloseBtn" title="বন্ধ করো">✕</button>
-          <div class="exam-progress">প্রশ্ন ${toBnDigits(examState.idx + 1)} / ${toBnDigits(examState.cards.length)}</div>
-          <div class="exam-score-live">✅ ${toBnDigits(examState.correct)}  ✕ ${toBnDigits(examState.wrong)}</div>
-          <div class="exam-question-box glass">${escapeHtml(card.front)}</div>
-          <input type="text" class="exam-answer-input" id="examAnswerInput" placeholder="তোমার উত্তর লিখো...">
+        <div class="exam-modal-card glass">
+          <div class="exam-card-header">
+            <span class="exam-card-tag">${escapeHtml(card.category || 'General')}</span>
+            <button class="icon-btn exam-close" id="examCloseBtn" title="Exit Exam">${ICON.x}</button>
+          </div>
+
+          <div class="exam-progress-wrap">
+            <div style="display:flex; justify-content:space-between; font-size:12px; color:var(--text-soft); font-weight:600;">
+              <span>Card ${examState.idx + 1} of ${totalCards}</span>
+              <span>${ICON.check} ${examState.correct}  •  ${ICON.x} ${examState.wrong}</span>
+            </div>
+            <div class="exam-progress-bar">
+              <div class="exam-progress-bar-fill" style="width:${progressPct}%"></div>
+            </div>
+          </div>
+
+          <div class="exam-question-box glass">
+            ${escapeHtml(card.front)}
+          </div>
+
+          <input type="text" class="exam-answer-input" id="examAnswerInput" placeholder="Type your answer (or skip directly to answer)..." autocomplete="off">
+
           <div class="exam-actions">
-            <button class="pill solid" id="examSubmitBtn">উত্তর জমা দাও</button>
+            <button class="pill" id="examSkipRevealBtn">${ICON.eye} Show Answer</button>
+            <button class="pill solid" id="examSubmitBtn">Submit &amp; Reveal ${ICON.arrowR}</button>
           </div>
         </div>
       `;
+
       document.getElementById('examCloseBtn').addEventListener('click', closeExam);
       const input = document.getElementById('examAnswerInput');
-      input.focus();
-      const submit = () => { examState.userAnswer = input.value.trim(); examState.flipped = true; renderExam(); };
-      document.getElementById('examSubmitBtn').addEventListener('click', submit);
-      input.addEventListener('keydown', (e) => { if (e.key === 'Enter') submit(); });
+      if (input) input.focus();
+
+      const reveal = () => {
+        examState.userAnswer = input ? input.value.trim() : '';
+        examState.flipped = true;
+        renderExam();
+      };
+
+      document.getElementById('examSubmitBtn').addEventListener('click', reveal);
+      document.getElementById('examSkipRevealBtn').addEventListener('click', reveal);
+      if (input) {
+        input.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') reveal();
+        });
+      }
       return;
     }
 
+    // Back / Revealed Answer State
     examOverlay.innerHTML = `
-      <div class="exam-overlay">
-        <button class="theme-toggle exam-close" id="examCloseBtn" title="বন্ধ করো">✕</button>
-        <div class="exam-progress">প্রশ্ন ${toBnDigits(examState.idx + 1)} / ${toBnDigits(examState.cards.length)}</div>
-        <div class="exam-score-live">✅ ${toBnDigits(examState.correct)}  ✕ ${toBnDigits(examState.wrong)}</div>
-        <div class="exam-answer-box glass">
-          <div style="margin-bottom:12px;"><strong>তোমার উত্তর:</strong><br>${examState.userAnswer ? escapeHtml(examState.userAnswer) : '(ফাঁকা রাখা হয়েছে)'}</div>
-          <div><strong>সঠিক উত্তর:</strong><br>${escapeHtml(card.back)}</div>
+      <div class="exam-modal-card glass">
+        <div class="exam-card-header">
+          <span class="exam-card-tag">${escapeHtml(card.category || 'General')}</span>
+          <button class="icon-btn exam-close" id="examCloseBtn" title="Exit Exam">${ICON.x}</button>
         </div>
+
+        <div class="exam-progress-wrap">
+          <div style="display:flex; justify-content:space-between; font-size:12px; color:var(--text-soft); font-weight:600;">
+            <span>Card ${examState.idx + 1} of ${totalCards}</span>
+            <span>${ICON.check} ${examState.correct}  •  ${ICON.x} ${examState.wrong}</span>
+          </div>
+          <div class="exam-progress-bar">
+            <div class="exam-progress-bar-fill" style="width:${progressPct}%"></div>
+          </div>
+        </div>
+
+        <div class="exam-question-box glass" style="min-height:75px; font-size:16px;">
+          ${escapeHtml(card.front)}
+        </div>
+
+        ${examState.userAnswer ? `
+          <div class="exam-user-recap">
+            <div style="font-size:11px; font-weight:700; text-transform:uppercase; color:var(--text-soft); margin-bottom:2px;">Your Answer:</div>
+            <div style="font-weight:600; color:var(--text);">${escapeHtml(examState.userAnswer)}</div>
+          </div>
+        ` : ''}
+
+        <div class="exam-verified-answer">
+          <div class="exam-verified-label">Verified Right Answer &amp; Explanation:</div>
+          <div style="white-space:pre-wrap; font-weight:500;">${escapeHtml(card.back)}</div>
+        </div>
+
         <div class="exam-actions">
-          <button class="pill danger" id="examWrongBtn">✕ ভুল হয়েছে</button>
-          <button class="pill solid" id="examCorrectBtn">✓ সঠিক হয়েছে</button>
+          <button class="pill danger btn-exam-rate" id="examWrongBtn">${ICON.x} Needs Review</button>
+          <button class="pill solid btn-exam-rate btn-rate-correct" id="examCorrectBtn">${ICON.check} Got It Right!</button>
         </div>
       </div>
     `;
+
     document.getElementById('examCloseBtn').addEventListener('click', closeExam);
     document.getElementById('examCorrectBtn').addEventListener('click', () => advanceExam(true));
     document.getElementById('examWrongBtn').addEventListener('click', () => advanceExam(false));
+
+    // Keyboard shortcuts for snappy exam flow (1 = Got it, 2 = Needs review)
+    const keyHandler = (e) => {
+      if (e.key === '1' || e.key === 'Enter') {
+        window.removeEventListener('keydown', keyHandler);
+        advanceExam(true);
+      } else if (e.key === '2') {
+        window.removeEventListener('keydown', keyHandler);
+        advanceExam(false);
+      }
+    };
+    window.addEventListener('keydown', keyHandler, { once: true });
   }
 
   function advanceExam(isCorrect) {
     if (isCorrect) examState.correct++; else examState.wrong++;
-    if (examState.idx + 1 >= examState.cards.length) { examState.finished = true; }
-    else { examState.idx++; examState.flipped = false; examState.userAnswer = ''; }
+    if (examState.idx + 1 >= examState.cards.length) {
+      examState.finished = true;
+    } else {
+      examState.idx++;
+      examState.flipped = false;
+      examState.userAnswer = '';
+    }
     renderExam();
   }
 
@@ -1871,7 +2093,7 @@
     examState = null;
   }
 
-  // ===== Auto Backup File Connect Listener =====
+    // ===== Auto Backup File Connect Listener =====
   const connectBtn = document.getElementById('connectAutoSyncBtn');
   if (connectBtn) {
     connectBtn.addEventListener('click', connectAutoSyncFile);
@@ -1879,7 +2101,15 @@
 
   // ===== JSON export / import =====
   document.getElementById('exportDataBtn').addEventListener('click', async () => {
-    const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+    const exportBundle = {
+      ...state,
+      exams: exams || [],
+      mistakes: mistakes || [],
+      customMCQQuestions: (typeof getStoredQuestions === "function" ? getStoredQuestions() : []),
+      mcqProgress: (typeof userMCQProgress !== "undefined" ? userMCQProgress : null),
+      todayBreakMinutes: getTodayBreakMinutes()
+    };
+    const blob = new Blob([JSON.stringify(exportBundle, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
@@ -1887,7 +2117,7 @@
     document.body.appendChild(a); a.click(); a.remove();
     URL.revokeObjectURL(url);
     await writeToAutoBackupFile();
-    showToast('ডেটা ফাইল সফলভাবে ডাউনলোড করা হয়েছে! ⬇️');
+    showToast('Data exported successfully as JSON!');
   });
 
   document.getElementById('importDataInput').addEventListener('change', (e) => {
@@ -1897,7 +2127,7 @@
     reader.onload = async (ev) => {
       try {
         const imported = JSON.parse(ev.target.result);
-        const ok = window.confirm('এই ফাইলের ডেটা দিয়ে বর্তমান সব ডেটা প্রতিস্থাপিত হবে। এগিয়ে যাবে?');
+        const ok = window.confirm('This will replace all current data with the backup file data. Proceed?');
         if (!ok) { e.target.value = ''; return; }
         state = {
           routine: Array.isArray(imported.routine) && imported.routine.length ? migrateRoutine(imported.routine) : buildDefaultRoutine(dateKey(Date.now())),
@@ -1914,12 +2144,26 @@
           quoteCarouselEnabled: typeof imported.quoteCarouselEnabled === 'boolean' ? imported.quoteCarouselEnabled : true,
           quoteCarouselInterval: typeof imported.quoteCarouselInterval === 'number' ? imported.quoteCarouselInterval : 6
         };
+        if (Array.isArray(imported.exams)) {
+          exams = imported.exams;
+          saveExams();
+        }
+        if (Array.isArray(imported.customMCQQuestions) && typeof saveStoredQuestions === "function") {
+          saveStoredQuestions(imported.customMCQQuestions);
+        }
+        if (imported.mcqProgress && typeof saveMCQProgress === "function") {
+          userMCQProgress = imported.mcqProgress;
+          saveMCQProgress();
+        }
+        if (typeof imported.todayBreakMinutes === "number") {
+          localStorage.setItem('jobprep_break_minutes_today', String(imported.todayBreakMinutes));
+        }
         await storageAdapter.set(STORAGE_KEY, JSON.stringify(state));
         await writeToAutoBackupFile();
-        showToast('ডেটা সফলভাবে ইমপোর্ট করা হয়েছে! ⬆️');
+        showToast('Backup restored successfully!');
         setTimeout(() => location.reload(), 800);
       } catch (err) {
-        showToast('ফাইলটি পড়া যায়নি — এটি সঠিক JSON ব্যাকআপ ফাইল কিনা যাচাই করো।', true);
+        showToast('Invalid JSON backup file', true);
       } finally {
         e.target.value = '';
       }
@@ -1927,22 +2171,71 @@
     reader.readAsText(file);
   });
 
+  // Export JSON Shortcut Button (Settings)
+  const exportSettingsBtn = document.getElementById('exportDataBtnSettings');
+  if (exportSettingsBtn) {
+    exportSettingsBtn.addEventListener('click', () => {
+      document.getElementById('exportDataBtn').click();
+    });
+  }
+
+  // Import JSON Shortcut Button (Settings)
+  const importSettingsBtn = document.getElementById('importDataBtnSettings');
+  if (importSettingsBtn) {
+    importSettingsBtn.addEventListener('click', () => {
+      document.getElementById('importDataInput').click();
+    });
+  }
+
   // ===== Reset all data =====
   document.getElementById('resetAllBtn').addEventListener('click', async () => {
-    const ok = window.confirm('তুমি কি নিশ্চিত? রুটিন, নোট, সিলেবাস, ফ্ল্যাশকার্ড, ট্র্যাকার — সব ডেটা মুছে যাবে। এই কাজটি ফেরানো যাবে না।');
+    const ok = window.confirm('Are you sure? All routines, notes, syllabus, flashcards, and tracker sessions will be deleted. This cannot be undone.');
     if (!ok) return;
     const keepTheme = state.theme;
     state = {
       routine: buildDefaultRoutine(dateKey(Date.now())), notes: [], customQuotes: [], quoteIdx: 0, quoteSource: 'all', theme: keepTheme,
       sessions: [], activeSession: null, dailyTargetMinutes: 240,
       syllabus: [], flashcards: [],
-      quoteCarouselEnabled: true, quoteCarouselInterval: 6
+      quoteCarouselEnabled: true, quoteCarouselInterval: 6,
+      deletedSubjects: [], customSubjects: []
     };
+    try {
+      localStorage.removeItem(EXAMS_KEY);
+      localStorage.removeItem(MISTAKES_KEY);
+      localStorage.removeItem('jobprep_break_minutes_today');
+      localStorage.removeItem('custom_bcs_questions_v3');
+      localStorage.removeItem('jobprep_custom_quiz_questions');
+    } catch (e) { }
     await storageAdapter.set(STORAGE_KEY, JSON.stringify(state));
     await writeToAutoBackupFile();
-    showToast('সব ডেটা রিসেট করা হয়েছে।');
+    showToast('All data has been reset.');
     setTimeout(() => location.reload(), 800);
   });
+
+  // ===== Add Custom Subject Button (Settings) =====
+  const addSubjectBtn = document.getElementById('addSubjectBtn');
+  const newSubjectInput = document.getElementById('newSubjectInput');
+  if (addSubjectBtn && newSubjectInput) {
+    addSubjectBtn.addEventListener('click', () => {
+      const name = newSubjectInput.value.trim();
+      if (!name) { newSubjectInput.focus(); return; }
+      // Remove from deletedSubjects if it was previously deleted
+      state.deletedSubjects = (state.deletedSubjects || []).filter(d => d !== name);
+      // Add to a custom subjects list so it persists even after sessions are cleared
+      if (!Array.isArray(state.customSubjects)) state.customSubjects = [];
+      if (!state.customSubjects.includes(name)) {
+        state.customSubjects.push(name);
+      }
+      saveData();
+      renderSubjectSelect();
+      renderSubjectManager();
+      newSubjectInput.value = '';
+      showToast(`"${name}" added to subject list.`);
+    });
+    newSubjectInput.addEventListener('keydown', e => {
+      if (e.key === 'Enter') addSubjectBtn.click();
+    });
+  }
 
   // ==========================================
   // EXAM COUNTDOWN ENGINE
@@ -1960,8 +2253,8 @@
         const bcs47 = new Date(now.getFullYear(), now.getMonth() + 2, 15, 10, 0);
         const bankExam = new Date(now.getFullYear(), now.getMonth() + 1, 5, 9, 30);
         exams = [
-          { id: 1, name: '৪৭তম বিসিএস প্রিলিমিনারি', category: 'বিসিএস', targetDate: bcs47.toISOString() },
-          { id: 2, name: 'কম্বাইন্ড ব্যাংক সিনিয়র অফিসার', category: 'ব্যাংক', targetDate: bankExam.toISOString() }
+          { id: 1, name: '47th BCS Preliminary Exam', category: 'BCS', targetDate: bcs47.toISOString() },
+          { id: 2, name: 'Combined Bank Senior Officer', category: 'Banking', targetDate: bankExam.toISOString() }
         ];
         saveExams();
       }
@@ -1969,20 +2262,22 @@
   }
 
   function saveExams() {
-    try { localStorage.setItem(EXAMS_KEY, JSON.stringify(exams)); } catch (e) { }
+    try {
+      localStorage.setItem(EXAMS_KEY, JSON.stringify(exams));
+    } catch (e) { }
   }
 
   function renderExams() {
     const grid = document.getElementById('countdownGrid');
     if (!grid) return;
     grid.innerHTML = '';
+
     if (!exams.length) {
-      grid.innerHTML = '<div class="empty-state">কোনো পরীক্ষার তারিখ সেট করা নেই। উপরে লিখে নতুন পরীক্ষার টার্গেট যোগ করুন।</div>';
+      grid.innerHTML = '<div class="empty-state">No active exam countdowns. Click "+ New Exam Target" above to track an upcoming test!</div>';
       return;
     }
 
-    const now = new Date().getTime();
-
+    const now = Date.now();
     exams.forEach(ex => {
       const targetTime = new Date(ex.targetDate).getTime();
       const diff = targetTime - now;
@@ -2002,19 +2297,19 @@
       const card = document.createElement('div');
       card.className = 'countdown-card glass';
       card.innerHTML = `
-        <button class="countdown-del-btn" data-id="${ex.id}" title="মুছুন">✕</button>
+        <button class="countdown-del-btn" data-id="${ex.id}" title="Delete">${ICON.trash}</button>
         <div class="countdown-head">
           <h3>${escapeHtml(ex.name)}</h3>
           <span class="countdown-tag">${escapeHtml(ex.category || 'পরীক্ষা')}</span>
         </div>
         ${isExpired ? `
-          <div style="padding: 16px 0; text-align:center; color: var(--accent3); font-weight:700;">আজ পরীক্ষা / সময় অতিক্রান্ত!</div>
+          <div style="padding: 16px 0; text-align:center; color: var(--accent3); font-weight:700;">Exam Date Passed / Target Reached!</div>
         ` : `
           <div class="countdown-timer-row">
-            <div class="time-box"><span class="time-num">${toBnDigits(days)}</span><span class="time-lbl">দিন</span></div>
-            <div class="time-box"><span class="time-num">${toBnDigits(hours)}</span><span class="time-lbl">ঘণ্টা</span></div>
-            <div class="time-box"><span class="time-num">${toBnDigits(mins)}</span><span class="time-lbl">মিনিট</span></div>
-            <div class="time-box"><span class="time-num">${toBnDigits(secs)}</span><span class="time-lbl">সেকেন্ড</span></div>
+            <div class="time-box"><span class="time-num">${toBnDigits(days)}</span><span class="time-lbl">days</span></div>
+            <div class="time-box"><span class="time-num">${toBnDigits(hours)}</span><span class="time-lbl">h</span></div>
+            <div class="time-box"><span class="time-num">${toBnDigits(mins)}</span><span class="time-lbl">m</span></div>
+            <div class="time-box"><span class="time-num">${toBnDigits(secs)}</span><span class="time-lbl">s</span></div>
           </div>
         `}
       `;
@@ -2023,12 +2318,16 @@
   }
 
   document.addEventListener('click', (e) => {
-    if (e.target.classList.contains('countdown-del-btn')) {
-      const id = e.target.dataset.id;
+    const delBtn = e.target.closest('.countdown-del-btn');
+    if (delBtn) {
+      const id = delBtn.dataset.id;
+      const ex = exams.find(x => String(x.id) === String(id));
+      const exName = ex && ex.name ? `"${ex.name}"` : 'this exam target';
+      if (!window.confirm(`Are you sure you want to delete exam target ${exName}?`)) return;
       exams = exams.filter(ex => String(ex.id) !== String(id));
       saveExams();
       renderExams();
-      showToast('পরীক্ষার টার্গেট মুছে ফেলা হয়েছে');
+      showToast('Exam target deleted');
     }
   });
 
@@ -2038,7 +2337,7 @@
     toggleExamBtn.addEventListener('click', () => {
       const isOpen = examWrap.style.display !== 'none';
       examWrap.style.display = isOpen ? 'none' : 'block';
-      toggleExamBtn.innerHTML = isOpen ? '<span class="btn-icon">+</span> নতুন পরীক্ষার টার্গেট যোগ করুন' : '✕ ফর্ম বন্ধ করুন';
+      toggleExamBtn.innerHTML = isOpen ? `${ICON.plus} New Exam Target` : `${ICON.x} Close Form`;
       toggleExamBtn.classList.toggle('active-open', !isOpen);
     });
   }
@@ -2054,7 +2353,7 @@
       const dateVal = dateEl.value;
 
       if (!name || !dateVal) {
-        showToast('দয়া করে পরীক্ষার নাম ও তারিখ নির্বাচন করুন', true);
+        showToast('Please enter both exam name and target date.', true);
         return;
       }
 
@@ -2071,10 +2370,10 @@
 
       if (examWrap && toggleExamBtn) {
         examWrap.style.display = 'none';
-        toggleExamBtn.innerHTML = '<span class="btn-icon">+</span> নতুন পরীক্ষার টার্গেট যোগ করুন';
+        toggleExamBtn.innerHTML = '<span class="btn-icon">+</span> New Exam Target';
         toggleExamBtn.classList.remove('active-open');
       }
-      showToast('নতুন পরীক্ষার কাউন্টডাউন টার্গেট যোগ হয়েছে!');
+      showToast('New exam countdown target added!');
     });
   }
 
@@ -2130,11 +2429,11 @@
 
     const sH = Math.floor(studyMinutes / 60);
     const sM = studyMinutes % 60;
-    studyVal.textContent = toBnDigits(`${sH} ঘণ্টা ${sM} মিনিট`);
-    breakVal.textContent = toBnDigits(`${breakMinutes} মিনিট`);
+    studyVal.textContent = `${sH}h ${sM}m`;
+    breakVal.textContent = `${breakMinutes}m`;
 
     const totH = (totalActivityMinutes / 60).toFixed(1);
-    ratioVal.textContent = toBnDigits(`${pct}% (${totH} ঘণ্টা / ২৪ ঘণ্টা)`);
+    ratioVal.textContent = `${pct}% (${totH}h / 24h)`;
   }
 
   const durationSelector = document.getElementById('timerDurationSelector');
@@ -2144,7 +2443,7 @@
       if (!chip) return;
 
       if (state.activeSession || window.isCustomCountdownActive) {
-        showToast('সেশন চালুরত অবস্থায় সময় পরিবর্তন করা যাবে না। সেশন শেষ করুন।', true);
+        showToast('Cannot change duration while a session is active. Finish current session first.', true);
         return;
       }
 
@@ -2156,20 +2455,20 @@
 
       const display = document.getElementById('timerDisplay');
       const sub = document.getElementById('timerSub');
-      const subject = currentSubjectValue() || 'সাধারণ';
+      const subject = currentSubjectValue() || 'General';
 
       if (selectedDuration === 0) {
         if (display) display.textContent = '00:00:00';
-        if (sub) sub.innerHTML = `<strong>${escapeHtml(subject)}</strong> — স্টপওয়াচ মোডে পড়া চালু করুন`;
+        if (sub) sub.innerHTML = `<strong>${escapeHtml(subject)}</strong> — Stopwatch mode active`;
       } else if (selectedDuration === 5) {
         customCountdownSecs = 5 * 60;
         if (display) display.textContent = '05:00';
-        if (sub) sub.innerHTML = `<strong>৫ মিনিটের</strong> রিফ্রেশমেন্ট বিরতি`;
+        if (sub) sub.innerHTML = `<strong>5-minute</strong> refreshment break`;
       } else {
         customCountdownSecs = selectedDuration * 60;
         const mStr = String(selectedDuration).padStart(2, '0');
         if (display) display.textContent = `${mStr}:00`;
-        if (sub) sub.innerHTML = `<strong>${escapeHtml(subject)}</strong> — ${selectedDuration} মিনিটের ফোকাস সেশন`;
+        if (sub) sub.innerHTML = `<strong>${escapeHtml(subject)}</strong> — ${selectedDuration} min focus session`;
       }
     });
   }
@@ -2183,10 +2482,10 @@
     const m = Math.floor(remSeconds / 60);
     const s = remSeconds % 60;
     const textEl = document.getElementById('cancelModalBodyText');
-    const subject = currentSubjectValue() || 'সাধারণ';
+    const subject = currentSubjectValue() || 'General';
 
     if (textEl) {
-      textEl.innerHTML = `<strong>${escapeHtml(subject)}</strong> পড়ার <strong>${selectedDuration} মিনিটের</strong> ফোকাস সেশনটি সম্পন্ন হতে এখনও <strong>${toBnDigits(m)} মিনিট ${toBnDigits(s)} সেকেন্ড</strong> বাকি আছে!<br><br>এখনই উঠে গেলে এই সেশনের পড়া দৈনিক টার্গেটে যুক্ত হবে না।`;
+      textEl.innerHTML = `Your <strong>${escapeHtml(subject)}</strong> focus session of <strong>${selectedDuration} minutes</strong> has <strong>${m}m ${s}s</strong> remaining!<br><br>If you exit now, this session will not count toward your daily study target.`;
     }
     cancelModal.classList.add('open');
   }
@@ -2204,6 +2503,17 @@
   }
 
   function startCustomCountdown() {
+    if (selectedDuration !== 5) {
+      const subj = currentSubjectValue();
+      if (!subj) {
+        if (sessionCustomInput) {
+          sessionCustomInput.style.display = 'block';
+          sessionCustomInput.focus();
+        }
+        showToast('Please enter or select a study subject', true);
+        return;
+      }
+    }
     window.isCustomCountdownActive = true;
     const display = document.getElementById('timerDisplay');
     const startBtn = document.getElementById('startBtn');
@@ -2219,7 +2529,7 @@
         customCountdownSecs--;
         const m = String(Math.floor(customCountdownSecs / 60)).padStart(2, '0');
         const s = String(customCountdownSecs % 60).padStart(2, '0');
-        if (display) display.textContent = toBnDigits(`${m}:${s}`);
+        if (display) display.textContent = `${m}:${s}`;
       } else {
         clearInterval(customCountdownInterval);
         stopCustomCountdown(true);
@@ -2240,14 +2550,14 @@
     if (stopBtn) stopBtn.style.display = 'none';
     if (orb) orb.classList.remove('active');
 
-    const subject = currentSubjectValue() || 'সাধারণ';
+    const subject = currentSubjectValue() || 'General';
 
     if (selectedDuration === 5) {
       if (isCompleted) {
         addTodayBreakMinutes(5);
-        showToast('৫ মিনিটের রিফ্রেশমেন্ট বিরতি সম্পন্ন হয়েছে!');
+        showToast('5-minute refreshment break completed!');
       } else {
-        showToast('বিরতি বাতিল করা হয়েছে');
+        showToast('Break session cancelled');
       }
       customCountdownSecs = 5 * 60;
       if (display) display.textContent = '05:00';
@@ -2262,9 +2572,9 @@
         });
         saveData();
         renderTrackerAll();
-        showToast(`${selectedDuration} মিনিটের ${subject} পড়ার সেশন সম্পন্ন হয়েছে এবং টার্গেটে যুক্ত হয়েছে!`);
+        showToast(`${selectedDuration}m ${subject} study session completed and added to daily goal!`);
       } else {
-        showToast('সেশন বাতিল করা হয়েছে — পড়া দৈনিক টার্গেটে যুক্ত হয়নি', true);
+        showToast('Session cancelled — not counted towards daily goal', true);
       }
       customCountdownSecs = selectedDuration * 60;
       const mStr = String(selectedDuration).padStart(2, '0');
@@ -2291,83 +2601,1516 @@
   }, true);
 
   // ==========================================
-  // MOCK QUIZ & MISTAKE BANK ENGINE
+  // BCS & GOVT JOB MCQ QUESTION SYSTEM (WITH AUTO-NEXT, MASTERY & REMEDIATION)
   // ==========================================
-  const MISTAKES_KEY = 'jobprep_mistakes_list';
-  const sampleQuestions = [
-    {
-      id: 101,
-      q: 'কোনটি রবীন্দ্রনাথ ঠাকুরের রচনা নয়?',
-      options: ['শেষের কবিতা', 'রক্তকরবী', 'পথের দাবী', 'চোখের বালি'],
-      correct: 2,
-      explain: 'পথের দাবী শরৎচন্দ্র চট্টোপাধ্যায়ের একটি বিখ্যাত রাজনৈতিক উপন্যাস।'
-    },
-    {
-      id: 102,
-      q: 'Which one is the correct spelling?',
-      options: ['Bureaucracy', 'Beurocracy', 'Bureacracy', 'Beuracracy'],
-      correct: 0,
-      explain: 'Correct spelling is Bureaucracy (আমলাতন্ত্র).'
-    },
-    {
-      id: 103,
-      q: 'বাংলাদেশের সংবিধানের প্রথম সংশোধনী কবে গৃহীত হয়?',
-      options: ['১৯৭৩ সালের ১৫ জুলাই', '১৯৭২ সালের ১৬ ডিসেম্বর', '১৯৭৪ সালের ১৮ মে', '১৯৭৫ সালের ১৫ আগস্ট'],
-      correct: 0,
-      explain: '১৯৭৩ সালের ১৫ জুলাই বাংলাদেশের সংবিধানের প্রথম সংশোধনী পাস হয়।'
-    },
-    {
-      id: 104,
-      q: 'log₂8 এর মান কত?',
-      options: ['৩', '২', '৪', '৮'],
-      correct: 0,
-      explain: 'log₂8 = log₂ (2³) = 3 log₂2 = 3.'
-    },
-    {
-      id: 105,
-      q: 'পৃথিবীর সবচেয়ে বড় মহাসাগর কোনটি?',
-      options: ['আটলান্টিক মহাসাগর', 'ভারতীয় মহাসাগর', 'প্রশান্ত মহাসাগর', 'উত্তর মহাসাগর'],
-      correct: 2,
-      explain: 'প্রশান্ত মহাসাগর পৃথিবীর সবচেয়ে বড় মহাসাগর।'
-    },
-    {
-      id: 106,
-      q: 'কম্পিউটারে তথ্যের একক হিসেবে কোনটি ব্যবহৃত হয়?',
-      options: ['বাইট', 'মিটার', 'কিলোওয়াট', 'গ্রাম'],
-      correct: 0,
-      explain: 'কম্পিউটার সিস্টেমে তথ্যের একক হিসেবে বাইট ব্যবহৃত হয়।'
-    },
-    {
-      id: 107,
-      q: 'বাংলাদেশের স্বাধীনতা দিবস কোন তারিখ?',
-      options: ['১৬ ডিসেম্বর', '২৬ মার্চ', '২১ ফেব্রুয়ারি', '১০ এপ্রিল'],
-      correct: 1,
-      explain: 'বাংলাদেশের স্বাধীনতা দিবস ২৬ মার্চ।'
-    },
-    {
-      id: 108,
-      q: '৫ + ৭ × 2 = ?',
-      options: ['১২', '১৭', '২৪', '১৯'],
-      correct: 3,
-      explain: '৭ × 2 = ১৪, তারপর ৫ যোগ করলে ১৯ হয়।'
-    },
-    {
-      id: 109,
-      q: 'প্রথম বাংলাদেশী নোবেল বিজয়ী কে?',
-      options: ['মুহাম্মদ ইউনূস', 'অমর্ত্য সেন', 'সৈয়দ আবুল আজাদ', 'আবদুল বারী'],
-      correct: 0,
-      explain: 'মুহাম্মদ ইউনূস ২০০৬ সালে নোবেল শান্তি পুরস্কার পান।'
-    },
-    {
-      id: 110,
-      q: 'একটি সেকেন্ডে কত মিলিসেকেন্ড?',
-      options: ['১০০০', '১০০', '১০', '১'],
-      correct: 0,
-      explain: 'এক সেকেন্ডে ১০০০ মিলিসেকেন্ড থাকে।'
-    }
-  ];
+  const MISTAKES_KEY = "jobprep_mistakes_list";
+  const MCQ_CUSTOM_KEY = "custom_bcs_questions_v3";
+  const MCQ_PROGRESS_KEY = "jobprep_mcq_progress_v2";
 
-  let currentQuizIdx = 0;
+  const defaultQuestions = [
+  {
+    "id": 1,
+    "subject": "বাংলা সাহিত্য",
+    "question": "‘চর্যাপদ’ মূলত কোন ছন্দে রচিত?",
+    "options": [
+      "অক্ষরবৃত্ত",
+      "মাত্রাবৃত্ত",
+      "স্বরবৃত্ত",
+      "গদ্যছন্দ"
+    ],
+    "correct": 1,
+    "explanation": "চর্যাপদ মূলত মাত্রাবৃত্ত (পাদাকুলক) ছন্দে রচিত।"
+  },
+  {
+    "id": 2,
+    "subject": "বাংলা সাহিত্য",
+    "question": "বাংলা সাহিত্যের প্রথম ‘সার্থক’ উপন্যাস কোনটি?",
+    "options": [
+      "আলালের ঘরের দুলাল",
+      "দুর্গেশনন্দিনী",
+      "কপালকুণ্ডলা",
+      "ফুলমণি ও করুণার বৃত্তান্ত"
+    ],
+    "correct": 1,
+    "explanation": "বঙ্কিমচন্দ্রের 'দুর্গেশনন্দিনী' (১৮৬৫) বাংলা সাহিত্যের প্রথম সার্থক উপন্যাস।"
+  },
+  {
+    "id": 3,
+    "subject": "বাংলা সাহিত্য",
+    "question": "রবীন্দ্রনাথ ঠাকুর তাঁর কোন রচনাটি কাজী নজরুল ইসলামকে উৎসর্গ করেছিলেন?",
+    "options": [
+      "কালের যাত্রা",
+      "রক্তকরবী",
+      "বসন্ত",
+      "তাসের দেশ"
+    ],
+    "correct": 2,
+    "explanation": "রবীন্দ্রনাথ নজরুলকে 'বসন্ত' নাটক উৎসর্গ করেন এবং নজরুল রবীন্দ্রনাথকে 'সঞ্চিতা' কাব্যগ্রন্থ উৎসর্গ করেন।"
+  },
+  {
+    "id": 4,
+    "subject": "বাংলা সাহিত্য",
+    "question": "মাইকেল মধুসূদন দত্তের ‘মেঘনাদবধ কাব্য’ কোন ছন্দে রচিত?",
+    "options": [
+      "পয়ার",
+      "অমিত্রাক্ষর",
+      "মাত্রাবৃত্ত",
+      "স্বরবৃত্ত"
+    ],
+    "correct": 1,
+    "explanation": "১৮৬১ সালে প্রকাশিত মেঘনাদবধ কাব্য অমিত্রাক্ষর ছন্দে রচিত বাংলা সাহিত্যের প্রথম সার্থক মহাকাব্য।"
+  },
+  {
+    "id": 5,
+    "subject": "বাংলা ব্যাকরণ",
+    "question": "নিচের কোনটি ‘সূর্য’ শব্দের সমার্থক শব্দ?",
+    "options": [
+      "সুধাংশু",
+      "আদিত্য",
+      "বিধু",
+      "শশাঙ্ক"
+    ],
+    "correct": 1,
+    "explanation": "সূর্যের সমার্থক হলো আদিত্য, তপন, ভানু। সুধাংশু ও শশাঙ্ক চাঁদের সমার্থক।"
+  },
+  {
+    "id": 6,
+    "subject": "বাংলা ব্যাকরণ",
+    "question": "‘হাতাহাতি’ কোন সমাসের উদাহরণ?",
+    "options": [
+      "ব্যতিহার বহুব্রীহি",
+      "দ্বন্দ্ব সমাস",
+      "মধ্যপদলোপী কর্মধারয়",
+      "দ্বিগু সমাস"
+    ],
+    "correct": 0,
+    "explanation": "হাতে হাতে যে যুদ্ধ = হাতাহাতি (ক্রিয়ার পারস্পরিকতায় ব্যতিহার বহুব্রীহি)।"
+  },
+  {
+    "id": 7,
+    "subject": "বাংলা ব্যাকরণ",
+    "question": "নিচের কোন বানানটি শুদ্ধ?",
+    "options": [
+      "সমিচীন",
+      "সমীচিন",
+      "সমীচীন",
+      "সমিচিন"
+    ],
+    "correct": 2,
+    "explanation": "‘সমীচীন’ বানানে দুটিই দীর্ঘ-ঈ কার (স-ম-ী-চ-ী-ন)।"
+  },
+  {
+    "id": 8,
+    "subject": "বাংলা ব্যাকরণ",
+    "question": "‘পাপে বিরত হও’—বাক্যে ‘পাপে’ শব্দটি কোন কারকে কোন বিভক্তি?",
+    "options": [
+      "কর্মে ৭মী",
+      "অপাদানে ৭মী",
+      "করণে ৭মী",
+      "অধিকরণে ৭মী"
+    ],
+    "correct": 1,
+    "explanation": "যা থেকে বিরত হওয়া বোঝায় তা অপাদান কারক। পাপ + এ = অপাদানে ৭মী।"
+  },
+  {
+    "id": 9,
+    "subject": "বাংলা ব্যাকরণ",
+    "question": "‘গবেষণা’ শব্দের সঠিক সন্ধি বিচ্ছেদ কোনটি?",
+    "options": [
+      "গো + এষণা",
+      "গব + এষণা",
+      "গো + ষণা",
+      "গাবে + এষণা"
+    ],
+    "correct": 0,
+    "explanation": "গো + এষণা = গবেষণা। এর আদি অর্থ ছিল গরু খোঁজা, আধুনিক অর্থ তত্ত্বানুসন্ধান।"
+  },
+  {
+    "id": 10,
+    "subject": "বাংলা ব্যাকরণ",
+    "question": "‘স্কুল > ইস্কুল’—এটি কোন ধরনের ধ্বনি পরিবর্তনের উদাহরণ?",
+    "options": [
+      "আদি স্বরাগম",
+      "মধ্য স্বরাগম",
+      "অন্ত্য স্বরাগম",
+      "অপিনিহিতি"
+    ],
+    "correct": 0,
+    "explanation": "শব্দের শুরুতে স্বরধ্বনি এলে তাকে আদি স্বরাগম বলে।"
+  },
+  {
+    "id": 11,
+    "subject": "English",
+    "question": "Fill in the blank: 'He is devoid _____ common sense.'",
+    "options": [
+      "to",
+      "from",
+      "of",
+      "with"
+    ],
+    "correct": 2,
+    "explanation": "'Devoid of' is an appropriate preposition meaning lacking or empty of something."
+  },
+  {
+    "id": 12,
+    "subject": "English",
+    "question": "What is the meaning of the idiom 'A bolt from the blue'?",
+    "options": [
+      "A pleasant surprise",
+      "An unexpected calamity",
+      "A dark rainy day",
+      "An expected danger"
+    ],
+    "correct": 1,
+    "explanation": "'A bolt from the blue' means a sudden, unexpected and unwelcome event or disaster."
+  },
+  {
+    "id": 13,
+    "subject": "English",
+    "question": "Fill in the blank: 'Neither the teacher nor the students _____ present yesterday.'",
+    "options": [
+      "was",
+      "were",
+      "is",
+      "are"
+    ],
+    "correct": 1,
+    "explanation": "With neither...nor, the verb agrees with the closer subject ('students' - plural past: were)."
+  },
+  {
+    "id": 14,
+    "subject": "English",
+    "question": "Fill in the blank: 'Hardly had we reached the station _____ the train left.'",
+    "options": [
+      "than",
+      "when",
+      "then",
+      "after"
+    ],
+    "correct": 1,
+    "explanation": "Correlative pair: Hardly had ... when / No sooner had ... than."
+  },
+  {
+    "id": 15,
+    "subject": "English",
+    "question": "Choose the correct option: 'It is high time we _____ our bad habits.'",
+    "options": [
+      "change",
+      "changed",
+      "will change",
+      "have changed"
+    ],
+    "correct": 1,
+    "explanation": "After 'It is high time' followed by a subject, the verb must be in past simple (V2: changed)."
+  },
+  {
+    "id": 16,
+    "subject": "English",
+    "question": "Which of the following is the correct spelling?",
+    "options": [
+      "Questionnaire",
+      "Questionaire",
+      "Questionare",
+      "Questionnair"
+    ],
+    "correct": 0,
+    "explanation": "Questionnaire has double 'n' and ends in 'aire' (Question + n + aire)."
+  },
+  {
+    "id": 17,
+    "subject": "English",
+    "question": "Complete the conditional: 'If he had studied attentively, he _____ GPA 5.00.'",
+    "options": [
+      "will get",
+      "would get",
+      "would have got",
+      "had got"
+    ],
+    "correct": 2,
+    "explanation": "3rd Conditional rule: If + had + V3 ---> would have / could have + V3."
+  },
+  {
+    "id": 18,
+    "subject": "English",
+    "question": "Fill in the blank: 'He is senior _____ me in service.'",
+    "options": [
+      "than",
+      "to",
+      "from",
+      "of"
+    ],
+    "correct": 1,
+    "explanation": "Latin comparatives (senior, junior, superior, inferior, prior) take 'to', never 'than'."
+  },
+  {
+    "id": 19,
+    "subject": "English",
+    "question": "In 'Look at the flying bird', the word 'flying' is a/an:",
+    "options": [
+      "Gerund",
+      "Participle",
+      "Verbal noun",
+      "Infinitive"
+    ],
+    "correct": 1,
+    "explanation": "A participle acts as an adjective modifying a noun ('bird'). A gerund acts as a noun."
+  },
+  {
+    "id": 20,
+    "subject": "English",
+    "question": "What is the antonym of the word 'BENEVOLENT'?",
+    "options": [
+      "Kind",
+      "Malevolent",
+      "Generous",
+      "Friendly"
+    ],
+    "correct": 1,
+    "explanation": "Benevolent means kind and helpful; Malevolent means having or showing ill will/evil."
+  },
+  {
+    "id": 21,
+    "subject": "গণিত",
+    "question": "x + 1/x = 3 হলে, x² + 1/x² এর মান কত?",
+    "options": [
+      "৫",
+      "৭",
+      "৯",
+      "১১"
+    ],
+    "correct": 1,
+    "explanation": "x² + 1/x² = (x + 1/x)² - 2 = 3² - 2 = 9 - 2 = 7।"
+  },
+  {
+    "id": 22,
+    "subject": "গণিত",
+    "question": "বার্ষিক ১০% সরল সুদে কত বছরে ১,০০০ টাকার সুদ ৫০০ টাকা হবে?",
+    "options": [
+      "৩ বছর",
+      "৪ বছর",
+      "৫ বছর",
+      "৬ বছর"
+    ],
+    "correct": 2,
+    "explanation": "I = Pnr ⇒ n = I / (Pr) = ৫০০ / (১০০০ × ০.১) = ৫ বছর।"
+  },
+  {
+    "id": 23,
+    "subject": "গণিত",
+    "question": "একটি নিরপেক্ষ ছক্কা একবার নিক্ষেপ করলে জোড় সংখ্যা আসার সম্ভাবনা কত?",
+    "options": [
+      "১/৬",
+      "১/৩",
+      "১/২",
+      "২/৩"
+    ],
+    "correct": 2,
+    "explanation": "ছক্কার ৬টি ফলের মধ্যে জোড় সংখ্যা ৩টি (২, ৪, ৬)। সম্ভাব্যতা = ৩/৬ = ১/২।"
+  },
+  {
+    "id": 24,
+    "subject": "গণিত",
+    "question": "পিতা ও পুত্রের বর্তমান বয়সের অনুপাত ৭ : ২ এবং ৫ বছর পর ৮ : ৩ হলে, পিতার বর্তমান বয়স কত?",
+    "options": [
+      "৩০ বছর",
+      "৩৫ বছর",
+      "৪০ বছর",
+      "৪২ বছর"
+    ],
+    "correct": 1,
+    "explanation": "অনুপাতের পার্থক্য ১ একক = ৫ বছর। সুতরাং পিতার বর্তমান বয়স = ৭ × ৫ = ৩৫ বছর।"
+  },
+  {
+    "id": 25,
+    "subject": "গণিত",
+    "question": "চিনির মূল্য ২০% বৃদ্ধি পাওয়ায় ব্যবহার শতকরা কত কমালে খরচ অপরিবর্তিত থাকবে?",
+    "options": [
+      "১৬%",
+      "১৬ ২/৩%",
+      "২০%",
+      "২৫%"
+    ],
+    "correct": 1,
+    "explanation": "হ্রাস = {২০ / (১০০ + ২০)} × ১০০% = ২০/১২০ × ১০০% = ১৬ ২/৩%।"
+  },
+  {
+    "id": 26,
+    "subject": "গণিত",
+    "question": "৩০ থেকে ৫০ এর মধ্যবর্তী মৌলিক সংখ্যা কয়টি?",
+    "options": [
+      "৩টি",
+      "৪টি",
+      "৫টি",
+      "৬টি"
+    ],
+    "correct": 2,
+    "explanation": "৩১, ৩৭, ৪১, ৪৩ ও ৪৭ — মোট ৫টি মৌলিক সংখ্যা।"
+  },
+  {
+    "id": 27,
+    "subject": "গণিত",
+    "question": "২^(x+১) = ৩২ হলে, x-এর মান কত?",
+    "options": [
+      "৩",
+      "৪",
+      "৫",
+      "৬"
+    ],
+    "correct": 1,
+    "explanation": "২^(x+১) = ২⁵ ⇒ x + ১ = ৫ ⇒ x = ৪।"
+  },
+  {
+    "id": 28,
+    "subject": "গণিত",
+    "question": "টাকায় ৪টি লেবু কিনে টাকায় ৫টি করে বিক্রয় করলে শতকরা কত লাভ বা ক্ষতি হবে?",
+    "options": [
+      "২০% লাভ",
+      "২০% ক্ষতি",
+      "২৫% লাভ",
+      "২৫% ক্ষতি"
+    ],
+    "correct": 1,
+    "explanation": "শতকরা ক্ষতি = (৫ - ৪)/৫ × ১০০% = ২০% ক্ষতি।"
+  },
+  {
+    "id": 29,
+    "subject": "গণিত",
+    "question": "একটি সমকোণী ত্রিভুজের ভূমি ৪ সেমি ও উচ্চতা ৩ সেমি হলে অতিভুজ কত?",
+    "options": [
+      "৫ সেমি",
+      "৬ সেমি",
+      "৭ সেমি",
+      "৮ সেমি"
+    ],
+    "correct": 0,
+    "explanation": "পিথাগোরাসের সূত্র: অতিভুজ = √(৩² + ৪²) = √(৯ + ১৬) = √২৫ = ৫ সেমি।"
+  },
+  {
+    "id": 30,
+    "subject": "গণিত",
+    "question": "log₂ 16 এর মান কত?",
+    "options": [
+      "২",
+      "৩",
+      "৪",
+      "৮"
+    ],
+    "correct": 2,
+    "explanation": "log₂ 16 = log₂ (2⁴) = 4 log₂ 2 = 4 × 1 = 4।"
+  },
+  {
+    "id": 31,
+    "subject": "বাংলাদেশ বিষয়াবলী",
+    "question": "সংবিধানের কোন অনুচ্ছেদে চিন্তা ও বিবেকের স্বাধীনতা এবং বাক্-স্বাধীনতার নিশ্চয়তা দেওয়া হয়েছে?",
+    "options": [
+      "২৭ নং",
+      "৩১ নং",
+      "৩৯ নং",
+      "৪২ নং"
+    ],
+    "correct": 2,
+    "explanation": "৩৯ নং অনুচ্ছেদে চিন্তা, বিবেক ও বাক-স্বাধীনতা নিশ্চিত করা হয়েছে।"
+  },
+  {
+    "id": 32,
+    "subject": "বাংলাদেশ বিষয়াবলী",
+    "question": "১৯৭১ সালের মুজিবনগর সরকারের অর্থ, শিল্প ও বাণিজ্য মন্ত্রী কে ছিলেন?",
+    "options": [
+      "তাজউদ্দীন আহমদ",
+      "ক্যাপ্টেন এম. মনসুর আলী",
+      "এ. এইচ. এম. কামারুজ্জামান",
+      "খন্দকার মোশতাক আহমদ"
+    ],
+    "correct": 1,
+    "explanation": "ক্যাপ্টেন এম. মনসুর আলী অর্থ ও বাণিজ্য মন্ত্রী ছিলেন।"
+  },
+  {
+    "id": 33,
+    "subject": "বাংলাদেশ বিষয়াবলী",
+    "question": "বাংলাদেশের একমাত্র পাহাড়ি দ্বীপ কোনটি?",
+    "options": [
+      "সেন্টমার্টিন",
+      "মহেশখালী",
+      "কুতুবদিয়া",
+      "নিঝুম দ্বীপ"
+    ],
+    "correct": 1,
+    "explanation": "কক্সবাজারের মহেশখালী হলো বাংলাদেশের একমাত্র পাহাড়ি দ্বীপ।"
+  },
+  {
+    "id": 34,
+    "subject": "বাংলাদেশ বিষয়াবলী",
+    "question": "ঐতিহাসিক ৭ই মার্চের ভাষণ সংবিধানের কোন তফসিলে অন্তর্ভুক্ত?",
+    "options": [
+      "চতুর্থ তফসিল",
+      "পঞ্চম তফসিল",
+      "ষষ্ঠ তফসিল",
+      "সপ্তম তফসিল"
+    ],
+    "correct": 1,
+    "explanation": "৫ম তফসিল: ৭ই মার্চের ভাষণ। ৬ষ্ঠ: ২৬শে মার্চের স্বাধীনতার ঘোষণা। ৭ম: স্বাধীনতার ঘোষণাপত্র।"
+  },
+  {
+    "id": 35,
+    "subject": "বাংলাদেশ বিষয়াবলী",
+    "question": "১৯৭১ সালের মুক্তিযুদ্ধে সমগ্র ঢাকা কত নম্বর সেক্টরের অধীনে ছিল?",
+    "options": [
+      "১ নম্বর সেক্টর",
+      "২ নম্বর সেক্টর",
+      "৩ নম্বর সেক্টর",
+      "৪ নম্বর সেক্টর"
+    ],
+    "correct": 1,
+    "explanation": "ঢাকা ২ নম্বর সেক্টরের অধীনে ছিল, যার কমান্ডার ছিলেন মেজর খালেদ মোশাররফ ও মেজর এ টি এম হায়দার।"
+  },
+  {
+    "id": 36,
+    "subject": "বাংলাদেশ বিষয়াবলী",
+    "question": "ইউনেস্কো কত সালে ২১শে ফেব্রুয়ারিকে আন্তর্জাতিক মাতৃভাষা দিবস হিসেবে স্বীকৃতি দেয়?",
+    "options": [
+      "১৯৯৭",
+      "১৯৯৯",
+      "২০০০",
+      "২০০১"
+    ],
+    "correct": 1,
+    "explanation": "১৭ নভেম্বর ১৯৯৯ সালে স্বীকৃতি দেয় এবং ২০০০ সাল থেকে বিশ্বব্যাপী পালিত হচ্ছে।"
+  },
+  {
+    "id": 37,
+    "subject": "বাংলাদেশ বিষয়াবলী",
+    "question": "পদ্মা ও যমুনা নদী কোন স্থানে মিলিত হয়েছে?",
+    "options": [
+      "চাঁদপুর",
+      "গোয়ালন্দ",
+      "ভৈরব",
+      "সারদা"
+    ],
+    "correct": 1,
+    "explanation": "পদ্মা ও যমুনা গোয়ালন্দে মিলিত হয়েছে। পদ্মা ও মেঘনা চাঁদপুরে মিলিত হয়েছে।"
+  },
+  {
+    "id": 38,
+    "subject": "বাংলাদেশ বিষয়াবলী",
+    "question": "বাংলাদেশের জাতীয় পতাকার দৈর্ঘ্য ও প্রস্থের সঠিক অনুপাত কোনটি?",
+    "options": [
+      "১০ : ৬",
+      "৫ : ৪",
+      "৩ : ২",
+      "৪ : ৩"
+    ],
+    "correct": 0,
+    "explanation": "জাতীয় পতাকার অনুপাত ১০ : ৬ (বা ৫ : ৩)। ভবনে ব্যবহারের প্রমিত মাপ ১০ ফুট × ৬ ফুট।"
+  },
+  {
+    "id": 39,
+    "subject": "বাংলাদেশ বিষয়াবলী",
+    "question": "মুক্তিযুদ্ধে বীরত্বের জন্য কতজনকে ‘বীরশ্রেষ্ঠ’ খেতাব প্রদান করা হয়?",
+    "options": [
+      "৫ জন",
+      "৭ জন",
+      "৮ জন",
+      "১১ জন"
+    ],
+    "correct": 1,
+    "explanation": "মুক্তিযুদ্ধে সর্বোচ্চ আত্মত্যাগের জন্য ৭ জনকে ‘বীরশ্রেষ্ঠ’ উপাধিতে ভূষিত করা হয়।"
+  },
+  {
+    "id": 40,
+    "subject": "বাংলাদেশ বিষয়াবলী",
+    "question": "বাংলাদেশের সংবিধান এ পর্যন্ত কতবার সংশোধিত হয়েছে?",
+    "options": [
+      "১৫ বার",
+      "১৬ বার",
+      "১৭ বার",
+      "১৮ বার"
+    ],
+    "correct": 2,
+    "explanation": "বাংলাদেশের সংবিধান এ পর্যন্ত ১৭ বার সংশোধিত হয়েছে।"
+  },
+  {
+    "id": 41,
+    "subject": "আন্তর্জাতিক বিষয়াবলী",
+    "question": "‘ব্রেটন উডস ইনস্টিটিউট’ নামে পরিচিত কোন দুটি সংস্থা?",
+    "options": [
+      "IMF ও WTO",
+      "IMF ও বিশ্বব্যাংক",
+      "বিশ্বব্যাংক ও ADB",
+      "WTO ও UNCTAD"
+    ],
+    "correct": 1,
+    "explanation": "১৯৪৪ সালে ব্রেটন উডস সম্মেলনের মাধ্যমে IMF ও বিশ্বব্যাংক প্রতিষ্ঠিত হয়।"
+  },
+  {
+    "id": 42,
+    "subject": "আন্তর্জাতিক বিষয়াবলী",
+    "question": "এশিয়া ও উত্তর আমেরিকা মহাদেশকে পৃথক করেছে কোন প্রণালী?",
+    "options": [
+      "বেরিং প্রণালী",
+      "মালাক্কা প্রণালী",
+      "জিব্রাল্টার প্রণালী",
+      "হরমুজ প্রণালী"
+    ],
+    "correct": 0,
+    "explanation": "বেরিং প্রণালী এশিয়া ও উত্তর আমেরিকাকে পৃথক করেছে।"
+  },
+  {
+    "id": 43,
+    "subject": "আন্তর্জাতিক বিষয়াবলী",
+    "question": "সামরিক জোট ন্যাটো (NATO)-এর সদর দপ্তর কোন শহরে অবস্থিত?",
+    "options": [
+      "জেনেভা",
+      "ওয়াশিংটন ডি.সি.",
+      "ব্রাসেলস",
+      "ভিয়েনা"
+    ],
+    "correct": 2,
+    "explanation": "ন্যাটোর স্থায়ী সদর দপ্তর বেলজিয়ামের রাজধানী ব্রাসেলসে অবস্থিত।"
+  },
+  {
+    "id": 44,
+    "subject": "আন্তর্জাতিক বিষয়াবলী",
+    "question": "ভারত ও পাকিস্তানের মধ্যকার আন্তর্জাতিক সীমারেখাকে কী বলা হয়?",
+    "options": [
+      "ডুরান্ড লাইন",
+      "র‍্যাডক্লিফ লাইন",
+      "ম্যাকমোহন লাইন",
+      "১৭তম সমান্তরাল"
+    ],
+    "correct": 1,
+    "explanation": "ভারত ও পাকিস্তানের সীমারেখা হলো র‍্যাডক্লিফ লাইন।"
+  },
+  {
+    "id": 45,
+    "subject": "আন্তর্জাতিক বিষয়াবলী",
+    "question": "গ্রিনউইচ মান সময়ের (GMT) সাথে বাংলাদেশের সময়ের পার্থক্য কত?",
+    "options": [
+      "+৫ ঘণ্টা",
+      "+৬ ঘণ্টা",
+      "+৭ ঘণ্টা",
+      "-৬ ঘণ্টা"
+    ],
+    "correct": 1,
+    "explanation": "বাংলাদেশ গ্রিনউইচ সময়ের চেয়ে ৬ ঘণ্টা এগিয়ে (GMT +6)।"
+  },
+  {
+    "id": 46,
+    "subject": "আন্তর্জাতিক বিষয়াবলী",
+    "question": "জাতিসংঘের বর্তমান মহাসচিব আন্তোনিও গুতেরেস কোন দেশের নাগরিক?",
+    "options": [
+      "স্পেন",
+      "পর্তুগাল",
+      "ইতালি",
+      "ব্রাজিল"
+    ],
+    "correct": 1,
+    "explanation": "আন্তোনিও গুতেরেস পর্তুগালের সাবেক প্রধানমন্ত্রী ছিলেন।"
+  },
+  {
+    "id": 47,
+    "subject": "সাধারণ বিজ্ঞান",
+    "question": "রক্তের কোন গ্রুপকে ‘সর্বজনীন গ্রহীতা’ (Universal Recipient) বলা হয়?",
+    "options": [
+      "O+",
+      "O-",
+      "AB+",
+      "AB-"
+    ],
+    "correct": 2,
+    "explanation": "AB+ রক্তে কোনো অ্যান্টিবডি থাকে না বলে একে সর্বজনীন গ্রহীতা বলা হয়।"
+  },
+  {
+    "id": 48,
+    "subject": "সাধারণ বিজ্ঞান",
+    "question": "প্রাকৃতিক গ্যাসের প্রধান উপাদান কোনটি?",
+    "options": [
+      "মিথেন (CH₄)",
+      "ইথেন (C₂H₆)",
+      "প্রোপেন (C₃H₈)",
+      "বিউটেন (C₄H₁₀)"
+    ],
+    "correct": 0,
+    "explanation": "প্রাকৃতিক গ্যাসের প্রধান উপাদান মিথেন (CH₄)।"
+  },
+  {
+    "id": 49,
+    "subject": "সাধারণ বিজ্ঞান",
+    "question": "রক্ত জমাট বাঁধতে সরাসরি সাহায্য করে কোন ভিটামিন?",
+    "options": [
+      "ভিটামিন A",
+      "ভিটামিন D",
+      "ভিটামিন K",
+      "ভিটামিন E"
+    ],
+    "correct": 2,
+    "explanation": "ভিটামিন K যকৃতে প্রোথ্রম্বিন তৈরি করে রক্ত জমাট বাঁধতে সহায়তা করে।"
+  },
+  {
+    "id": 50,
+    "subject": "সাধারণ বিজ্ঞান",
+    "question": "বায়ুমণ্ডলে সর্বাধিক পরিমাণে প্রাপ্ত গ্যাস কোনটি?",
+    "options": [
+      "অক্সিজেন",
+      "নাইট্রোজেন",
+      "কার্বন ডাই অক্সাইড",
+      "আর্গন"
+    ],
+    "correct": 1,
+    "explanation": "বায়ুমণ্ডলে নাইট্রোজেনের পরিমাণ সর্বাধিক (প্রায় ৭৮.০৯%)।"
+  },
+  {
+    "id": 51,
+    "subject": "কম্পিউটার ও আইসিটি",
+    "question": "নিচের কোনটি সর্বজনীন লজিক গেট (Universal Gate)?",
+    "options": [
+      "AND",
+      "OR",
+      "NOR",
+      "XOR"
+    ],
+    "correct": 2,
+    "explanation": "সর্বজনীন গেট হলো দুটি: NAND ও NOR।"
+  },
+  {
+    "id": 52,
+    "subject": "কম্পিউটার ও আইসিটি",
+    "question": "কম্পিউটারের প্রধান মেমোরি (RAM) কোন প্রকৃতির মেমোরি?",
+    "options": [
+      "স্থায়ী ও অনুদ্বায়ী",
+      "অস্থায়ী ও উদ্বায়ী (Volatile)",
+      "শুধুমাত্র পাঠযোগ্য",
+      "অপটিক্যাল মেমোরি"
+    ],
+    "correct": 1,
+    "explanation": "RAM একটি Volatile মেমোরি, বিদ্যুৎ চলে গেলে ভেতরের তথ্য মুছে যায়।"
+  },
+  {
+    "id": 53,
+    "subject": "কম্পিউটার ও আইসিটি",
+    "question": "IPv4 অ্যাড্রেস কত বিটের হয়ে থাকে?",
+    "options": [
+      "১৬ বিট",
+      "৩২ বিট",
+      "৬৪ বিট",
+      "১২৮ বিট"
+    ],
+    "correct": 1,
+    "explanation": "IPv4 অ্যাড্রেস ৩২ বিট এবং IPv6 অ্যাড্রেস ১২৮ বিট হয়ে থাকে।"
+  },
+  {
+    "id": 54,
+    "subject": "কম্পিউটার ও আইসিটি",
+    "question": "১ গিগাবাইট (GB) সমান কত মেগাবাইট (MB)?",
+    "options": [
+      "১০০০ MB",
+      "১০২৪ MB",
+      "৫১২ MB",
+      "২০৪৮ MB"
+    ],
+    "correct": 1,
+    "explanation": "১ GB = ১০২৪ MB (বা ২¹⁰ MB)।"
+  },
+  {
+    "id": 55,
+    "subject": "কম্পিউটার ও আইসিটি",
+    "question": "HTTP-এর পূর্ণরূপ কোনটি?",
+    "options": [
+      "HyperText Transfer Protocol",
+      "HighText Transfer Protocol",
+      "HyperText Transmission Program",
+      "Hyperlink Transfer Path"
+    ],
+    "correct": 0,
+    "explanation": "HTTP এর পূর্ণরূপ HyperText Transfer Protocol।"
+  }
+];
+
+  const aiCuratedPool = [
+  {
+    "subject": "বাংলা সাহিত্য",
+    "question": "কাজী নজরুল ইসলামের ‘বিদ্রোহী’ কবিতাটি কোন কাব্যগ্রন্থের অন্তর্ভুক্ত?",
+    "options": [
+      "অগ্নিবীণা",
+      "বিষের বাঁশী",
+      "দোলন-চাঁপা",
+      "সাম্যবাদী"
+    ],
+    "correct": 0,
+    "explanation": "১৯২২ সালে প্রকাশিত নজরুলের প্রথম কাব্যগ্রন্থ 'অগ্নিবীণা'-র দ্বিতীয় কবিতা হলো 'বিদ্রোহী'।"
+  },
+  {
+    "subject": "বাংলা ব্যাকরণ",
+    "question": "‘অনল’ শব্দের সঠিক সমার্থক শব্দ কোনটি?",
+    "options": [
+      "পাবন",
+      "মারুত",
+      "হুতাসন",
+      "অম্বু"
+    ],
+    "correct": 2,
+    "explanation": "অগ্নি, অনল, বহ্নি, হুতাসন হলো আগুনের সমার্থক শব্দ। মারুত অর্থ বাতাস, অম্বু অর্থ পানি।"
+  },
+  {
+    "subject": "English",
+    "question": "What is the synonym of the word 'PRAGMATIC'?",
+    "options": [
+      "Theoretical",
+      "Practical",
+      "Idealistic",
+      "Vague"
+    ],
+    "correct": 1,
+    "explanation": "Pragmatic means dealing with things sensibly and realistically based on practical rather than theoretical considerations."
+  },
+  {
+    "subject": "গণিত",
+    "question": "১ থেকে ১০০ পর্যন্ত সংখ্যাগুলোর যোগফল কত?",
+    "options": [
+      "৪৯৫০",
+      "৫০০০",
+      "৫০৫০",
+      "৫১০০"
+    ],
+    "correct": 2,
+    "explanation": "যোগফল = {n(n+1)}/2 = {১০০ × ১০১}/২ = ৫০ × ১০১ = ৫০৫০।"
+  },
+  {
+    "subject": "বাংলাদেশ বিষয়াবলী",
+    "question": "বাংলাদেশের একমাত্র প্রবাল দ্বীপ কোনটি?",
+    "options": [
+      "সেন্টমার্টিন",
+      "ছেঁড়াদ্বীপ",
+      "কুতুবদিয়া",
+      "মহেশখালী"
+    ],
+    "correct": 0,
+    "explanation": "সেন্টমার্টিন (নারিকেল জিঞ্জিরা) হলো বাংলাদেশের একমাত্র প্রবাল দ্বীপ।"
+  },
+  {
+    "subject": "আন্তর্জাতিক বিষয়াবলী",
+    "question": "শান্তিতে নোবেল পুরস্কার কোন শহর থেকে প্রদান করা হয়?",
+    "options": [
+      "স্টকহোম (সুইডেন)",
+      "অসলো (নরওয়ে)",
+      "জেনেভা (সুইজারল্যান্ড)",
+      "প্যারিস (ফ্রান্স)"
+    ],
+    "correct": 1,
+    "explanation": "শান্তিতে নোবেল দেওয়া হয় নরওয়ের অসলো থেকে; বাকি সব নোবেল দেওয়া হয় সুইডেনের স্টকহোম থেকে।"
+  },
+  {
+    "subject": "সাধারণ বিজ্ঞান",
+    "question": "মানবদেহের স্বাভাবিক তাপমাত্রা কত ডিগ্রি ফারেনহাইট?",
+    "options": [
+      "৯৬.৪°F",
+      "৯৮.৪°F",
+      "৯৯.৬°F",
+      "১০২°F"
+    ],
+    "correct": 1,
+    "explanation": "সুস্থ মানুষের দেহের স্বাভাবিক তাপমাত্রা ৯৮.৪°F (বা ৩৬.৯°C)।"
+  },
+  {
+    "subject": "কম্পিউটার ও আইসিটি",
+    "question": "কম্পিউটারের মস্তিষ্ক (Brain) কাকে বলা হয়?",
+    "options": [
+      "RAM",
+      "ALU",
+      "CPU",
+      "Motherboard"
+    ],
+    "correct": 2,
+    "explanation": "CPU (Central Processing Unit)-কে কম্পিউটারের মস্তিষ্ক বা ব্রেইন বলা হয়।"
+  }
+];
+
+  const extendedQuestionPool = [
+  {
+    "id": 201,
+    "subject": "বাংলা সাহিত্য",
+    "question": "‘গীতাঞ্জলি’ কাব্যগ্রন্থের জন্য রবীন্দ্রনাথ ঠাকুর কোন সালে নোবেল পুরস্কার লাভ করেন?",
+    "options": [
+      "১৯১১",
+      "১৯১২",
+      "১৯১৩",
+      "১৯১৪"
+    ],
+    "correct": 2,
+    "explanation": "রবীন্দ্রনাথ ঠাকুর ১৯১৩ সালে গীতাঞ্জলি (Song Offerings) কাব্যের জন্য সাহিত্যে প্রথম এশীয় হিসেবে নোবেল পুরস্কার লাভ করেন।"
+  },
+  {
+    "id": 202,
+    "subject": "বাংলা সাহিত্য",
+    "question": "মাইকেল মধুসূদন দত্তের প্রথম বাংলা নাটক কোনটি?",
+    "options": [
+      "পদ্মাবতী",
+      "শর্মিষ্ঠা",
+      "কৃষ্ণকুমারী",
+      "মায়াকানন"
+    ],
+    "correct": 1,
+    "explanation": "১৮৫৯ সালে প্রকাশিত ‘শর্মিষ্ঠা’ মাইকেল মধুসূদন দত্ত রচিত প্রথম বাংলা নাটক।"
+  },
+  {
+    "id": 203,
+    "subject": "বাংলা সাহিত্য",
+    "question": "‘লালসালু’ উপন্যাসের কেন্দ্রীয় চরিত্র কোনটি?",
+    "options": [
+      "মজিদ",
+      "খালেক ব্যাপারী",
+      "রহিমা",
+      "জমিলা"
+    ],
+    "correct": 0,
+    "explanation": "সৈয়দ ওয়ালীউল্লাহ্ রচিত ‘লালসালু’ (১৯৪৮) উপন্যাসের ভণ্ড ধর্মব্যবসায়ী কেন্দ্রীয় চরিত্র হলো মজিদ।"
+  },
+  {
+    "id": 204,
+    "subject": "বাংলা ব্যাকরণ",
+    "question": "‘সূর্য’ শব্দের সমার্থক শব্দ কোনটি?",
+    "options": [
+      "সুধাংশু",
+      "আদিত্য",
+      "শশাঙ্ক",
+      "বিধু"
+    ],
+    "correct": 1,
+    "explanation": "সূর্যের সমার্থক শব্দ আদিত্য, ভাস্কর, রবি, তপন। সুধাংশু ও শশাঙ্ক হলো চাঁদের সমার্থক শব্দ।"
+  },
+  {
+    "id": 205,
+    "subject": "বাংলা ব্যাকরণ",
+    "question": "‘সন্ধি’ ব্যাকরণের কোন অংশের আলোচ্য বিষয়?",
+    "options": [
+      "রূপতত্ত্ব",
+      "ধ্বনিতত্ত্ব",
+      "বাক্যতত্ত্ব",
+      "অর্থতত্ত্ব"
+    ],
+    "correct": 1,
+    "explanation": "যেহেতু সন্ধি মূলত ধ্বনির মিলন, রূপান্তর বা লোপ ঘটায়, তাই এটি ব্যাকরণের ধ্বনিতত্ত্বে (Phonology) আলোচিত হয়।"
+  },
+  {
+    "id": 206,
+    "subject": "বাংলা ব্যাকরণ",
+    "question": "কোন বানানটি শুদ্ধ?",
+    "options": [
+      "মুমূর্ষু",
+      "মুমুর্ষু",
+      "মুর্মুষু",
+      "মুমূর্ষূ"
+    ],
+    "correct": 0,
+    "explanation": "শুদ্ধ বানান হলো ‘মুমূর্ষু’ (হ্রস্ব উ, দীর্ঘ ঊ, হ্রস্ব উ)।"
+  },
+  {
+    "id": 207,
+    "subject": "English",
+    "question": "What is the meaning of the idiom 'To bell the cat'?",
+    "options": [
+      "To feed a pet",
+      "To take leading danger or personal risk",
+      "To ring a loud alarm",
+      "To make friends with enemies"
+    ],
+    "correct": 1,
+    "explanation": "'To bell the cat' means to attempt something formidable, perilous or hazardous for the common good."
+  },
+  {
+    "id": 208,
+    "subject": "English",
+    "question": "What is the noun form of the adjective 'Brief'?",
+    "options": [
+      "Briefly",
+      "Briefness",
+      "Brevity",
+      "Briefhood"
+    ],
+    "correct": 2,
+    "explanation": "The noun form of 'brief' is 'brevity', which means concise and exact use of words in writing or speech."
+  },
+  {
+    "id": 209,
+    "subject": "English",
+    "question": "Who wrote the famous novel 'A Passage to India'?",
+    "options": [
+      "George Orwell",
+      "E.M. Forster",
+      "Virginia Woolf",
+      "Rudyard Kipling"
+    ],
+    "correct": 1,
+    "explanation": "'A Passage to India' (1924) is an acclaimed novel by English author E. M. Forster set against the backdrop of British Raj."
+  },
+  {
+    "id": 210,
+    "subject": "English",
+    "question": "What is the synonym of the word 'CANDID'?",
+    "options": [
+      "Secretive",
+      "Frank",
+      "Deceitful",
+      "Arrogant"
+    ],
+    "correct": 1,
+    "explanation": "Candid means truthful, straightforward, sincere and frank."
+  },
+  {
+    "id": 211,
+    "subject": "গণিত",
+    "question": "১ থেকে ১০০ পর্যন্ত মোট কতটি মৌলিক সংখ্যা রয়েছে?",
+    "options": [
+      "২১ টি",
+      "২৩ টি",
+      "২৫ টি",
+      "২৭ টি"
+    ],
+    "correct": 2,
+    "explanation": "১ থেকে ১০০ পর্যন্ত মোট ২৫টি মৌলিক সংখ্যা রয়েছে (৪৪২২৩২২৩২১ সূত্রানুযায়ী: ৪+৪+২+২+৩+২+২+৩+২+১ = ২৫)।"
+  },
+  {
+    "id": 212,
+    "subject": "গণিত",
+    "question": "একটি সমকোণী ত্রিভুজের অতিভুজ ১৩ সেমি ও ভূমি ১২ সেমি হলে, ত্রিভুজটির লম্ব কত?",
+    "options": [
+      "৪ সেমি",
+      "৫ সেমি",
+      "৬ সেমি",
+      "৭ সেমি"
+    ],
+    "correct": 1,
+    "explanation": "পীথাগোরাসের উপপাদ্য অনুযায়ী: লম্ব = √(অতিভুজ² - ভূমি²) = √(১৩² - ১২²) = √(১৬৯ - ১৪৪) = √২৫ = ৫ সেমি।"
+  },
+  {
+    "id": 213,
+    "subject": "গণিত",
+    "question": "বার্ষিক ১০% সরল সুদে কত বছরে আসল সুদে-আসলে দ্বিগুণ হবে?",
+    "options": [
+      "৫ বছরে",
+      "৮ বছরে",
+      "১০ বছরে",
+      "১২ বছরে"
+    ],
+    "correct": 2,
+    "explanation": "সুদ = আসল (১০০ টাকা)। সময় = (সুদ × ১০০) / (আসল × হার) = (১০০ × ১০০) / (১০০ × ১০) = ১০ বছর।"
+  },
+  {
+    "id": 214,
+    "subject": "গণিত",
+    "question": "log₁₀(0.001) এর মান কত?",
+    "options": [
+      "-1",
+      "-2",
+      "-3",
+      "3"
+    ],
+    "correct": 2,
+    "explanation": "0.001 = 10⁻³। সুতরাং log₁₀(10⁻³) = -3 log₁₀(10) = -3 × 1 = -3।"
+  },
+  {
+    "id": 215,
+    "subject": "বাংলাদেশ বিষয়াবলী",
+    "question": "গণপ্রজাতন্ত্রী বাংলাদেশের সংবিধান কোন তারিখে কার্যকর হয়?",
+    "options": [
+      "৪ নভেম্বর ১৯৭২",
+      "১৬ ডিসেম্বর ১৯৭২",
+      "২৬ মার্চ ১৯৭২",
+      "১৭ এপ্রিল ১৯৭২"
+    ],
+    "correct": 1,
+    "explanation": "বাংলাদেশের সংবিধান ১৯৭২ সালের ৪ নভেম্বর গণপরিষদে গৃহীত হয় এবং একই বছরের ১৬ ডিসেম্বর (বিজয় দিবস) থেকে কার্যকর হয়।"
+  },
+  {
+    "id": 216,
+    "subject": "বাংলাদেশ বিষয়াবলী",
+    "question": "বাংলাদেশের একমাত্র প্রবাল দ্বীপ কোনটি?",
+    "options": [
+      "মহেশখালী",
+      "হাতিয়া",
+      "সেন্টমার্টিন",
+      "কুতুবদিয়া"
+    ],
+    "correct": 2,
+    "explanation": "সেন্টমার্টিন দ্বীপ (স্থানীয় নাম নারিকেল জিঞ্জিরা) বাংলাদেশের একমাত্র প্রবাল দ্বীপ।"
+  },
+  {
+    "id": 217,
+    "subject": "বাংলাদেশ বিষয়াবলী",
+    "question": "মুক্তিযুদ্ধকালীন বাংলাদেশকে কয়টি সেক্টরে বিভক্ত করা হয়েছিল?",
+    "options": [
+      "৮ টি",
+      "১০ টি",
+      "১১ টি",
+      "৬৪ টি"
+    ],
+    "correct": 2,
+    "explanation": "১৯৭১ সালে মুক্তিযুদ্ধের সুষ্ঠু পরিচালনার সুবিধার্থে সমগ্র বাংলাদেশকে ১১টি সেক্টর ও ৬৪টি সাব-সেক্টরে বিভক্ত করা হয়েছিল।"
+  },
+  {
+    "id": 218,
+    "subject": "আন্তর্জাতিক বিষয়াবলী",
+    "question": "জাতিসংঘের বর্তমান মহাসচিব আন্তোনিও গুতেরেস কোন দেশের নাগরিক?",
+    "options": [
+      "স্পেন",
+      "পর্তুগাল",
+      "ব্রাজিল",
+      "ইতালি"
+    ],
+    "correct": 1,
+    "explanation": "আন্তোনিও গুতেরেস পর্তুগালের সাবেক প্রধানমন্ত্রী ছিলেন এবং ২০১৭ সাল থেকে জাতিসংঘের মহাসচিব হিসেবে দায়িত্ব পালন করছেন।"
+  },
+  {
+    "id": 219,
+    "subject": "আন্তর্জাতিক বিষয়াবলী",
+    "question": "প্রতি বছর কোন তারিখে ‘বিশ্ব পরিবেশ দিবস’ পালিত হয়?",
+    "options": [
+      "২২ এপ্রিল",
+      "৫ জুন",
+      "১৬ সেপ্টেম্বর",
+      "১ ডিসেম্বর"
+    ],
+    "correct": 1,
+    "explanation": "পরিবেশ সুরক্ষায় সচেতনতা বৃদ্ধির লক্ষ্যে প্রতি বছর ৫ জুন বিশ্ব পরিবেশ দিবস পালন করা হয়।"
+  },
+  {
+    "id": 220,
+    "subject": "আন্তর্জাতিক বিষয়াবলী",
+    "question": "আন্তর্জাতিক মুদ্রা তহবিল (IMF) এর সদর দপ্তর কোথায় অবস্থিত?",
+    "options": [
+      "নিউইয়র্ক",
+      "জেনেভা",
+      "ওয়াশিংটন ডিসি",
+      "লন্ডন"
+    ],
+    "correct": 2,
+    "explanation": "বিশ্বব্যাংক ও আন্তর্জাতিক মুদ্রা তহবিল (IMF) উভয়ের সদর দপ্তরই যুক্তরাষ্ট্রের ওয়াশিংটন ডিসিতে অবস্থিত।"
+  },
+  {
+    "id": 221,
+    "subject": "সাধারণ বিজ্ঞান",
+    "question": "মানবদেহের সর্ববৃহৎ গ্রন্থি (Largest Gland) কোনটি?",
+    "options": [
+      "অগ্ন্যাশয়",
+      "যকৃৎ (Liver)",
+      "থাইরয়েড",
+      "পিটুইটারি"
+    ],
+    "correct": 1,
+    "explanation": "যকৃৎ (Liver) মানবদেহের বৃহত্তম গ্রন্থি, যার স্বাভাবিক ওজন প্রায় ১.৫ কেজি।"
+  },
+  {
+    "id": 222,
+    "subject": "সাধারণ বিজ্ঞান",
+    "question": "রক্ত জমাট বাঁধতে কোন ভিটামিন প্রধান ভূমিকা পালন করে?",
+    "options": [
+      "ভিটামিন এ",
+      "ভিটামিন সি",
+      "ভিটামিন ডি",
+      "ভিটামিন কে"
+    ],
+    "correct": 3,
+    "explanation": "ভিটামিন K যকৃতে প্রোথ্রম্বিন তৈরি করে যা রক্ত তঞ্চন (Blood Clotting) বা রক্ত জমাট বাঁধতে অপরিহার্য।"
+  },
+  {
+    "id": 223,
+    "subject": "সাধারণ বিজ্ঞান",
+    "question": "শুষ্ক বরফ (Dry Ice) মূলত কী?",
+    "options": [
+      "হিমায়িত জলীয় বাষ্প",
+      "কঠিন কার্বন ডাই-অক্সাইড",
+      "তরল নাইট্রোজেন",
+      "কঠিন মিথেন"
+    ],
+    "correct": 1,
+    "explanation": "কঠিন কার্বন ডাই-অক্সাইডকে শুষ্ক বরফ বলা হয়, কারণ এটি গলে তরল না হয়ে সরাসরি গ্যাসে বাষ্পীভূত হয়।"
+  },
+  {
+    "id": 224,
+    "subject": "কম্পিউটার ও আইসিটি",
+    "question": "কম্পিউটারের ‘মস্তিষ্ক’ (Brain of Computer) কাকে বলা হয়?",
+    "options": [
+      "RAM",
+      "Hard Disk",
+      "CPU",
+      "Motherboard"
+    ],
+    "correct": 2,
+    "explanation": "CPU (Central Processing Unit) কম্পিউটারের সকল গাণিতিক ও যৌক্তিক কার্যাবলি সম্পাদন ও নিয়ন্ত্রণ করে বলে একে কম্পিউটারের মস্তিষ্ক বলা হয়।"
+  },
+  {
+    "id": 225,
+    "subject": "কম্পিউটার ও আইসিটি",
+    "question": "১ গিগাবাইট (1 GB) সমান কত মেগাবাইট (MB)?",
+    "options": [
+      "১০০০ MB",
+      "১০২৪ MB",
+      "১০৪৮ MB",
+      "৫১২ MB"
+    ],
+    "correct": 1,
+    "explanation": "বাইনারি হিসাব অনুযায়ী ১ গিগাবাইট (1 GB) = ২¹⁰ মেগাবাইট = ১০২৪ মেগাবাইট (MB)।"
+  },
+  {
+    "id": 226,
+    "subject": "বাংলা ব্যাকরণ",
+    "question": "‘হাতাহাতি’ কোন সমাসের উদাহরণ?",
+    "options": [
+      "কর্মধারয়",
+      "তৎপুরুষ",
+      "ব্যতিহার বহুব্রীহি",
+      "দ্বিগু"
+    ],
+    "correct": 2,
+    "explanation": "পরস্পর এক জাতীয় ক্রিয়া সম্পাদন বোঝালে যে বহুব্রীহি সমাস হয় তাকে ব্যতিহার বহুব্রীহি বলে (যেমন: হাতে হাতে যে যুদ্ধ = হাতাহাতি)।"
+  },
+  {
+    "id": 227,
+    "subject": "English",
+    "question": "Identify the correct passive voice: 'Who is calling me?'",
+    "options": [
+      "By whom I am called?",
+      "By whom am I being called?",
+      "Who was called by me?",
+      "By whom was I called?"
+    ],
+    "correct": 1,
+    "explanation": "Present continuous interrogative passive rule: By whom + am/is/are + subject + being + V3? Hence: 'By whom am I being called?'"
+  },
+  {
+    "id": 228,
+    "subject": "বাংলাদেশ বিষয়াবলী",
+    "question": "বাংলাদেশের জাতীয় সংসদের প্রথম স্পিকার কে ছিলেন?",
+    "options": [
+      "শাহ আবদুল হামিদ",
+      "মোহাম্মদ উল্লাহ",
+      "আব্দুল মালেক উকিল",
+      "ব্যারিস্টার জমির উদ্দিন সরকার"
+    ],
+    "correct": 0,
+    "explanation": "গণপরিষদ ও বাংলাদেশের জাতীয় সংসদের প্রথম স্পিকার ছিলেন শাহ আবদুল হামিদ।"
+  },
+  {
+    "id": 229,
+    "subject": "আন্তর্জাতিক বিষয়াবলী",
+    "question": "উত্তর আটলান্টিক নিরাপত্তা জোট (NATO) এর সদর দপ্তর কোথায় অবস্থিত?",
+    "options": [
+      "লন্ডন, যুক্তরাজ্য",
+      "প্যারিস, ফ্রান্স",
+      "ব্রাসেলস, বেলজিয়াম",
+      "জেনেভা, সুইজারল্যান্ড"
+    ],
+    "correct": 2,
+    "explanation": "১৯৪৯ সালে গঠিত ন্যাটো (NATO)-র সদর দপ্তর বেলজিয়ামের রাজধানী ব্রাসেলসে অবস্থিত।"
+  },
+  {
+    "id": 230,
+    "subject": "কম্পিউটার ও আইসিটি",
+    "question": "ব্লুটুথ (Bluetooth) কোন প্রযুক্তির মাধ্যমে সংক্ষিপ্ত দূরত্বে ডেটা স্থানান্তর করে?",
+    "options": [
+      "ইনফ্রারেড রশ্মি",
+      "রেডিও তরঙ্গ (Radio Waves)",
+      "অপটিক্যাল ফাইবার",
+      "মাইক্রোওয়েভ"
+    ],
+    "correct": 1,
+    "explanation": "ব্লুটুথ ২.৪ গিগাহার্টজ ফ্রিকোয়েন্সির শর্ট-রেঞ্জ রেডিও তরঙ্গের (Radio Waves) মাধ্যমে ডিভাইসসমূহের মধ্যে ডেটা আদান-প্রদান করে।"
+  },
+  {
+    "id": 231,
+    "subject": "বাংলা সাহিত্য",
+    "question": "‘সঞ্চিতা’ কোন জাতীয় কবির কাব্যসংকলন?",
+    "options": [
+      "রবীন্দ্রনাথ ঠাকুর",
+      "কাজী নজরুল ইসলাম",
+      "জীবনানন্দ দাশ",
+      "জসীমউদ্দীন"
+    ],
+    "correct": 1,
+    "explanation": "‘সঞ্চিতা’ কাজী নজরুল ইসলামের শ্রেষ্ঠ কবিতা ও গানের সংকলন। পক্ষান্তরে ‘সঞ্চয়িতা’ হলো রবীন্দ্রনাথ ঠাকুরের কাব্যসংকলন।"
+  },
+  {
+    "id": 232,
+    "subject": "বাংলা সাহিত্য",
+    "question": "‘তিতাস একটি নদীর নাম’ উপন্যাসের লেখক কে?",
+    "options": [
+      "অদ্বৈত মল্লবর্মণ",
+      "তারাশঙ্কর বন্দ্যোপাধ্যায়",
+      "মানিক বন্দ্যোপাধ্যায়",
+      "বিভূতিভূষণ বন্দ্যোপাধ্যায়"
+    ],
+    "correct": 0,
+    "explanation": "অদ্বৈত মল্লবর্মণ রচিত কালজয়ী উপন্যাস ‘তিতাস একটি নদীর নাম’ তিতাস তীরবর্তী মালো (জেলে) সম্প্রদায়ের জীবনযাত্রাকে উপজীব্য করে রচিত।"
+  },
+  {
+    "id": 233,
+    "subject": "বাংলা ব্যাকরণ",
+    "question": "‘অনুচ্ছেদ’ শব্দের সঠিক সন্ধি বিচ্ছেদ কোনটি?",
+    "options": [
+      "অনু + ছেদ",
+      "অনু + ছদ",
+      "অনুত + ছেদ",
+      "অনুঃ + ছেদ"
+    ],
+    "correct": 0,
+    "explanation": "হ্রস্ব স্বরবর্ণের পর ‘ছ’ থাকলে সন্ধির নিয়মে তা ‘চ্ছ’ হয়: অনু + ছেদ = অনুচ্ছেদ।"
+  },
+  {
+    "id": 234,
+    "subject": "বাংলা ব্যাকরণ",
+    "question": "‘যা চিরস্থায়ী নয়’— এক কথায় প্রকাশ কী হবে?",
+    "options": [
+      "অবিনশ্বর",
+      "ক্ষণস্থায়ী",
+      "নশ্বর",
+      "অনিত্য"
+    ],
+    "correct": 2,
+    "explanation": "যা চিরস্থায়ী নয় = নশ্বর (অথবা অনিত্য)। আর যা ক্ষণকাল স্থায়ী হয় = ক্ষণস্থায়ী।"
+  },
+  {
+    "id": 235,
+    "subject": "English",
+    "question": "What is the meaning of the phrasal verb 'Look after'?",
+    "options": [
+      "To search for",
+      "To examine carefully",
+      "To take care of",
+      "To anticipate eagerly"
+    ],
+    "correct": 2,
+    "explanation": "'Look after' means to take care of someone or something (e.g. She looks after her elderly parents)."
+  },
+  {
+    "id": 236,
+    "subject": "English",
+    "question": "Identify the correctly spelled word:",
+    "options": [
+      "Lieutenaunt",
+      "Lieutenant",
+      "Leutenant",
+      "Leiutenant"
+    ],
+    "correct": 1,
+    "explanation": "The correct British spelling is 'Lieutenant' (L-I-E-U-T-E-N-A-N-T)."
+  },
+  {
+    "id": 237,
+    "subject": "English",
+    "question": "Choose the correct pronoun: 'The baby cried for ___ mother.'",
+    "options": [
+      "her",
+      "his",
+      "its",
+      "their"
+    ],
+    "correct": 2,
+    "explanation": "In standard English grammar, young babies and animals whose gender is not specified are traditionally referred to by the neuter pronoun 'its'."
+  },
+  {
+    "id": 238,
+    "subject": "গণিত",
+    "question": "১ থেকে ৫০ পর্যন্ত বিজোড় সংখ্যাগুলোর সমষ্টি কত?",
+    "options": [
+      "৫০০",
+      "৬০০",
+      "৬২৫",
+      "৬৫০"
+    ],
+    "correct": 2,
+    "explanation": "১ থেকে ৫০ পর্যন্ত বিজোড় সংখ্যা আছে ২৫টি। ১ম n সংখ্যক স্বাভাবিক বিজোড় সংখ্যার যোগফল = n² = ২৫² = ৬২৫।"
+  },
+  {
+    "id": 239,
+    "subject": "গণিত",
+    "question": "৩, ৯, ২৭, ৮১ ... গুণোত্তর ধারাটির পরবর্তী (৫ম) পদ কত?",
+    "options": [
+      "১৬২",
+      "২১৬",
+      "২৪৩",
+      "৩২৪"
+    ],
+    "correct": 2,
+    "explanation": "ধারাটির সাধারণ অনুপাত ৩ (প্রতিটি পদ পূর্ববর্তী পদের ৩ গুণ)। সুতরাং ৫ম পদ = ৮১ × ৩ = ২৪৩।"
+  },
+  {
+    "id": 240,
+    "subject": "গণিত",
+    "question": "একটি দ্রব্য ৪০০ টাকায় ক্রয় করে ৪৪০ টাকায় বিক্রয় করলে শতকরা কত লাভ হবে?",
+    "options": [
+      "৮%",
+      "১০%",
+      "১২%",
+      "১৫%"
+    ],
+    "correct": 1,
+    "explanation": "লাভ = ৪৪০ - ৪০০ = ৪০ টাকা। শতকরা লাভ = (৪০ / ৪০০) × ১০০% = ১০%।"
+  },
+  {
+    "id": 241,
+    "subject": "বাংলাদেশ বিষয়াবলী",
+    "question": "ঐতিহাসিক মুজিবনগর সরকার কোন তারিখে আনুষ্ঠানিকভাবে শপথ গ্রহণ করে?",
+    "options": [
+      "১০ এপ্রিল ১৯৭১",
+      "১৭ এপ্রিল ১৯৭১",
+      "২৫ মার্চ ১৯৭১",
+      "১৬ ডিসেম্বর ১৯৭১"
+    ],
+    "correct": 1,
+    "explanation": "১৯৭১ সালের ১০ এপ্রিল সরকার গঠিত হয় এবং ১৭ এপ্রিল মেহেরপুরের বৈদ্যনাথতলার (মুজিবনগর) আম্রকাননে আনুষ্ঠানিকভাবে শপথ গ্রহণ করে।"
+  },
+  {
+    "id": 242,
+    "subject": "আন্তর্জাতিক বিষয়াবলী",
+    "question": "জাতিসংঘের আন্তর্জাতিক বিচার আদালত (ICJ) কোথায় অবস্থিত?",
+    "options": [
+      "নিউইয়র্ক",
+      "জেনেভা",
+      "দ্য হেগ (নেদারল্যান্ডস)",
+      "প্যারিস"
+    ],
+    "correct": 2,
+    "explanation": "International Court of Justice (ICJ)-র স্থায়ী সদর দপ্তর নেদারল্যান্ডসের দ্য হেগ (The Hague) শহরের পিস প্যালেসে অবস্থিত।"
+  },
+  {
+    "id": 243,
+    "subject": "সাধারণ বিজ্ঞান",
+    "question": "দৃশ্যমান আলোর মধ্যে কোন রঙের আলোর তরঙ্গদৈর্ঘ্য (Wavelength) সবচেয়ে কম?",
+    "options": [
+      "লাল",
+      "নীল",
+      "বেগুনি",
+      "হলুদ"
+    ],
+    "correct": 2,
+    "explanation": "বেনীআসহকলা বর্ণালীতে বেগুনির তরঙ্গদৈর্ঘ্য সবচেয়ে কম (প্রায় ৪০০ ন্যানোমিটার) এবং লালের তরঙ্গদৈর্ঘ্য সবচেয়ে বেশি (প্রায় ৭০০ ন্যানোমিটার)।"
+  },
+  {
+    "id": 244,
+    "subject": "কম্পিউটার ও আইসিটি",
+    "question": "ওয়েব ব্রাউজিংয়ে বহুল ব্যবহৃত 'HTTP' এর পূর্ণরূপ কী?",
+    "options": [
+      "Hyper Text Transfer Protocol",
+      "High Transmission Text Protocol",
+      "Hyperlink Text Transfer Protocol",
+      "Home Tool Transfer Page"
+    ],
+    "correct": 0,
+    "explanation": "HTTP stands for Hypertext Transfer Protocol, which is the foundational protocol used by the World Wide Web."
+  },
+  {
+    "id": 245,
+    "subject": "কম্পিউটার ও আইসিটি",
+    "question": "কোন ধরনের মেমোরি ভোলাটাইল (Volatile) বা বিদ্যুৎ সরবরাহ বন্ধ হলে ডেটা মুছে যায়?",
+    "options": [
+      "ROM",
+      "RAM",
+      "Hard Disk",
+      "Flash Drive"
+    ],
+    "correct": 1,
+    "explanation": "RAM (Random Access Memory) হলো অস্থায়ী বা ভোলাটাইল মেমোরি, যা কম্পিউটার বন্ধ বা বিদ্যুৎ বিচ্ছিন্ন হলে সব ডেটা হারিয়ে ফেলে।"
+  }
+];
+
+  let userMCQProgress = {
+    answers: {},          // { [qId]: { selectedIndex, isCorrect, timesCorrect, timesAnswered, lastAnswered } }
+    masteredIds: [],      // IDs of questions answered correctly 2 times (removed from active list)
+    removedSubjects: [],  // Removed subjects from the subject list
+    addedExtendedIndex: 0
+  };
+
+  function loadMCQProgress() {
+    try {
+      const raw = localStorage.getItem(MCQ_PROGRESS_KEY);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        userMCQProgress.answers = parsed.answers || {};
+        userMCQProgress.masteredIds = Array.isArray(parsed.masteredIds) ? parsed.masteredIds.map(String) : [];
+        userMCQProgress.removedSubjects = Array.isArray(parsed.removedSubjects) ? parsed.removedSubjects : [];
+        userMCQProgress.addedExtendedIndex = typeof parsed.addedExtendedIndex === "number" ? parsed.addedExtendedIndex : 0;
+      }
+    } catch (e) {
+      userMCQProgress = { answers: {}, masteredIds: [], removedSubjects: [], addedExtendedIndex: 0 };
+    }
+  }
+
+  function saveMCQProgress() {
+    try {
+      localStorage.setItem(MCQ_PROGRESS_KEY, JSON.stringify(userMCQProgress));
+    } catch (e) {}
+  }
+
+  function getStoredQuestions() {
+    try {
+      const data = localStorage.getItem(MCQ_CUSTOM_KEY);
+      return data ? JSON.parse(data) : [];
+    } catch (e) {
+      return [];
+    }
+  }
+
+  function saveStoredQuestions(qList) {
+    try {
+      localStorage.setItem(MCQ_CUSTOM_KEY, JSON.stringify(qList));
+    } catch (e) {}
+  }
+
+  // Auto-Shuffle function (Fisher-Yates) for options while tracking correct answer
+  function autoShuffleOptions(q) {
+    if (!q || !Array.isArray(q.options)) return q;
+    const optionsWithMeta = q.options.map((opt, idx) => ({
+      text: opt,
+      isCorrect: (idx === q.correct)
+    }));
+
+    for (let i = optionsWithMeta.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [optionsWithMeta[i], optionsWithMeta[j]] = [optionsWithMeta[j], optionsWithMeta[i]];
+    }
+
+    return {
+      ...q,
+      options: optionsWithMeta.map(o => o.text),
+      correct: optionsWithMeta.findIndex(o => o.isCorrect)
+    };
+  }
+
+  loadMCQProgress();
+
+  // Combine default, AI, and custom questions, excluding already mastered questions and removed subjects
+  function getActiveQuestionsPool() {
+    const masteredSet = new Set(userMCQProgress.masteredIds.map(String));
+    const removedSubjectsSet = new Set(userMCQProgress.removedSubjects || []);
+    const rawAll = [...defaultQuestions, ...aiCuratedPool, ...getStoredQuestions()];
+    
+    // Deduplicate by question text
+    const seen = new Set();
+    const unique = [];
+    rawAll.forEach(q => {
+      const key = q.question.trim();
+      if (!seen.has(key)) {
+        seen.add(key);
+        unique.push(q);
+      }
+    });
+
+    // Filter out mastered questions (answered right 2 times) and questions from removed subjects
+    return unique.filter(q => !masteredSet.has(String(q.id)) && !removedSubjectsSet.has(q.subject));
+  }
+
+  let allQuestions = getActiveQuestionsPool();
+  let activeExamPool = [...allQuestions];
+  let currentMCQIndex = 0;
+  let correctAnswers = 0;
+  let wrongAnswers = 0;
+  let sessionAnswered = {}; 
+  let is20ExamMode = false;
+  let examTimerInterval = null;
+  let timeRemaining = 900; // 15 minutes = 900s
+  let autoNextTimeout = null;
+
+  const prefixList = ["ক", "খ", "গ", "ঘ"];
+
   let mistakes = [];
 
   function loadMistakes() {
@@ -2378,209 +4121,968 @@
   }
 
   function saveMistakes() {
-    try { localStorage.setItem(MISTAKES_KEY, JSON.stringify(mistakes)); } catch (e) { }
+    try { localStorage.setItem(MISTAKES_KEY, JSON.stringify(mistakes)); } catch (e) {}
   }
 
-  function showQuizView() {
-    const switchBox = document.getElementById('quizFlashSwitch');
-    const quizChip = switchBox ? switchBox.querySelector('.chip[data-view="quiz"]') : null;
-    if (switchBox && quizChip) {
-      switchBox.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
-      quizChip.classList.add('active');
-    }
+  function updateMCQStats() {
+    const currentIndexEl = document.getElementById("current-index");
+    const correctCountEl = document.getElementById("correct-count");
+    const wrongCountEl = document.getElementById("wrong-count");
+    const scoreValEl = document.getElementById("score-val");
+    const masteryBadge = document.getElementById("mcqMasteryBadge");
+    const resetMasteredBtn = document.getElementById("resetMasteredBtn");
 
-    const subFlash = document.getElementById('subview-flashcards');
-    const subQuiz = document.getElementById('subview-quiz');
-    const subMistakes = document.getElementById('subview-mistakes');
-    if (subFlash) subFlash.style.display = 'none';
-    if (subQuiz) subQuiz.style.display = 'block';
-    if (subMistakes) subMistakes.style.display = 'none';
+    if (currentIndexEl) currentIndexEl.textContent = activeExamPool.length ? (currentMCQIndex + 1) + " / " + activeExamPool.length : "0 / 0";
+    if (correctCountEl) correctCountEl.textContent = correctAnswers;
+    if (wrongCountEl) wrongCountEl.textContent = wrongAnswers;
+    const totalMarks = (correctAnswers * 1.0) - (wrongAnswers * 0.5);
+    if (scoreValEl) scoreValEl.textContent = totalMarks.toFixed(2);
+
+    const masteredCount = userMCQProgress.masteredIds.length;
+    if (masteryBadge) {
+      masteryBadge.innerHTML = `${ICON.trophy} ${masteredCount} Mastered`;
+    }
+    if (resetMasteredBtn) {
+      resetMasteredBtn.style.display = masteredCount > 0 ? "inline-flex" : "none";
+    }
   }
 
-  function addCustomQuizQuestion(questionText) {
-    const text = (questionText || '').trim();
-    if (!text) {
-      if (typeof showToast === 'function') showToast('প্রথমে প্রশ্ন লিখুন');
-      return;
-    }
+  // Automatically add fresh questions from extendedQuestionPool
+  function autoAddFreshQuestions() {
+    const masteredSet = new Set(userMCQProgress.masteredIds.map(String));
+    const removedSubjectsSet = new Set(userMCQProgress.removedSubjects || []);
+    const existingQuestions = new Set(allQuestions.map(q => q.question.trim()));
 
-    sampleQuestions.push({
-      id: Date.now(),
-      q: text,
-      options: ['সত্য', 'মিথ্যা'],
-      correct: 0,
-      explain: 'এই প্রশ্নটি ব্যবহারকারী যোগ করেছেন।'
+    // Filter available candidates from extendedQuestionPool
+    const candidates = extendedQuestionPool.filter(q => {
+      return !existingQuestions.has(q.question.trim()) && !masteredSet.has(String(q.id)) && !removedSubjectsSet.has(q.subject);
     });
 
-    currentQuizIdx = sampleQuestions.length - 1;
-    showQuizView();
-    renderQuiz();
-    if (typeof showToast === 'function') showToast('নতুন কুইজ প্রশ্ন যোগ করা হয়েছে');
+    if (candidates.length === 0) {
+      return 0;
+    }
+
+    // Add a batch of up to 10 questions
+    const batch = candidates.slice(0, 10);
+    const stored = getStoredQuestions();
+
+    batch.forEach(item => {
+      const newQ = {
+        ...item,
+        id: item.id || ("ext_" + Date.now() + "_" + Math.random().toString(36).substr(2, 5)),
+        isAutoAdded: true
+      };
+      stored.push(newQ);
+      allQuestions.push(newQ);
+      activeExamPool.push(autoShuffleOptions(newQ));
+    });
+
+    saveStoredQuestions(stored);
+    updateMCQStats();
+    showToast(`You answered all questions! Added ${batch.length} fresh high-yield questions to your question bank.`, false);
+    return batch.length;
   }
 
-  function renderQuiz() {
-    const box = document.getElementById('quizBox');
-    if (!box) return;
+  function advanceToNextMCQQuestion() {
+    clearTimeout(autoNextTimeout);
+    const nextBtn = document.getElementById("next-btn");
+    if (nextBtn) nextBtn.innerHTML = (currentMCQIndex === activeExamPool.length - 1) ? "View Results" : `Next ${ICON.arrowR}`;
 
-    if (currentQuizIdx >= sampleQuestions.length) {
-      box.innerHTML = `
-        <div style="text-align:center; padding: 24px;">
-          <h3 style="font-family:'Baloo Da 2',sans-serif; font-size:24px; color:var(--accent2); margin-bottom:10px;">কুইজ সেশন শেষ হয়েছে!</h3>
-          <p style="color:var(--text-soft); margin-bottom:20px;">আপনার ভুল উত্তরসমূহ "দুর্বলতার খাতা (Mistake Bank)" এ সংরক্ষিত হয়েছে।</p>
-          <button class="pill solid" id="restartQuizBtn">পুনরায় শুরু করুন</button>
-        </div>
-      `;
-      document.getElementById('restartQuizBtn').addEventListener('click', () => {
-        currentQuizIdx = 0;
-        renderQuiz();
-      });
+    const currentQ = activeExamPool[currentMCQIndex];
+    if (currentQ && currentQ._markedForDeletion) {
+      const delId = String(currentQ.id);
+      allQuestions = allQuestions.filter(q => String(q.id) !== delId);
+      activeExamPool = activeExamPool.filter(q => String(q.id) !== delId);
+      updateMCQStats();
+      if (currentMCQIndex >= activeExamPool.length) {
+        currentMCQIndex = Math.max(0, activeExamPool.length - 1);
+      }
+      if (activeExamPool.length === 0) {
+        const added = autoAddFreshQuestions();
+        if (!added) {
+          showMCQSummary();
+          return;
+        }
+      }
+      renderMCQQuestion();
       return;
     }
 
-    const qItem = sampleQuestions[currentQuizIdx];
+    if (currentMCQIndex < activeExamPool.length - 1) {
+      currentMCQIndex++;
+      renderMCQQuestion();
+    } else {
+      const added = autoAddFreshQuestions();
+      if (added > 0) {
+        currentMCQIndex++;
+        renderMCQQuestion();
+      } else {
+        showMCQSummary();
+      }
+    }
+  }
 
-    box.innerHTML = `
-      <div class="quiz-header">
-        <span style="font-size:13px; color:var(--text-soft);">প্রশ্ন ${toBnDigits(currentQuizIdx + 1)} / ${toBnDigits(sampleQuestions.length)}</span>
-        <span class="pill" style="font-size:12px; padding:4px 12px;">বিসিএস প্রিলিমিনারি</span>
-      </div>
-      <div class="quiz-question">${qItem.q}</div>
-      <div class="quiz-options">
-        ${qItem.options.map((opt, i) => `
-          <button class="quiz-opt-btn" data-idx="${i}">
-            <span>${opt}</span>
-            <span class="opt-indicator"></span>
-          </button>
-        `).join('')}
-      </div>
-      <div id="quizExplainBox" style="display:none;" class="quiz-explanation"></div>
-      <div style="display:flex; justify-content:flex-end;">
-        <button class="pill solid" id="nextQuizBtn" style="display:none;">পরের প্রশ্ন ➔</button>
-      </div>
+  function renderMCQQuestion() {
+    const quizCard = document.getElementById("quiz-card");
+    const summaryCard = document.getElementById("summary-card");
+    if (quizCard) quizCard.style.display = "block";
+    if (summaryCard) summaryCard.style.display = "none";
+
+    const qSubject = document.getElementById("q-subject");
+    const qText = document.getElementById("q-text");
+    const optionsContainer = document.getElementById("options-container");
+    const explanationBox = document.getElementById("explanation-box");
+    const explanationText = document.getElementById("explanation-text");
+    const prevBtn = document.getElementById("prev-btn");
+    const nextBtn = document.getElementById("next-btn");
+    const currentIndexEl = document.getElementById("current-index");
+    const historyBadge = document.getElementById("q-history-badge");
+    const retryBtn = document.getElementById("retry-btn");
+
+    if (!quizCard) return;
+    clearTimeout(autoNextTimeout);
+    if (retryBtn) retryBtn.style.display = "none";
+
+    if (activeExamPool.length === 0) {
+      const added = autoAddFreshQuestions();
+      if (!added) {
+        if (qText) qText.innerHTML = "<strong>All questions in this category have been mastered!</strong><br><small style=\"color:var(--text-soft); font-weight:normal;\">You answered all available questions correctly twice. Click 'Restore Mastered' in the top bar to practice them again, or switch categories.</small>";
+        if (optionsContainer) optionsContainer.innerHTML = "";
+        if (explanationBox) explanationBox.classList.remove("show");
+        if (prevBtn) prevBtn.style.display = "none";
+        if (nextBtn) nextBtn.style.display = "none";
+        if (currentIndexEl) currentIndexEl.textContent = "0 / 0";
+        if (historyBadge) historyBadge.textContent = "Mastered!";
+        return;
+      }
+    }
+
+    if (nextBtn) nextBtn.style.display = "inline-flex";
+
+    if (currentMCQIndex < 0) currentMCQIndex = 0;
+    if (currentMCQIndex >= activeExamPool.length) currentMCQIndex = activeExamPool.length - 1;
+
+    const q = activeExamPool[currentMCQIndex];
+    if (currentIndexEl) currentIndexEl.textContent = (currentMCQIndex + 1) + " / " + activeExamPool.length;
+    if (qSubject) qSubject.textContent = q.subject;
+    if (qText) qText.textContent = (currentMCQIndex + 1) + ". " + q.question;
+    if (optionsContainer) optionsContainer.innerHTML = "";
+    if (explanationBox) explanationBox.classList.remove("show");
+
+    if (prevBtn) prevBtn.style.display = currentMCQIndex > 0 ? "inline-flex" : "none";
+    if (nextBtn) nextBtn.innerHTML = (currentMCQIndex === activeExamPool.length - 1) ? "View Results" : `Next ${ICON.arrowR}`;
+
+    const qKey = String(q.id !== undefined ? q.id : currentMCQIndex);
+    
+    // Check remembered answer from session or localStorage progress
+    const rememberedAnswer = sessionAnswered[qKey] || userMCQProgress.answers[qKey];
+    const prevStat = userMCQProgress.answers[qKey] || { timesCorrect: 0 };
+    const timesCorrect = prevStat.timesCorrect || 0;
+
+    // Update Question Mastery Badge
+    if (historyBadge) {
+      if (timesCorrect >= 2) {
+        historyBadge.className = "q-history-badge mastered";
+        historyBadge.innerHTML = `${ICON.trophy} Mastered (2/2)`;
+      } else if (timesCorrect === 1) {
+        historyBadge.className = "q-history-badge has-correct";
+        historyBadge.textContent = "✓ 1/2 Right (1 more to master)";
+      } else {
+        historyBadge.className = "q-history-badge";
+        historyBadge.textContent = "Mastery: 0/2";
+      }
+    }
+
+    q.options.forEach((opt, idx) => {
+      const btn = document.createElement("button");
+      btn.className = "option-btn";
+      btn.type = "button";
+      btn.innerHTML = `<span class="opt-prefix">${prefixList[idx] || (idx+1)}</span> <span>${escapeHtml(opt)}</span>`;
+
+      if (rememberedAnswer !== undefined) {
+        btn.disabled = true;
+        if (idx === q.correct) {
+          btn.classList.add(rememberedAnswer.selectedIndex === q.correct ? "selected-correct" : "highlight-correct");
+        } else if (idx === rememberedAnswer.selectedIndex && !rememberedAnswer.isCorrect) {
+          btn.classList.add("selected-wrong");
+        }
+      } else {
+        btn.onclick = () => selectMCQOption(idx, q);
+      }
+      if (optionsContainer) optionsContainer.appendChild(btn);
+    });
+
+    if (rememberedAnswer !== undefined && explanationText && explanationBox) {
+      if (rememberedAnswer.isCorrect) {
+        let expHtml = escapeHtml(q.explanation || "No explanation provided.");
+        if (timesCorrect === 1) {
+          expHtml += `<div style="margin-top:8px; color:#10b981; font-weight:700; font-size:12.5px;">✓ Correct once! Answer correctly 1 more time to master and remove this question.</div>`;
+        } else if (timesCorrect >= 2) {
+          expHtml += `<div style="margin-top:8px; color:#10b981; font-weight:700; font-size:12.5px;">Mastered! You answered this question correctly 2 times.</div>`;
+        }
+        explanationText.innerHTML = expHtml;
+      } else {
+        // Show wrong answer feedback and show Retry button
+        if (retryBtn) retryBtn.style.display = "inline-flex";
+        const yourText = escapeHtml(q.options[rememberedAnswer.selectedIndex] || "");
+        const correctText = escapeHtml(q.options[q.correct] || "");
+        explanationText.innerHTML = `
+          <div class="wrong-feedback-badge">${ICON.x} Incorrect Choice</div>
+          <div style="margin-bottom:8px; font-size:13px; line-height:1.6;">
+            <strong>Your Answer:</strong> <span style="color:#f43f5e; font-weight:600;">${yourText}</span> &nbsp;|&nbsp; 
+            <strong>Correct Answer:</strong> <span style="color:#10b981; font-weight:600;">${correctText}</span>
+          </div>
+          <div><strong>Explanation:</strong> ${escapeHtml(q.explanation || "No explanation provided.")}</div>
+          <div class="mistake-saved-badge">Saved to Mistake Bank &amp; scheduled for revision</div>
+        `;
+      }
+      explanationBox.classList.add("show");
+    }
+  }
+
+  function selectMCQOption(selectedIndex, q) {
+    clearTimeout(autoNextTimeout);
+    const qKey = String(q.id !== undefined ? q.id : currentMCQIndex);
+    const isCorrect = (selectedIndex === q.correct);
+
+    // Track session answer
+    sessionAnswered[qKey] = { selectedIndex, isCorrect };
+
+    // Update persistent progress in localStorage
+    const prev = userMCQProgress.answers[qKey] || { timesCorrect: 0, timesAnswered: 0 };
+    const newTimesCorrect = isCorrect ? (prev.timesCorrect + 1) : prev.timesCorrect;
+    const newTimesAnswered = (prev.timesAnswered || 0) + 1;
+
+    userMCQProgress.answers[qKey] = {
+      selectedIndex,
+      isCorrect,
+      timesCorrect: newTimesCorrect,
+      timesAnswered: newTimesAnswered,
+      lastAnswered: Date.now()
+    };
+
+    let justMastered = false;
+    const retryBtn = document.getElementById("retry-btn");
+    const nextBtn = document.getElementById("next-btn");
+
+    if (isCorrect) {
+      correctAnswers++;
+      if (retryBtn) retryBtn.style.display = "none";
+
+      // Check Leitner Mastery rule: if answered right 2 times -> delete/master question!
+      if (newTimesCorrect >= 2) {
+        if (!userMCQProgress.masteredIds.includes(qKey)) {
+          userMCQProgress.masteredIds.push(qKey);
+        }
+        justMastered = true;
+        q._markedForDeletion = true;
+      }
+
+      // Auto next question after a snappy delay!
+      const delay = justMastered ? 1100 : 750;
+      if (nextBtn) {
+        nextBtn.innerHTML = `Next ${ICON.arrowR} <span class="auto-advance-indicator">${ICON.zap}</span>`;
+      }
+      autoNextTimeout = setTimeout(() => {
+        advanceToNextMCQQuestion();
+      }, delay);
+
+    } else {
+      // WRONG ANSWER REMEDIATION LOGIC:
+      // 1. DO NOT auto-advance! Give the learner time to understand why.
+      clearTimeout(autoNextTimeout);
+      wrongAnswers++;
+
+      // 2. Re-queue this missed question 3-4 spots ahead in active pool for spaced practice
+      const laterIdx = activeExamPool.findIndex((item, idx) => idx > currentMCQIndex && String(item.id) === String(q.id));
+      if (laterIdx === -1 && !is20ExamMode && activeExamPool.length > 2) {
+        const insertPos = Math.min(activeExamPool.length, currentMCQIndex + 4);
+        activeExamPool.splice(insertPos, 0, autoShuffleOptions({ ...q, _isReattempt: true }));
+      }
+
+      // 3. Automatically add to Mistake Bank
+      const exists = mistakes.some(m => (m.q === q.question || String(m.id) === String(q.id)));
+      if (!exists) {
+        mistakes.unshift({
+          id: q.id || ("mcq_" + Date.now()),
+          q: q.question,
+          subject: q.subject,
+          yourAns: q.options[selectedIndex] || "",
+          correctAns: q.options[q.correct] || "",
+          explain: q.explanation || "No explanation provided.",
+          date: new Date().toLocaleDateString()
+        });
+        saveMistakes();
+        renderMistakes();
+      }
+
+      // 4. Show "Try Again" button in nav actions
+      if (retryBtn) retryBtn.style.display = "inline-flex";
+      if (nextBtn) nextBtn.innerHTML = (currentMCQIndex === activeExamPool.length - 1) ? "View Results" : `Next ${ICON.arrowR}`;
+    }
+
+    saveMCQProgress();
+    updateMCQStats();
+
+    // Highlight options in UI
+    const optionsContainer = document.getElementById("options-container");
+    if (optionsContainer) {
+      Array.from(optionsContainer.children).forEach((btn, idx) => {
+        btn.disabled = true;
+        if (idx === q.correct) {
+          btn.classList.add(selectedIndex === q.correct ? "selected-correct" : "highlight-correct");
+        } else if (idx === selectedIndex && !isCorrect) {
+          btn.classList.add("selected-wrong");
+        }
+      });
+    }
+
+    // Update history badge
+    const historyBadge = document.getElementById("q-history-badge");
+    if (historyBadge) {
+      if (newTimesCorrect >= 2) {
+        historyBadge.className = "q-history-badge mastered";
+        historyBadge.innerHTML = `${ICON.trophy} Mastered (2/2)`;
+      } else if (newTimesCorrect === 1) {
+        historyBadge.className = "q-history-badge has-correct";
+        historyBadge.textContent = "✓ 1/2 Right (1 more to master)";
+      } else {
+        historyBadge.className = "q-history-badge";
+        historyBadge.textContent = "Mastery: 0/2";
+      }
+    }
+
+    // Show Explanation Box with enhanced feedback
+    const explanationBox = document.getElementById("explanation-box");
+    const explanationText = document.getElementById("explanation-text");
+    if (explanationText && explanationBox) {
+      if (isCorrect) {
+        let expHtml = escapeHtml(q.explanation || "No explanation provided.");
+        if (justMastered) {
+          expHtml += `<div style="margin-top:10px; padding:10px 14px; background:rgba(16,185,129,0.15); border-radius:8px; border:1px solid #10b981; color:#10b981; font-weight:700; font-size:13px; line-height:1.5;">
+            <strong>Mastered &amp; Graduated!</strong> You answered this question correctly 2 times. Auto-advancing to next question...
+          </div>`;
+          showToast("Question Mastered! Answered correctly twice — removed from active practice.", false);
+        } else if (newTimesCorrect === 1) {
+          expHtml += `<div style="margin-top:8px; color:#10b981; font-weight:700; font-size:12.5px;">✓ Correct (1/2)! Answer right once more in any session to graduate this question.</div>`;
+        }
+        explanationText.innerHTML = expHtml;
+      } else {
+        const yourText = escapeHtml(q.options[selectedIndex] || "");
+        const correctText = escapeHtml(q.options[q.correct] || "");
+        explanationText.innerHTML = `
+          <div class="wrong-feedback-badge">${ICON.x} Incorrect Choice</div>
+          <div style="margin-bottom:8px; font-size:13px; line-height:1.6;">
+            <strong>Your Answer:</strong> <span style="color:#f43f5e; font-weight:600;">${yourText}</span> &nbsp;|&nbsp; 
+            <strong>Correct Answer:</strong> <span style="color:#10b981; font-weight:600;">${correctText}</span>
+          </div>
+          <div><strong>Explanation:</strong> ${escapeHtml(q.explanation || "No explanation provided.")}</div>
+          <div class="mistake-saved-badge">Saved to Mistake Bank &amp; re-queued for spaced practice</div>
+        `;
+      }
+      explanationBox.classList.add("show");
+    }
+
+    // Check if user has answered all questions in active pool
+    checkSessionCompletion();
+  }
+
+  function checkSessionCompletion() {
+    const answeredCount = activeExamPool.filter(q => {
+      const qKey = String(q.id !== undefined ? q.id : currentMCQIndex);
+      return sessionAnswered[qKey] || userMCQProgress.answers[qKey];
+    }).length;
+
+    if (answeredCount >= activeExamPool.length && activeExamPool.length > 0) {
+      setTimeout(() => {
+        const added = autoAddFreshQuestions();
+        if (added > 0) {
+          updateMCQStats();
+          renderMCQQuestion();
+        }
+      }, 1200);
+    }
+  }
+
+  function setup20QuestionExam() {
+    clearTimeout(autoNextTimeout);
+    is20ExamMode = true;
+    const modeBanner = document.getElementById("mode-banner");
+    const filterBar = document.getElementById("filter-bar");
+    const examTimerEl = document.getElementById("exam-timer");
+    const quizCard = document.getElementById("quiz-card");
+    const summaryCard = document.getElementById("summary-card");
+
+    if (modeBanner) modeBanner.classList.add("active");
+    if (filterBar) filterBar.style.display = "none";
+
+    // Refresh active pool excluding mastered
+    allQuestions = getActiveQuestionsPool();
+
+    // If pool has fewer than 20 questions, automatically replenish
+    if (allQuestions.length < 20) {
+      autoAddFreshQuestions();
+    }
+
+    // Shuffle all questions and pick up to 20
+    const shuffled = [...allQuestions].sort(() => 0.5 - Math.random());
+    const raw20 = shuffled.slice(0, Math.min(20, shuffled.length));
+
+    // Auto-shuffle options for each question
+    activeExamPool = raw20.map(q => autoShuffleOptions(q));
+
+    currentMCQIndex = 0;
+    correctAnswers = 0;
+    wrongAnswers = 0;
+    sessionAnswered = {};
+    updateMCQStats();
+
+    // 15-minute countdown
+    timeRemaining = 900;
+    clearInterval(examTimerInterval);
+    if (examTimerEl) examTimerEl.textContent = "15:00";
+    examTimerInterval = setInterval(() => {
+      timeRemaining--;
+      const mins = Math.floor(timeRemaining / 60);
+      const secs = timeRemaining % 60;
+      if (examTimerEl) {
+        examTimerEl.textContent = String(mins).padStart(2, "0") + ":" + String(secs).padStart(2, "0");
+      }
+      if (timeRemaining <= 0) {
+        clearInterval(examTimerInterval);
+        showToast("Time is up! Review your exam results.");
+        showMCQSummary();
+      }
+    }, 1000);
+
+    if (quizCard) quizCard.style.display = "block";
+    if (summaryCard) summaryCard.style.display = "none";
+    renderMCQQuestion();
+  }
+
+  function showMCQSummary() {
+    clearTimeout(autoNextTimeout);
+    clearInterval(examTimerInterval);
+    const quizCard = document.getElementById("quiz-card");
+    const summaryCard = document.getElementById("summary-card");
+    const finalScoreEl = document.getElementById("final-score");
+    const finalDetailsEl = document.getElementById("final-details");
+
+    if (quizCard) quizCard.style.display = "none";
+    if (summaryCard) summaryCard.style.display = "block";
+
+    const totalMarks = (correctAnswers * 1.0) - (wrongAnswers * 0.5);
+    if (finalScoreEl) finalScoreEl.textContent = totalMarks < 0 ? "0.00" : totalMarks.toFixed(2);
+
+    const accuracy = activeExamPool.length > 0 ? Math.round((correctAnswers / activeExamPool.length) * 100) : 0;
+    if (finalDetailsEl) {
+      finalDetailsEl.innerHTML = `
+        Total Questions: <b>${activeExamPool.length}</b><br>
+        Correct (+1.0): <b style="color: #10b981;">${correctAnswers}</b> | Incorrect (-0.5): <b style="color: #f43f5e;">${wrongAnswers}</b><br>
+        Net Marks: <b>${totalMarks.toFixed(2)}</b> (Standard BCS Preliminary negative marking applied)<br>
+        Accuracy Rate: <b>${accuracy}%</b> | Mastered Questions: <b style="color:#10b981;">${userMCQProgress.masteredIds.length}</b>
+      `;
+    }
+  }
+
+  function resetMCQQuiz() {
+    clearTimeout(autoNextTimeout);
+    clearInterval(examTimerInterval);
+    is20ExamMode = false;
+    const modeBanner = document.getElementById("mode-banner");
+    const filterBar = document.getElementById("filter-bar");
+    const quizCard = document.getElementById("quiz-card");
+    const summaryCard = document.getElementById("summary-card");
+
+    if (modeBanner) modeBanner.classList.remove("active");
+    currentSelectedSubject = "all";
+    if (filterBar) {
+      filterBar.style.display = "flex";
+      renderMCQFilterBar();
+    }
+
+    allQuestions = getActiveQuestionsPool();
+    activeExamPool = allQuestions.map(q => autoShuffleOptions(q));
+    currentMCQIndex = 0;
+    correctAnswers = 0;
+    wrongAnswers = 0;
+    sessionAnswered = {};
+    updateMCQStats();
+
+    if (quizCard) quizCard.style.display = "block";
+    if (summaryCard) summaryCard.style.display = "none";
+    renderMCQQuestion();
+  }
+
+  const DEFAULT_MCQ_SUBJECTS = [
+    "বাংলা সাহিত্য",
+    "বাংলা ব্যাকরণ",
+    "English",
+    "গণিত",
+    "বাংলাদেশ বিষয়াবলী",
+    "আন্তর্জাতিক বিষয়াবলী",
+    "সাধারণ বিজ্ঞান",
+    "কম্পিউটার ও আইসিটি"
+  ];
+
+  let currentSelectedSubject = "all";
+
+  function renderMCQFilterBar() {
+    const filterBar = document.getElementById("filter-bar");
+    if (!filterBar) return;
+
+    if (!userMCQProgress.removedSubjects) {
+      userMCQProgress.removedSubjects = [];
+    }
+    const removedSet = new Set(userMCQProgress.removedSubjects);
+
+    // Collect all unique subjects from defaults and loaded questions
+    const subjectSet = new Set(DEFAULT_MCQ_SUBJECTS);
+    const stored = getStoredQuestions();
+    [...defaultQuestions, ...aiCuratedPool, ...stored].forEach(q => {
+      if (q && q.subject && q.subject !== "all" && q.subject !== "custom") {
+        subjectSet.add(q.subject);
+      }
+    });
+
+    // Visible subjects exclude removed ones
+    const visibleSubjects = Array.from(subjectSet).filter(s => !removedSet.has(s));
+
+    let html = `
+      <button class="filter-pill ${currentSelectedSubject === 'all' ? 'active' : ''}" data-subject="all">
+        সকল বিষয় (All)
+      </button>
     `;
 
-    const optBtns = box.querySelectorAll('.quiz-opt-btn');
-    const explainBox = box.querySelector('#quizExplainBox');
-    const nextBtn = box.querySelector('#nextQuizBtn');
-
-    optBtns.forEach(btn => {
-      btn.addEventListener('click', () => {
-        const selectedIdx = parseInt(btn.dataset.idx, 10);
-        optBtns.forEach(b => b.style.pointerEvents = 'none');
-
-        if (selectedIdx === qItem.correct) {
-          btn.classList.add('correct');
-          btn.querySelector('.opt-indicator').textContent = '✓ সঠিক';
-        } else {
-          btn.classList.add('wrong');
-          btn.querySelector('.opt-indicator').textContent = '✕ ভুল';
-          optBtns[qItem.correct].classList.add('correct');
-          optBtns[qItem.correct].querySelector('.opt-indicator').textContent = '✓ সঠিক উত্তর';
-
-          if (!mistakes.some(m => m.id === qItem.id)) {
-            mistakes.push({
-              id: qItem.id,
-              q: qItem.q,
-              yourAns: qItem.options[selectedIdx],
-              correctAns: qItem.options[qItem.correct],
-              explain: qItem.explain
-            });
-            saveMistakes();
-            renderMistakes();
-          }
-        }
-
-        explainBox.innerHTML = `<strong>ব্যাখ্যা:</strong> ${qItem.explain}`;
-        explainBox.style.display = 'block';
-        nextBtn.style.display = 'inline-flex';
-      });
+    visibleSubjects.forEach(s => {
+      const isActive = currentSelectedSubject === s;
+      html += `
+        <button class="filter-pill ${isActive ? 'active' : ''}" data-subject="${escapeAttr(s)}">
+          <span class="pill-label">${escapeHtml(s)}</span>
+          <span class="pill-del-btn" data-del-subject="${escapeAttr(s)}" title="Remove ${escapeAttr(s)}">${ICON.x}</span>
+        </button>
+      `;
     });
 
-    nextBtn.addEventListener('click', () => {
-      currentQuizIdx++;
-      renderQuiz();
-    });
+    html += `
+      <button class="filter-pill ${currentSelectedSubject === 'custom' ? 'active' : ''}" data-subject="custom">
+        কাস্টম প্রশ্ন
+      </button>
+    `;
+
+    if (userMCQProgress.removedSubjects.length > 0) {
+      html += `
+        <button class="restore-subjects-btn" id="restoreSubjectsBtn" title="Click to restore removed subjects">
+          ${ICON.rotccw} বিষয় পুনরুদ্ধার (${userMCQProgress.removedSubjects.length})
+        </button>
+      `;
+    }
+
+    filterBar.innerHTML = html;
+  }
+
+  function filterMCQPoolBySubject(selectedSubject) {
+    if (selectedSubject === "all") {
+      activeExamPool = allQuestions.map(q => autoShuffleOptions(q));
+    } else if (selectedSubject === "custom") {
+      activeExamPool = allQuestions.filter(q => q.isCustom || q.isAutoAdded).map(q => autoShuffleOptions(q));
+    } else {
+      activeExamPool = allQuestions.filter(q => q.subject === selectedSubject).map(q => autoShuffleOptions(q));
+    }
+    currentMCQIndex = 0;
+    const quizCard = document.getElementById("quiz-card");
+    const summaryCard = document.getElementById("summary-card");
+    if (quizCard) quizCard.style.display = "block";
+    if (summaryCard) summaryCard.style.display = "none";
+    renderMCQQuestion();
+    updateMCQStats();
   }
 
   function renderMistakes() {
-    const list = document.getElementById('mistakeBankList');
+    const list = document.getElementById("mistakeBankList");
     if (!list) return;
-    list.innerHTML = '';
+    list.innerHTML = "";
 
     if (!mistakes.length) {
-      list.innerHTML = '<div class="empty-state">এখনও কোনো ভুল উত্তর রেকর্ড হয়নি। কুইজ অনুশীলন করুন!</div>';
+      list.innerHTML = '<div class="empty-state">No mistakes recorded yet. Practice quizzes to identify weak areas!</div>';
       return;
     }
 
-    mistakes.forEach(m => {
-      const card = document.createElement('div');
-      card.className = 'mistake-card';
+    mistakes.forEach((m, idx) => {
+      const card = document.createElement("div");
+      card.className = "mistake-card glass";
+      card.style.cssText = "padding:16px 18px; margin-bottom:12px; border-radius:12px; border:1px solid var(--border);";
       card.innerHTML = `
-        <h4>${m.q}</h4>
-        <div class="mistake-ans-row">
-          <span class="mistake-wrong">আপনার উত্তর: ${m.yourAns}</span>
-          <span class="mistake-correct">সঠিক উত্তর: ${m.correctAns}</span>
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:8px; gap:10px;">
+          <h4 style="margin:0; font-size:15px; font-weight:700; color:var(--text); line-height:1.4;">${escapeHtml(m.q)}</h4>
+          <div style="display:flex; align-items:center; gap:8px; flex-shrink:0;">
+            ${m.subject ? `<span class="q-badge" style="font-size:11px; padding:2px 8px;">${escapeHtml(m.subject)}</span>` : ""}
+            <button class="pill danger" data-del-mistake="${idx}" style="padding:2px 8px; font-size:11px;">Remove</button>
+          </div>
         </div>
-        <div style="font-size:12.5px; color:var(--text-soft); margin-top:6px;">💡 ${m.explain}</div>
+        <div class="mistake-ans-row" style="display:flex; gap:12px; margin-bottom:8px; flex-wrap:wrap; font-size:13.5px;">
+          <span class="mistake-wrong" style="color:#f43f5e; font-weight:600;">Your Answer: ${escapeHtml(m.yourAns || "None")}</span>
+          <span class="mistake-correct" style="color:#10b981; font-weight:600;">Correct: ${escapeHtml(m.correctAns || "N/A")}</span>
+        </div>
+        <div style="font-size:13px; color:var(--text-soft); line-height:1.5; background:rgba(99,102,241,0.06); padding:8px 12px; border-radius:8px; border-left:3px solid var(--accent1);">
+          <strong>Explanation:</strong> ${escapeHtml(m.explain || "No explanation recorded.")}
+        </div>
       `;
       list.appendChild(card);
     });
+
+    list.querySelectorAll("[data-del-mistake]").forEach(btn => {
+      btn.addEventListener("click", (e) => {
+        const i = parseInt(e.target.getAttribute("data-del-mistake"), 10);
+        if (window.confirm("Remove this question from your Mistake Bank?")) {
+          mistakes.splice(i, 1);
+          saveMistakes();
+          renderMistakes();
+          showToast("Mistake item removed");
+        }
+      });
+    });
   }
 
-  const clearMistakesBtn = document.getElementById('clearMistakesBtn');
+  function initMCQEngine() {
+    const startExam20Btn = document.getElementById("start-exam-20-btn");
+    const retake20Btn = document.getElementById("retake-20-btn");
+    const resetBtn = document.getElementById("reset-btn");
+    const restartBtn = document.getElementById("restart-btn");
+    const nextBtn = document.getElementById("next-btn");
+    const prevBtn = document.getElementById("prev-btn");
+    const retryBtn = document.getElementById("retry-btn");
+    const filterBar = document.getElementById("filter-bar");
+    const resetMasteredBtn = document.getElementById("resetMasteredBtn");
+
+    const addModal = document.getElementById("add-modal");
+    const openAddModalBtn = document.getElementById("open-add-modal");
+    const closeModalBtn = document.getElementById("close-modal");
+    const closeModalCancelBtn = document.getElementById("closeModalCancelBtn");
+    const addForm = document.getElementById("add-question-form");
+    const modalTabSwitch = document.getElementById("mcqModalTabSwitch");
+    const tabCreate = document.getElementById("modal-tab-create");
+    const tabImport = document.getElementById("modal-tab-import");
+
+    const btnImportJson = document.getElementById("btn-import-json");
+    const btnExportMcqJson = document.getElementById("btn-export-mcq-json");
+    const agentImportText = document.getElementById("agent-import-text");
+
+    if (startExam20Btn) startExam20Btn.addEventListener("click", setup20QuestionExam);
+    if (retake20Btn) retake20Btn.addEventListener("click", setup20QuestionExam);
+    if (resetBtn) resetBtn.addEventListener("click", resetMCQQuiz);
+    if (restartBtn) restartBtn.addEventListener("click", resetMCQQuiz);
+
+    // Restore Mastered Questions handler
+    if (resetMasteredBtn) {
+      resetMasteredBtn.addEventListener("click", () => {
+        if (window.confirm("Restore all mastered questions back to your active practice list?")) {
+          userMCQProgress.masteredIds = [];
+          saveMCQProgress();
+          allQuestions = getActiveQuestionsPool();
+          activeExamPool = allQuestions.map(q => autoShuffleOptions(q));
+          currentMCQIndex = 0;
+          updateMCQStats();
+          renderMCQQuestion();
+          showToast("All mastered questions restored to practice pool!");
+        }
+      });
+    }
+
+    // Try Again on Wrong Answer
+    if (retryBtn) {
+      retryBtn.addEventListener("click", () => {
+        clearTimeout(autoNextTimeout);
+        const q = activeExamPool[currentMCQIndex];
+        if (!q) return;
+        const qKey = String(q.id !== undefined ? q.id : currentMCQIndex);
+
+        // Clear session answer so user can retry
+        delete sessionAnswered[qKey];
+        if (userMCQProgress.answers[qKey]) {
+          delete userMCQProgress.answers[qKey].selectedIndex;
+          delete userMCQProgress.answers[qKey].isCorrect;
+          saveMCQProgress();
+        }
+
+        // Re-enable options
+        const optionsContainer = document.getElementById("options-container");
+        if (optionsContainer) {
+          optionsContainer.querySelectorAll(".option-btn").forEach(btn => {
+            btn.disabled = false;
+            btn.classList.remove("selected-wrong", "selected-correct", "highlight-correct");
+          });
+        }
+
+        const explanationBox = document.getElementById("explanation-box");
+        if (explanationBox) explanationBox.classList.remove("show");
+        retryBtn.style.display = "none";
+      });
+    }
+
+    if (nextBtn) {
+      nextBtn.addEventListener("click", () => {
+        advanceToNextMCQQuestion();
+      });
+    }
+
+    if (prevBtn) {
+      prevBtn.addEventListener("click", () => {
+        clearTimeout(autoNextTimeout);
+        if (currentMCQIndex > 0) {
+          currentMCQIndex--;
+          renderMCQQuestion();
+        }
+      });
+    }
+
+    // Filter handling & Subject Deletion with confirmation
+    if (filterBar) {
+      filterBar.addEventListener("click", (e) => {
+        clearTimeout(autoNextTimeout);
+
+        // 1. Delete button clicked
+        const delBtn = e.target.closest("[data-del-subject]");
+        if (delBtn) {
+          e.stopPropagation();
+          e.preventDefault();
+          const targetSubj = delBtn.getAttribute("data-del-subject");
+          if (!targetSubj) return;
+
+          if (window.confirm(`Are you sure you want to remove "${targetSubj}" from the subject list?\n\n(This subject's questions will be hidden from practice. You can restore it anytime.)`)) {
+            if (!userMCQProgress.removedSubjects) userMCQProgress.removedSubjects = [];
+            if (!userMCQProgress.removedSubjects.includes(targetSubj)) {
+              userMCQProgress.removedSubjects.push(targetSubj);
+            }
+            saveMCQProgress();
+
+            if (currentSelectedSubject === targetSubj) {
+              currentSelectedSubject = "all";
+            }
+
+            allQuestions = getActiveQuestionsPool();
+            filterMCQPoolBySubject(currentSelectedSubject);
+            renderMCQFilterBar();
+            showToast(`Subject "${targetSubj}" removed from list`);
+          }
+          return;
+        }
+
+        // 2. Restore subjects button clicked
+        const restoreBtn = e.target.closest("#restoreSubjectsBtn");
+        if (restoreBtn) {
+          e.stopPropagation();
+          e.preventDefault();
+          const listStr = (userMCQProgress.removedSubjects || []).join(", ");
+          if (window.confirm(`Restore all removed subjects (${listStr}) back to the subject list?`)) {
+            userMCQProgress.removedSubjects = [];
+            saveMCQProgress();
+            allQuestions = getActiveQuestionsPool();
+            filterMCQPoolBySubject(currentSelectedSubject);
+            renderMCQFilterBar();
+            showToast("All subjects restored successfully!");
+          }
+          return;
+        }
+
+        // 3. Normal subject selection
+        const pill = e.target.closest(".filter-pill");
+        if (!pill) return;
+
+        const selectedSubject = pill.getAttribute("data-subject");
+        if (!selectedSubject) return;
+
+        currentSelectedSubject = selectedSubject;
+        filterMCQPoolBySubject(selectedSubject);
+        renderMCQFilterBar();
+      });
+    }
+
+    // Modal Events
+    if (openAddModalBtn && addModal) {
+      openAddModalBtn.addEventListener("click", () => addModal.classList.add("open"));
+    }
+    if (closeModalBtn && addModal) {
+      closeModalBtn.addEventListener("click", () => addModal.classList.remove("open"));
+    }
+    if (closeModalCancelBtn && addModal) {
+      closeModalCancelBtn.addEventListener("click", () => addModal.classList.remove("open"));
+    }
+
+    if (addModal) {
+      addModal.addEventListener("click", (e) => {
+        if (e.target === addModal) addModal.classList.remove("open");
+      });
+    }
+
+    // Modal Tab Switch (Add vs Import)
+    if (modalTabSwitch) {
+      modalTabSwitch.addEventListener("click", (e) => {
+        const chip = e.target.closest(".chip");
+        if (!chip) return;
+        modalTabSwitch.querySelectorAll(".chip").forEach(c => c.classList.remove("active"));
+        chip.classList.add("active");
+        const tab = chip.getAttribute("data-tab");
+        if (tabCreate) tabCreate.style.display = tab === "create" ? "block" : "none";
+        if (tabImport) tabImport.style.display = tab === "import" ? "block" : "none";
+      });
+    }
+
+    // JSON Importer
+    if (btnImportJson && agentImportText) {
+      btnImportJson.addEventListener("click", () => {
+        const raw = agentImportText.value.trim();
+        if (!raw) {
+          showToast("Please paste a JSON array of questions", true);
+          return;
+        }
+        try {
+          const parsed = JSON.parse(raw);
+          if (Array.isArray(parsed)) {
+            const stored = getStoredQuestions();
+            let count = 0;
+            parsed.forEach(item => {
+              if (item.question && Array.isArray(item.options)) {
+                const newQ = {
+                  id: "imported_" + Date.now() + "_" + Math.random().toString(36).substr(2, 5),
+                  subject: item.subject || "General Knowledge",
+                  question: item.question,
+                  options: item.options,
+                  correct: typeof item.correct === "number" ? item.correct : 0,
+                  explanation: item.explanation || "No explanation provided.",
+                  isCustom: true
+                };
+                stored.push(newQ);
+                allQuestions.push(newQ);
+                count++;
+              }
+            });
+            saveStoredQuestions(stored);
+            showToast(`Successfully imported ${count} questions!`);
+            if (addModal) addModal.classList.remove("open");
+            agentImportText.value = "";
+            if (!is20ExamMode) {
+              activeExamPool = allQuestions.map(q => autoShuffleOptions(q));
+              renderMCQQuestion();
+            }
+          } else {
+            showToast("Invalid format: expected JSON array [ ... ]", true);
+          }
+        } catch (err) {
+          showToast("JSON Parse Error: " + err.message, true);
+        }
+      });
+    }
+
+    // JSON Exporter
+    if (btnExportMcqJson) {
+      btnExportMcqJson.addEventListener("click", () => {
+        const blob = new Blob([JSON.stringify(allQuestions, null, 2)], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "bcs-mcq-question-bank.json";
+        document.body.appendChild(a); a.click(); a.remove();
+        URL.revokeObjectURL(url);
+        showToast("MCQ Question Bank exported as JSON!");
+      });
+    }
+
+    // Custom Add Form
+    if (addForm) {
+      addForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+        const subject = document.getElementById("new-subject").value;
+        const question = document.getElementById("new-question").value.trim();
+        const opt0 = document.getElementById("opt-0").value.trim();
+        const opt1 = document.getElementById("opt-1").value.trim();
+        const opt2 = document.getElementById("opt-2").value.trim();
+        const opt3 = document.getElementById("opt-3").value.trim();
+        const correct = parseInt(document.getElementById("new-correct").value, 10);
+        const explanation = document.getElementById("new-explanation").value.trim() || "No explanation provided.";
+
+        if (!question || !opt0 || !opt1 || !opt2 || !opt3) {
+          showToast("Please fill in question and all 4 options", true);
+          return;
+        }
+
+        const newQ = {
+          id: "custom_" + Date.now(),
+          subject: subject,
+          isCustom: true,
+          question: question,
+          options: [opt0, opt1, opt2, opt3],
+          correct: correct,
+          explanation: explanation
+        };
+
+        const currentCustom = getStoredQuestions();
+        currentCustom.push(newQ);
+        saveStoredQuestions(currentCustom);
+
+        if (userMCQProgress.removedSubjects && userMCQProgress.removedSubjects.includes(subject)) {
+          userMCQProgress.removedSubjects = userMCQProgress.removedSubjects.filter(s => s !== subject);
+          saveMCQProgress();
+        }
+
+        allQuestions = getActiveQuestionsPool();
+        if (!is20ExamMode) {
+          activeExamPool = allQuestions.map(q => autoShuffleOptions(q));
+          currentMCQIndex = activeExamPool.length - 1;
+          renderMCQQuestion();
+        }
+        renderMCQFilterBar();
+
+        addForm.reset();
+        if (addModal) addModal.classList.remove("open");
+        showToast("Custom MCQ question added successfully!");
+      });
+    }
+
+    // Initial shuffle and load
+    allQuestions = getActiveQuestionsPool();
+    activeExamPool = allQuestions.map(q => autoShuffleOptions(q));
+    renderMCQFilterBar();
+    renderMCQQuestion();
+    updateMCQStats();
+  }
+
+  const clearMistakesBtn = document.getElementById("clearMistakesBtn");
   if (clearMistakesBtn) {
-    clearMistakesBtn.addEventListener('click', () => {
-      if (window.confirm('আপনি কি নিশ্চিত যে "দুর্বলতার খাতা" খালি করতে চান?')) {
+    clearMistakesBtn.addEventListener("click", () => {
+      if (window.confirm("Are you sure you want to clear all recorded mistakes?")) {
         mistakes = [];
         saveMistakes();
         renderMistakes();
-        showToast('দুর্বলতার খাতা খালি করা হয়েছে');
+        showToast("Mistake bank cleared successfully");
       }
     });
   }
 
-  const quizFlashSwitch = document.getElementById('quizFlashSwitch');
-  const addQuizQuestionBtn = document.getElementById('addQuizQuestionBtn');
-  const newQuizQuestionInput = document.getElementById('newQuizQuestionInput');
-
-  if (addQuizQuestionBtn && newQuizQuestionInput) {
-    addQuizQuestionBtn.addEventListener('click', () => {
-      addCustomQuizQuestion(newQuizQuestionInput.value);
-      newQuizQuestionInput.value = '';
-    });
-
-    newQuizQuestionInput.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') {
-        e.preventDefault();
-        addCustomQuizQuestion(newQuizQuestionInput.value);
-        newQuizQuestionInput.value = '';
-      }
-    });
-  }
-
+  const quizFlashSwitch = document.getElementById("quizFlashSwitch");
   if (quizFlashSwitch) {
-    quizFlashSwitch.addEventListener('click', (e) => {
-      const chip = e.target.closest('.chip');
+    quizFlashSwitch.addEventListener("click", (e) => {
+      const chip = e.target.closest(".chip");
       if (!chip) return;
-      quizFlashSwitch.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
-      chip.classList.add('active');
+      quizFlashSwitch.querySelectorAll(".chip").forEach(c => c.classList.remove("active"));
+      chip.classList.add("active");
       const view = chip.dataset.view;
 
-      const subFlash = document.getElementById('subview-flashcards');
-      const subQuiz = document.getElementById('subview-quiz');
-      const subMistakes = document.getElementById('subview-mistakes');
+      const subFlash = document.getElementById("subview-flashcards");
+      const subQuiz = document.getElementById("subview-quiz");
+      const subMistakes = document.getElementById("subview-mistakes");
 
-      if (subFlash) subFlash.style.display = view === 'flashcards' ? 'block' : 'none';
-      if (subQuiz) subQuiz.style.display = view === 'quiz' ? 'block' : 'none';
-      if (subMistakes) subMistakes.style.display = view === 'mistakes' ? 'block' : 'none';
+      if (subFlash) subFlash.style.display = view === "flashcards" ? "block" : "none";
+      if (subQuiz) subQuiz.style.display = view === "quiz" ? "block" : "none";
+      if (subMistakes) subMistakes.style.display = view === "mistakes" ? "block" : "none";
     });
   }
+
 
   // ===== Init =====
   (async function init() {
     await loadData();
     await initAutoSync();
-    updateNavClock();
     syncThemeButtons();
     syncCarouselControls();
     initMonthDropdown();
@@ -2599,9 +5101,14 @@
     setInterval(renderExams, 1000);
     update24hActivityUI();
     loadMistakes();
-    renderQuiz();
+    
+    initMCQEngine();
     renderMistakes();
 
-    tickInterval = setInterval(() => { tickTimer(); updateNavClock(); }, 1000);
+    tickInterval = setInterval(() => { tickTimer(); }, 1000);
+
+    if (window.lucide) {
+      lucide.createIcons();
+    }
   })();
 })();
