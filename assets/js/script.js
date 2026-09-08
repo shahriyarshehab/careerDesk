@@ -29,6 +29,7 @@
     sparkles: '<svg class="btn-icon-svg" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/><path d="M5 3v4"/><path d="M19 17v4"/><path d="M3 5h4"/><path d="M17 19h4"/></svg>',
     pause: '<svg class="btn-icon-svg" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>',
     award: '<svg class="btn-icon-svg" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg>',
+    clock: '<svg class="btn-icon-svg" xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>',
   };
 
   // window.storage only exists inside the Claude.ai artifact viewer.
@@ -1261,18 +1262,29 @@
       const d = new Date(n.ts);
       card.innerHTML = `
         <div class="note-top">
-          <div>
-            <h3>${escapeHtml(n.title || 'Untitled')}</h3>
+          <div class="note-title-wrap">
+            <h3 class="note-title">${escapeHtml(n.title || 'Untitled')}</h3>
             <span class="note-tag">${escapeHtml(n.tag || 'General')}</span>
           </div>
-          <div class="note-icon-btns">
-            <button class="pin-btn ${n.pinned ? 'pin-active' : ''}" title="Pin note" data-id="${n.id}">${ICON.pin}</button>
-            <button class="edit-btn" title="Edit note" data-id="${n.id}">${ICON.edit}</button>
-            <button class="del-btn" title="Delete" data-id="${n.id}">${ICON.trash}</button>
+          <button class="pin-btn ${n.pinned ? 'pin-active' : ''}" title="${n.pinned ? 'Unpin note' : 'Pin note'}" aria-label="Pin note" data-id="${n.id}">
+            ${ICON.pin}
+          </button>
+        </div>
+        <p class="note-body-text">${escapeHtml(n.body || '')}</p>
+        <div class="note-footer">
+          <time class="note-date" datetime="${new Date(n.ts).toISOString()}">
+            <span class="note-date-icon">${ICON.clock}</span>
+            <span>${d.toLocaleDateString('bn-BD')}</span>
+          </time>
+          <div class="note-actions">
+            <button class="note-action-btn edit-btn" title="Edit note" aria-label="Edit note" data-id="${n.id}">
+              ${ICON.edit} <span>Edit</span>
+            </button>
+            <button class="note-action-btn del-btn" title="Delete note" aria-label="Delete note" data-id="${n.id}">
+              ${ICON.trash} <span>Delete</span>
+            </button>
           </div>
         </div>
-        <p>${escapeHtml(n.body || '')}</p>
-        <time>${d.toLocaleDateString('bn-BD')}</time>
       `;
       notesGrid.appendChild(card);
     });
@@ -1288,9 +1300,21 @@
       const n = state.notes.find(n => String(n.id) === id);
       const title = n && n.title ? `"${n.title}"` : 'this note';
       if (!window.confirm(`Are you sure you want to delete ${title}?`)) return;
-      state.notes = state.notes.filter(n => String(n.id) !== id);
-      renderNotes(); saveData();
-      showToast('Note deleted');
+      const card = btn.closest('.note-card');
+      if (card) {
+        card.style.transition = 'all 0.22s cubic-bezier(0.4, 0, 0.2, 1)';
+        card.style.transform = 'scale(0.92) translateY(6px)';
+        card.style.opacity = '0';
+        setTimeout(() => {
+          state.notes = state.notes.filter(n => String(n.id) !== id);
+          renderNotes(); saveData();
+          showToast('Note deleted');
+        }, 200);
+      } else {
+        state.notes = state.notes.filter(n => String(n.id) !== id);
+        renderNotes(); saveData();
+        showToast('Note deleted');
+      }
     } else if (btn.classList.contains('pin-btn')) {
       const n = state.notes.find(n => String(n.id) === id);
       if (n) { n.pinned = !n.pinned; renderNotes(); saveData(); }

@@ -7,7 +7,7 @@
   width: auto; /* Snug auto-fit around the 3 options */
   max-width: 100%;
   padding: 4px; /* Tight border padding removing all extra empty space */
-  border-radius: 999px;
+  border-radius: 14px;
   background: linear-gradient(135deg, rgba(255, 255, 255, 0.09), rgba(255, 255, 255, 0.03));
   border: 1px solid rgba(255, 255, 255, 0.15);
   backdrop-filter: blur(24px);
@@ -57,7 +57,7 @@
 
 #ControlPillBar #navClock,
 .preview-control-capsule #navClock {
-  border-radius: 999px 0 0 999px !important;
+  border-radius: 10px 0 0 10px !important;
   padding: 0 16px !important;
   animation-delay: 0s !important;
 }
@@ -71,7 +71,7 @@
 
 #ControlPillBar #themeToggle,
 .preview-control-capsule #themeToggle {
-  border-radius: 0 999px 999px 0 !important;
+  border-radius: 0 10px 10px 0 !important;
   padding: 0 12px !important;
   animation-delay: 2.4s !important;
 }
@@ -164,7 +164,7 @@
   font-size: 11px;
   font-weight: 600;
   padding: 4px 10px;
-  border-radius: 999px;
+  border-radius: 8px;
   background: rgba(139,124,255,0.15);
   color: var(--accent1);
   border: 1px solid var(--accent1);
@@ -240,13 +240,13 @@
   margin-bottom: 24px;
   background: var(--surface-strong);
   padding: 5px;
-  border-radius: 999px;
+  border-radius: 14px;
   border: 1px solid var(--border);
 }
 
 .pomo-mode-chip {
   padding: 8px 18px;
-  border-radius: 999px;
+  border-radius: 10px;
   font-size: 13.5px;
   font-weight: 600;
   color: var(--text-soft);
@@ -332,7 +332,7 @@
   font-size: 13px;
   color: var(--text-soft);
   padding: 8px 16px;
-  border-radius: 999px;
+  border-radius: 10px;
   background: var(--surface);
   border: 1px solid var(--border);
 }

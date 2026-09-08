@@ -351,7 +351,7 @@
     margin-top: 10px;
     padding: 4px;
     border: 1px solid var(--border);
-    border-radius: 999px;
+    border-radius: 14px;
     background: var(--surface-strong);
   }
 
@@ -359,7 +359,7 @@
     min-width: 82px;
     padding: 7px 14px;
     border: 0;
-    border-radius: 999px;
+    border-radius: 10px;
     background: transparent;
     color: var(--text-soft);
     cursor: pointer;
@@ -575,25 +575,26 @@
       line-height: 1.45;
     }
 
-    /* Compact Pill Buttons & Chips */
+    /* Compact Pill Buttons & Chips - Unified Boxy Rounded Shapes matching Nav */
     .pill {
       font-size: 11.5px !important;
       padding: 6px 12px !important;
       min-height: 32px;
-      border-radius: 9999px !important;
+      border-radius: 10px !important;
     }
 
     .chip {
       font-size: 11px !important;
       padding: 4px 10px !important;
-      border-radius: 9999px !important;
+      border-radius: 8px !important;
     }
 
-    /* Action buttons: Delete, Edit, Restore converted to clean icon-only buttons */
+    /* Action buttons: Delete, Edit, Restore, Note Actions converted to clean icon-only buttons */
     .monthly-routine-actions .pill span,
     .quote-action-btn span,
     .subject-delete-btn span,
     .subject-restore-btn span,
+    .note-action-btn span,
     #qFlagBtn #qFlagText {
       display: none !important;
     }
@@ -601,7 +602,8 @@
     .monthly-routine-actions .pill,
     .quote-action-btn,
     .subject-delete-btn,
-    .subject-restore-btn {
+    .subject-restore-btn,
+    .note-action-btn {
       min-width: 32px !important;
       width: 32px !important;
       height: 32px !important;
@@ -617,10 +619,12 @@
     .quote-action-btn svg,
     .subject-delete-btn svg,
     .subject-restore-btn svg,
+    .note-action-btn svg,
     .monthly-routine-actions .pill .lucide,
     .quote-action-btn .lucide,
     .subject-delete-btn .lucide,
-    .subject-restore-btn .lucide {
+    .subject-restore-btn .lucide,
+    .note-action-btn .lucide {
       width: 15px !important;
       height: 15px !important;
       margin: 0 !important;
@@ -677,7 +681,8 @@
     .chip:active,
     .option-btn:active,
     .tab-btn:active,
-    .quote-action-btn:active {
+    .quote-action-btn:active,
+    .note-action-btn:active {
       transform: scale(0.95);
       transition: transform 0.1s ease;
     }
@@ -1165,12 +1170,12 @@
     box-shadow: var(--shadow);
   }
 
-  /* ===== Dropdowns Glassmorphism Pill Shape ===== */
+  /* ===== Dropdowns Glassmorphism Boxy Shape (Matching Navbar Button) ===== */
   select {
-    padding: 10px 38px 10px 18px !important;
-    border-radius: 999px !important;
-    border: 1px solid var(--select-border) !important;
-    background-color: var(--surface-strong) !important;
+    padding: 9px 36px 9px 14px !important;
+    border-radius: 12px !important;
+    border: 1px solid var(--border) !important;
+    background-color: var(--surface) !important;
     background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238890A5' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e") !important;
     background-repeat: no-repeat !important;
     background-position: right 14px center !important;
@@ -1178,25 +1183,27 @@
     color: var(--text) !important;
     font-family: var(--font-sans) !important;
     font-weight: 600 !important;
-    font-size: 14px !important;
+    font-size: 13.5px !important;
     cursor: pointer;
     outline: none;
     backdrop-filter: blur(14px) !important;
-    transition: all .25s ease;
+    -webkit-backdrop-filter: blur(14px) !important;
+    transition: all .2s ease;
     appearance: none;
     -webkit-appearance: none;
     -moz-appearance: none;
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
   }
 
   select:hover {
     border-color: var(--accent1) !important;
-    background-color: var(--surface) !important;
-    box-shadow: 0 8px 24px rgba(139, 124, 255, 0.2) !important;
+    background-color: var(--surface-hover) !important;
+    box-shadow: 0 4px 16px rgba(99, 102, 241, 0.18) !important;
+    transform: translateY(-1px);
   }
 
   select:focus {
-    box-shadow: 0 0 0 3px rgba(139, 124, 255, 0.35) !important;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.28) !important;
     border-color: var(--accent1) !important;
   }
 
@@ -1204,9 +1211,9 @@
     background-color: var(--select-option-bg) !important;
     color: var(--text) !important;
     font-family: var(--font-sans) !important;
-    font-size: 14px !important;
+    font-size: 13.5px !important;
     font-weight: 600 !important;
-    padding: 12px 16px !important;
+    padding: 10px 14px !important;
   }
 
   select option:checked,
@@ -1606,11 +1613,14 @@
     background: var(--surface);
     color: var(--text);
     padding: 9px 18px;
-    border-radius: 999px;
+    border-radius: 12px;
     cursor: pointer;
     transition: transform .15s ease, background .15s ease, border-color .15s ease, box-shadow .15s ease;
     line-height: 1.2;
     text-decoration: none;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
   }
 
   button.pill svg,
@@ -1627,6 +1637,7 @@
     transform: translateY(-2px);
     border-color: var(--accent1);
     background: var(--surface-hover);
+    box-shadow: 0 4px 14px rgba(99, 102, 241, 0.16);
   }
 
   button.pill.solid,
@@ -1634,19 +1645,24 @@
     background: linear-gradient(135deg, var(--accent1), var(--accent2));
     color: #fff;
     border-color: transparent;
+    box-shadow: 0 4px 16px rgba(99, 102, 241, 0.32);
   }
 
   button.pill.solid:hover,
   .pill.solid:hover {
-    box-shadow: 0 4px 16px rgba(99, 102, 241, 0.35);
+    box-shadow: 0 6px 20px rgba(99, 102, 241, 0.42);
+    transform: translateY(-2px);
   }
 
   button.pill.danger {
     color: var(--accent3);
+    border-color: rgba(244, 63, 94, 0.28);
   }
 
   button.pill.danger:hover {
     border-color: var(--accent3);
+    background: rgba(244, 63, 94, 0.12);
+    box-shadow: 0 4px 14px rgba(244, 63, 94, 0.22);
   }
 
   .save-note {
@@ -1778,7 +1794,7 @@
   .chip {
     font-size: 13px;
     padding: 7px 15px;
-    border-radius: 999px;
+    border-radius: 10px;
     cursor: pointer;
     border: 1px solid var(--border);
     background: var(--surface);
@@ -1787,9 +1803,10 @@
   }
 
   .chip.active {
-    background: var(--accent1);
+    background: linear-gradient(135deg, var(--accent1), var(--accent2));
     color: #fff;
     border-color: transparent;
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.25);
   }
 
   .wallpaper-stage {
@@ -1867,7 +1884,7 @@
     z-index: 1;
     font-size: 9.5px;
     padding: 3px 8px;
-    border-radius: 999px;
+    border-radius: 8px;
     background: var(--surface-strong);
     color: var(--text-soft);
     border: 1px solid var(--border);
@@ -1887,7 +1904,7 @@
     gap: 12px;
     height: 48px;
     padding: 0 22px;
-    border-radius: 999px;
+    border-radius: 14px;
     margin-bottom: 24px;
     overflow: hidden;
   }
@@ -2029,7 +2046,7 @@
     flex: 1;
     min-width: 180px;
     padding: 10px 14px;
-    border-radius: 999px;
+    border-radius: 12px;
     border: 1px solid var(--border);
     background: var(--surface);
     color: var(--text);
@@ -2138,81 +2155,183 @@
   .note-card {
     padding: 16px 18px;
     position: relative;
-    transition: transform .15s ease;
+    border-radius: 14px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
   }
 
   .note-card:hover {
     transform: translateY(-3px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
   }
 
   .note-card.pinned {
-    border-color: var(--gold);
+    border-color: rgba(245, 158, 11, 0.6);
+    box-shadow: 0 4px 18px rgba(245, 158, 11, 0.14);
   }
 
   .note-top {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    gap: 8px;
+    gap: 12px;
   }
 
-  .note-card h3 {
+  .note-title-wrap {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .note-card h3,
+  .note-title {
     font-family: var(--font-display);
     font-size: 16px;
+    font-weight: 700;
     margin: 0;
     color: var(--text);
+    word-break: break-word;
   }
 
   .note-tag {
     display: inline-block;
     font-size: 11px;
+    font-weight: 600;
     padding: 3px 9px;
-    border-radius: 999px;
-    margin-top: 8px;
+    border-radius: 8px;
+    margin-top: 6px;
     background: var(--surface-strong);
     color: var(--text-soft);
     border: 1px solid var(--border);
   }
 
-  .note-card p {
-    margin: 10px 0 0;
-    font-size: 13.6px;
-    line-height: 1.6;
+  .note-card .pin-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 10px;
+    background: var(--surface);
+    border: 1px solid var(--border);
     color: var(--text-soft);
-    white-space: pre-wrap;
-  }
-
-  .note-card time {
-    display: block;
-    margin-top: 12px;
-    font-size: 11px;
-    color: var(--text-soft);
-    opacity: 0.75;
-  }
-
-  .note-icon-btns {
-    display: flex;
-    gap: 4px;
+    cursor: pointer;
+    transition: all .2s ease;
+    padding: 0;
     flex-shrink: 0;
   }
 
-  .note-icon-btns button {
-    background: none;
-    border: none;
-    cursor: pointer;
-    font-size: 15px;
-    color: var(--text-soft);
-    padding: 4px 6px;
-    border-radius: 8px;
+  .note-card .pin-btn svg,
+  .note-card .pin-btn i[data-lucide] svg {
+    width: 14px;
+    height: 14px;
   }
 
-  .note-icon-btns button:hover {
-    background: var(--surface-strong);
-    color: var(--text);
-  }
-
-  .note-icon-btns button.pin-active {
+  .note-card .pin-btn:hover {
+    background: var(--surface-hover);
     color: var(--gold);
+    border-color: rgba(245, 158, 11, 0.4);
+    transform: translateY(-1px);
+  }
+
+  .note-card .pin-btn.pin-active {
+    background: rgba(245, 158, 11, 0.18);
+    color: var(--gold);
+    border-color: var(--gold);
+    box-shadow: 0 0 10px rgba(245, 158, 11, 0.25);
+  }
+
+  .note-card p,
+  .note-body-text {
+    margin: 12px 0;
+    font-size: 13.5px;
+    line-height: 1.6;
+    color: var(--text-soft);
+    white-space: pre-wrap;
+    word-break: break-word;
+    flex-grow: 1;
+  }
+
+  /* Note Card Footer: Logical UI layout separating meta from safe & destructive actions */
+  .note-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding-top: 12px;
+    margin-top: auto;
+    border-top: 1px solid var(--border);
+  }
+
+  .note-date {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11.5px;
+    color: var(--text-soft);
+    opacity: 0.8;
+  }
+
+  .note-date-icon,
+  .note-date svg,
+  .note-date i[data-lucide] svg {
+    display: inline-flex;
+    align-items: center;
+    width: 13px;
+    height: 13px;
+    opacity: 0.75;
+  }
+
+  .note-actions {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .note-action-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    padding: 5px 10px;
+    font-size: 12px;
+    font-weight: 600;
+    border-radius: 9px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text-soft);
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .note-action-btn svg,
+  .note-action-btn i[data-lucide] svg {
+    width: 13px;
+    height: 13px;
+  }
+
+  .note-action-btn.edit-btn:hover {
+    background: var(--surface-hover);
+    color: var(--accent1);
+    border-color: var(--accent1);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(99, 102, 241, 0.15);
+  }
+
+  /* Logical Safe Destructive Styling for Delete Note */
+  .note-action-btn.del-btn {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text-soft);
+  }
+
+  .note-action-btn.del-btn:hover {
+    background: rgba(244, 63, 94, 0.12);
+    color: #f43f5e;
+    border-color: rgba(244, 63, 94, 0.35);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(244, 63, 94, 0.22);
   }
 
   .note-edit-area {
@@ -2259,7 +2378,7 @@
     align-items: center;
     gap: 8px;
     padding: 12px 22px;
-    border-radius: 999px;
+    border-radius: 12px;
     border: none;
     cursor: pointer;
     background: linear-gradient(135deg, var(--accent1), var(--accent2));
@@ -2712,7 +2831,7 @@
     font-size: 11px;
     font-weight: 700;
     padding: 4px 8px;
-    border-radius: 999px;
+    border-radius: 8px;
     color: var(--accent2);
     background: rgba(51, 224, 199, 0.12);
     white-space: nowrap;
@@ -3387,7 +3506,7 @@
     align-items: center;
     gap: 8px;
     padding: 6px 14px;
-    border-radius: 999px;
+    border-radius: 10px;
     font-size: 12.5px;
     font-weight: 600;
     background: var(--surface);
@@ -3442,7 +3561,7 @@
     background: var(--surface);
     color: var(--text);
     padding: 10px 18px;
-    border-radius: 999px;
+    border-radius: 12px;
     cursor: pointer;
     user-select: none;
     transition: transform .15s ease, background .15s ease, border-color .15s ease, box-shadow .15s ease;
@@ -3577,7 +3696,7 @@
     font-size: 11px;
     font-weight: 600;
     padding: 4px 10px;
-    border-radius: 999px;
+    border-radius: 8px;
     background: rgba(139, 124, 255, 0.15);
     color: var(--accent1);
     border: 1px solid var(--accent1);
@@ -3816,7 +3935,7 @@
     width: auto;
     max-width: 100%;
     padding: 3px;
-    border-radius: 999px;
+    border-radius: 14px;
     background: var(--surface);
     border: 1px solid var(--border);
     backdrop-filter: blur(24px);
@@ -3860,13 +3979,13 @@
   /* Standalone uniform header button styles */
   #ControlPillBar #navClock,
   .preview-control-capsule #navClock {
-    border-radius: 999px !important;
+    border-radius: 10px !important;
     padding: 0 18px !important;
   }
 
   #ControlPillBar #fullscreenToggle,
   .preview-control-capsule #fullscreenToggle {
-    border-radius: 999px !important;
+    border-radius: 10px !important;
     min-width: 42px !important;
     width: 42px !important;
     padding: 0 !important;
@@ -3874,7 +3993,7 @@
 
   #ControlPillBar #themeToggle,
   .preview-control-capsule #themeToggle {
-    border-radius: 999px !important;
+    border-radius: 10px !important;
     min-width: 42px !important;
     width: 42px !important;
     padding: 0 !important;
@@ -4018,7 +4137,7 @@
     text-transform: uppercase;
     letter-spacing: 0.5px;
     padding: 2px 8px;
-    border-radius: 999px;
+    border-radius: 8px;
     background: rgba(99, 102, 241, 0.15);
     color: var(--accent1);
     border: 1px solid rgba(99, 102, 241, 0.3);
@@ -4086,7 +4205,7 @@
     font-size: 11.5px;
     font-weight: 700;
     padding: 3px 10px;
-    border-radius: 999px;
+    border-radius: 8px;
     background: rgba(16, 185, 129, 0.15);
     color: #10b981;
     border: 1px solid rgba(16, 185, 129, 0.35);
@@ -4378,7 +4497,7 @@
 
   .filter-pill {
     padding: 7px 14px;
-    border-radius: 999px;
+    border-radius: 10px;
     border: 1px solid var(--border);
     background: var(--surface);
     color: var(--text-soft);
@@ -4443,7 +4562,7 @@
 
   .restore-subjects-btn {
     padding: 6px 13px;
-    border-radius: 999px;
+    border-radius: 10px;
     border: 1px dashed var(--accent1);
     background: rgba(99, 102, 241, 0.08);
     color: var(--accent1);
@@ -4530,7 +4649,7 @@
   .q-flag-btn {
     font-size: 11.5px !important;
     padding: 4px 10px !important;
-    border-radius: 999px !important;
+    border-radius: 10px !important;
     transition: all 0.2s ease !important;
   }
 
@@ -4856,7 +4975,7 @@
     align-items: center;
     gap: 8px;
     padding: 6px 18px;
-    border-radius: 9999px;
+    border-radius: 10px;
     font-size: 0.92rem;
     font-weight: 700;
     letter-spacing: 0.3px;
@@ -5018,7 +5137,7 @@
     font-size: 0.82rem;
     font-weight: 700;
     padding: 4px 10px;
-    border-radius: 9999px;
+    border-radius: 8px;
   }
 
   .review-status-pill.pill-correct {
@@ -5192,7 +5311,7 @@
     font-size: 11px;
     font-weight: 700;
     padding: 2px 8px;
-    border-radius: 999px;
+    border-radius: 8px;
     background: rgba(16, 185, 129, 0.12);
     color: #10b981;
     border: 1px solid rgba(16, 185, 129, 0.25);
@@ -5228,7 +5347,7 @@
     font-size: 12px;
     font-weight: 700;
     padding: 6px 14px;
-    border-radius: 999px;
+    border-radius: 10px;
     background: rgba(99, 102, 241, 0.12);
     color: var(--accent1);
     border: 1px solid rgba(99, 102, 241, 0.25);
@@ -5571,7 +5690,7 @@
     font-size: 11px;
     font-weight: 700;
     padding: 2px 8px;
-    border-radius: 999px;
+    border-radius: 8px;
     background: rgba(103, 232, 249, 0.15);
     color: var(--accent1);
     border: 1px solid rgba(103, 232, 249, 0.3);
