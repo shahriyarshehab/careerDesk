@@ -1,11 +1,11 @@
-# 🎯 Job Prep Dashboard (Study Management & Exam Tracker)
+# 🎯 CareerDesk (Career Preparation Workspace)
 
 ![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white)
 ![CSS3](https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white)
 ![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)
 ![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)
 
-**Job Prep Dashboard** is a sleek, ultra-modern, all-in-one study management and exam preparation web application designed for competitive exam candidates (Civil Service, Banking, Teaching, and standardized professional tests). 
+**CareerDesk** is a sleek, ultra-modern, all-in-one study management and exam preparation web application designed for competitive exam candidates (Civil Service, Banking, Teaching, and standardized professional tests).
 
 It features an interactive study routine planner, subject-wise focus stopwatch & Pomodoro timers, 24-hour activity ratio tracking, syllabus progress checklist, flashcards with interactive exam mode, mistake bank, live exam target countdowns, inspirational quote slideshows, and 1080p desktop wallpaper generation.
 
@@ -93,12 +93,19 @@ No build tools or Node.js runtime required.
 
 1. **Clone or Download the Repository:**
    ```bash
-   git clone https://github.com/your-username/chakri-prostuti-dashboard.git
+   git clone https://github.com/shahriyarshehab/chakriProstutiDashboard.git
    ```
 2. **Open in Browser:**
    Simply double-click `index.html` or open it in any modern browser (Chrome, Edge, Firefox, Safari).
 3. **Optional (Live Server):**
    If using VS Code, right-click `index.html` and choose **"Open with Live Server"**.
+
+4. **Serve it locally (recommended for a clean static preview):**
+   ```bash
+   cd chakriProstutiDashboard
+   python -m http.server 8000
+   ```
+   Then visit `http://localhost:8000` in your browser.
 
 ---
 

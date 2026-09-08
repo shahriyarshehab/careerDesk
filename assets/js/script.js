@@ -3,23 +3,23 @@
 
   // Inline SVG icon strings for dynamic innerHTML templates
   const ICON = {
-    x:      '<svg class="btn-icon-svg" xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>',
-    trash:  '<svg class="btn-icon-svg" xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>',
-    pin:    '<svg class="btn-icon-svg" xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="17" x2="12" y2="22"/><path d="M5 17h14v-1.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V6h1a2 2 0 0 0 0-4H8a2 2 0 0 0 0 4h1v4.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24Z"/></svg>',
-    edit:   '<svg class="btn-icon-svg" xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4Z"/></svg>',
-    undo:   '<svg class="btn-icon-svg" xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg>',
+    x: '<svg class="btn-icon-svg" xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>',
+    trash: '<svg class="btn-icon-svg" xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>',
+    pin: '<svg class="btn-icon-svg" xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="17" x2="12" y2="22"/><path d="M5 17h14v-1.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V6h1a2 2 0 0 0 0-4H8a2 2 0 0 0 0 4h1v4.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24Z"/></svg>',
+    edit: '<svg class="btn-icon-svg" xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4Z"/></svg>',
+    undo: '<svg class="btn-icon-svg" xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg>',
     rotccw: '<svg class="btn-icon-svg" xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>',
     trophy: '<svg class="btn-icon-svg" xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>',
-    zap:    '<svg class="btn-icon-svg" xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>',
-    star:   '<svg class="btn-icon-svg" xmlns="http://www.w3.org/2000/svg" width="44" height="44" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="0.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>',
+    zap: '<svg class="btn-icon-svg" xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>',
+    star: '<svg class="btn-icon-svg" xmlns="http://www.w3.org/2000/svg" width="44" height="44" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="0.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>',
     layers: '<svg class="btn-icon-svg" xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>',
     arrowR: '<svg class="btn-icon-svg" xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>',
     arrowL: '<svg class="btn-icon-svg" xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>',
-    eye:    '<svg class="btn-icon-svg" xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>',
-    check:  '<svg class="btn-icon-svg" xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>',
-    plus:   '<svg class="btn-icon-svg" xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>',
+    eye: '<svg class="btn-icon-svg" xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>',
+    check: '<svg class="btn-icon-svg" xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>',
+    plus: '<svg class="btn-icon-svg" xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>',
     target: '<svg class="btn-icon-svg" xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>',
-    bulb:   '<svg class="btn-icon-svg" xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/></svg>',
+    bulb: '<svg class="btn-icon-svg" xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/></svg>',
   };
 
   // window.storage only exists inside the Claude.ai artifact viewer.
@@ -412,6 +412,7 @@
       darkBtn.classList.toggle('active-theme', state.theme === 'dark');
       lightBtn.classList.toggle('active-theme', state.theme === 'light');
     }
+    syncWatchControls();
   }
   const darkBtn = document.getElementById('themeDarkBtn');
   if (darkBtn) darkBtn.addEventListener('click', () => setTheme('dark'));
@@ -419,16 +420,41 @@
   if (lightBtn) lightBtn.addEventListener('click', () => setTheme('light'));
 
   // ===== Fullscreen toggle (Settings) =====
-  const fullscreenToggleSettings = document.getElementById('fullscreenToggleSettings');
-  if (fullscreenToggleSettings) {
-    fullscreenToggleSettings.addEventListener('click', () => {
-      if (!document.fullscreenElement) {
-        document.documentElement.requestFullscreen().catch(() => { });
-      } else {
-        document.exitFullscreen().catch(() => { });
-      }
-    });
+  function syncWatchControls() {
+    const themeBtn = document.getElementById('watchThemeToggle');
+    const fullscreenBtn = document.getElementById('watchFullscreenToggle');
+    if (themeBtn) {
+      const themeLabel = state.theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode';
+      themeBtn.title = themeLabel;
+      themeBtn.setAttribute('aria-label', themeLabel);
+    }
+    if (fullscreenBtn) {
+      const fullscreenLabel = document.fullscreenElement ? 'Exit fullscreen' : 'Enter fullscreen';
+      fullscreenBtn.title = fullscreenLabel;
+      fullscreenBtn.setAttribute('aria-label', fullscreenLabel);
+    }
   }
+
+  function toggleFullscreen() {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch(() => { });
+    } else {
+      document.exitFullscreen().catch(() => { });
+    }
+  }
+
+  const fullscreenToggleSettings = document.getElementById('fullscreenToggleSettings');
+  if (fullscreenToggleSettings) fullscreenToggleSettings.addEventListener('click', toggleFullscreen);
+
+  const watchThemeToggle = document.getElementById('watchThemeToggle');
+  if (watchThemeToggle) {
+    watchThemeToggle.addEventListener('click', () => setTheme(state.theme === 'dark' ? 'light' : 'dark'));
+  }
+
+  const watchFullscreenToggle = document.getElementById('watchFullscreenToggle');
+  if (watchFullscreenToggle) watchFullscreenToggle.addEventListener('click', toggleFullscreen);
+  document.addEventListener('fullscreenchange', syncWatchControls);
+  syncWatchControls();
 
   // ===== Generic modal handling =====
   function openModal(id) { document.getElementById(id).classList.add('open'); }
@@ -450,6 +476,17 @@
       if (btn.dataset.tab === 'settings') renderSubjectManager();
     });
   });
+
+  // ===== Header watch =====
+  function updateBrandWatch() {
+    const watch = document.getElementById('brandWatchTime');
+    if (!watch) return;
+    watch.textContent = new Intl.DateTimeFormat('en-GB', {
+      hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true
+    }).format(new Date());
+  }
+  updateBrandWatch();
+  setInterval(updateBrandWatch, 1000);
 
   // ===== Routine =====
   const routineCardWrap = document.getElementById('routineCardWrap');
@@ -506,7 +543,7 @@
     buildDateSliderList().forEach(ds => {
       const d = new Date(ds + 'T00:00:00');
       html += `<div class="date-chip ${routineDateFilter === ds ? 'active' : ''}" data-date="${ds}">
-        <span class="dc-day">${dayLabels[d.getDay()]}</span><span class="dc-num">${toBnDigits(d.getDate())}</span>
+        <span class="dc-day">${dayLabels[d.getDay()]}</span><span class="dc-num">${d.getDate()}</span>
       </div>`;
     });
     box.innerHTML = html;
@@ -649,8 +686,8 @@
   function bnDateLabel(dateStr) {
     if (!dateStr) return '';
     const d = new Date(dateStr + 'T00:00:00');
-    const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
     return `${dayNames[d.getDay()]}, ${monthNames[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`;
   }
 
@@ -1172,22 +1209,64 @@
     return h + ':' + m + ':' + s;
   }
 
+  const SUBJECT_ALIASES = {
+    'english': 'English',
+    'ইংরেজি': 'English',
+    'math': 'Mathematics',
+    'mathematics': 'Mathematics',
+    'গণিত': 'Mathematics',
+    'বাংলা': 'Bangla',
+    'bangla': 'Bangla',
+    'বাংলা সাহিত্য': 'Bangla Literature',
+    'bangla literature': 'Bangla Literature',
+    'বাংলা ব্যাকরণ': 'Bangla Grammar',
+    'bangla grammar': 'Bangla Grammar',
+    'general knowledge': 'General Knowledge',
+    'সাধারণ জ্ঞান': 'General Knowledge',
+    'সাধারণ জ্ঞান / অন্যান্য': 'General Knowledge',
+    'general science': 'General Science',
+    'সাধারণ বিজ্ঞান': 'General Science',
+    'bangladesh affairs': 'Bangladesh Affairs',
+    'বাংলাদেশ বিষয়াবলী': 'Bangladesh Affairs',
+    'বাংলাদেশ বিষয়াবলী': 'Bangladesh Affairs',
+    'international affairs': 'International Affairs',
+    'আন্তর্জাতিক বিষয়াবলী': 'International Affairs',
+    'আন্তর্জাতিক বিষয়াবলী': 'International Affairs',
+    'computer & ict': 'Computer & ICT',
+    'কম্পিউটার ও আইসিটি': 'Computer & ICT'
+  };
+
+  function canonicalSubjectName(subject) {
+    const value = String(subject || '').trim();
+    return SUBJECT_ALIASES[value.toLowerCase()] || value;
+  }
+
+  function uniqueSubjectNames(subjects) {
+    const seen = new Set();
+    return subjects.map(canonicalSubjectName).filter(subject => {
+      const key = subject.toLowerCase();
+      if (!subject || seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+  }
+
   function subjectList() {
     const defaultSubjects = [
-      'বাংলা সাহিত্য',
-      'বাংলা ব্যাকরণ',
+      'Bangla Literature',
+      'Bangla Grammar',
       'English',
-      'গণিত',
-      'বাংলাদেশ বিষয়াবলী',
-      'আন্তর্জাতিক বিষয়াবলী',
-      'সাধারণ বিজ্ঞান',
-      'কম্পিউটার ও আইসিটি'
+      'Mathematics',
+      'Bangladesh Affairs',
+      'International Affairs',
+      'General Science',
+      'Computer & ICT'
     ];
     const fromRoutine = (state.routine || []).map(r => r.subject).filter(Boolean);
     const fromSessions = (state.sessions || []).map(s => s.subject).filter(Boolean);
     const fromCustom = Array.isArray(state.customSubjects) ? state.customSubjects : [];
-    const deleted = new Set(state.deletedSubjects || []);
-    return Array.from(new Set([...defaultSubjects, ...fromCustom, ...fromRoutine, ...fromSessions]))
+    const deleted = new Set((state.deletedSubjects || []).map(canonicalSubjectName));
+    return uniqueSubjectNames([...defaultSubjects, ...fromCustom, ...fromRoutine, ...fromSessions])
       .filter(s => !deleted.has(s));
   }
 
@@ -1230,14 +1309,14 @@
     if (!container) return;
     const allSubjects = (() => {
       const defaultSubjects = [
-        'বাংলা সাহিত্য', 'বাংলা ব্যাকরণ', 'English', 'গণিত',
-        'বাংলাদেশ বিষয়াবলী', 'আন্তর্জাতিক বিষয়াবলী', 'সাধারণ বিজ্ঞান', 'কম্পিউটার ও আইসিটি'
+        'Bangla Literature', 'Bangla Grammar', 'English', 'Mathematics',
+        'Bangladesh Affairs', 'International Affairs', 'General Science', 'Computer & ICT'
       ];
       const fromRoutine = (state.routine || []).map(r => r.subject).filter(Boolean);
       const fromSessions = (state.sessions || []).map(s => s.subject).filter(Boolean);
-      return Array.from(new Set([...defaultSubjects, ...fromRoutine, ...fromSessions]));
+      return uniqueSubjectNames([...defaultSubjects, ...fromRoutine, ...fromSessions]);
     })();
-    const deleted = new Set(state.deletedSubjects || []);
+    const deleted = new Set((state.deletedSubjects || []).map(canonicalSubjectName));
     if (!allSubjects.length) {
       container.innerHTML = '<p style="color:var(--text-soft); font-size:13px;">No subjects found.</p>';
       return;
@@ -1285,11 +1364,14 @@
     if (state.activeSession || window.isCustomCountdownActive) return;
     const sub = document.getElementById('timerSub');
     if (!sub) return;
+    if (timerMode === 'break') {
+      const reason = document.getElementById('breakReason')?.value || 'Refreshment';
+      sub.innerHTML = `<strong>${selectedDuration}-minute ${escapeHtml(reason.toLowerCase())}</strong> break — recharge before your next focus block`;
+      return;
+    }
     const subject = currentSubjectValue() || 'General';
     if (selectedDuration === 0) {
       sub.innerHTML = `<strong>${escapeHtml(subject)}</strong> — Stopwatch mode — click Start to track time`;
-    } else if (selectedDuration === 5) {
-      sub.innerHTML = `<strong>5-minute</strong> refreshment break`;
     } else {
       sub.innerHTML = `<strong>${escapeHtml(subject)}</strong> — ${selectedDuration} minute focus session`;
     }
@@ -1305,6 +1387,8 @@
   if (sessionCustomInput) {
     sessionCustomInput.addEventListener('input', refreshTimerSub);
   }
+  const breakReasonSelect = document.getElementById('breakReason');
+  if (breakReasonSelect) breakReasonSelect.addEventListener('change', refreshTimerSub);
 
   function currentSubjectValue() {
     if (sessionSubjectSel.value === '__custom__') return sessionCustomInput.value.trim();
@@ -1312,6 +1396,7 @@
   }
 
   startBtn.addEventListener('click', () => {
+    if (!timerMode) return;
     const subj = currentSubjectValue();
     if (!subj) { sessionCustomInput.style.display = 'block'; sessionCustomInput.focus(); return; }
     state.activeSession = { subject: subj, start: Date.now() };
@@ -1357,22 +1442,51 @@
     if (timerSub) {
       timerSub.innerHTML = '<span class="timer-dot"></span> Studying <strong>' + escapeHtml(state.activeSession.subject) + '</strong> in progress';
     }
+    renderTodaySessions();
   }
 
   function renderTodaySessions() {
     const box = document.getElementById('todaySessions');
-    const list = state.sessions.filter(s => dateKey(s.start) === todayKey()).sort((a, b) => b.start - a.start);
+    if (!box) return;
+    const studyEntries = state.sessions
+      .filter(s => dateKey(s.start) === todayKey())
+      .map(s => ({ ...s, entryType: 'study' }));
+    const breakEntries = getTodayBreakEntries()
+      .map(entry => ({ ...entry, entryType: 'break', subject: entry.reason || 'Break' }));
+    const liveEntries = [];
+    if (state.activeSession) {
+      liveEntries.push({
+        id: 'active-study',
+        start: state.activeSession.start,
+        duration: Math.max(0, Math.floor((Date.now() - state.activeSession.start) / 60000)),
+        subject: state.activeSession.subject,
+        entryType: 'active-study'
+      });
+    }
+    if (window.isCustomCountdownActive && timerMode === 'break') {
+      liveEntries.push({
+        id: 'active-break',
+        start: Date.now() - Math.max(0, (selectedDuration * 60) - customCountdownSecs) * 1000,
+        duration: Math.max(0, Math.floor(((selectedDuration * 60) - customCountdownSecs) / 60)),
+        subject: document.getElementById('breakReason')?.value || 'Refreshment',
+        entryType: 'active-break'
+      });
+    }
+    const list = [...studyEntries, ...breakEntries, ...liveEntries].sort((a, b) => b.start - a.start);
     if (!list.length) { box.innerHTML = ''; return; }
     box.innerHTML = list.map(s => {
-      const st = new Date(s.start), en = new Date(s.end);
-      const timeStr = st.toLocaleTimeString('bn-BD', { hour: '2-digit', minute: '2-digit' }) + ' – ' + en.toLocaleTimeString('bn-BD', { hour: '2-digit', minute: '2-digit' });
+      const st = new Date(s.start), en = s.end ? new Date(s.end) : new Date();
+      const timeStr = st.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) + ' – ' + en.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
       const pct = Math.min(100, Math.max(8, Math.round((s.duration / Math.max(1, state.dailyTargetMinutes)) * 100)));
+      const isBreak = s.entryType === 'break' || s.entryType === 'active-break';
+      const isActive = s.entryType === 'active-study' || s.entryType === 'active-break';
+      const label = isBreak ? `${escapeHtml(s.subject)} Break` : escapeHtml(s.subject);
       return `<div class="session-item">
         <div class="session-item-header">
-          <div class="s-subject">${escapeHtml(s.subject)}</div>
+          <div class="s-subject">${label}${isActive ? ' <span class="timer-dot"></span>' : ''}</div>
           <div style="display:flex; align-items:center; gap:6px;">
-            <span class="s-badge">${fmtHM(s.duration)}</span>
-            <button class="s-del-btn" title="Delete session" data-delsession="${s.id}">${ICON.trash}</button>
+            <span class="s-badge">${isActive ? 'Live' : fmtHM(s.duration)}</span>
+            ${!isActive && !isBreak ? `<button class="s-del-btn" title="Delete session" data-delsession="${s.id}">${ICON.trash}</button>` : ''}
           </div>
         </div>
         <div class="s-progress">
@@ -1411,7 +1525,7 @@
     if (settingsTargetInput) settingsTargetInput.value = (state.dailyTargetMinutes / 60).toString();
 
     const verdict = document.getElementById('verdictBox');
-        if (todayTotal === 0) {
+    if (todayTotal === 0) {
       verdict.textContent = 'No study logged yet today — start your first session, you can do it!';
     } else if (pct >= 100) {
       verdict.textContent = 'Daily target completed! Outstanding effort today.';
@@ -2093,7 +2207,7 @@
     examState = null;
   }
 
-    // ===== Auto Backup File Connect Listener =====
+  // ===== Auto Backup File Connect Listener =====
   const connectBtn = document.getElementById('connectAutoSyncBtn');
   if (connectBtn) {
     connectBtn.addEventListener('click', connectAutoSyncFile);
@@ -2381,12 +2495,14 @@
   // UNIFIED TIMER & 24H BREAK TRACKER
   // ==========================================
   let selectedDuration = 0;
+  let timerMode = null;
   let customCountdownInterval = null;
   let customCountdownSecs = 0;
   window.selectedTimerDuration = 0;
   window.isCustomCountdownActive = false;
 
   const BREAK_STORAGE_KEY = 'jobprep_break_minutes_today';
+  const BREAK_ENTRIES_KEY = 'jobprep_break_entries';
 
   function getTodayBreakMinutes() {
     try {
@@ -2404,6 +2520,30 @@
       localStorage.setItem(BREAK_STORAGE_KEY, JSON.stringify({ date: todayKey(), minutes: updated }));
       update24hActivityUI();
     } catch (e) { }
+  }
+
+  function addBreakEntry(minutes, reason, startTime = Date.now()) {
+    if (!minutes) return;
+    try {
+      const raw = localStorage.getItem(BREAK_ENTRIES_KEY);
+      const entries = raw ? JSON.parse(raw) : [];
+      entries.push({
+        id: Date.now(),
+        start: startTime,
+        end: Date.now(),
+        duration: minutes,
+        reason: reason || 'Refreshment'
+      });
+      localStorage.setItem(BREAK_ENTRIES_KEY, JSON.stringify(entries.slice(-100)));
+    } catch (e) { }
+  }
+
+  function getTodayBreakEntries() {
+    try {
+      const raw = localStorage.getItem(BREAK_ENTRIES_KEY);
+      const entries = raw ? JSON.parse(raw) : [];
+      return Array.isArray(entries) ? entries.filter(entry => dateKey(entry.start) === todayKey()) : [];
+    } catch (e) { return []; }
   }
 
   function update24hActivityUI() {
@@ -2437,10 +2577,47 @@
   }
 
   const durationSelector = document.getElementById('timerDurationSelector');
+  const timerModeSelector = document.getElementById('timerModeSelector');
+  const studySubjectRow = document.getElementById('studySubjectRow');
+  const breakReasonRow = document.getElementById('breakReasonRow');
+
+  function syncTimerModeFields() {
+    const hasMode = timerMode === 'study' || timerMode === 'break';
+    if (studySubjectRow) studySubjectRow.hidden = timerMode !== 'study';
+    if (breakReasonRow) breakReasonRow.hidden = timerMode !== 'break';
+    if (durationSelector) durationSelector.hidden = !hasMode;
+    if (startBtn) {
+      startBtn.textContent = timerMode === 'break' ? 'Start Break' : 'Start Studying';
+      startBtn.disabled = !hasMode;
+    }
+    if (stopBtn) stopBtn.textContent = timerMode === 'break' ? 'Finish Break' : 'Finish Session';
+    if (!hasMode) {
+      const sub = document.getElementById('timerSub');
+      if (sub) sub.textContent = 'Choose Study or Break to begin';
+    }
+  }
+
+  syncTimerModeFields();
+  if (timerModeSelector) {
+    timerModeSelector.addEventListener('click', (e) => {
+      const modeChip = e.target.closest('.timer-mode-chip');
+      if (!modeChip || state.activeSession || window.isCustomCountdownActive) return;
+      timerMode = modeChip.dataset.mode === 'break' ? 'break' : 'study';
+      timerModeSelector.querySelectorAll('.timer-mode-chip').forEach(chip => chip.classList.toggle('active', chip === modeChip));
+      syncTimerModeFields();
+      document.getElementById('studyDurationOptions').hidden = timerMode !== 'study';
+      document.getElementById('breakDurationOptions').hidden = timerMode !== 'break';
+      const firstDuration = document.querySelector(`#${timerMode === 'break' ? 'breakDurationOptions' : 'studyDurationOptions'} .timer-dur-chip`);
+      if (firstDuration) firstDuration.click();
+    });
+  }
+
   if (durationSelector) {
     durationSelector.addEventListener('click', (e) => {
       const chip = e.target.closest('.timer-dur-chip');
       if (!chip) return;
+
+      if (!timerMode) return;
 
       if (state.activeSession || window.isCustomCountdownActive) {
         showToast('Cannot change duration while a session is active. Finish current session first.', true);
@@ -2456,14 +2633,15 @@
       const display = document.getElementById('timerDisplay');
       const sub = document.getElementById('timerSub');
       const subject = currentSubjectValue() || 'General';
+      const reason = document.getElementById('breakReason')?.value || 'Refreshment';
 
-      if (selectedDuration === 0) {
+      if (timerMode === 'break') {
+        customCountdownSecs = selectedDuration * 60;
+        if (display) display.textContent = `${String(selectedDuration).padStart(2, '0')}:00`;
+        if (sub) sub.innerHTML = `<strong>${selectedDuration}-minute ${escapeHtml(reason.toLowerCase())}</strong> break — recharge before your next focus block`;
+      } else if (selectedDuration === 0) {
         if (display) display.textContent = '00:00:00';
         if (sub) sub.innerHTML = `<strong>${escapeHtml(subject)}</strong> — Stopwatch mode active`;
-      } else if (selectedDuration === 5) {
-        customCountdownSecs = 5 * 60;
-        if (display) display.textContent = '05:00';
-        if (sub) sub.innerHTML = `<strong>5-minute</strong> refreshment break`;
       } else {
         customCountdownSecs = selectedDuration * 60;
         const mStr = String(selectedDuration).padStart(2, '0');
@@ -2484,7 +2662,9 @@
     const textEl = document.getElementById('cancelModalBodyText');
     const subject = currentSubjectValue() || 'General';
 
-    if (textEl) {
+    if (textEl && timerMode === 'break') {
+      textEl.innerHTML = `Your <strong>${selectedDuration}-minute break</strong> has <strong>${m}m ${s}s</strong> remaining.<br><br>Ending it now will still count the elapsed break time.`;
+    } else if (textEl) {
       textEl.innerHTML = `Your <strong>${escapeHtml(subject)}</strong> focus session of <strong>${selectedDuration} minutes</strong> has <strong>${m}m ${s}s</strong> remaining!<br><br>If you exit now, this session will not count toward your daily study target.`;
     }
     cancelModal.classList.add('open');
@@ -2503,7 +2683,7 @@
   }
 
   function startCustomCountdown() {
-    if (selectedDuration !== 5) {
+    if (timerMode !== 'break') {
       const subj = currentSubjectValue();
       if (!subj) {
         if (sessionCustomInput) {
@@ -2530,6 +2710,7 @@
         const m = String(Math.floor(customCountdownSecs / 60)).padStart(2, '0');
         const s = String(customCountdownSecs % 60).padStart(2, '0');
         if (display) display.textContent = `${m}:${s}`;
+        renderTodaySessions();
       } else {
         clearInterval(customCountdownInterval);
         stopCustomCountdown(true);
@@ -2551,16 +2732,26 @@
     if (orb) orb.classList.remove('active');
 
     const subject = currentSubjectValue() || 'General';
+    const reason = document.getElementById('breakReason')?.value || 'Refreshment';
 
-    if (selectedDuration === 5) {
+    if (timerMode === 'break') {
+      const elapsedBreakSeconds = Math.max(0, (selectedDuration * 60) - customCountdownSecs);
+      const elapsedBreakMinutes = elapsedBreakSeconds > 0 ? Math.max(1, Math.round(elapsedBreakSeconds / 60)) : 0;
       if (isCompleted) {
-        addTodayBreakMinutes(5);
-        showToast('5-minute refreshment break completed!');
+        addTodayBreakMinutes(selectedDuration);
+        addBreakEntry(selectedDuration, reason, Date.now() - (selectedDuration * 60000));
+        showToast(`${selectedDuration}-minute ${reason.toLowerCase()} break completed and added to break time!`);
       } else {
-        showToast('Break session cancelled');
+        if (elapsedBreakMinutes > 0) {
+          addTodayBreakMinutes(elapsedBreakMinutes);
+          addBreakEntry(elapsedBreakMinutes, reason, Date.now() - elapsedBreakSeconds * 1000);
+          showToast(`${elapsedBreakMinutes}m of ${reason.toLowerCase()} break counted.`);
+        } else {
+          showToast('Break ended before any time was recorded');
+        }
       }
-      customCountdownSecs = 5 * 60;
-      if (display) display.textContent = '05:00';
+      customCountdownSecs = selectedDuration * 60;
+      if (display) display.textContent = `${String(selectedDuration).padStart(2, '0')}:00`;
     } else {
       if (isCompleted) {
         state.sessions.push({
@@ -2582,6 +2773,7 @@
     }
 
     update24hActivityUI();
+    renderTodaySessions();
   }
 
   document.addEventListener('click', (e) => {
@@ -2592,7 +2784,9 @@
       startCustomCountdown();
     } else if (e.target && e.target.id === 'stopBtn') {
       e.stopImmediatePropagation();
-      if (customCountdownSecs > 0) {
+      if (timerMode === 'break') {
+        stopCustomCountdown(false);
+      } else if (customCountdownSecs > 0) {
         openCancelModal(customCountdownSecs);
       } else {
         stopCustomCountdown(false);
@@ -2606,1411 +2800,1412 @@
   const MISTAKES_KEY = "jobprep_mistakes_list";
   const MCQ_CUSTOM_KEY = "custom_bcs_questions_v3";
   const MCQ_PROGRESS_KEY = "jobprep_mcq_progress_v2";
+  const EXAM_QUESTION_COUNT = 20;
 
   const defaultQuestions = [
-  {
-    "id": 1,
-    "subject": "বাংলা সাহিত্য",
-    "question": "‘চর্যাপদ’ মূলত কোন ছন্দে রচিত?",
-    "options": [
-      "অক্ষরবৃত্ত",
-      "মাত্রাবৃত্ত",
-      "স্বরবৃত্ত",
-      "গদ্যছন্দ"
-    ],
-    "correct": 1,
-    "explanation": "চর্যাপদ মূলত মাত্রাবৃত্ত (পাদাকুলক) ছন্দে রচিত।"
-  },
-  {
-    "id": 2,
-    "subject": "বাংলা সাহিত্য",
-    "question": "বাংলা সাহিত্যের প্রথম ‘সার্থক’ উপন্যাস কোনটি?",
-    "options": [
-      "আলালের ঘরের দুলাল",
-      "দুর্গেশনন্দিনী",
-      "কপালকুণ্ডলা",
-      "ফুলমণি ও করুণার বৃত্তান্ত"
-    ],
-    "correct": 1,
-    "explanation": "বঙ্কিমচন্দ্রের 'দুর্গেশনন্দিনী' (১৮৬৫) বাংলা সাহিত্যের প্রথম সার্থক উপন্যাস।"
-  },
-  {
-    "id": 3,
-    "subject": "বাংলা সাহিত্য",
-    "question": "রবীন্দ্রনাথ ঠাকুর তাঁর কোন রচনাটি কাজী নজরুল ইসলামকে উৎসর্গ করেছিলেন?",
-    "options": [
-      "কালের যাত্রা",
-      "রক্তকরবী",
-      "বসন্ত",
-      "তাসের দেশ"
-    ],
-    "correct": 2,
-    "explanation": "রবীন্দ্রনাথ নজরুলকে 'বসন্ত' নাটক উৎসর্গ করেন এবং নজরুল রবীন্দ্রনাথকে 'সঞ্চিতা' কাব্যগ্রন্থ উৎসর্গ করেন।"
-  },
-  {
-    "id": 4,
-    "subject": "বাংলা সাহিত্য",
-    "question": "মাইকেল মধুসূদন দত্তের ‘মেঘনাদবধ কাব্য’ কোন ছন্দে রচিত?",
-    "options": [
-      "পয়ার",
-      "অমিত্রাক্ষর",
-      "মাত্রাবৃত্ত",
-      "স্বরবৃত্ত"
-    ],
-    "correct": 1,
-    "explanation": "১৮৬১ সালে প্রকাশিত মেঘনাদবধ কাব্য অমিত্রাক্ষর ছন্দে রচিত বাংলা সাহিত্যের প্রথম সার্থক মহাকাব্য।"
-  },
-  {
-    "id": 5,
-    "subject": "বাংলা ব্যাকরণ",
-    "question": "নিচের কোনটি ‘সূর্য’ শব্দের সমার্থক শব্দ?",
-    "options": [
-      "সুধাংশু",
-      "আদিত্য",
-      "বিধু",
-      "শশাঙ্ক"
-    ],
-    "correct": 1,
-    "explanation": "সূর্যের সমার্থক হলো আদিত্য, তপন, ভানু। সুধাংশু ও শশাঙ্ক চাঁদের সমার্থক।"
-  },
-  {
-    "id": 6,
-    "subject": "বাংলা ব্যাকরণ",
-    "question": "‘হাতাহাতি’ কোন সমাসের উদাহরণ?",
-    "options": [
-      "ব্যতিহার বহুব্রীহি",
-      "দ্বন্দ্ব সমাস",
-      "মধ্যপদলোপী কর্মধারয়",
-      "দ্বিগু সমাস"
-    ],
-    "correct": 0,
-    "explanation": "হাতে হাতে যে যুদ্ধ = হাতাহাতি (ক্রিয়ার পারস্পরিকতায় ব্যতিহার বহুব্রীহি)।"
-  },
-  {
-    "id": 7,
-    "subject": "বাংলা ব্যাকরণ",
-    "question": "নিচের কোন বানানটি শুদ্ধ?",
-    "options": [
-      "সমিচীন",
-      "সমীচিন",
-      "সমীচীন",
-      "সমিচিন"
-    ],
-    "correct": 2,
-    "explanation": "‘সমীচীন’ বানানে দুটিই দীর্ঘ-ঈ কার (স-ম-ী-চ-ী-ন)।"
-  },
-  {
-    "id": 8,
-    "subject": "বাংলা ব্যাকরণ",
-    "question": "‘পাপে বিরত হও’—বাক্যে ‘পাপে’ শব্দটি কোন কারকে কোন বিভক্তি?",
-    "options": [
-      "কর্মে ৭মী",
-      "অপাদানে ৭মী",
-      "করণে ৭মী",
-      "অধিকরণে ৭মী"
-    ],
-    "correct": 1,
-    "explanation": "যা থেকে বিরত হওয়া বোঝায় তা অপাদান কারক। পাপ + এ = অপাদানে ৭মী।"
-  },
-  {
-    "id": 9,
-    "subject": "বাংলা ব্যাকরণ",
-    "question": "‘গবেষণা’ শব্দের সঠিক সন্ধি বিচ্ছেদ কোনটি?",
-    "options": [
-      "গো + এষণা",
-      "গব + এষণা",
-      "গো + ষণা",
-      "গাবে + এষণা"
-    ],
-    "correct": 0,
-    "explanation": "গো + এষণা = গবেষণা। এর আদি অর্থ ছিল গরু খোঁজা, আধুনিক অর্থ তত্ত্বানুসন্ধান।"
-  },
-  {
-    "id": 10,
-    "subject": "বাংলা ব্যাকরণ",
-    "question": "‘স্কুল > ইস্কুল’—এটি কোন ধরনের ধ্বনি পরিবর্তনের উদাহরণ?",
-    "options": [
-      "আদি স্বরাগম",
-      "মধ্য স্বরাগম",
-      "অন্ত্য স্বরাগম",
-      "অপিনিহিতি"
-    ],
-    "correct": 0,
-    "explanation": "শব্দের শুরুতে স্বরধ্বনি এলে তাকে আদি স্বরাগম বলে।"
-  },
-  {
-    "id": 11,
-    "subject": "English",
-    "question": "Fill in the blank: 'He is devoid _____ common sense.'",
-    "options": [
-      "to",
-      "from",
-      "of",
-      "with"
-    ],
-    "correct": 2,
-    "explanation": "'Devoid of' is an appropriate preposition meaning lacking or empty of something."
-  },
-  {
-    "id": 12,
-    "subject": "English",
-    "question": "What is the meaning of the idiom 'A bolt from the blue'?",
-    "options": [
-      "A pleasant surprise",
-      "An unexpected calamity",
-      "A dark rainy day",
-      "An expected danger"
-    ],
-    "correct": 1,
-    "explanation": "'A bolt from the blue' means a sudden, unexpected and unwelcome event or disaster."
-  },
-  {
-    "id": 13,
-    "subject": "English",
-    "question": "Fill in the blank: 'Neither the teacher nor the students _____ present yesterday.'",
-    "options": [
-      "was",
-      "were",
-      "is",
-      "are"
-    ],
-    "correct": 1,
-    "explanation": "With neither...nor, the verb agrees with the closer subject ('students' - plural past: were)."
-  },
-  {
-    "id": 14,
-    "subject": "English",
-    "question": "Fill in the blank: 'Hardly had we reached the station _____ the train left.'",
-    "options": [
-      "than",
-      "when",
-      "then",
-      "after"
-    ],
-    "correct": 1,
-    "explanation": "Correlative pair: Hardly had ... when / No sooner had ... than."
-  },
-  {
-    "id": 15,
-    "subject": "English",
-    "question": "Choose the correct option: 'It is high time we _____ our bad habits.'",
-    "options": [
-      "change",
-      "changed",
-      "will change",
-      "have changed"
-    ],
-    "correct": 1,
-    "explanation": "After 'It is high time' followed by a subject, the verb must be in past simple (V2: changed)."
-  },
-  {
-    "id": 16,
-    "subject": "English",
-    "question": "Which of the following is the correct spelling?",
-    "options": [
-      "Questionnaire",
-      "Questionaire",
-      "Questionare",
-      "Questionnair"
-    ],
-    "correct": 0,
-    "explanation": "Questionnaire has double 'n' and ends in 'aire' (Question + n + aire)."
-  },
-  {
-    "id": 17,
-    "subject": "English",
-    "question": "Complete the conditional: 'If he had studied attentively, he _____ GPA 5.00.'",
-    "options": [
-      "will get",
-      "would get",
-      "would have got",
-      "had got"
-    ],
-    "correct": 2,
-    "explanation": "3rd Conditional rule: If + had + V3 ---> would have / could have + V3."
-  },
-  {
-    "id": 18,
-    "subject": "English",
-    "question": "Fill in the blank: 'He is senior _____ me in service.'",
-    "options": [
-      "than",
-      "to",
-      "from",
-      "of"
-    ],
-    "correct": 1,
-    "explanation": "Latin comparatives (senior, junior, superior, inferior, prior) take 'to', never 'than'."
-  },
-  {
-    "id": 19,
-    "subject": "English",
-    "question": "In 'Look at the flying bird', the word 'flying' is a/an:",
-    "options": [
-      "Gerund",
-      "Participle",
-      "Verbal noun",
-      "Infinitive"
-    ],
-    "correct": 1,
-    "explanation": "A participle acts as an adjective modifying a noun ('bird'). A gerund acts as a noun."
-  },
-  {
-    "id": 20,
-    "subject": "English",
-    "question": "What is the antonym of the word 'BENEVOLENT'?",
-    "options": [
-      "Kind",
-      "Malevolent",
-      "Generous",
-      "Friendly"
-    ],
-    "correct": 1,
-    "explanation": "Benevolent means kind and helpful; Malevolent means having or showing ill will/evil."
-  },
-  {
-    "id": 21,
-    "subject": "গণিত",
-    "question": "x + 1/x = 3 হলে, x² + 1/x² এর মান কত?",
-    "options": [
-      "৫",
-      "৭",
-      "৯",
-      "১১"
-    ],
-    "correct": 1,
-    "explanation": "x² + 1/x² = (x + 1/x)² - 2 = 3² - 2 = 9 - 2 = 7।"
-  },
-  {
-    "id": 22,
-    "subject": "গণিত",
-    "question": "বার্ষিক ১০% সরল সুদে কত বছরে ১,০০০ টাকার সুদ ৫০০ টাকা হবে?",
-    "options": [
-      "৩ বছর",
-      "৪ বছর",
-      "৫ বছর",
-      "৬ বছর"
-    ],
-    "correct": 2,
-    "explanation": "I = Pnr ⇒ n = I / (Pr) = ৫০০ / (১০০০ × ০.১) = ৫ বছর।"
-  },
-  {
-    "id": 23,
-    "subject": "গণিত",
-    "question": "একটি নিরপেক্ষ ছক্কা একবার নিক্ষেপ করলে জোড় সংখ্যা আসার সম্ভাবনা কত?",
-    "options": [
-      "১/৬",
-      "১/৩",
-      "১/২",
-      "২/৩"
-    ],
-    "correct": 2,
-    "explanation": "ছক্কার ৬টি ফলের মধ্যে জোড় সংখ্যা ৩টি (২, ৪, ৬)। সম্ভাব্যতা = ৩/৬ = ১/২।"
-  },
-  {
-    "id": 24,
-    "subject": "গণিত",
-    "question": "পিতা ও পুত্রের বর্তমান বয়সের অনুপাত ৭ : ২ এবং ৫ বছর পর ৮ : ৩ হলে, পিতার বর্তমান বয়স কত?",
-    "options": [
-      "৩০ বছর",
-      "৩৫ বছর",
-      "৪০ বছর",
-      "৪২ বছর"
-    ],
-    "correct": 1,
-    "explanation": "অনুপাতের পার্থক্য ১ একক = ৫ বছর। সুতরাং পিতার বর্তমান বয়স = ৭ × ৫ = ৩৫ বছর।"
-  },
-  {
-    "id": 25,
-    "subject": "গণিত",
-    "question": "চিনির মূল্য ২০% বৃদ্ধি পাওয়ায় ব্যবহার শতকরা কত কমালে খরচ অপরিবর্তিত থাকবে?",
-    "options": [
-      "১৬%",
-      "১৬ ২/৩%",
-      "২০%",
-      "২৫%"
-    ],
-    "correct": 1,
-    "explanation": "হ্রাস = {২০ / (১০০ + ২০)} × ১০০% = ২০/১২০ × ১০০% = ১৬ ২/৩%।"
-  },
-  {
-    "id": 26,
-    "subject": "গণিত",
-    "question": "৩০ থেকে ৫০ এর মধ্যবর্তী মৌলিক সংখ্যা কয়টি?",
-    "options": [
-      "৩টি",
-      "৪টি",
-      "৫টি",
-      "৬টি"
-    ],
-    "correct": 2,
-    "explanation": "৩১, ৩৭, ৪১, ৪৩ ও ৪৭ — মোট ৫টি মৌলিক সংখ্যা।"
-  },
-  {
-    "id": 27,
-    "subject": "গণিত",
-    "question": "২^(x+১) = ৩২ হলে, x-এর মান কত?",
-    "options": [
-      "৩",
-      "৪",
-      "৫",
-      "৬"
-    ],
-    "correct": 1,
-    "explanation": "২^(x+১) = ২⁵ ⇒ x + ১ = ৫ ⇒ x = ৪।"
-  },
-  {
-    "id": 28,
-    "subject": "গণিত",
-    "question": "টাকায় ৪টি লেবু কিনে টাকায় ৫টি করে বিক্রয় করলে শতকরা কত লাভ বা ক্ষতি হবে?",
-    "options": [
-      "২০% লাভ",
-      "২০% ক্ষতি",
-      "২৫% লাভ",
-      "২৫% ক্ষতি"
-    ],
-    "correct": 1,
-    "explanation": "শতকরা ক্ষতি = (৫ - ৪)/৫ × ১০০% = ২০% ক্ষতি।"
-  },
-  {
-    "id": 29,
-    "subject": "গণিত",
-    "question": "একটি সমকোণী ত্রিভুজের ভূমি ৪ সেমি ও উচ্চতা ৩ সেমি হলে অতিভুজ কত?",
-    "options": [
-      "৫ সেমি",
-      "৬ সেমি",
-      "৭ সেমি",
-      "৮ সেমি"
-    ],
-    "correct": 0,
-    "explanation": "পিথাগোরাসের সূত্র: অতিভুজ = √(৩² + ৪²) = √(৯ + ১৬) = √২৫ = ৫ সেমি।"
-  },
-  {
-    "id": 30,
-    "subject": "গণিত",
-    "question": "log₂ 16 এর মান কত?",
-    "options": [
-      "২",
-      "৩",
-      "৪",
-      "৮"
-    ],
-    "correct": 2,
-    "explanation": "log₂ 16 = log₂ (2⁴) = 4 log₂ 2 = 4 × 1 = 4।"
-  },
-  {
-    "id": 31,
-    "subject": "বাংলাদেশ বিষয়াবলী",
-    "question": "সংবিধানের কোন অনুচ্ছেদে চিন্তা ও বিবেকের স্বাধীনতা এবং বাক্-স্বাধীনতার নিশ্চয়তা দেওয়া হয়েছে?",
-    "options": [
-      "২৭ নং",
-      "৩১ নং",
-      "৩৯ নং",
-      "৪২ নং"
-    ],
-    "correct": 2,
-    "explanation": "৩৯ নং অনুচ্ছেদে চিন্তা, বিবেক ও বাক-স্বাধীনতা নিশ্চিত করা হয়েছে।"
-  },
-  {
-    "id": 32,
-    "subject": "বাংলাদেশ বিষয়াবলী",
-    "question": "১৯৭১ সালের মুজিবনগর সরকারের অর্থ, শিল্প ও বাণিজ্য মন্ত্রী কে ছিলেন?",
-    "options": [
-      "তাজউদ্দীন আহমদ",
-      "ক্যাপ্টেন এম. মনসুর আলী",
-      "এ. এইচ. এম. কামারুজ্জামান",
-      "খন্দকার মোশতাক আহমদ"
-    ],
-    "correct": 1,
-    "explanation": "ক্যাপ্টেন এম. মনসুর আলী অর্থ ও বাণিজ্য মন্ত্রী ছিলেন।"
-  },
-  {
-    "id": 33,
-    "subject": "বাংলাদেশ বিষয়াবলী",
-    "question": "বাংলাদেশের একমাত্র পাহাড়ি দ্বীপ কোনটি?",
-    "options": [
-      "সেন্টমার্টিন",
-      "মহেশখালী",
-      "কুতুবদিয়া",
-      "নিঝুম দ্বীপ"
-    ],
-    "correct": 1,
-    "explanation": "কক্সবাজারের মহেশখালী হলো বাংলাদেশের একমাত্র পাহাড়ি দ্বীপ।"
-  },
-  {
-    "id": 34,
-    "subject": "বাংলাদেশ বিষয়াবলী",
-    "question": "ঐতিহাসিক ৭ই মার্চের ভাষণ সংবিধানের কোন তফসিলে অন্তর্ভুক্ত?",
-    "options": [
-      "চতুর্থ তফসিল",
-      "পঞ্চম তফসিল",
-      "ষষ্ঠ তফসিল",
-      "সপ্তম তফসিল"
-    ],
-    "correct": 1,
-    "explanation": "৫ম তফসিল: ৭ই মার্চের ভাষণ। ৬ষ্ঠ: ২৬শে মার্চের স্বাধীনতার ঘোষণা। ৭ম: স্বাধীনতার ঘোষণাপত্র।"
-  },
-  {
-    "id": 35,
-    "subject": "বাংলাদেশ বিষয়াবলী",
-    "question": "১৯৭১ সালের মুক্তিযুদ্ধে সমগ্র ঢাকা কত নম্বর সেক্টরের অধীনে ছিল?",
-    "options": [
-      "১ নম্বর সেক্টর",
-      "২ নম্বর সেক্টর",
-      "৩ নম্বর সেক্টর",
-      "৪ নম্বর সেক্টর"
-    ],
-    "correct": 1,
-    "explanation": "ঢাকা ২ নম্বর সেক্টরের অধীনে ছিল, যার কমান্ডার ছিলেন মেজর খালেদ মোশাররফ ও মেজর এ টি এম হায়দার।"
-  },
-  {
-    "id": 36,
-    "subject": "বাংলাদেশ বিষয়াবলী",
-    "question": "ইউনেস্কো কত সালে ২১শে ফেব্রুয়ারিকে আন্তর্জাতিক মাতৃভাষা দিবস হিসেবে স্বীকৃতি দেয়?",
-    "options": [
-      "১৯৯৭",
-      "১৯৯৯",
-      "২০০০",
-      "২০০১"
-    ],
-    "correct": 1,
-    "explanation": "১৭ নভেম্বর ১৯৯৯ সালে স্বীকৃতি দেয় এবং ২০০০ সাল থেকে বিশ্বব্যাপী পালিত হচ্ছে।"
-  },
-  {
-    "id": 37,
-    "subject": "বাংলাদেশ বিষয়াবলী",
-    "question": "পদ্মা ও যমুনা নদী কোন স্থানে মিলিত হয়েছে?",
-    "options": [
-      "চাঁদপুর",
-      "গোয়ালন্দ",
-      "ভৈরব",
-      "সারদা"
-    ],
-    "correct": 1,
-    "explanation": "পদ্মা ও যমুনা গোয়ালন্দে মিলিত হয়েছে। পদ্মা ও মেঘনা চাঁদপুরে মিলিত হয়েছে।"
-  },
-  {
-    "id": 38,
-    "subject": "বাংলাদেশ বিষয়াবলী",
-    "question": "বাংলাদেশের জাতীয় পতাকার দৈর্ঘ্য ও প্রস্থের সঠিক অনুপাত কোনটি?",
-    "options": [
-      "১০ : ৬",
-      "৫ : ৪",
-      "৩ : ২",
-      "৪ : ৩"
-    ],
-    "correct": 0,
-    "explanation": "জাতীয় পতাকার অনুপাত ১০ : ৬ (বা ৫ : ৩)। ভবনে ব্যবহারের প্রমিত মাপ ১০ ফুট × ৬ ফুট।"
-  },
-  {
-    "id": 39,
-    "subject": "বাংলাদেশ বিষয়াবলী",
-    "question": "মুক্তিযুদ্ধে বীরত্বের জন্য কতজনকে ‘বীরশ্রেষ্ঠ’ খেতাব প্রদান করা হয়?",
-    "options": [
-      "৫ জন",
-      "৭ জন",
-      "৮ জন",
-      "১১ জন"
-    ],
-    "correct": 1,
-    "explanation": "মুক্তিযুদ্ধে সর্বোচ্চ আত্মত্যাগের জন্য ৭ জনকে ‘বীরশ্রেষ্ঠ’ উপাধিতে ভূষিত করা হয়।"
-  },
-  {
-    "id": 40,
-    "subject": "বাংলাদেশ বিষয়াবলী",
-    "question": "বাংলাদেশের সংবিধান এ পর্যন্ত কতবার সংশোধিত হয়েছে?",
-    "options": [
-      "১৫ বার",
-      "১৬ বার",
-      "১৭ বার",
-      "১৮ বার"
-    ],
-    "correct": 2,
-    "explanation": "বাংলাদেশের সংবিধান এ পর্যন্ত ১৭ বার সংশোধিত হয়েছে।"
-  },
-  {
-    "id": 41,
-    "subject": "আন্তর্জাতিক বিষয়াবলী",
-    "question": "‘ব্রেটন উডস ইনস্টিটিউট’ নামে পরিচিত কোন দুটি সংস্থা?",
-    "options": [
-      "IMF ও WTO",
-      "IMF ও বিশ্বব্যাংক",
-      "বিশ্বব্যাংক ও ADB",
-      "WTO ও UNCTAD"
-    ],
-    "correct": 1,
-    "explanation": "১৯৪৪ সালে ব্রেটন উডস সম্মেলনের মাধ্যমে IMF ও বিশ্বব্যাংক প্রতিষ্ঠিত হয়।"
-  },
-  {
-    "id": 42,
-    "subject": "আন্তর্জাতিক বিষয়াবলী",
-    "question": "এশিয়া ও উত্তর আমেরিকা মহাদেশকে পৃথক করেছে কোন প্রণালী?",
-    "options": [
-      "বেরিং প্রণালী",
-      "মালাক্কা প্রণালী",
-      "জিব্রাল্টার প্রণালী",
-      "হরমুজ প্রণালী"
-    ],
-    "correct": 0,
-    "explanation": "বেরিং প্রণালী এশিয়া ও উত্তর আমেরিকাকে পৃথক করেছে।"
-  },
-  {
-    "id": 43,
-    "subject": "আন্তর্জাতিক বিষয়াবলী",
-    "question": "সামরিক জোট ন্যাটো (NATO)-এর সদর দপ্তর কোন শহরে অবস্থিত?",
-    "options": [
-      "জেনেভা",
-      "ওয়াশিংটন ডি.সি.",
-      "ব্রাসেলস",
-      "ভিয়েনা"
-    ],
-    "correct": 2,
-    "explanation": "ন্যাটোর স্থায়ী সদর দপ্তর বেলজিয়ামের রাজধানী ব্রাসেলসে অবস্থিত।"
-  },
-  {
-    "id": 44,
-    "subject": "আন্তর্জাতিক বিষয়াবলী",
-    "question": "ভারত ও পাকিস্তানের মধ্যকার আন্তর্জাতিক সীমারেখাকে কী বলা হয়?",
-    "options": [
-      "ডুরান্ড লাইন",
-      "র‍্যাডক্লিফ লাইন",
-      "ম্যাকমোহন লাইন",
-      "১৭তম সমান্তরাল"
-    ],
-    "correct": 1,
-    "explanation": "ভারত ও পাকিস্তানের সীমারেখা হলো র‍্যাডক্লিফ লাইন।"
-  },
-  {
-    "id": 45,
-    "subject": "আন্তর্জাতিক বিষয়াবলী",
-    "question": "গ্রিনউইচ মান সময়ের (GMT) সাথে বাংলাদেশের সময়ের পার্থক্য কত?",
-    "options": [
-      "+৫ ঘণ্টা",
-      "+৬ ঘণ্টা",
-      "+৭ ঘণ্টা",
-      "-৬ ঘণ্টা"
-    ],
-    "correct": 1,
-    "explanation": "বাংলাদেশ গ্রিনউইচ সময়ের চেয়ে ৬ ঘণ্টা এগিয়ে (GMT +6)।"
-  },
-  {
-    "id": 46,
-    "subject": "আন্তর্জাতিক বিষয়াবলী",
-    "question": "জাতিসংঘের বর্তমান মহাসচিব আন্তোনিও গুতেরেস কোন দেশের নাগরিক?",
-    "options": [
-      "স্পেন",
-      "পর্তুগাল",
-      "ইতালি",
-      "ব্রাজিল"
-    ],
-    "correct": 1,
-    "explanation": "আন্তোনিও গুতেরেস পর্তুগালের সাবেক প্রধানমন্ত্রী ছিলেন।"
-  },
-  {
-    "id": 47,
-    "subject": "সাধারণ বিজ্ঞান",
-    "question": "রক্তের কোন গ্রুপকে ‘সর্বজনীন গ্রহীতা’ (Universal Recipient) বলা হয়?",
-    "options": [
-      "O+",
-      "O-",
-      "AB+",
-      "AB-"
-    ],
-    "correct": 2,
-    "explanation": "AB+ রক্তে কোনো অ্যান্টিবডি থাকে না বলে একে সর্বজনীন গ্রহীতা বলা হয়।"
-  },
-  {
-    "id": 48,
-    "subject": "সাধারণ বিজ্ঞান",
-    "question": "প্রাকৃতিক গ্যাসের প্রধান উপাদান কোনটি?",
-    "options": [
-      "মিথেন (CH₄)",
-      "ইথেন (C₂H₆)",
-      "প্রোপেন (C₃H₈)",
-      "বিউটেন (C₄H₁₀)"
-    ],
-    "correct": 0,
-    "explanation": "প্রাকৃতিক গ্যাসের প্রধান উপাদান মিথেন (CH₄)।"
-  },
-  {
-    "id": 49,
-    "subject": "সাধারণ বিজ্ঞান",
-    "question": "রক্ত জমাট বাঁধতে সরাসরি সাহায্য করে কোন ভিটামিন?",
-    "options": [
-      "ভিটামিন A",
-      "ভিটামিন D",
-      "ভিটামিন K",
-      "ভিটামিন E"
-    ],
-    "correct": 2,
-    "explanation": "ভিটামিন K যকৃতে প্রোথ্রম্বিন তৈরি করে রক্ত জমাট বাঁধতে সহায়তা করে।"
-  },
-  {
-    "id": 50,
-    "subject": "সাধারণ বিজ্ঞান",
-    "question": "বায়ুমণ্ডলে সর্বাধিক পরিমাণে প্রাপ্ত গ্যাস কোনটি?",
-    "options": [
-      "অক্সিজেন",
-      "নাইট্রোজেন",
-      "কার্বন ডাই অক্সাইড",
-      "আর্গন"
-    ],
-    "correct": 1,
-    "explanation": "বায়ুমণ্ডলে নাইট্রোজেনের পরিমাণ সর্বাধিক (প্রায় ৭৮.০৯%)।"
-  },
-  {
-    "id": 51,
-    "subject": "কম্পিউটার ও আইসিটি",
-    "question": "নিচের কোনটি সর্বজনীন লজিক গেট (Universal Gate)?",
-    "options": [
-      "AND",
-      "OR",
-      "NOR",
-      "XOR"
-    ],
-    "correct": 2,
-    "explanation": "সর্বজনীন গেট হলো দুটি: NAND ও NOR।"
-  },
-  {
-    "id": 52,
-    "subject": "কম্পিউটার ও আইসিটি",
-    "question": "কম্পিউটারের প্রধান মেমোরি (RAM) কোন প্রকৃতির মেমোরি?",
-    "options": [
-      "স্থায়ী ও অনুদ্বায়ী",
-      "অস্থায়ী ও উদ্বায়ী (Volatile)",
-      "শুধুমাত্র পাঠযোগ্য",
-      "অপটিক্যাল মেমোরি"
-    ],
-    "correct": 1,
-    "explanation": "RAM একটি Volatile মেমোরি, বিদ্যুৎ চলে গেলে ভেতরের তথ্য মুছে যায়।"
-  },
-  {
-    "id": 53,
-    "subject": "কম্পিউটার ও আইসিটি",
-    "question": "IPv4 অ্যাড্রেস কত বিটের হয়ে থাকে?",
-    "options": [
-      "১৬ বিট",
-      "৩২ বিট",
-      "৬৪ বিট",
-      "১২৮ বিট"
-    ],
-    "correct": 1,
-    "explanation": "IPv4 অ্যাড্রেস ৩২ বিট এবং IPv6 অ্যাড্রেস ১২৮ বিট হয়ে থাকে।"
-  },
-  {
-    "id": 54,
-    "subject": "কম্পিউটার ও আইসিটি",
-    "question": "১ গিগাবাইট (GB) সমান কত মেগাবাইট (MB)?",
-    "options": [
-      "১০০০ MB",
-      "১০২৪ MB",
-      "৫১২ MB",
-      "২০৪৮ MB"
-    ],
-    "correct": 1,
-    "explanation": "১ GB = ১০২৪ MB (বা ২¹⁰ MB)।"
-  },
-  {
-    "id": 55,
-    "subject": "কম্পিউটার ও আইসিটি",
-    "question": "HTTP-এর পূর্ণরূপ কোনটি?",
-    "options": [
-      "HyperText Transfer Protocol",
-      "HighText Transfer Protocol",
-      "HyperText Transmission Program",
-      "Hyperlink Transfer Path"
-    ],
-    "correct": 0,
-    "explanation": "HTTP এর পূর্ণরূপ HyperText Transfer Protocol।"
-  }
-];
+    {
+      "id": 1,
+      "subject": "বাংলা সাহিত্য",
+      "question": "‘চর্যাপদ’ মূলত কোন ছন্দে রচিত?",
+      "options": [
+        "অক্ষরবৃত্ত",
+        "মাত্রাবৃত্ত",
+        "স্বরবৃত্ত",
+        "গদ্যছন্দ"
+      ],
+      "correct": 1,
+      "explanation": "চর্যাপদ মূলত মাত্রাবৃত্ত (পাদাকুলক) ছন্দে রচিত।"
+    },
+    {
+      "id": 2,
+      "subject": "বাংলা সাহিত্য",
+      "question": "বাংলা সাহিত্যের প্রথম ‘সার্থক’ উপন্যাস কোনটি?",
+      "options": [
+        "আলালের ঘরের দুলাল",
+        "দুর্গেশনন্দিনী",
+        "কপালকুণ্ডলা",
+        "ফুলমণি ও করুণার বৃত্তান্ত"
+      ],
+      "correct": 1,
+      "explanation": "বঙ্কিমচন্দ্রের 'দুর্গেশনন্দিনী' (১৮৬৫) বাংলা সাহিত্যের প্রথম সার্থক উপন্যাস।"
+    },
+    {
+      "id": 3,
+      "subject": "বাংলা সাহিত্য",
+      "question": "রবীন্দ্রনাথ ঠাকুর তাঁর কোন রচনাটি কাজী নজরুল ইসলামকে উৎসর্গ করেছিলেন?",
+      "options": [
+        "কালের যাত্রা",
+        "রক্তকরবী",
+        "বসন্ত",
+        "তাসের দেশ"
+      ],
+      "correct": 2,
+      "explanation": "রবীন্দ্রনাথ নজরুলকে 'বসন্ত' নাটক উৎসর্গ করেন এবং নজরুল রবীন্দ্রনাথকে 'সঞ্চিতা' কাব্যগ্রন্থ উৎসর্গ করেন।"
+    },
+    {
+      "id": 4,
+      "subject": "বাংলা সাহিত্য",
+      "question": "মাইকেল মধুসূদন দত্তের ‘মেঘনাদবধ কাব্য’ কোন ছন্দে রচিত?",
+      "options": [
+        "পয়ার",
+        "অমিত্রাক্ষর",
+        "মাত্রাবৃত্ত",
+        "স্বরবৃত্ত"
+      ],
+      "correct": 1,
+      "explanation": "১৮৬১ সালে প্রকাশিত মেঘনাদবধ কাব্য অমিত্রাক্ষর ছন্দে রচিত বাংলা সাহিত্যের প্রথম সার্থক মহাকাব্য।"
+    },
+    {
+      "id": 5,
+      "subject": "বাংলা ব্যাকরণ",
+      "question": "নিচের কোনটি ‘সূর্য’ শব্দের সমার্থক শব্দ?",
+      "options": [
+        "সুধাংশু",
+        "আদিত্য",
+        "বিধু",
+        "শশাঙ্ক"
+      ],
+      "correct": 1,
+      "explanation": "সূর্যের সমার্থক হলো আদিত্য, তপন, ভানু। সুধাংশু ও শশাঙ্ক চাঁদের সমার্থক।"
+    },
+    {
+      "id": 6,
+      "subject": "বাংলা ব্যাকরণ",
+      "question": "‘হাতাহাতি’ কোন সমাসের উদাহরণ?",
+      "options": [
+        "ব্যতিহার বহুব্রীহি",
+        "দ্বন্দ্ব সমাস",
+        "মধ্যপদলোপী কর্মধারয়",
+        "দ্বিগু সমাস"
+      ],
+      "correct": 0,
+      "explanation": "হাতে হাতে যে যুদ্ধ = হাতাহাতি (ক্রিয়ার পারস্পরিকতায় ব্যতিহার বহুব্রীহি)।"
+    },
+    {
+      "id": 7,
+      "subject": "বাংলা ব্যাকরণ",
+      "question": "নিচের কোন বানানটি শুদ্ধ?",
+      "options": [
+        "সমিচীন",
+        "সমীচিন",
+        "সমীচীন",
+        "সমিচিন"
+      ],
+      "correct": 2,
+      "explanation": "‘সমীচীন’ বানানে দুটিই দীর্ঘ-ঈ কার (স-ম-ী-চ-ী-ন)।"
+    },
+    {
+      "id": 8,
+      "subject": "বাংলা ব্যাকরণ",
+      "question": "‘পাপে বিরত হও’—বাক্যে ‘পাপে’ শব্দটি কোন কারকে কোন বিভক্তি?",
+      "options": [
+        "কর্মে ৭মী",
+        "অপাদানে ৭মী",
+        "করণে ৭মী",
+        "অধিকরণে ৭মী"
+      ],
+      "correct": 1,
+      "explanation": "যা থেকে বিরত হওয়া বোঝায় তা অপাদান কারক। পাপ + এ = অপাদানে ৭মী।"
+    },
+    {
+      "id": 9,
+      "subject": "বাংলা ব্যাকরণ",
+      "question": "‘গবেষণা’ শব্দের সঠিক সন্ধি বিচ্ছেদ কোনটি?",
+      "options": [
+        "গো + এষণা",
+        "গব + এষণা",
+        "গো + ষণা",
+        "গাবে + এষণা"
+      ],
+      "correct": 0,
+      "explanation": "গো + এষণা = গবেষণা। এর আদি অর্থ ছিল গরু খোঁজা, আধুনিক অর্থ তত্ত্বানুসন্ধান।"
+    },
+    {
+      "id": 10,
+      "subject": "বাংলা ব্যাকরণ",
+      "question": "‘স্কুল > ইস্কুল’—এটি কোন ধরনের ধ্বনি পরিবর্তনের উদাহরণ?",
+      "options": [
+        "আদি স্বরাগম",
+        "মধ্য স্বরাগম",
+        "অন্ত্য স্বরাগম",
+        "অপিনিহিতি"
+      ],
+      "correct": 0,
+      "explanation": "শব্দের শুরুতে স্বরধ্বনি এলে তাকে আদি স্বরাগম বলে।"
+    },
+    {
+      "id": 11,
+      "subject": "English",
+      "question": "Fill in the blank: 'He is devoid _____ common sense.'",
+      "options": [
+        "to",
+        "from",
+        "of",
+        "with"
+      ],
+      "correct": 2,
+      "explanation": "'Devoid of' is an appropriate preposition meaning lacking or empty of something."
+    },
+    {
+      "id": 12,
+      "subject": "English",
+      "question": "What is the meaning of the idiom 'A bolt from the blue'?",
+      "options": [
+        "A pleasant surprise",
+        "An unexpected calamity",
+        "A dark rainy day",
+        "An expected danger"
+      ],
+      "correct": 1,
+      "explanation": "'A bolt from the blue' means a sudden, unexpected and unwelcome event or disaster."
+    },
+    {
+      "id": 13,
+      "subject": "English",
+      "question": "Fill in the blank: 'Neither the teacher nor the students _____ present yesterday.'",
+      "options": [
+        "was",
+        "were",
+        "is",
+        "are"
+      ],
+      "correct": 1,
+      "explanation": "With neither...nor, the verb agrees with the closer subject ('students' - plural past: were)."
+    },
+    {
+      "id": 14,
+      "subject": "English",
+      "question": "Fill in the blank: 'Hardly had we reached the station _____ the train left.'",
+      "options": [
+        "than",
+        "when",
+        "then",
+        "after"
+      ],
+      "correct": 1,
+      "explanation": "Correlative pair: Hardly had ... when / No sooner had ... than."
+    },
+    {
+      "id": 15,
+      "subject": "English",
+      "question": "Choose the correct option: 'It is high time we _____ our bad habits.'",
+      "options": [
+        "change",
+        "changed",
+        "will change",
+        "have changed"
+      ],
+      "correct": 1,
+      "explanation": "After 'It is high time' followed by a subject, the verb must be in past simple (V2: changed)."
+    },
+    {
+      "id": 16,
+      "subject": "English",
+      "question": "Which of the following is the correct spelling?",
+      "options": [
+        "Questionnaire",
+        "Questionaire",
+        "Questionare",
+        "Questionnair"
+      ],
+      "correct": 0,
+      "explanation": "Questionnaire has double 'n' and ends in 'aire' (Question + n + aire)."
+    },
+    {
+      "id": 17,
+      "subject": "English",
+      "question": "Complete the conditional: 'If he had studied attentively, he _____ GPA 5.00.'",
+      "options": [
+        "will get",
+        "would get",
+        "would have got",
+        "had got"
+      ],
+      "correct": 2,
+      "explanation": "3rd Conditional rule: If + had + V3 ---> would have / could have + V3."
+    },
+    {
+      "id": 18,
+      "subject": "English",
+      "question": "Fill in the blank: 'He is senior _____ me in service.'",
+      "options": [
+        "than",
+        "to",
+        "from",
+        "of"
+      ],
+      "correct": 1,
+      "explanation": "Latin comparatives (senior, junior, superior, inferior, prior) take 'to', never 'than'."
+    },
+    {
+      "id": 19,
+      "subject": "English",
+      "question": "In 'Look at the flying bird', the word 'flying' is a/an:",
+      "options": [
+        "Gerund",
+        "Participle",
+        "Verbal noun",
+        "Infinitive"
+      ],
+      "correct": 1,
+      "explanation": "A participle acts as an adjective modifying a noun ('bird'). A gerund acts as a noun."
+    },
+    {
+      "id": 20,
+      "subject": "English",
+      "question": "What is the antonym of the word 'BENEVOLENT'?",
+      "options": [
+        "Kind",
+        "Malevolent",
+        "Generous",
+        "Friendly"
+      ],
+      "correct": 1,
+      "explanation": "Benevolent means kind and helpful; Malevolent means having or showing ill will/evil."
+    },
+    {
+      "id": 21,
+      "subject": "গণিত",
+      "question": "x + 1/x = 3 হলে, x² + 1/x² এর মান কত?",
+      "options": [
+        "৫",
+        "৭",
+        "৯",
+        "১১"
+      ],
+      "correct": 1,
+      "explanation": "x² + 1/x² = (x + 1/x)² - 2 = 3² - 2 = 9 - 2 = 7।"
+    },
+    {
+      "id": 22,
+      "subject": "গণিত",
+      "question": "বার্ষিক ১০% সরল সুদে কত বছরে ১,০০০ টাকার সুদ ৫০০ টাকা হবে?",
+      "options": [
+        "৩ বছর",
+        "৪ বছর",
+        "৫ বছর",
+        "৬ বছর"
+      ],
+      "correct": 2,
+      "explanation": "I = Pnr ⇒ n = I / (Pr) = ৫০০ / (১০০০ × ০.১) = ৫ বছর।"
+    },
+    {
+      "id": 23,
+      "subject": "গণিত",
+      "question": "একটি নিরপেক্ষ ছক্কা একবার নিক্ষেপ করলে জোড় সংখ্যা আসার সম্ভাবনা কত?",
+      "options": [
+        "১/৬",
+        "১/৩",
+        "১/২",
+        "২/৩"
+      ],
+      "correct": 2,
+      "explanation": "ছক্কার ৬টি ফলের মধ্যে জোড় সংখ্যা ৩টি (২, ৪, ৬)। সম্ভাব্যতা = ৩/৬ = ১/২।"
+    },
+    {
+      "id": 24,
+      "subject": "গণিত",
+      "question": "পিতা ও পুত্রের বর্তমান বয়সের অনুপাত ৭ : ২ এবং ৫ বছর পর ৮ : ৩ হলে, পিতার বর্তমান বয়স কত?",
+      "options": [
+        "৩০ বছর",
+        "৩৫ বছর",
+        "৪০ বছর",
+        "৪২ বছর"
+      ],
+      "correct": 1,
+      "explanation": "অনুপাতের পার্থক্য ১ একক = ৫ বছর। সুতরাং পিতার বর্তমান বয়স = ৭ × ৫ = ৩৫ বছর।"
+    },
+    {
+      "id": 25,
+      "subject": "গণিত",
+      "question": "চিনির মূল্য ২০% বৃদ্ধি পাওয়ায় ব্যবহার শতকরা কত কমালে খরচ অপরিবর্তিত থাকবে?",
+      "options": [
+        "১৬%",
+        "১৬ ২/৩%",
+        "২০%",
+        "২৫%"
+      ],
+      "correct": 1,
+      "explanation": "হ্রাস = {২০ / (১০০ + ২০)} × ১০০% = ২০/১২০ × ১০০% = ১৬ ২/৩%।"
+    },
+    {
+      "id": 26,
+      "subject": "গণিত",
+      "question": "৩০ থেকে ৫০ এর মধ্যবর্তী মৌলিক সংখ্যা কয়টি?",
+      "options": [
+        "৩টি",
+        "৪টি",
+        "৫টি",
+        "৬টি"
+      ],
+      "correct": 2,
+      "explanation": "৩১, ৩৭, ৪১, ৪৩ ও ৪৭ — মোট ৫টি মৌলিক সংখ্যা।"
+    },
+    {
+      "id": 27,
+      "subject": "গণিত",
+      "question": "২^(x+১) = ৩২ হলে, x-এর মান কত?",
+      "options": [
+        "৩",
+        "৪",
+        "৫",
+        "৬"
+      ],
+      "correct": 1,
+      "explanation": "২^(x+১) = ২⁵ ⇒ x + ১ = ৫ ⇒ x = ৪।"
+    },
+    {
+      "id": 28,
+      "subject": "গণিত",
+      "question": "টাকায় ৪টি লেবু কিনে টাকায় ৫টি করে বিক্রয় করলে শতকরা কত লাভ বা ক্ষতি হবে?",
+      "options": [
+        "২০% লাভ",
+        "২০% ক্ষতি",
+        "২৫% লাভ",
+        "২৫% ক্ষতি"
+      ],
+      "correct": 1,
+      "explanation": "শতকরা ক্ষতি = (৫ - ৪)/৫ × ১০০% = ২০% ক্ষতি।"
+    },
+    {
+      "id": 29,
+      "subject": "গণিত",
+      "question": "একটি সমকোণী ত্রিভুজের ভূমি ৪ সেমি ও উচ্চতা ৩ সেমি হলে অতিভুজ কত?",
+      "options": [
+        "৫ সেমি",
+        "৬ সেমি",
+        "৭ সেমি",
+        "৮ সেমি"
+      ],
+      "correct": 0,
+      "explanation": "পিথাগোরাসের সূত্র: অতিভুজ = √(৩² + ৪²) = √(৯ + ১৬) = √২৫ = ৫ সেমি।"
+    },
+    {
+      "id": 30,
+      "subject": "গণিত",
+      "question": "log₂ 16 এর মান কত?",
+      "options": [
+        "২",
+        "৩",
+        "৪",
+        "৮"
+      ],
+      "correct": 2,
+      "explanation": "log₂ 16 = log₂ (2⁴) = 4 log₂ 2 = 4 × 1 = 4।"
+    },
+    {
+      "id": 31,
+      "subject": "বাংলাদেশ বিষয়াবলী",
+      "question": "সংবিধানের কোন অনুচ্ছেদে চিন্তা ও বিবেকের স্বাধীনতা এবং বাক্-স্বাধীনতার নিশ্চয়তা দেওয়া হয়েছে?",
+      "options": [
+        "২৭ নং",
+        "৩১ নং",
+        "৩৯ নং",
+        "৪২ নং"
+      ],
+      "correct": 2,
+      "explanation": "৩৯ নং অনুচ্ছেদে চিন্তা, বিবেক ও বাক-স্বাধীনতা নিশ্চিত করা হয়েছে।"
+    },
+    {
+      "id": 32,
+      "subject": "বাংলাদেশ বিষয়াবলী",
+      "question": "১৯৭১ সালের মুজিবনগর সরকারের অর্থ, শিল্প ও বাণিজ্য মন্ত্রী কে ছিলেন?",
+      "options": [
+        "তাজউদ্দীন আহমদ",
+        "ক্যাপ্টেন এম. মনসুর আলী",
+        "এ. এইচ. এম. কামারুজ্জামান",
+        "খন্দকার মোশতাক আহমদ"
+      ],
+      "correct": 1,
+      "explanation": "ক্যাপ্টেন এম. মনসুর আলী অর্থ ও বাণিজ্য মন্ত্রী ছিলেন।"
+    },
+    {
+      "id": 33,
+      "subject": "বাংলাদেশ বিষয়াবলী",
+      "question": "বাংলাদেশের একমাত্র পাহাড়ি দ্বীপ কোনটি?",
+      "options": [
+        "সেন্টমার্টিন",
+        "মহেশখালী",
+        "কুতুবদিয়া",
+        "নিঝুম দ্বীপ"
+      ],
+      "correct": 1,
+      "explanation": "কক্সবাজারের মহেশখালী হলো বাংলাদেশের একমাত্র পাহাড়ি দ্বীপ।"
+    },
+    {
+      "id": 34,
+      "subject": "বাংলাদেশ বিষয়াবলী",
+      "question": "ঐতিহাসিক ৭ই মার্চের ভাষণ সংবিধানের কোন তফসিলে অন্তর্ভুক্ত?",
+      "options": [
+        "চতুর্থ তফসিল",
+        "পঞ্চম তফসিল",
+        "ষষ্ঠ তফসিল",
+        "সপ্তম তফসিল"
+      ],
+      "correct": 1,
+      "explanation": "৫ম তফসিল: ৭ই মার্চের ভাষণ। ৬ষ্ঠ: ২৬শে মার্চের স্বাধীনতার ঘোষণা। ৭ম: স্বাধীনতার ঘোষণাপত্র।"
+    },
+    {
+      "id": 35,
+      "subject": "বাংলাদেশ বিষয়াবলী",
+      "question": "১৯৭১ সালের মুক্তিযুদ্ধে সমগ্র ঢাকা কত নম্বর সেক্টরের অধীনে ছিল?",
+      "options": [
+        "১ নম্বর সেক্টর",
+        "২ নম্বর সেক্টর",
+        "৩ নম্বর সেক্টর",
+        "৪ নম্বর সেক্টর"
+      ],
+      "correct": 1,
+      "explanation": "ঢাকা ২ নম্বর সেক্টরের অধীনে ছিল, যার কমান্ডার ছিলেন মেজর খালেদ মোশাররফ ও মেজর এ টি এম হায়দার।"
+    },
+    {
+      "id": 36,
+      "subject": "বাংলাদেশ বিষয়াবলী",
+      "question": "ইউনেস্কো কত সালে ২১শে ফেব্রুয়ারিকে আন্তর্জাতিক মাতৃভাষা দিবস হিসেবে স্বীকৃতি দেয়?",
+      "options": [
+        "১৯৯৭",
+        "১৯৯৯",
+        "২০০০",
+        "২০০১"
+      ],
+      "correct": 1,
+      "explanation": "১৭ নভেম্বর ১৯৯৯ সালে স্বীকৃতি দেয় এবং ২০০০ সাল থেকে বিশ্বব্যাপী পালিত হচ্ছে।"
+    },
+    {
+      "id": 37,
+      "subject": "বাংলাদেশ বিষয়াবলী",
+      "question": "পদ্মা ও যমুনা নদী কোন স্থানে মিলিত হয়েছে?",
+      "options": [
+        "চাঁদপুর",
+        "গোয়ালন্দ",
+        "ভৈরব",
+        "সারদা"
+      ],
+      "correct": 1,
+      "explanation": "পদ্মা ও যমুনা গোয়ালন্দে মিলিত হয়েছে। পদ্মা ও মেঘনা চাঁদপুরে মিলিত হয়েছে।"
+    },
+    {
+      "id": 38,
+      "subject": "বাংলাদেশ বিষয়াবলী",
+      "question": "বাংলাদেশের জাতীয় পতাকার দৈর্ঘ্য ও প্রস্থের সঠিক অনুপাত কোনটি?",
+      "options": [
+        "১০ : ৬",
+        "৫ : ৪",
+        "৩ : ২",
+        "৪ : ৩"
+      ],
+      "correct": 0,
+      "explanation": "জাতীয় পতাকার অনুপাত ১০ : ৬ (বা ৫ : ৩)। ভবনে ব্যবহারের প্রমিত মাপ ১০ ফুট × ৬ ফুট।"
+    },
+    {
+      "id": 39,
+      "subject": "বাংলাদেশ বিষয়াবলী",
+      "question": "মুক্তিযুদ্ধে বীরত্বের জন্য কতজনকে ‘বীরশ্রেষ্ঠ’ খেতাব প্রদান করা হয়?",
+      "options": [
+        "৫ জন",
+        "৭ জন",
+        "৮ জন",
+        "১১ জন"
+      ],
+      "correct": 1,
+      "explanation": "মুক্তিযুদ্ধে সর্বোচ্চ আত্মত্যাগের জন্য ৭ জনকে ‘বীরশ্রেষ্ঠ’ উপাধিতে ভূষিত করা হয়।"
+    },
+    {
+      "id": 40,
+      "subject": "বাংলাদেশ বিষয়াবলী",
+      "question": "বাংলাদেশের সংবিধান এ পর্যন্ত কতবার সংশোধিত হয়েছে?",
+      "options": [
+        "১৫ বার",
+        "১৬ বার",
+        "১৭ বার",
+        "১৮ বার"
+      ],
+      "correct": 2,
+      "explanation": "বাংলাদেশের সংবিধান এ পর্যন্ত ১৭ বার সংশোধিত হয়েছে।"
+    },
+    {
+      "id": 41,
+      "subject": "আন্তর্জাতিক বিষয়াবলী",
+      "question": "‘ব্রেটন উডস ইনস্টিটিউট’ নামে পরিচিত কোন দুটি সংস্থা?",
+      "options": [
+        "IMF ও WTO",
+        "IMF ও বিশ্বব্যাংক",
+        "বিশ্বব্যাংক ও ADB",
+        "WTO ও UNCTAD"
+      ],
+      "correct": 1,
+      "explanation": "১৯৪৪ সালে ব্রেটন উডস সম্মেলনের মাধ্যমে IMF ও বিশ্বব্যাংক প্রতিষ্ঠিত হয়।"
+    },
+    {
+      "id": 42,
+      "subject": "আন্তর্জাতিক বিষয়াবলী",
+      "question": "এশিয়া ও উত্তর আমেরিকা মহাদেশকে পৃথক করেছে কোন প্রণালী?",
+      "options": [
+        "বেরিং প্রণালী",
+        "মালাক্কা প্রণালী",
+        "জিব্রাল্টার প্রণালী",
+        "হরমুজ প্রণালী"
+      ],
+      "correct": 0,
+      "explanation": "বেরিং প্রণালী এশিয়া ও উত্তর আমেরিকাকে পৃথক করেছে।"
+    },
+    {
+      "id": 43,
+      "subject": "আন্তর্জাতিক বিষয়াবলী",
+      "question": "সামরিক জোট ন্যাটো (NATO)-এর সদর দপ্তর কোন শহরে অবস্থিত?",
+      "options": [
+        "জেনেভা",
+        "ওয়াশিংটন ডি.সি.",
+        "ব্রাসেলস",
+        "ভিয়েনা"
+      ],
+      "correct": 2,
+      "explanation": "ন্যাটোর স্থায়ী সদর দপ্তর বেলজিয়ামের রাজধানী ব্রাসেলসে অবস্থিত।"
+    },
+    {
+      "id": 44,
+      "subject": "আন্তর্জাতিক বিষয়াবলী",
+      "question": "ভারত ও পাকিস্তানের মধ্যকার আন্তর্জাতিক সীমারেখাকে কী বলা হয়?",
+      "options": [
+        "ডুরান্ড লাইন",
+        "র‍্যাডক্লিফ লাইন",
+        "ম্যাকমোহন লাইন",
+        "১৭তম সমান্তরাল"
+      ],
+      "correct": 1,
+      "explanation": "ভারত ও পাকিস্তানের সীমারেখা হলো র‍্যাডক্লিফ লাইন।"
+    },
+    {
+      "id": 45,
+      "subject": "আন্তর্জাতিক বিষয়াবলী",
+      "question": "গ্রিনউইচ মান সময়ের (GMT) সাথে বাংলাদেশের সময়ের পার্থক্য কত?",
+      "options": [
+        "+৫ ঘণ্টা",
+        "+৬ ঘণ্টা",
+        "+৭ ঘণ্টা",
+        "-৬ ঘণ্টা"
+      ],
+      "correct": 1,
+      "explanation": "বাংলাদেশ গ্রিনউইচ সময়ের চেয়ে ৬ ঘণ্টা এগিয়ে (GMT +6)।"
+    },
+    {
+      "id": 46,
+      "subject": "আন্তর্জাতিক বিষয়াবলী",
+      "question": "জাতিসংঘের বর্তমান মহাসচিব আন্তোনিও গুতেরেস কোন দেশের নাগরিক?",
+      "options": [
+        "স্পেন",
+        "পর্তুগাল",
+        "ইতালি",
+        "ব্রাজিল"
+      ],
+      "correct": 1,
+      "explanation": "আন্তোনিও গুতেরেস পর্তুগালের সাবেক প্রধানমন্ত্রী ছিলেন।"
+    },
+    {
+      "id": 47,
+      "subject": "সাধারণ বিজ্ঞান",
+      "question": "রক্তের কোন গ্রুপকে ‘সর্বজনীন গ্রহীতা’ (Universal Recipient) বলা হয়?",
+      "options": [
+        "O+",
+        "O-",
+        "AB+",
+        "AB-"
+      ],
+      "correct": 2,
+      "explanation": "AB+ রক্তে কোনো অ্যান্টিবডি থাকে না বলে একে সর্বজনীন গ্রহীতা বলা হয়।"
+    },
+    {
+      "id": 48,
+      "subject": "সাধারণ বিজ্ঞান",
+      "question": "প্রাকৃতিক গ্যাসের প্রধান উপাদান কোনটি?",
+      "options": [
+        "মিথেন (CH₄)",
+        "ইথেন (C₂H₆)",
+        "প্রোপেন (C₃H₈)",
+        "বিউটেন (C₄H₁₀)"
+      ],
+      "correct": 0,
+      "explanation": "প্রাকৃতিক গ্যাসের প্রধান উপাদান মিথেন (CH₄)।"
+    },
+    {
+      "id": 49,
+      "subject": "সাধারণ বিজ্ঞান",
+      "question": "রক্ত জমাট বাঁধতে সরাসরি সাহায্য করে কোন ভিটামিন?",
+      "options": [
+        "ভিটামিন A",
+        "ভিটামিন D",
+        "ভিটামিন K",
+        "ভিটামিন E"
+      ],
+      "correct": 2,
+      "explanation": "ভিটামিন K যকৃতে প্রোথ্রম্বিন তৈরি করে রক্ত জমাট বাঁধতে সহায়তা করে।"
+    },
+    {
+      "id": 50,
+      "subject": "সাধারণ বিজ্ঞান",
+      "question": "বায়ুমণ্ডলে সর্বাধিক পরিমাণে প্রাপ্ত গ্যাস কোনটি?",
+      "options": [
+        "অক্সিজেন",
+        "নাইট্রোজেন",
+        "কার্বন ডাই অক্সাইড",
+        "আর্গন"
+      ],
+      "correct": 1,
+      "explanation": "বায়ুমণ্ডলে নাইট্রোজেনের পরিমাণ সর্বাধিক (প্রায় ৭৮.০৯%)।"
+    },
+    {
+      "id": 51,
+      "subject": "কম্পিউটার ও আইসিটি",
+      "question": "নিচের কোনটি সর্বজনীন লজিক গেট (Universal Gate)?",
+      "options": [
+        "AND",
+        "OR",
+        "NOR",
+        "XOR"
+      ],
+      "correct": 2,
+      "explanation": "সর্বজনীন গেট হলো দুটি: NAND ও NOR।"
+    },
+    {
+      "id": 52,
+      "subject": "কম্পিউটার ও আইসিটি",
+      "question": "কম্পিউটারের প্রধান মেমোরি (RAM) কোন প্রকৃতির মেমোরি?",
+      "options": [
+        "স্থায়ী ও অনুদ্বায়ী",
+        "অস্থায়ী ও উদ্বায়ী (Volatile)",
+        "শুধুমাত্র পাঠযোগ্য",
+        "অপটিক্যাল মেমোরি"
+      ],
+      "correct": 1,
+      "explanation": "RAM একটি Volatile মেমোরি, বিদ্যুৎ চলে গেলে ভেতরের তথ্য মুছে যায়।"
+    },
+    {
+      "id": 53,
+      "subject": "কম্পিউটার ও আইসিটি",
+      "question": "IPv4 অ্যাড্রেস কত বিটের হয়ে থাকে?",
+      "options": [
+        "১৬ বিট",
+        "৩২ বিট",
+        "৬৪ বিট",
+        "১২৮ বিট"
+      ],
+      "correct": 1,
+      "explanation": "IPv4 অ্যাড্রেস ৩২ বিট এবং IPv6 অ্যাড্রেস ১২৮ বিট হয়ে থাকে।"
+    },
+    {
+      "id": 54,
+      "subject": "কম্পিউটার ও আইসিটি",
+      "question": "১ গিগাবাইট (GB) সমান কত মেগাবাইট (MB)?",
+      "options": [
+        "১০০০ MB",
+        "১০২৪ MB",
+        "৫১২ MB",
+        "২০৪৮ MB"
+      ],
+      "correct": 1,
+      "explanation": "১ GB = ১০২৪ MB (বা ২¹⁰ MB)।"
+    },
+    {
+      "id": 55,
+      "subject": "কম্পিউটার ও আইসিটি",
+      "question": "HTTP-এর পূর্ণরূপ কোনটি?",
+      "options": [
+        "HyperText Transfer Protocol",
+        "HighText Transfer Protocol",
+        "HyperText Transmission Program",
+        "Hyperlink Transfer Path"
+      ],
+      "correct": 0,
+      "explanation": "HTTP এর পূর্ণরূপ HyperText Transfer Protocol।"
+    }
+  ];
 
   const aiCuratedPool = [
-  {
-    "subject": "বাংলা সাহিত্য",
-    "question": "কাজী নজরুল ইসলামের ‘বিদ্রোহী’ কবিতাটি কোন কাব্যগ্রন্থের অন্তর্ভুক্ত?",
-    "options": [
-      "অগ্নিবীণা",
-      "বিষের বাঁশী",
-      "দোলন-চাঁপা",
-      "সাম্যবাদী"
-    ],
-    "correct": 0,
-    "explanation": "১৯২২ সালে প্রকাশিত নজরুলের প্রথম কাব্যগ্রন্থ 'অগ্নিবীণা'-র দ্বিতীয় কবিতা হলো 'বিদ্রোহী'।"
-  },
-  {
-    "subject": "বাংলা ব্যাকরণ",
-    "question": "‘অনল’ শব্দের সঠিক সমার্থক শব্দ কোনটি?",
-    "options": [
-      "পাবন",
-      "মারুত",
-      "হুতাসন",
-      "অম্বু"
-    ],
-    "correct": 2,
-    "explanation": "অগ্নি, অনল, বহ্নি, হুতাসন হলো আগুনের সমার্থক শব্দ। মারুত অর্থ বাতাস, অম্বু অর্থ পানি।"
-  },
-  {
-    "subject": "English",
-    "question": "What is the synonym of the word 'PRAGMATIC'?",
-    "options": [
-      "Theoretical",
-      "Practical",
-      "Idealistic",
-      "Vague"
-    ],
-    "correct": 1,
-    "explanation": "Pragmatic means dealing with things sensibly and realistically based on practical rather than theoretical considerations."
-  },
-  {
-    "subject": "গণিত",
-    "question": "১ থেকে ১০০ পর্যন্ত সংখ্যাগুলোর যোগফল কত?",
-    "options": [
-      "৪৯৫০",
-      "৫০০০",
-      "৫০৫০",
-      "৫১০০"
-    ],
-    "correct": 2,
-    "explanation": "যোগফল = {n(n+1)}/2 = {১০০ × ১০১}/২ = ৫০ × ১০১ = ৫০৫০।"
-  },
-  {
-    "subject": "বাংলাদেশ বিষয়াবলী",
-    "question": "বাংলাদেশের একমাত্র প্রবাল দ্বীপ কোনটি?",
-    "options": [
-      "সেন্টমার্টিন",
-      "ছেঁড়াদ্বীপ",
-      "কুতুবদিয়া",
-      "মহেশখালী"
-    ],
-    "correct": 0,
-    "explanation": "সেন্টমার্টিন (নারিকেল জিঞ্জিরা) হলো বাংলাদেশের একমাত্র প্রবাল দ্বীপ।"
-  },
-  {
-    "subject": "আন্তর্জাতিক বিষয়াবলী",
-    "question": "শান্তিতে নোবেল পুরস্কার কোন শহর থেকে প্রদান করা হয়?",
-    "options": [
-      "স্টকহোম (সুইডেন)",
-      "অসলো (নরওয়ে)",
-      "জেনেভা (সুইজারল্যান্ড)",
-      "প্যারিস (ফ্রান্স)"
-    ],
-    "correct": 1,
-    "explanation": "শান্তিতে নোবেল দেওয়া হয় নরওয়ের অসলো থেকে; বাকি সব নোবেল দেওয়া হয় সুইডেনের স্টকহোম থেকে।"
-  },
-  {
-    "subject": "সাধারণ বিজ্ঞান",
-    "question": "মানবদেহের স্বাভাবিক তাপমাত্রা কত ডিগ্রি ফারেনহাইট?",
-    "options": [
-      "৯৬.৪°F",
-      "৯৮.৪°F",
-      "৯৯.৬°F",
-      "১০২°F"
-    ],
-    "correct": 1,
-    "explanation": "সুস্থ মানুষের দেহের স্বাভাবিক তাপমাত্রা ৯৮.৪°F (বা ৩৬.৯°C)।"
-  },
-  {
-    "subject": "কম্পিউটার ও আইসিটি",
-    "question": "কম্পিউটারের মস্তিষ্ক (Brain) কাকে বলা হয়?",
-    "options": [
-      "RAM",
-      "ALU",
-      "CPU",
-      "Motherboard"
-    ],
-    "correct": 2,
-    "explanation": "CPU (Central Processing Unit)-কে কম্পিউটারের মস্তিষ্ক বা ব্রেইন বলা হয়।"
-  }
-];
+    {
+      "subject": "বাংলা সাহিত্য",
+      "question": "কাজী নজরুল ইসলামের ‘বিদ্রোহী’ কবিতাটি কোন কাব্যগ্রন্থের অন্তর্ভুক্ত?",
+      "options": [
+        "অগ্নিবীণা",
+        "বিষের বাঁশী",
+        "দোলন-চাঁপা",
+        "সাম্যবাদী"
+      ],
+      "correct": 0,
+      "explanation": "১৯২২ সালে প্রকাশিত নজরুলের প্রথম কাব্যগ্রন্থ 'অগ্নিবীণা'-র দ্বিতীয় কবিতা হলো 'বিদ্রোহী'।"
+    },
+    {
+      "subject": "বাংলা ব্যাকরণ",
+      "question": "‘অনল’ শব্দের সঠিক সমার্থক শব্দ কোনটি?",
+      "options": [
+        "পাবন",
+        "মারুত",
+        "হুতাসন",
+        "অম্বু"
+      ],
+      "correct": 2,
+      "explanation": "অগ্নি, অনল, বহ্নি, হুতাসন হলো আগুনের সমার্থক শব্দ। মারুত অর্থ বাতাস, অম্বু অর্থ পানি।"
+    },
+    {
+      "subject": "English",
+      "question": "What is the synonym of the word 'PRAGMATIC'?",
+      "options": [
+        "Theoretical",
+        "Practical",
+        "Idealistic",
+        "Vague"
+      ],
+      "correct": 1,
+      "explanation": "Pragmatic means dealing with things sensibly and realistically based on practical rather than theoretical considerations."
+    },
+    {
+      "subject": "গণিত",
+      "question": "১ থেকে ১০০ পর্যন্ত সংখ্যাগুলোর যোগফল কত?",
+      "options": [
+        "৪৯৫০",
+        "৫০০০",
+        "৫০৫০",
+        "৫১০০"
+      ],
+      "correct": 2,
+      "explanation": "যোগফল = {n(n+1)}/2 = {১০০ × ১০১}/২ = ৫০ × ১০১ = ৫০৫০।"
+    },
+    {
+      "subject": "বাংলাদেশ বিষয়াবলী",
+      "question": "বাংলাদেশের একমাত্র প্রবাল দ্বীপ কোনটি?",
+      "options": [
+        "সেন্টমার্টিন",
+        "ছেঁড়াদ্বীপ",
+        "কুতুবদিয়া",
+        "মহেশখালী"
+      ],
+      "correct": 0,
+      "explanation": "সেন্টমার্টিন (নারিকেল জিঞ্জিরা) হলো বাংলাদেশের একমাত্র প্রবাল দ্বীপ।"
+    },
+    {
+      "subject": "আন্তর্জাতিক বিষয়াবলী",
+      "question": "শান্তিতে নোবেল পুরস্কার কোন শহর থেকে প্রদান করা হয়?",
+      "options": [
+        "স্টকহোম (সুইডেন)",
+        "অসলো (নরওয়ে)",
+        "জেনেভা (সুইজারল্যান্ড)",
+        "প্যারিস (ফ্রান্স)"
+      ],
+      "correct": 1,
+      "explanation": "শান্তিতে নোবেল দেওয়া হয় নরওয়ের অসলো থেকে; বাকি সব নোবেল দেওয়া হয় সুইডেনের স্টকহোম থেকে।"
+    },
+    {
+      "subject": "সাধারণ বিজ্ঞান",
+      "question": "মানবদেহের স্বাভাবিক তাপমাত্রা কত ডিগ্রি ফারেনহাইট?",
+      "options": [
+        "৯৬.৪°F",
+        "৯৮.৪°F",
+        "৯৯.৬°F",
+        "১০২°F"
+      ],
+      "correct": 1,
+      "explanation": "সুস্থ মানুষের দেহের স্বাভাবিক তাপমাত্রা ৯৮.৪°F (বা ৩৬.৯°C)।"
+    },
+    {
+      "subject": "কম্পিউটার ও আইসিটি",
+      "question": "কম্পিউটারের মস্তিষ্ক (Brain) কাকে বলা হয়?",
+      "options": [
+        "RAM",
+        "ALU",
+        "CPU",
+        "Motherboard"
+      ],
+      "correct": 2,
+      "explanation": "CPU (Central Processing Unit)-কে কম্পিউটারের মস্তিষ্ক বা ব্রেইন বলা হয়।"
+    }
+  ];
 
   const extendedQuestionPool = [
-  {
-    "id": 201,
-    "subject": "বাংলা সাহিত্য",
-    "question": "‘গীতাঞ্জলি’ কাব্যগ্রন্থের জন্য রবীন্দ্রনাথ ঠাকুর কোন সালে নোবেল পুরস্কার লাভ করেন?",
-    "options": [
-      "১৯১১",
-      "১৯১২",
-      "১৯১৩",
-      "১৯১৪"
-    ],
-    "correct": 2,
-    "explanation": "রবীন্দ্রনাথ ঠাকুর ১৯১৩ সালে গীতাঞ্জলি (Song Offerings) কাব্যের জন্য সাহিত্যে প্রথম এশীয় হিসেবে নোবেল পুরস্কার লাভ করেন।"
-  },
-  {
-    "id": 202,
-    "subject": "বাংলা সাহিত্য",
-    "question": "মাইকেল মধুসূদন দত্তের প্রথম বাংলা নাটক কোনটি?",
-    "options": [
-      "পদ্মাবতী",
-      "শর্মিষ্ঠা",
-      "কৃষ্ণকুমারী",
-      "মায়াকানন"
-    ],
-    "correct": 1,
-    "explanation": "১৮৫৯ সালে প্রকাশিত ‘শর্মিষ্ঠা’ মাইকেল মধুসূদন দত্ত রচিত প্রথম বাংলা নাটক।"
-  },
-  {
-    "id": 203,
-    "subject": "বাংলা সাহিত্য",
-    "question": "‘লালসালু’ উপন্যাসের কেন্দ্রীয় চরিত্র কোনটি?",
-    "options": [
-      "মজিদ",
-      "খালেক ব্যাপারী",
-      "রহিমা",
-      "জমিলা"
-    ],
-    "correct": 0,
-    "explanation": "সৈয়দ ওয়ালীউল্লাহ্ রচিত ‘লালসালু’ (১৯৪৮) উপন্যাসের ভণ্ড ধর্মব্যবসায়ী কেন্দ্রীয় চরিত্র হলো মজিদ।"
-  },
-  {
-    "id": 204,
-    "subject": "বাংলা ব্যাকরণ",
-    "question": "‘সূর্য’ শব্দের সমার্থক শব্দ কোনটি?",
-    "options": [
-      "সুধাংশু",
-      "আদিত্য",
-      "শশাঙ্ক",
-      "বিধু"
-    ],
-    "correct": 1,
-    "explanation": "সূর্যের সমার্থক শব্দ আদিত্য, ভাস্কর, রবি, তপন। সুধাংশু ও শশাঙ্ক হলো চাঁদের সমার্থক শব্দ।"
-  },
-  {
-    "id": 205,
-    "subject": "বাংলা ব্যাকরণ",
-    "question": "‘সন্ধি’ ব্যাকরণের কোন অংশের আলোচ্য বিষয়?",
-    "options": [
-      "রূপতত্ত্ব",
-      "ধ্বনিতত্ত্ব",
-      "বাক্যতত্ত্ব",
-      "অর্থতত্ত্ব"
-    ],
-    "correct": 1,
-    "explanation": "যেহেতু সন্ধি মূলত ধ্বনির মিলন, রূপান্তর বা লোপ ঘটায়, তাই এটি ব্যাকরণের ধ্বনিতত্ত্বে (Phonology) আলোচিত হয়।"
-  },
-  {
-    "id": 206,
-    "subject": "বাংলা ব্যাকরণ",
-    "question": "কোন বানানটি শুদ্ধ?",
-    "options": [
-      "মুমূর্ষু",
-      "মুমুর্ষু",
-      "মুর্মুষু",
-      "মুমূর্ষূ"
-    ],
-    "correct": 0,
-    "explanation": "শুদ্ধ বানান হলো ‘মুমূর্ষু’ (হ্রস্ব উ, দীর্ঘ ঊ, হ্রস্ব উ)।"
-  },
-  {
-    "id": 207,
-    "subject": "English",
-    "question": "What is the meaning of the idiom 'To bell the cat'?",
-    "options": [
-      "To feed a pet",
-      "To take leading danger or personal risk",
-      "To ring a loud alarm",
-      "To make friends with enemies"
-    ],
-    "correct": 1,
-    "explanation": "'To bell the cat' means to attempt something formidable, perilous or hazardous for the common good."
-  },
-  {
-    "id": 208,
-    "subject": "English",
-    "question": "What is the noun form of the adjective 'Brief'?",
-    "options": [
-      "Briefly",
-      "Briefness",
-      "Brevity",
-      "Briefhood"
-    ],
-    "correct": 2,
-    "explanation": "The noun form of 'brief' is 'brevity', which means concise and exact use of words in writing or speech."
-  },
-  {
-    "id": 209,
-    "subject": "English",
-    "question": "Who wrote the famous novel 'A Passage to India'?",
-    "options": [
-      "George Orwell",
-      "E.M. Forster",
-      "Virginia Woolf",
-      "Rudyard Kipling"
-    ],
-    "correct": 1,
-    "explanation": "'A Passage to India' (1924) is an acclaimed novel by English author E. M. Forster set against the backdrop of British Raj."
-  },
-  {
-    "id": 210,
-    "subject": "English",
-    "question": "What is the synonym of the word 'CANDID'?",
-    "options": [
-      "Secretive",
-      "Frank",
-      "Deceitful",
-      "Arrogant"
-    ],
-    "correct": 1,
-    "explanation": "Candid means truthful, straightforward, sincere and frank."
-  },
-  {
-    "id": 211,
-    "subject": "গণিত",
-    "question": "১ থেকে ১০০ পর্যন্ত মোট কতটি মৌলিক সংখ্যা রয়েছে?",
-    "options": [
-      "২১ টি",
-      "২৩ টি",
-      "২৫ টি",
-      "২৭ টি"
-    ],
-    "correct": 2,
-    "explanation": "১ থেকে ১০০ পর্যন্ত মোট ২৫টি মৌলিক সংখ্যা রয়েছে (৪৪২২৩২২৩২১ সূত্রানুযায়ী: ৪+৪+২+২+৩+২+২+৩+২+১ = ২৫)।"
-  },
-  {
-    "id": 212,
-    "subject": "গণিত",
-    "question": "একটি সমকোণী ত্রিভুজের অতিভুজ ১৩ সেমি ও ভূমি ১২ সেমি হলে, ত্রিভুজটির লম্ব কত?",
-    "options": [
-      "৪ সেমি",
-      "৫ সেমি",
-      "৬ সেমি",
-      "৭ সেমি"
-    ],
-    "correct": 1,
-    "explanation": "পীথাগোরাসের উপপাদ্য অনুযায়ী: লম্ব = √(অতিভুজ² - ভূমি²) = √(১৩² - ১২²) = √(১৬৯ - ১৪৪) = √২৫ = ৫ সেমি।"
-  },
-  {
-    "id": 213,
-    "subject": "গণিত",
-    "question": "বার্ষিক ১০% সরল সুদে কত বছরে আসল সুদে-আসলে দ্বিগুণ হবে?",
-    "options": [
-      "৫ বছরে",
-      "৮ বছরে",
-      "১০ বছরে",
-      "১২ বছরে"
-    ],
-    "correct": 2,
-    "explanation": "সুদ = আসল (১০০ টাকা)। সময় = (সুদ × ১০০) / (আসল × হার) = (১০০ × ১০০) / (১০০ × ১০) = ১০ বছর।"
-  },
-  {
-    "id": 214,
-    "subject": "গণিত",
-    "question": "log₁₀(0.001) এর মান কত?",
-    "options": [
-      "-1",
-      "-2",
-      "-3",
-      "3"
-    ],
-    "correct": 2,
-    "explanation": "0.001 = 10⁻³। সুতরাং log₁₀(10⁻³) = -3 log₁₀(10) = -3 × 1 = -3।"
-  },
-  {
-    "id": 215,
-    "subject": "বাংলাদেশ বিষয়াবলী",
-    "question": "গণপ্রজাতন্ত্রী বাংলাদেশের সংবিধান কোন তারিখে কার্যকর হয়?",
-    "options": [
-      "৪ নভেম্বর ১৯৭২",
-      "১৬ ডিসেম্বর ১৯৭২",
-      "২৬ মার্চ ১৯৭২",
-      "১৭ এপ্রিল ১৯৭২"
-    ],
-    "correct": 1,
-    "explanation": "বাংলাদেশের সংবিধান ১৯৭২ সালের ৪ নভেম্বর গণপরিষদে গৃহীত হয় এবং একই বছরের ১৬ ডিসেম্বর (বিজয় দিবস) থেকে কার্যকর হয়।"
-  },
-  {
-    "id": 216,
-    "subject": "বাংলাদেশ বিষয়াবলী",
-    "question": "বাংলাদেশের একমাত্র প্রবাল দ্বীপ কোনটি?",
-    "options": [
-      "মহেশখালী",
-      "হাতিয়া",
-      "সেন্টমার্টিন",
-      "কুতুবদিয়া"
-    ],
-    "correct": 2,
-    "explanation": "সেন্টমার্টিন দ্বীপ (স্থানীয় নাম নারিকেল জিঞ্জিরা) বাংলাদেশের একমাত্র প্রবাল দ্বীপ।"
-  },
-  {
-    "id": 217,
-    "subject": "বাংলাদেশ বিষয়াবলী",
-    "question": "মুক্তিযুদ্ধকালীন বাংলাদেশকে কয়টি সেক্টরে বিভক্ত করা হয়েছিল?",
-    "options": [
-      "৮ টি",
-      "১০ টি",
-      "১১ টি",
-      "৬৪ টি"
-    ],
-    "correct": 2,
-    "explanation": "১৯৭১ সালে মুক্তিযুদ্ধের সুষ্ঠু পরিচালনার সুবিধার্থে সমগ্র বাংলাদেশকে ১১টি সেক্টর ও ৬৪টি সাব-সেক্টরে বিভক্ত করা হয়েছিল।"
-  },
-  {
-    "id": 218,
-    "subject": "আন্তর্জাতিক বিষয়াবলী",
-    "question": "জাতিসংঘের বর্তমান মহাসচিব আন্তোনিও গুতেরেস কোন দেশের নাগরিক?",
-    "options": [
-      "স্পেন",
-      "পর্তুগাল",
-      "ব্রাজিল",
-      "ইতালি"
-    ],
-    "correct": 1,
-    "explanation": "আন্তোনিও গুতেরেস পর্তুগালের সাবেক প্রধানমন্ত্রী ছিলেন এবং ২০১৭ সাল থেকে জাতিসংঘের মহাসচিব হিসেবে দায়িত্ব পালন করছেন।"
-  },
-  {
-    "id": 219,
-    "subject": "আন্তর্জাতিক বিষয়াবলী",
-    "question": "প্রতি বছর কোন তারিখে ‘বিশ্ব পরিবেশ দিবস’ পালিত হয়?",
-    "options": [
-      "২২ এপ্রিল",
-      "৫ জুন",
-      "১৬ সেপ্টেম্বর",
-      "১ ডিসেম্বর"
-    ],
-    "correct": 1,
-    "explanation": "পরিবেশ সুরক্ষায় সচেতনতা বৃদ্ধির লক্ষ্যে প্রতি বছর ৫ জুন বিশ্ব পরিবেশ দিবস পালন করা হয়।"
-  },
-  {
-    "id": 220,
-    "subject": "আন্তর্জাতিক বিষয়াবলী",
-    "question": "আন্তর্জাতিক মুদ্রা তহবিল (IMF) এর সদর দপ্তর কোথায় অবস্থিত?",
-    "options": [
-      "নিউইয়র্ক",
-      "জেনেভা",
-      "ওয়াশিংটন ডিসি",
-      "লন্ডন"
-    ],
-    "correct": 2,
-    "explanation": "বিশ্বব্যাংক ও আন্তর্জাতিক মুদ্রা তহবিল (IMF) উভয়ের সদর দপ্তরই যুক্তরাষ্ট্রের ওয়াশিংটন ডিসিতে অবস্থিত।"
-  },
-  {
-    "id": 221,
-    "subject": "সাধারণ বিজ্ঞান",
-    "question": "মানবদেহের সর্ববৃহৎ গ্রন্থি (Largest Gland) কোনটি?",
-    "options": [
-      "অগ্ন্যাশয়",
-      "যকৃৎ (Liver)",
-      "থাইরয়েড",
-      "পিটুইটারি"
-    ],
-    "correct": 1,
-    "explanation": "যকৃৎ (Liver) মানবদেহের বৃহত্তম গ্রন্থি, যার স্বাভাবিক ওজন প্রায় ১.৫ কেজি।"
-  },
-  {
-    "id": 222,
-    "subject": "সাধারণ বিজ্ঞান",
-    "question": "রক্ত জমাট বাঁধতে কোন ভিটামিন প্রধান ভূমিকা পালন করে?",
-    "options": [
-      "ভিটামিন এ",
-      "ভিটামিন সি",
-      "ভিটামিন ডি",
-      "ভিটামিন কে"
-    ],
-    "correct": 3,
-    "explanation": "ভিটামিন K যকৃতে প্রোথ্রম্বিন তৈরি করে যা রক্ত তঞ্চন (Blood Clotting) বা রক্ত জমাট বাঁধতে অপরিহার্য।"
-  },
-  {
-    "id": 223,
-    "subject": "সাধারণ বিজ্ঞান",
-    "question": "শুষ্ক বরফ (Dry Ice) মূলত কী?",
-    "options": [
-      "হিমায়িত জলীয় বাষ্প",
-      "কঠিন কার্বন ডাই-অক্সাইড",
-      "তরল নাইট্রোজেন",
-      "কঠিন মিথেন"
-    ],
-    "correct": 1,
-    "explanation": "কঠিন কার্বন ডাই-অক্সাইডকে শুষ্ক বরফ বলা হয়, কারণ এটি গলে তরল না হয়ে সরাসরি গ্যাসে বাষ্পীভূত হয়।"
-  },
-  {
-    "id": 224,
-    "subject": "কম্পিউটার ও আইসিটি",
-    "question": "কম্পিউটারের ‘মস্তিষ্ক’ (Brain of Computer) কাকে বলা হয়?",
-    "options": [
-      "RAM",
-      "Hard Disk",
-      "CPU",
-      "Motherboard"
-    ],
-    "correct": 2,
-    "explanation": "CPU (Central Processing Unit) কম্পিউটারের সকল গাণিতিক ও যৌক্তিক কার্যাবলি সম্পাদন ও নিয়ন্ত্রণ করে বলে একে কম্পিউটারের মস্তিষ্ক বলা হয়।"
-  },
-  {
-    "id": 225,
-    "subject": "কম্পিউটার ও আইসিটি",
-    "question": "১ গিগাবাইট (1 GB) সমান কত মেগাবাইট (MB)?",
-    "options": [
-      "১০০০ MB",
-      "১০২৪ MB",
-      "১০৪৮ MB",
-      "৫১২ MB"
-    ],
-    "correct": 1,
-    "explanation": "বাইনারি হিসাব অনুযায়ী ১ গিগাবাইট (1 GB) = ২¹⁰ মেগাবাইট = ১০২৪ মেগাবাইট (MB)।"
-  },
-  {
-    "id": 226,
-    "subject": "বাংলা ব্যাকরণ",
-    "question": "‘হাতাহাতি’ কোন সমাসের উদাহরণ?",
-    "options": [
-      "কর্মধারয়",
-      "তৎপুরুষ",
-      "ব্যতিহার বহুব্রীহি",
-      "দ্বিগু"
-    ],
-    "correct": 2,
-    "explanation": "পরস্পর এক জাতীয় ক্রিয়া সম্পাদন বোঝালে যে বহুব্রীহি সমাস হয় তাকে ব্যতিহার বহুব্রীহি বলে (যেমন: হাতে হাতে যে যুদ্ধ = হাতাহাতি)।"
-  },
-  {
-    "id": 227,
-    "subject": "English",
-    "question": "Identify the correct passive voice: 'Who is calling me?'",
-    "options": [
-      "By whom I am called?",
-      "By whom am I being called?",
-      "Who was called by me?",
-      "By whom was I called?"
-    ],
-    "correct": 1,
-    "explanation": "Present continuous interrogative passive rule: By whom + am/is/are + subject + being + V3? Hence: 'By whom am I being called?'"
-  },
-  {
-    "id": 228,
-    "subject": "বাংলাদেশ বিষয়াবলী",
-    "question": "বাংলাদেশের জাতীয় সংসদের প্রথম স্পিকার কে ছিলেন?",
-    "options": [
-      "শাহ আবদুল হামিদ",
-      "মোহাম্মদ উল্লাহ",
-      "আব্দুল মালেক উকিল",
-      "ব্যারিস্টার জমির উদ্দিন সরকার"
-    ],
-    "correct": 0,
-    "explanation": "গণপরিষদ ও বাংলাদেশের জাতীয় সংসদের প্রথম স্পিকার ছিলেন শাহ আবদুল হামিদ।"
-  },
-  {
-    "id": 229,
-    "subject": "আন্তর্জাতিক বিষয়াবলী",
-    "question": "উত্তর আটলান্টিক নিরাপত্তা জোট (NATO) এর সদর দপ্তর কোথায় অবস্থিত?",
-    "options": [
-      "লন্ডন, যুক্তরাজ্য",
-      "প্যারিস, ফ্রান্স",
-      "ব্রাসেলস, বেলজিয়াম",
-      "জেনেভা, সুইজারল্যান্ড"
-    ],
-    "correct": 2,
-    "explanation": "১৯৪৯ সালে গঠিত ন্যাটো (NATO)-র সদর দপ্তর বেলজিয়ামের রাজধানী ব্রাসেলসে অবস্থিত।"
-  },
-  {
-    "id": 230,
-    "subject": "কম্পিউটার ও আইসিটি",
-    "question": "ব্লুটুথ (Bluetooth) কোন প্রযুক্তির মাধ্যমে সংক্ষিপ্ত দূরত্বে ডেটা স্থানান্তর করে?",
-    "options": [
-      "ইনফ্রারেড রশ্মি",
-      "রেডিও তরঙ্গ (Radio Waves)",
-      "অপটিক্যাল ফাইবার",
-      "মাইক্রোওয়েভ"
-    ],
-    "correct": 1,
-    "explanation": "ব্লুটুথ ২.৪ গিগাহার্টজ ফ্রিকোয়েন্সির শর্ট-রেঞ্জ রেডিও তরঙ্গের (Radio Waves) মাধ্যমে ডিভাইসসমূহের মধ্যে ডেটা আদান-প্রদান করে।"
-  },
-  {
-    "id": 231,
-    "subject": "বাংলা সাহিত্য",
-    "question": "‘সঞ্চিতা’ কোন জাতীয় কবির কাব্যসংকলন?",
-    "options": [
-      "রবীন্দ্রনাথ ঠাকুর",
-      "কাজী নজরুল ইসলাম",
-      "জীবনানন্দ দাশ",
-      "জসীমউদ্দীন"
-    ],
-    "correct": 1,
-    "explanation": "‘সঞ্চিতা’ কাজী নজরুল ইসলামের শ্রেষ্ঠ কবিতা ও গানের সংকলন। পক্ষান্তরে ‘সঞ্চয়িতা’ হলো রবীন্দ্রনাথ ঠাকুরের কাব্যসংকলন।"
-  },
-  {
-    "id": 232,
-    "subject": "বাংলা সাহিত্য",
-    "question": "‘তিতাস একটি নদীর নাম’ উপন্যাসের লেখক কে?",
-    "options": [
-      "অদ্বৈত মল্লবর্মণ",
-      "তারাশঙ্কর বন্দ্যোপাধ্যায়",
-      "মানিক বন্দ্যোপাধ্যায়",
-      "বিভূতিভূষণ বন্দ্যোপাধ্যায়"
-    ],
-    "correct": 0,
-    "explanation": "অদ্বৈত মল্লবর্মণ রচিত কালজয়ী উপন্যাস ‘তিতাস একটি নদীর নাম’ তিতাস তীরবর্তী মালো (জেলে) সম্প্রদায়ের জীবনযাত্রাকে উপজীব্য করে রচিত।"
-  },
-  {
-    "id": 233,
-    "subject": "বাংলা ব্যাকরণ",
-    "question": "‘অনুচ্ছেদ’ শব্দের সঠিক সন্ধি বিচ্ছেদ কোনটি?",
-    "options": [
-      "অনু + ছেদ",
-      "অনু + ছদ",
-      "অনুত + ছেদ",
-      "অনুঃ + ছেদ"
-    ],
-    "correct": 0,
-    "explanation": "হ্রস্ব স্বরবর্ণের পর ‘ছ’ থাকলে সন্ধির নিয়মে তা ‘চ্ছ’ হয়: অনু + ছেদ = অনুচ্ছেদ।"
-  },
-  {
-    "id": 234,
-    "subject": "বাংলা ব্যাকরণ",
-    "question": "‘যা চিরস্থায়ী নয়’— এক কথায় প্রকাশ কী হবে?",
-    "options": [
-      "অবিনশ্বর",
-      "ক্ষণস্থায়ী",
-      "নশ্বর",
-      "অনিত্য"
-    ],
-    "correct": 2,
-    "explanation": "যা চিরস্থায়ী নয় = নশ্বর (অথবা অনিত্য)। আর যা ক্ষণকাল স্থায়ী হয় = ক্ষণস্থায়ী।"
-  },
-  {
-    "id": 235,
-    "subject": "English",
-    "question": "What is the meaning of the phrasal verb 'Look after'?",
-    "options": [
-      "To search for",
-      "To examine carefully",
-      "To take care of",
-      "To anticipate eagerly"
-    ],
-    "correct": 2,
-    "explanation": "'Look after' means to take care of someone or something (e.g. She looks after her elderly parents)."
-  },
-  {
-    "id": 236,
-    "subject": "English",
-    "question": "Identify the correctly spelled word:",
-    "options": [
-      "Lieutenaunt",
-      "Lieutenant",
-      "Leutenant",
-      "Leiutenant"
-    ],
-    "correct": 1,
-    "explanation": "The correct British spelling is 'Lieutenant' (L-I-E-U-T-E-N-A-N-T)."
-  },
-  {
-    "id": 237,
-    "subject": "English",
-    "question": "Choose the correct pronoun: 'The baby cried for ___ mother.'",
-    "options": [
-      "her",
-      "his",
-      "its",
-      "their"
-    ],
-    "correct": 2,
-    "explanation": "In standard English grammar, young babies and animals whose gender is not specified are traditionally referred to by the neuter pronoun 'its'."
-  },
-  {
-    "id": 238,
-    "subject": "গণিত",
-    "question": "১ থেকে ৫০ পর্যন্ত বিজোড় সংখ্যাগুলোর সমষ্টি কত?",
-    "options": [
-      "৫০০",
-      "৬০০",
-      "৬২৫",
-      "৬৫০"
-    ],
-    "correct": 2,
-    "explanation": "১ থেকে ৫০ পর্যন্ত বিজোড় সংখ্যা আছে ২৫টি। ১ম n সংখ্যক স্বাভাবিক বিজোড় সংখ্যার যোগফল = n² = ২৫² = ৬২৫।"
-  },
-  {
-    "id": 239,
-    "subject": "গণিত",
-    "question": "৩, ৯, ২৭, ৮১ ... গুণোত্তর ধারাটির পরবর্তী (৫ম) পদ কত?",
-    "options": [
-      "১৬২",
-      "২১৬",
-      "২৪৩",
-      "৩২৪"
-    ],
-    "correct": 2,
-    "explanation": "ধারাটির সাধারণ অনুপাত ৩ (প্রতিটি পদ পূর্ববর্তী পদের ৩ গুণ)। সুতরাং ৫ম পদ = ৮১ × ৩ = ২৪৩।"
-  },
-  {
-    "id": 240,
-    "subject": "গণিত",
-    "question": "একটি দ্রব্য ৪০০ টাকায় ক্রয় করে ৪৪০ টাকায় বিক্রয় করলে শতকরা কত লাভ হবে?",
-    "options": [
-      "৮%",
-      "১০%",
-      "১২%",
-      "১৫%"
-    ],
-    "correct": 1,
-    "explanation": "লাভ = ৪৪০ - ৪০০ = ৪০ টাকা। শতকরা লাভ = (৪০ / ৪০০) × ১০০% = ১০%।"
-  },
-  {
-    "id": 241,
-    "subject": "বাংলাদেশ বিষয়াবলী",
-    "question": "ঐতিহাসিক মুজিবনগর সরকার কোন তারিখে আনুষ্ঠানিকভাবে শপথ গ্রহণ করে?",
-    "options": [
-      "১০ এপ্রিল ১৯৭১",
-      "১৭ এপ্রিল ১৯৭১",
-      "২৫ মার্চ ১৯৭১",
-      "১৬ ডিসেম্বর ১৯৭১"
-    ],
-    "correct": 1,
-    "explanation": "১৯৭১ সালের ১০ এপ্রিল সরকার গঠিত হয় এবং ১৭ এপ্রিল মেহেরপুরের বৈদ্যনাথতলার (মুজিবনগর) আম্রকাননে আনুষ্ঠানিকভাবে শপথ গ্রহণ করে।"
-  },
-  {
-    "id": 242,
-    "subject": "আন্তর্জাতিক বিষয়াবলী",
-    "question": "জাতিসংঘের আন্তর্জাতিক বিচার আদালত (ICJ) কোথায় অবস্থিত?",
-    "options": [
-      "নিউইয়র্ক",
-      "জেনেভা",
-      "দ্য হেগ (নেদারল্যান্ডস)",
-      "প্যারিস"
-    ],
-    "correct": 2,
-    "explanation": "International Court of Justice (ICJ)-র স্থায়ী সদর দপ্তর নেদারল্যান্ডসের দ্য হেগ (The Hague) শহরের পিস প্যালেসে অবস্থিত।"
-  },
-  {
-    "id": 243,
-    "subject": "সাধারণ বিজ্ঞান",
-    "question": "দৃশ্যমান আলোর মধ্যে কোন রঙের আলোর তরঙ্গদৈর্ঘ্য (Wavelength) সবচেয়ে কম?",
-    "options": [
-      "লাল",
-      "নীল",
-      "বেগুনি",
-      "হলুদ"
-    ],
-    "correct": 2,
-    "explanation": "বেনীআসহকলা বর্ণালীতে বেগুনির তরঙ্গদৈর্ঘ্য সবচেয়ে কম (প্রায় ৪০০ ন্যানোমিটার) এবং লালের তরঙ্গদৈর্ঘ্য সবচেয়ে বেশি (প্রায় ৭০০ ন্যানোমিটার)।"
-  },
-  {
-    "id": 244,
-    "subject": "কম্পিউটার ও আইসিটি",
-    "question": "ওয়েব ব্রাউজিংয়ে বহুল ব্যবহৃত 'HTTP' এর পূর্ণরূপ কী?",
-    "options": [
-      "Hyper Text Transfer Protocol",
-      "High Transmission Text Protocol",
-      "Hyperlink Text Transfer Protocol",
-      "Home Tool Transfer Page"
-    ],
-    "correct": 0,
-    "explanation": "HTTP stands for Hypertext Transfer Protocol, which is the foundational protocol used by the World Wide Web."
-  },
-  {
-    "id": 245,
-    "subject": "কম্পিউটার ও আইসিটি",
-    "question": "কোন ধরনের মেমোরি ভোলাটাইল (Volatile) বা বিদ্যুৎ সরবরাহ বন্ধ হলে ডেটা মুছে যায়?",
-    "options": [
-      "ROM",
-      "RAM",
-      "Hard Disk",
-      "Flash Drive"
-    ],
-    "correct": 1,
-    "explanation": "RAM (Random Access Memory) হলো অস্থায়ী বা ভোলাটাইল মেমোরি, যা কম্পিউটার বন্ধ বা বিদ্যুৎ বিচ্ছিন্ন হলে সব ডেটা হারিয়ে ফেলে।"
-  }
-];
+    {
+      "id": 201,
+      "subject": "বাংলা সাহিত্য",
+      "question": "‘গীতাঞ্জলি’ কাব্যগ্রন্থের জন্য রবীন্দ্রনাথ ঠাকুর কোন সালে নোবেল পুরস্কার লাভ করেন?",
+      "options": [
+        "১৯১১",
+        "১৯১২",
+        "১৯১৩",
+        "১৯১৪"
+      ],
+      "correct": 2,
+      "explanation": "রবীন্দ্রনাথ ঠাকুর ১৯১৩ সালে গীতাঞ্জলি (Song Offerings) কাব্যের জন্য সাহিত্যে প্রথম এশীয় হিসেবে নোবেল পুরস্কার লাভ করেন।"
+    },
+    {
+      "id": 202,
+      "subject": "বাংলা সাহিত্য",
+      "question": "মাইকেল মধুসূদন দত্তের প্রথম বাংলা নাটক কোনটি?",
+      "options": [
+        "পদ্মাবতী",
+        "শর্মিষ্ঠা",
+        "কৃষ্ণকুমারী",
+        "মায়াকানন"
+      ],
+      "correct": 1,
+      "explanation": "১৮৫৯ সালে প্রকাশিত ‘শর্মিষ্ঠা’ মাইকেল মধুসূদন দত্ত রচিত প্রথম বাংলা নাটক।"
+    },
+    {
+      "id": 203,
+      "subject": "বাংলা সাহিত্য",
+      "question": "‘লালসালু’ উপন্যাসের কেন্দ্রীয় চরিত্র কোনটি?",
+      "options": [
+        "মজিদ",
+        "খালেক ব্যাপারী",
+        "রহিমা",
+        "জমিলা"
+      ],
+      "correct": 0,
+      "explanation": "সৈয়দ ওয়ালীউল্লাহ্ রচিত ‘লালসালু’ (১৯৪৮) উপন্যাসের ভণ্ড ধর্মব্যবসায়ী কেন্দ্রীয় চরিত্র হলো মজিদ।"
+    },
+    {
+      "id": 204,
+      "subject": "বাংলা ব্যাকরণ",
+      "question": "‘সূর্য’ শব্দের সমার্থক শব্দ কোনটি?",
+      "options": [
+        "সুধাংশু",
+        "আদিত্য",
+        "শশাঙ্ক",
+        "বিধু"
+      ],
+      "correct": 1,
+      "explanation": "সূর্যের সমার্থক শব্দ আদিত্য, ভাস্কর, রবি, তপন। সুধাংশু ও শশাঙ্ক হলো চাঁদের সমার্থক শব্দ।"
+    },
+    {
+      "id": 205,
+      "subject": "বাংলা ব্যাকরণ",
+      "question": "‘সন্ধি’ ব্যাকরণের কোন অংশের আলোচ্য বিষয়?",
+      "options": [
+        "রূপতত্ত্ব",
+        "ধ্বনিতত্ত্ব",
+        "বাক্যতত্ত্ব",
+        "অর্থতত্ত্ব"
+      ],
+      "correct": 1,
+      "explanation": "যেহেতু সন্ধি মূলত ধ্বনির মিলন, রূপান্তর বা লোপ ঘটায়, তাই এটি ব্যাকরণের ধ্বনিতত্ত্বে (Phonology) আলোচিত হয়।"
+    },
+    {
+      "id": 206,
+      "subject": "বাংলা ব্যাকরণ",
+      "question": "কোন বানানটি শুদ্ধ?",
+      "options": [
+        "মুমূর্ষু",
+        "মুমুর্ষু",
+        "মুর্মুষু",
+        "মুমূর্ষূ"
+      ],
+      "correct": 0,
+      "explanation": "শুদ্ধ বানান হলো ‘মুমূর্ষু’ (হ্রস্ব উ, দীর্ঘ ঊ, হ্রস্ব উ)।"
+    },
+    {
+      "id": 207,
+      "subject": "English",
+      "question": "What is the meaning of the idiom 'To bell the cat'?",
+      "options": [
+        "To feed a pet",
+        "To take leading danger or personal risk",
+        "To ring a loud alarm",
+        "To make friends with enemies"
+      ],
+      "correct": 1,
+      "explanation": "'To bell the cat' means to attempt something formidable, perilous or hazardous for the common good."
+    },
+    {
+      "id": 208,
+      "subject": "English",
+      "question": "What is the noun form of the adjective 'Brief'?",
+      "options": [
+        "Briefly",
+        "Briefness",
+        "Brevity",
+        "Briefhood"
+      ],
+      "correct": 2,
+      "explanation": "The noun form of 'brief' is 'brevity', which means concise and exact use of words in writing or speech."
+    },
+    {
+      "id": 209,
+      "subject": "English",
+      "question": "Who wrote the famous novel 'A Passage to India'?",
+      "options": [
+        "George Orwell",
+        "E.M. Forster",
+        "Virginia Woolf",
+        "Rudyard Kipling"
+      ],
+      "correct": 1,
+      "explanation": "'A Passage to India' (1924) is an acclaimed novel by English author E. M. Forster set against the backdrop of British Raj."
+    },
+    {
+      "id": 210,
+      "subject": "English",
+      "question": "What is the synonym of the word 'CANDID'?",
+      "options": [
+        "Secretive",
+        "Frank",
+        "Deceitful",
+        "Arrogant"
+      ],
+      "correct": 1,
+      "explanation": "Candid means truthful, straightforward, sincere and frank."
+    },
+    {
+      "id": 211,
+      "subject": "গণিত",
+      "question": "১ থেকে ১০০ পর্যন্ত মোট কতটি মৌলিক সংখ্যা রয়েছে?",
+      "options": [
+        "২১ টি",
+        "২৩ টি",
+        "২৫ টি",
+        "২৭ টি"
+      ],
+      "correct": 2,
+      "explanation": "১ থেকে ১০০ পর্যন্ত মোট ২৫টি মৌলিক সংখ্যা রয়েছে (৪৪২২৩২২৩২১ সূত্রানুযায়ী: ৪+৪+২+২+৩+২+২+৩+২+১ = ২৫)।"
+    },
+    {
+      "id": 212,
+      "subject": "গণিত",
+      "question": "একটি সমকোণী ত্রিভুজের অতিভুজ ১৩ সেমি ও ভূমি ১২ সেমি হলে, ত্রিভুজটির লম্ব কত?",
+      "options": [
+        "৪ সেমি",
+        "৫ সেমি",
+        "৬ সেমি",
+        "৭ সেমি"
+      ],
+      "correct": 1,
+      "explanation": "পীথাগোরাসের উপপাদ্য অনুযায়ী: লম্ব = √(অতিভুজ² - ভূমি²) = √(১৩² - ১২²) = √(১৬৯ - ১৪৪) = √২৫ = ৫ সেমি।"
+    },
+    {
+      "id": 213,
+      "subject": "গণিত",
+      "question": "বার্ষিক ১০% সরল সুদে কত বছরে আসল সুদে-আসলে দ্বিগুণ হবে?",
+      "options": [
+        "৫ বছরে",
+        "৮ বছরে",
+        "১০ বছরে",
+        "১২ বছরে"
+      ],
+      "correct": 2,
+      "explanation": "সুদ = আসল (১০০ টাকা)। সময় = (সুদ × ১০০) / (আসল × হার) = (১০০ × ১০০) / (১০০ × ১০) = ১০ বছর।"
+    },
+    {
+      "id": 214,
+      "subject": "গণিত",
+      "question": "log₁₀(0.001) এর মান কত?",
+      "options": [
+        "-1",
+        "-2",
+        "-3",
+        "3"
+      ],
+      "correct": 2,
+      "explanation": "0.001 = 10⁻³। সুতরাং log₁₀(10⁻³) = -3 log₁₀(10) = -3 × 1 = -3।"
+    },
+    {
+      "id": 215,
+      "subject": "বাংলাদেশ বিষয়াবলী",
+      "question": "গণপ্রজাতন্ত্রী বাংলাদেশের সংবিধান কোন তারিখে কার্যকর হয়?",
+      "options": [
+        "৪ নভেম্বর ১৯৭২",
+        "১৬ ডিসেম্বর ১৯৭২",
+        "২৬ মার্চ ১৯৭২",
+        "১৭ এপ্রিল ১৯৭২"
+      ],
+      "correct": 1,
+      "explanation": "বাংলাদেশের সংবিধান ১৯৭২ সালের ৪ নভেম্বর গণপরিষদে গৃহীত হয় এবং একই বছরের ১৬ ডিসেম্বর (বিজয় দিবস) থেকে কার্যকর হয়।"
+    },
+    {
+      "id": 216,
+      "subject": "বাংলাদেশ বিষয়াবলী",
+      "question": "বাংলাদেশের একমাত্র প্রবাল দ্বীপ কোনটি?",
+      "options": [
+        "মহেশখালী",
+        "হাতিয়া",
+        "সেন্টমার্টিন",
+        "কুতুবদিয়া"
+      ],
+      "correct": 2,
+      "explanation": "সেন্টমার্টিন দ্বীপ (স্থানীয় নাম নারিকেল জিঞ্জিরা) বাংলাদেশের একমাত্র প্রবাল দ্বীপ।"
+    },
+    {
+      "id": 217,
+      "subject": "বাংলাদেশ বিষয়াবলী",
+      "question": "মুক্তিযুদ্ধকালীন বাংলাদেশকে কয়টি সেক্টরে বিভক্ত করা হয়েছিল?",
+      "options": [
+        "৮ টি",
+        "১০ টি",
+        "১১ টি",
+        "৬৪ টি"
+      ],
+      "correct": 2,
+      "explanation": "১৯৭১ সালে মুক্তিযুদ্ধের সুষ্ঠু পরিচালনার সুবিধার্থে সমগ্র বাংলাদেশকে ১১টি সেক্টর ও ৬৪টি সাব-সেক্টরে বিভক্ত করা হয়েছিল।"
+    },
+    {
+      "id": 218,
+      "subject": "আন্তর্জাতিক বিষয়াবলী",
+      "question": "জাতিসংঘের বর্তমান মহাসচিব আন্তোনিও গুতেরেস কোন দেশের নাগরিক?",
+      "options": [
+        "স্পেন",
+        "পর্তুগাল",
+        "ব্রাজিল",
+        "ইতালি"
+      ],
+      "correct": 1,
+      "explanation": "আন্তোনিও গুতেরেস পর্তুগালের সাবেক প্রধানমন্ত্রী ছিলেন এবং ২০১৭ সাল থেকে জাতিসংঘের মহাসচিব হিসেবে দায়িত্ব পালন করছেন।"
+    },
+    {
+      "id": 219,
+      "subject": "আন্তর্জাতিক বিষয়াবলী",
+      "question": "প্রতি বছর কোন তারিখে ‘বিশ্ব পরিবেশ দিবস’ পালিত হয়?",
+      "options": [
+        "২২ এপ্রিল",
+        "৫ জুন",
+        "১৬ সেপ্টেম্বর",
+        "১ ডিসেম্বর"
+      ],
+      "correct": 1,
+      "explanation": "পরিবেশ সুরক্ষায় সচেতনতা বৃদ্ধির লক্ষ্যে প্রতি বছর ৫ জুন বিশ্ব পরিবেশ দিবস পালন করা হয়।"
+    },
+    {
+      "id": 220,
+      "subject": "আন্তর্জাতিক বিষয়াবলী",
+      "question": "আন্তর্জাতিক মুদ্রা তহবিল (IMF) এর সদর দপ্তর কোথায় অবস্থিত?",
+      "options": [
+        "নিউইয়র্ক",
+        "জেনেভা",
+        "ওয়াশিংটন ডিসি",
+        "লন্ডন"
+      ],
+      "correct": 2,
+      "explanation": "বিশ্বব্যাংক ও আন্তর্জাতিক মুদ্রা তহবিল (IMF) উভয়ের সদর দপ্তরই যুক্তরাষ্ট্রের ওয়াশিংটন ডিসিতে অবস্থিত।"
+    },
+    {
+      "id": 221,
+      "subject": "সাধারণ বিজ্ঞান",
+      "question": "মানবদেহের সর্ববৃহৎ গ্রন্থি (Largest Gland) কোনটি?",
+      "options": [
+        "অগ্ন্যাশয়",
+        "যকৃৎ (Liver)",
+        "থাইরয়েড",
+        "পিটুইটারি"
+      ],
+      "correct": 1,
+      "explanation": "যকৃৎ (Liver) মানবদেহের বৃহত্তম গ্রন্থি, যার স্বাভাবিক ওজন প্রায় ১.৫ কেজি।"
+    },
+    {
+      "id": 222,
+      "subject": "সাধারণ বিজ্ঞান",
+      "question": "রক্ত জমাট বাঁধতে কোন ভিটামিন প্রধান ভূমিকা পালন করে?",
+      "options": [
+        "ভিটামিন এ",
+        "ভিটামিন সি",
+        "ভিটামিন ডি",
+        "ভিটামিন কে"
+      ],
+      "correct": 3,
+      "explanation": "ভিটামিন K যকৃতে প্রোথ্রম্বিন তৈরি করে যা রক্ত তঞ্চন (Blood Clotting) বা রক্ত জমাট বাঁধতে অপরিহার্য।"
+    },
+    {
+      "id": 223,
+      "subject": "সাধারণ বিজ্ঞান",
+      "question": "শুষ্ক বরফ (Dry Ice) মূলত কী?",
+      "options": [
+        "হিমায়িত জলীয় বাষ্প",
+        "কঠিন কার্বন ডাই-অক্সাইড",
+        "তরল নাইট্রোজেন",
+        "কঠিন মিথেন"
+      ],
+      "correct": 1,
+      "explanation": "কঠিন কার্বন ডাই-অক্সাইডকে শুষ্ক বরফ বলা হয়, কারণ এটি গলে তরল না হয়ে সরাসরি গ্যাসে বাষ্পীভূত হয়।"
+    },
+    {
+      "id": 224,
+      "subject": "কম্পিউটার ও আইসিটি",
+      "question": "কম্পিউটারের ‘মস্তিষ্ক’ (Brain of Computer) কাকে বলা হয়?",
+      "options": [
+        "RAM",
+        "Hard Disk",
+        "CPU",
+        "Motherboard"
+      ],
+      "correct": 2,
+      "explanation": "CPU (Central Processing Unit) কম্পিউটারের সকল গাণিতিক ও যৌক্তিক কার্যাবলি সম্পাদন ও নিয়ন্ত্রণ করে বলে একে কম্পিউটারের মস্তিষ্ক বলা হয়।"
+    },
+    {
+      "id": 225,
+      "subject": "কম্পিউটার ও আইসিটি",
+      "question": "১ গিগাবাইট (1 GB) সমান কত মেগাবাইট (MB)?",
+      "options": [
+        "১০০০ MB",
+        "১০২৪ MB",
+        "১০৪৮ MB",
+        "৫১২ MB"
+      ],
+      "correct": 1,
+      "explanation": "বাইনারি হিসাব অনুযায়ী ১ গিগাবাইট (1 GB) = ২¹⁰ মেগাবাইট = ১০২৪ মেগাবাইট (MB)।"
+    },
+    {
+      "id": 226,
+      "subject": "বাংলা ব্যাকরণ",
+      "question": "‘হাতাহাতি’ কোন সমাসের উদাহরণ?",
+      "options": [
+        "কর্মধারয়",
+        "তৎপুরুষ",
+        "ব্যতিহার বহুব্রীহি",
+        "দ্বিগু"
+      ],
+      "correct": 2,
+      "explanation": "পরস্পর এক জাতীয় ক্রিয়া সম্পাদন বোঝালে যে বহুব্রীহি সমাস হয় তাকে ব্যতিহার বহুব্রীহি বলে (যেমন: হাতে হাতে যে যুদ্ধ = হাতাহাতি)।"
+    },
+    {
+      "id": 227,
+      "subject": "English",
+      "question": "Identify the correct passive voice: 'Who is calling me?'",
+      "options": [
+        "By whom I am called?",
+        "By whom am I being called?",
+        "Who was called by me?",
+        "By whom was I called?"
+      ],
+      "correct": 1,
+      "explanation": "Present continuous interrogative passive rule: By whom + am/is/are + subject + being + V3? Hence: 'By whom am I being called?'"
+    },
+    {
+      "id": 228,
+      "subject": "বাংলাদেশ বিষয়াবলী",
+      "question": "বাংলাদেশের জাতীয় সংসদের প্রথম স্পিকার কে ছিলেন?",
+      "options": [
+        "শাহ আবদুল হামিদ",
+        "মোহাম্মদ উল্লাহ",
+        "আব্দুল মালেক উকিল",
+        "ব্যারিস্টার জমির উদ্দিন সরকার"
+      ],
+      "correct": 0,
+      "explanation": "গণপরিষদ ও বাংলাদেশের জাতীয় সংসদের প্রথম স্পিকার ছিলেন শাহ আবদুল হামিদ।"
+    },
+    {
+      "id": 229,
+      "subject": "আন্তর্জাতিক বিষয়াবলী",
+      "question": "উত্তর আটলান্টিক নিরাপত্তা জোট (NATO) এর সদর দপ্তর কোথায় অবস্থিত?",
+      "options": [
+        "লন্ডন, যুক্তরাজ্য",
+        "প্যারিস, ফ্রান্স",
+        "ব্রাসেলস, বেলজিয়াম",
+        "জেনেভা, সুইজারল্যান্ড"
+      ],
+      "correct": 2,
+      "explanation": "১৯৪৯ সালে গঠিত ন্যাটো (NATO)-র সদর দপ্তর বেলজিয়ামের রাজধানী ব্রাসেলসে অবস্থিত।"
+    },
+    {
+      "id": 230,
+      "subject": "কম্পিউটার ও আইসিটি",
+      "question": "ব্লুটুথ (Bluetooth) কোন প্রযুক্তির মাধ্যমে সংক্ষিপ্ত দূরত্বে ডেটা স্থানান্তর করে?",
+      "options": [
+        "ইনফ্রারেড রশ্মি",
+        "রেডিও তরঙ্গ (Radio Waves)",
+        "অপটিক্যাল ফাইবার",
+        "মাইক্রোওয়েভ"
+      ],
+      "correct": 1,
+      "explanation": "ব্লুটুথ ২.৪ গিগাহার্টজ ফ্রিকোয়েন্সির শর্ট-রেঞ্জ রেডিও তরঙ্গের (Radio Waves) মাধ্যমে ডিভাইসসমূহের মধ্যে ডেটা আদান-প্রদান করে।"
+    },
+    {
+      "id": 231,
+      "subject": "বাংলা সাহিত্য",
+      "question": "‘সঞ্চিতা’ কোন জাতীয় কবির কাব্যসংকলন?",
+      "options": [
+        "রবীন্দ্রনাথ ঠাকুর",
+        "কাজী নজরুল ইসলাম",
+        "জীবনানন্দ দাশ",
+        "জসীমউদ্দীন"
+      ],
+      "correct": 1,
+      "explanation": "‘সঞ্চিতা’ কাজী নজরুল ইসলামের শ্রেষ্ঠ কবিতা ও গানের সংকলন। পক্ষান্তরে ‘সঞ্চয়িতা’ হলো রবীন্দ্রনাথ ঠাকুরের কাব্যসংকলন।"
+    },
+    {
+      "id": 232,
+      "subject": "বাংলা সাহিত্য",
+      "question": "‘তিতাস একটি নদীর নাম’ উপন্যাসের লেখক কে?",
+      "options": [
+        "অদ্বৈত মল্লবর্মণ",
+        "তারাশঙ্কর বন্দ্যোপাধ্যায়",
+        "মানিক বন্দ্যোপাধ্যায়",
+        "বিভূতিভূষণ বন্দ্যোপাধ্যায়"
+      ],
+      "correct": 0,
+      "explanation": "অদ্বৈত মল্লবর্মণ রচিত কালজয়ী উপন্যাস ‘তিতাস একটি নদীর নাম’ তিতাস তীরবর্তী মালো (জেলে) সম্প্রদায়ের জীবনযাত্রাকে উপজীব্য করে রচিত।"
+    },
+    {
+      "id": 233,
+      "subject": "বাংলা ব্যাকরণ",
+      "question": "‘অনুচ্ছেদ’ শব্দের সঠিক সন্ধি বিচ্ছেদ কোনটি?",
+      "options": [
+        "অনু + ছেদ",
+        "অনু + ছদ",
+        "অনুত + ছেদ",
+        "অনুঃ + ছেদ"
+      ],
+      "correct": 0,
+      "explanation": "হ্রস্ব স্বরবর্ণের পর ‘ছ’ থাকলে সন্ধির নিয়মে তা ‘চ্ছ’ হয়: অনু + ছেদ = অনুচ্ছেদ।"
+    },
+    {
+      "id": 234,
+      "subject": "বাংলা ব্যাকরণ",
+      "question": "‘যা চিরস্থায়ী নয়’— এক কথায় প্রকাশ কী হবে?",
+      "options": [
+        "অবিনশ্বর",
+        "ক্ষণস্থায়ী",
+        "নশ্বর",
+        "অনিত্য"
+      ],
+      "correct": 2,
+      "explanation": "যা চিরস্থায়ী নয় = নশ্বর (অথবা অনিত্য)। আর যা ক্ষণকাল স্থায়ী হয় = ক্ষণস্থায়ী।"
+    },
+    {
+      "id": 235,
+      "subject": "English",
+      "question": "What is the meaning of the phrasal verb 'Look after'?",
+      "options": [
+        "To search for",
+        "To examine carefully",
+        "To take care of",
+        "To anticipate eagerly"
+      ],
+      "correct": 2,
+      "explanation": "'Look after' means to take care of someone or something (e.g. She looks after her elderly parents)."
+    },
+    {
+      "id": 236,
+      "subject": "English",
+      "question": "Identify the correctly spelled word:",
+      "options": [
+        "Lieutenaunt",
+        "Lieutenant",
+        "Leutenant",
+        "Leiutenant"
+      ],
+      "correct": 1,
+      "explanation": "The correct British spelling is 'Lieutenant' (L-I-E-U-T-E-N-A-N-T)."
+    },
+    {
+      "id": 237,
+      "subject": "English",
+      "question": "Choose the correct pronoun: 'The baby cried for ___ mother.'",
+      "options": [
+        "her",
+        "his",
+        "its",
+        "their"
+      ],
+      "correct": 2,
+      "explanation": "In standard English grammar, young babies and animals whose gender is not specified are traditionally referred to by the neuter pronoun 'its'."
+    },
+    {
+      "id": 238,
+      "subject": "গণিত",
+      "question": "১ থেকে ৫০ পর্যন্ত বিজোড় সংখ্যাগুলোর সমষ্টি কত?",
+      "options": [
+        "৫০০",
+        "৬০০",
+        "৬২৫",
+        "৬৫০"
+      ],
+      "correct": 2,
+      "explanation": "১ থেকে ৫০ পর্যন্ত বিজোড় সংখ্যা আছে ২৫টি। ১ম n সংখ্যক স্বাভাবিক বিজোড় সংখ্যার যোগফল = n² = ২৫² = ৬২৫।"
+    },
+    {
+      "id": 239,
+      "subject": "গণিত",
+      "question": "৩, ৯, ২৭, ৮১ ... গুণোত্তর ধারাটির পরবর্তী (৫ম) পদ কত?",
+      "options": [
+        "১৬২",
+        "২১৬",
+        "২৪৩",
+        "৩২৪"
+      ],
+      "correct": 2,
+      "explanation": "ধারাটির সাধারণ অনুপাত ৩ (প্রতিটি পদ পূর্ববর্তী পদের ৩ গুণ)। সুতরাং ৫ম পদ = ৮১ × ৩ = ২৪৩।"
+    },
+    {
+      "id": 240,
+      "subject": "গণিত",
+      "question": "একটি দ্রব্য ৪০০ টাকায় ক্রয় করে ৪৪০ টাকায় বিক্রয় করলে শতকরা কত লাভ হবে?",
+      "options": [
+        "৮%",
+        "১০%",
+        "১২%",
+        "১৫%"
+      ],
+      "correct": 1,
+      "explanation": "লাভ = ৪৪০ - ৪০০ = ৪০ টাকা। শতকরা লাভ = (৪০ / ৪০০) × ১০০% = ১০%।"
+    },
+    {
+      "id": 241,
+      "subject": "বাংলাদেশ বিষয়াবলী",
+      "question": "ঐতিহাসিক মুজিবনগর সরকার কোন তারিখে আনুষ্ঠানিকভাবে শপথ গ্রহণ করে?",
+      "options": [
+        "১০ এপ্রিল ১৯৭১",
+        "১৭ এপ্রিল ১৯৭১",
+        "২৫ মার্চ ১৯৭১",
+        "১৬ ডিসেম্বর ১৯৭১"
+      ],
+      "correct": 1,
+      "explanation": "১৯৭১ সালের ১০ এপ্রিল সরকার গঠিত হয় এবং ১৭ এপ্রিল মেহেরপুরের বৈদ্যনাথতলার (মুজিবনগর) আম্রকাননে আনুষ্ঠানিকভাবে শপথ গ্রহণ করে।"
+    },
+    {
+      "id": 242,
+      "subject": "আন্তর্জাতিক বিষয়াবলী",
+      "question": "জাতিসংঘের আন্তর্জাতিক বিচার আদালত (ICJ) কোথায় অবস্থিত?",
+      "options": [
+        "নিউইয়র্ক",
+        "জেনেভা",
+        "দ্য হেগ (নেদারল্যান্ডস)",
+        "প্যারিস"
+      ],
+      "correct": 2,
+      "explanation": "International Court of Justice (ICJ)-র স্থায়ী সদর দপ্তর নেদারল্যান্ডসের দ্য হেগ (The Hague) শহরের পিস প্যালেসে অবস্থিত।"
+    },
+    {
+      "id": 243,
+      "subject": "সাধারণ বিজ্ঞান",
+      "question": "দৃশ্যমান আলোর মধ্যে কোন রঙের আলোর তরঙ্গদৈর্ঘ্য (Wavelength) সবচেয়ে কম?",
+      "options": [
+        "লাল",
+        "নীল",
+        "বেগুনি",
+        "হলুদ"
+      ],
+      "correct": 2,
+      "explanation": "বেনীআসহকলা বর্ণালীতে বেগুনির তরঙ্গদৈর্ঘ্য সবচেয়ে কম (প্রায় ৪০০ ন্যানোমিটার) এবং লালের তরঙ্গদৈর্ঘ্য সবচেয়ে বেশি (প্রায় ৭০০ ন্যানোমিটার)।"
+    },
+    {
+      "id": 244,
+      "subject": "কম্পিউটার ও আইসিটি",
+      "question": "ওয়েব ব্রাউজিংয়ে বহুল ব্যবহৃত 'HTTP' এর পূর্ণরূপ কী?",
+      "options": [
+        "Hyper Text Transfer Protocol",
+        "High Transmission Text Protocol",
+        "Hyperlink Text Transfer Protocol",
+        "Home Tool Transfer Page"
+      ],
+      "correct": 0,
+      "explanation": "HTTP stands for Hypertext Transfer Protocol, which is the foundational protocol used by the World Wide Web."
+    },
+    {
+      "id": 245,
+      "subject": "কম্পিউটার ও আইসিটি",
+      "question": "কোন ধরনের মেমোরি ভোলাটাইল (Volatile) বা বিদ্যুৎ সরবরাহ বন্ধ হলে ডেটা মুছে যায়?",
+      "options": [
+        "ROM",
+        "RAM",
+        "Hard Disk",
+        "Flash Drive"
+      ],
+      "correct": 1,
+      "explanation": "RAM (Random Access Memory) হলো অস্থায়ী বা ভোলাটাইল মেমোরি, যা কম্পিউটার বন্ধ বা বিদ্যুৎ বিচ্ছিন্ন হলে সব ডেটা হারিয়ে ফেলে।"
+    }
+  ];
 
   let userMCQProgress = {
     answers: {},          // { [qId]: { selectedIndex, isCorrect, timesCorrect, timesAnswered, lastAnswered } }
@@ -4037,7 +4232,7 @@
   function saveMCQProgress() {
     try {
       localStorage.setItem(MCQ_PROGRESS_KEY, JSON.stringify(userMCQProgress));
-    } catch (e) {}
+    } catch (e) { }
   }
 
   function getStoredQuestions() {
@@ -4052,7 +4247,7 @@
   function saveStoredQuestions(qList) {
     try {
       localStorage.setItem(MCQ_CUSTOM_KEY, JSON.stringify(qList));
-    } catch (e) {}
+    } catch (e) { }
   }
 
   // Auto-Shuffle function (Fisher-Yates) for options while tracking correct answer
@@ -4082,7 +4277,7 @@
     const masteredSet = new Set(userMCQProgress.masteredIds.map(String));
     const removedSubjectsSet = new Set(userMCQProgress.removedSubjects || []);
     const rawAll = [...defaultQuestions, ...aiCuratedPool, ...getStoredQuestions()];
-    
+
     // Deduplicate by question text
     const seen = new Set();
     const unique = [];
@@ -4103,7 +4298,7 @@
   let currentMCQIndex = 0;
   let correctAnswers = 0;
   let wrongAnswers = 0;
-  let sessionAnswered = {}; 
+  let sessionAnswered = {};
   let is20ExamMode = false;
   let examTimerInterval = null;
   let timeRemaining = 900; // 15 minutes = 900s
@@ -4121,7 +4316,7 @@
   }
 
   function saveMistakes() {
-    try { localStorage.setItem(MISTAKES_KEY, JSON.stringify(mistakes)); } catch (e) {}
+    try { localStorage.setItem(MISTAKES_KEY, JSON.stringify(mistakes)); } catch (e) { }
   }
 
   function updateMCQStats() {
@@ -4132,13 +4327,45 @@
     const masteryBadge = document.getElementById("mcqMasteryBadge");
     const resetMasteredBtn = document.getElementById("resetMasteredBtn");
 
-    if (currentIndexEl) currentIndexEl.textContent = activeExamPool.length ? (currentMCQIndex + 1) + " / " + activeExamPool.length : "0 / 0";
-    if (correctCountEl) correctCountEl.textContent = correctAnswers;
-    if (wrongCountEl) wrongCountEl.textContent = wrongAnswers;
-    const totalMarks = (correctAnswers * 1.0) - (wrongAnswers * 0.5);
-    if (scoreValEl) scoreValEl.textContent = totalMarks.toFixed(2);
+    if (is20ExamMode) {
+      const answeredCount = Object.keys(sessionAnswered).length;
+      if (currentIndexEl) currentIndexEl.textContent = activeExamPool.length ? (currentMCQIndex + 1) + " / " + activeExamPool.length : "0 / 20";
+      if (correctCountEl) {
+        correctCountEl.textContent = answeredCount;
+        const lbl = correctCountEl.nextElementSibling;
+        if (lbl) lbl.textContent = "Answered";
+      }
+      if (wrongCountEl) {
+        wrongCountEl.textContent = Math.max(0, activeExamPool.length - answeredCount);
+        const lbl = wrongCountEl.nextElementSibling;
+        if (lbl) lbl.textContent = "Remaining";
+      }
+      if (scoreValEl) {
+        scoreValEl.textContent = "Locked";
+        const lbl = scoreValEl.nextElementSibling;
+        if (lbl) lbl.textContent = "Revealed after 20 Qs";
+      }
+    } else {
+      if (currentIndexEl) currentIndexEl.textContent = activeExamPool.length ? (currentMCQIndex + 1) + " / " + activeExamPool.length : "0 / 0";
+      if (correctCountEl) {
+        correctCountEl.textContent = correctAnswers;
+        const lbl = correctCountEl.nextElementSibling;
+        if (lbl) lbl.textContent = "Correct (+1.0)";
+      }
+      if (wrongCountEl) {
+        wrongCountEl.textContent = wrongAnswers;
+        const lbl = wrongCountEl.nextElementSibling;
+        if (lbl) lbl.textContent = "Incorrect (-0.5)";
+      }
+      const totalMarks = (correctAnswers * 1.0) - (wrongAnswers * 0.5);
+      if (scoreValEl) {
+        scoreValEl.textContent = totalMarks.toFixed(2);
+        const lbl = scoreValEl.nextElementSibling;
+        if (lbl) lbl.textContent = "Net Score";
+      }
+    }
 
-    const masteredCount = userMCQProgress.masteredIds.length;
+    const masteredCount = (userMCQProgress.masteredIds || []).length;
     if (masteryBadge) {
       masteryBadge.innerHTML = `${ICON.trophy} ${masteredCount} Mastered`;
     }
@@ -4212,6 +4439,10 @@
       currentMCQIndex++;
       renderMCQQuestion();
     } else {
+      if (is20ExamMode) {
+        showMCQSummary();
+        return;
+      }
       const added = autoAddFreshQuestions();
       if (added > 0) {
         currentMCQIndex++;
@@ -4270,87 +4501,142 @@
     if (explanationBox) explanationBox.classList.remove("show");
 
     if (prevBtn) prevBtn.style.display = currentMCQIndex > 0 ? "inline-flex" : "none";
-    if (nextBtn) nextBtn.innerHTML = (currentMCQIndex === activeExamPool.length - 1) ? "View Results" : `Next ${ICON.arrowR}`;
-
-    const qKey = String(q.id !== undefined ? q.id : currentMCQIndex);
-    
-    // Check remembered answer from session or localStorage progress
-    const rememberedAnswer = sessionAnswered[qKey] || userMCQProgress.answers[qKey];
-    const prevStat = userMCQProgress.answers[qKey] || { timesCorrect: 0 };
-    const timesCorrect = prevStat.timesCorrect || 0;
-
-    // Update Question Mastery Badge
-    if (historyBadge) {
-      if (timesCorrect >= 2) {
-        historyBadge.className = "q-history-badge mastered";
-        historyBadge.innerHTML = `${ICON.trophy} Mastered (2/2)`;
-      } else if (timesCorrect === 1) {
-        historyBadge.className = "q-history-badge has-correct";
-        historyBadge.textContent = "✓ 1/2 Right (1 more to master)";
+    if (nextBtn) {
+      if (is20ExamMode) {
+        if (currentMCQIndex === activeExamPool.length - 1) {
+          nextBtn.innerHTML = `Finish &amp; View Score ${ICON.check}`;
+        } else {
+          nextBtn.innerHTML = `Next ${ICON.arrowR}`;
+        }
       } else {
-        historyBadge.className = "q-history-badge";
-        historyBadge.textContent = "Mastery: 0/2";
+        nextBtn.innerHTML = (currentMCQIndex === activeExamPool.length - 1) ? "View Results" : `Next ${ICON.arrowR}`;
       }
     }
 
-    q.options.forEach((opt, idx) => {
-      const btn = document.createElement("button");
-      btn.className = "option-btn";
-      btn.type = "button";
-      btn.innerHTML = `<span class="opt-prefix">${prefixList[idx] || (idx+1)}</span> <span>${escapeHtml(opt)}</span>`;
+    const qKey = String(q.id !== undefined ? q.id : currentMCQIndex);
 
-      if (rememberedAnswer !== undefined) {
-        btn.disabled = true;
-        if (idx === q.correct) {
-          btn.classList.add(rememberedAnswer.selectedIndex === q.correct ? "selected-correct" : "highlight-correct");
-        } else if (idx === rememberedAnswer.selectedIndex && !rememberedAnswer.isCorrect) {
-          btn.classList.add("selected-wrong");
-        }
-      } else {
+    if (is20ExamMode) {
+      // IN 20-QUESTION EXAM MODE:
+      // Do not reveal right or wrong, do not show explanation, do not disable options
+      if (explanationBox) explanationBox.classList.remove("show");
+      if (historyBadge) historyBadge.style.display = "none";
+      const autoNextPill = document.querySelector(".auto-next-pill");
+      if (autoNextPill) autoNextPill.style.display = "none";
+      if (retryBtn) retryBtn.style.display = "none";
+
+      const userChoice = (sessionAnswered[qKey] && sessionAnswered[qKey].selectedIndex !== undefined)
+        ? sessionAnswered[qKey].selectedIndex
+        : undefined;
+
+      q.options.forEach((opt, idx) => {
+        const btn = document.createElement("button");
+        btn.className = "option-btn" + (userChoice === idx ? " selected-exam" : "");
+        btn.type = "button";
+        btn.innerHTML = `<span class="opt-prefix">${prefixList[idx] || (idx + 1)}</span> <span>${escapeHtml(opt)}</span>`;
         btn.onclick = () => selectMCQOption(idx, q);
-      }
-      if (optionsContainer) optionsContainer.appendChild(btn);
-    });
+        if (optionsContainer) optionsContainer.appendChild(btn);
+      });
+    } else {
+      // IN QUESTION BANK PRACTICE MODE:
+      if (historyBadge) historyBadge.style.display = "inline-flex";
+      const autoNextPill = document.querySelector(".auto-next-pill");
+      if (autoNextPill) autoNextPill.style.display = "inline-flex";
 
-    if (rememberedAnswer !== undefined && explanationText && explanationBox) {
-      if (rememberedAnswer.isCorrect) {
-        let expHtml = escapeHtml(q.explanation || "No explanation provided.");
-        if (timesCorrect === 1) {
-          expHtml += `<div style="margin-top:8px; color:#10b981; font-weight:700; font-size:12.5px;">✓ Correct once! Answer correctly 1 more time to master and remove this question.</div>`;
-        } else if (timesCorrect >= 2) {
-          expHtml += `<div style="margin-top:8px; color:#10b981; font-weight:700; font-size:12.5px;">Mastered! You answered this question correctly 2 times.</div>`;
+      const rememberedAnswer = sessionAnswered[qKey] || userMCQProgress.answers[qKey];
+      const prevStat = userMCQProgress.answers[qKey] || { timesCorrect: 0 };
+      const timesCorrect = prevStat.timesCorrect || 0;
+
+      // Update Question Mastery Badge
+      if (historyBadge) {
+        if (timesCorrect >= 2) {
+          historyBadge.className = "q-history-badge mastered";
+          historyBadge.innerHTML = `${ICON.trophy} Mastered (2/2)`;
+        } else if (timesCorrect === 1) {
+          historyBadge.className = "q-history-badge has-correct";
+          historyBadge.textContent = "✓ 1/2 Right (1 more to master)";
+        } else {
+          historyBadge.className = "q-history-badge";
+          historyBadge.textContent = "Mastery: 0/2";
         }
-        explanationText.innerHTML = expHtml;
-      } else {
-        // Show wrong answer feedback and show Retry button
-        if (retryBtn) retryBtn.style.display = "inline-flex";
-        const yourText = escapeHtml(q.options[rememberedAnswer.selectedIndex] || "");
-        const correctText = escapeHtml(q.options[q.correct] || "");
-        explanationText.innerHTML = `
-          <div class="wrong-feedback-badge">${ICON.x} Incorrect Choice</div>
-          <div style="margin-bottom:8px; font-size:13px; line-height:1.6;">
-            <strong>Your Answer:</strong> <span style="color:#f43f5e; font-weight:600;">${yourText}</span> &nbsp;|&nbsp; 
-            <strong>Correct Answer:</strong> <span style="color:#10b981; font-weight:600;">${correctText}</span>
-          </div>
-          <div><strong>Explanation:</strong> ${escapeHtml(q.explanation || "No explanation provided.")}</div>
-          <div class="mistake-saved-badge">Saved to Mistake Bank &amp; scheduled for revision</div>
-        `;
       }
-      explanationBox.classList.add("show");
+
+      q.options.forEach((opt, idx) => {
+        const btn = document.createElement("button");
+        btn.className = "option-btn";
+        btn.type = "button";
+        btn.innerHTML = `<span class="opt-prefix">${prefixList[idx] || (idx + 1)}</span> <span>${escapeHtml(opt)}</span>`;
+
+        if (rememberedAnswer !== undefined) {
+          btn.disabled = true;
+          if (idx === q.correct) {
+            btn.classList.add(rememberedAnswer.selectedIndex === q.correct ? "selected-correct" : "highlight-correct");
+          } else if (idx === rememberedAnswer.selectedIndex && !rememberedAnswer.isCorrect) {
+            btn.classList.add("selected-wrong");
+          }
+        } else {
+          btn.onclick = () => selectMCQOption(idx, q);
+        }
+        if (optionsContainer) optionsContainer.appendChild(btn);
+      });
+
+      if (rememberedAnswer !== undefined && explanationText && explanationBox) {
+        if (rememberedAnswer.isCorrect) {
+          let expHtml = escapeHtml(q.explanation || "No explanation provided.");
+          expHtml += `<div style="margin-top:8px; color:#10b981; font-weight:700; font-size:12.5px;">✓ Correct. Exam mode tracks two correct attempts before removing this question for you.</div>`;
+          explanationText.innerHTML = expHtml;
+        } else {
+          // Show wrong answer feedback and show Retry button
+          if (retryBtn) retryBtn.style.display = "inline-flex";
+          const yourText = escapeHtml(q.options[rememberedAnswer.selectedIndex] || "");
+          const correctText = escapeHtml(q.options[q.correct] || "");
+          explanationText.innerHTML = `
+            <div class="wrong-feedback-badge">${ICON.x} Incorrect Choice</div>
+            <div style="margin-bottom:8px; font-size:13px; line-height:1.6;">
+              <strong>Your Answer:</strong> <span style="color:#f43f5e; font-weight:600;">${yourText}</span> &nbsp;|&nbsp; 
+              <strong>Correct Answer:</strong> <span style="color:#10b981; font-weight:600;">${correctText}</span>
+            </div>
+            <div><strong>Explanation:</strong> ${escapeHtml(q.explanation || "No explanation provided.")}</div>
+            <div class="mistake-saved-badge">Saved to Mistake Bank &amp; scheduled for revision</div>
+          `;
+        }
+        explanationBox.classList.add("show");
+      }
     }
   }
 
   function selectMCQOption(selectedIndex, q) {
     clearTimeout(autoNextTimeout);
     const qKey = String(q.id !== undefined ? q.id : currentMCQIndex);
-    const isCorrect = (selectedIndex === q.correct);
 
-    // Track session answer
+    if (is20ExamMode) {
+      // IN 20-QUESTION EXAM MODE:
+      // Simply record the chosen option without revealing if it is right or wrong!
+      sessionAnswered[qKey] = { selectedIndex };
+
+      const optionsContainer = document.getElementById("options-container");
+      if (optionsContainer) {
+        Array.from(optionsContainer.children).forEach((btn, idx) => {
+          btn.classList.toggle("selected-exam", idx === selectedIndex);
+        });
+      }
+
+      updateMCQStats();
+
+      // Smooth auto-advance after 450ms (allows candidate to review or change with Previous/Next)
+      autoNextTimeout = setTimeout(() => {
+        advanceToNextMCQQuestion();
+      }, 450);
+      return;
+    }
+
+    // IN PRACTICE / STUDY MODE:
+    const isCorrect = (selectedIndex === q.correct);
     sessionAnswered[qKey] = { selectedIndex, isCorrect };
 
     // Update persistent progress in localStorage
     const prev = userMCQProgress.answers[qKey] || { timesCorrect: 0, timesAnswered: 0 };
-    const newTimesCorrect = isCorrect ? (prev.timesCorrect + 1) : prev.timesCorrect;
+    // Only exam submissions contribute to the two-correct removal rule.
+    const newTimesCorrect = prev.timesCorrect;
     const newTimesAnswered = (prev.timesAnswered || 0) + 1;
 
     userMCQProgress.answers[qKey] = {
@@ -4369,17 +4655,9 @@
       correctAnswers++;
       if (retryBtn) retryBtn.style.display = "none";
 
-      // Check Leitner Mastery rule: if answered right 2 times -> delete/master question!
-      if (newTimesCorrect >= 2) {
-        if (!userMCQProgress.masteredIds.includes(qKey)) {
-          userMCQProgress.masteredIds.push(qKey);
-        }
-        justMastered = true;
-        q._markedForDeletion = true;
-      }
-
-      // Auto next question after a snappy delay!
-      const delay = justMastered ? 1100 : 750;
+      // Mastery and auto-removal are applied only when the exam is submitted.
+      // Practice mode should keep the question available for learning.
+      const delay = 750;
       if (nextBtn) {
         nextBtn.innerHTML = `Next ${ICON.arrowR} <span class="auto-advance-indicator">${ICON.zap}</span>`;
       }
@@ -4389,18 +4667,17 @@
 
     } else {
       // WRONG ANSWER REMEDIATION LOGIC:
-      // 1. DO NOT auto-advance! Give the learner time to understand why.
       clearTimeout(autoNextTimeout);
       wrongAnswers++;
 
-      // 2. Re-queue this missed question 3-4 spots ahead in active pool for spaced practice
+      // Re-queue this missed question 3-4 spots ahead in active pool for spaced practice
       const laterIdx = activeExamPool.findIndex((item, idx) => idx > currentMCQIndex && String(item.id) === String(q.id));
       if (laterIdx === -1 && !is20ExamMode && activeExamPool.length > 2) {
         const insertPos = Math.min(activeExamPool.length, currentMCQIndex + 4);
         activeExamPool.splice(insertPos, 0, autoShuffleOptions({ ...q, _isReattempt: true }));
       }
 
-      // 3. Automatically add to Mistake Bank
+      // Automatically add to Mistake Bank
       const exists = mistakes.some(m => (m.q === q.question || String(m.id) === String(q.id)));
       if (!exists) {
         mistakes.unshift({
@@ -4416,7 +4693,6 @@
         renderMistakes();
       }
 
-      // 4. Show "Try Again" button in nav actions
       if (retryBtn) retryBtn.style.display = "inline-flex";
       if (nextBtn) nextBtn.innerHTML = (currentMCQIndex === activeExamPool.length - 1) ? "View Results" : `Next ${ICON.arrowR}`;
     }
@@ -4519,14 +4795,23 @@
     // Refresh active pool excluding mastered
     allQuestions = getActiveQuestionsPool();
 
-    // If pool has fewer than 20 questions, automatically replenish
-    if (allQuestions.length < 20) {
-      autoAddFreshQuestions();
+    // Keep replenishing until the exam can always contain exactly 20 questions.
+    while (allQuestions.length < EXAM_QUESTION_COUNT) {
+      const added = autoAddFreshQuestions();
+      if (!added) break;
+    }
+
+    if (allQuestions.length < EXAM_QUESTION_COUNT) {
+      is20ExamMode = false;
+      if (modeBanner) modeBanner.classList.remove("active");
+      if (filterBar) filterBar.style.display = "flex";
+      showToast(`At least ${EXAM_QUESTION_COUNT} questions are required to start an exam.`, true);
+      return;
     }
 
     // Shuffle all questions and pick up to 20
     const shuffled = [...allQuestions].sort(() => 0.5 - Math.random());
-    const raw20 = shuffled.slice(0, Math.min(20, shuffled.length));
+    const raw20 = shuffled.slice(0, EXAM_QUESTION_COUNT);
 
     // Auto-shuffle options for each question
     activeExamPool = raw20.map(q => autoShuffleOptions(q));
@@ -4565,23 +4850,285 @@
     clearInterval(examTimerInterval);
     const quizCard = document.getElementById("quiz-card");
     const summaryCard = document.getElementById("summary-card");
-    const finalScoreEl = document.getElementById("final-score");
-    const finalDetailsEl = document.getElementById("final-details");
 
     if (quizCard) quizCard.style.display = "none";
     if (summaryCard) summaryCard.style.display = "block";
 
-    const totalMarks = (correctAnswers * 1.0) - (wrongAnswers * 0.5);
-    if (finalScoreEl) finalScoreEl.textContent = totalMarks < 0 ? "0.00" : totalMarks.toFixed(2);
+    let examCorrect = 0;
+    let examWrong = 0;
+    let examSkipped = 0;
+    const newlyMasteredQuestions = [];
 
-    const accuracy = activeExamPool.length > 0 ? Math.round((correctAnswers / activeExamPool.length) * 100) : 0;
-    if (finalDetailsEl) {
-      finalDetailsEl.innerHTML = `
-        Total Questions: <b>${activeExamPool.length}</b><br>
-        Correct (+1.0): <b style="color: #10b981;">${correctAnswers}</b> | Incorrect (-0.5): <b style="color: #f43f5e;">${wrongAnswers}</b><br>
-        Net Marks: <b>${totalMarks.toFixed(2)}</b> (Standard BCS Preliminary negative marking applied)<br>
-        Accuracy Rate: <b>${accuracy}%</b> | Mastered Questions: <b style="color:#10b981;">${userMCQProgress.masteredIds.length}</b>
+    // Evaluate each question in the active exam pool
+    activeExamPool.forEach((q, idx) => {
+      const qKey = String(q.id !== undefined ? q.id : idx);
+      const userAns = sessionAnswered[qKey];
+
+      if (!userMCQProgress.answers[qKey]) {
+        userMCQProgress.answers[qKey] = { timesCorrect: 0, timesWrong: 0, lastAnswered: null };
+      }
+
+      if (userAns && userAns.selectedIndex !== undefined) {
+        const isCorrect = (userAns.selectedIndex === q.correct);
+        userAns.isCorrect = isCorrect;
+
+        if (isCorrect) {
+          examCorrect++;
+          const currentTimes = userMCQProgress.answers[qKey].timesCorrect || 0;
+          const newTimes = currentTimes + 1;
+          userMCQProgress.answers[qKey].timesCorrect = newTimes;
+          userMCQProgress.answers[qKey].lastAnswered = Date.now();
+          userMCQProgress.answers[qKey].isCorrect = true;
+
+          // 2-Times-Right Leitner Rule:
+          // If candidate answers right twice (>= 2 times), auto-delete / graduate from exam pool for this user
+          if (newTimes >= 2) {
+            const strId = String(q.id !== undefined ? q.id : qKey);
+            if (!userMCQProgress.masteredIds.map(String).includes(strId)) {
+              userMCQProgress.masteredIds.push(q.id !== undefined ? q.id : qKey);
+              newlyMasteredQuestions.push(q);
+            }
+          }
+        } else {
+          examWrong++;
+          userMCQProgress.answers[qKey].timesWrong = (userMCQProgress.answers[qKey].timesWrong || 0) + 1;
+          userMCQProgress.answers[qKey].timesCorrect = 0; // Reset consecutive mastery requirement
+          userMCQProgress.answers[qKey].lastAnswered = Date.now();
+          userMCQProgress.answers[qKey].isCorrect = false;
+
+          // Automatically record into Mistake Bank for weak-area practice
+          const exists = mistakes.some(m => (m.q === q.question || String(m.id) === String(q.id)));
+          if (!exists) {
+            mistakes.unshift({
+              id: q.id || ("mcq_" + Date.now() + "_" + idx),
+              q: q.question,
+              subject: q.subject || "General",
+              options: q.options,
+              correct: q.correct,
+              correctAns: q.options[q.correct] || "",
+              yourAns: q.options[userAns.selectedIndex] || "",
+              explain: q.explanation || "No explanation provided.",
+              date: new Date().toLocaleDateString()
+            });
+          }
+        }
+      } else {
+        examSkipped++;
+      }
+    });
+
+    correctAnswers = examCorrect;
+    wrongAnswers = examWrong;
+
+    // Persist progress and mistakes
+    saveMCQProgress();
+    saveMistakes();
+    renderMistakes();
+    updateMCQStats();
+
+    // Standard BCS Preliminary scoring: +1.0 for right, -0.5 for wrong
+    const rawScore = (examCorrect * 1.0) - (examWrong * 0.5);
+    const netMarks = Math.max(0, rawScore);
+    const totalQuestions = activeExamPool.length;
+    const attemptedCount = examCorrect + examWrong;
+    const accuracy = attemptedCount > 0 ? Math.round((examCorrect / attemptedCount) * 100) : 0;
+    const percentage = totalQuestions > 0 ? Math.round((netMarks / totalQuestions) * 100) : 0;
+
+    let gradeBadge = "";
+    let gradeColor = "";
+    if (netMarks >= 16) {
+      gradeBadge = "🌟 Outstanding! (মেধা তালিকায় শীর্ষস্থান)";
+      gradeColor = "#10b981";
+    } else if (netMarks >= 12) {
+      gradeBadge = "✓ Passed Preliminary Cutoff (উত্তীর্ণ)";
+      gradeColor = "#3b82f6";
+    } else if (netMarks >= 9) {
+      gradeBadge = "⚠️ Marginal Score (অনুশীলন বাড়াতে হবে)";
+      gradeColor = "#f59e0b";
+    } else {
+      gradeBadge = "❌ Below Qualifying Cutoff (পুনর্বিবেচনা প্রয়োজন)";
+      gradeColor = "#f43f5e";
+    }
+
+    let reviewItemsHtml = "";
+    activeExamPool.forEach((q, idx) => {
+      const qKey = String(q.id !== undefined ? q.id : idx);
+      const userAns = sessionAnswered[qKey];
+      const selectedIdx = userAns ? userAns.selectedIndex : undefined;
+      const isCorrect = (selectedIdx === q.correct);
+      const isSkipped = (selectedIdx === undefined);
+      const stat = userMCQProgress.answers[qKey] || { timesCorrect: 0 };
+      const timesCorrect = stat.timesCorrect || 0;
+      const isMastered = userMCQProgress.masteredIds.map(String).includes(String(q.id !== undefined ? q.id : qKey));
+
+      let cardStatusClass = isSkipped ? "review-card-skipped" : (isCorrect ? "review-card-correct" : "review-card-wrong");
+      let statusPillHtml = isSkipped
+        ? `<span class="review-status-pill pill-skipped">— Skipped (0.0)</span>`
+        : (isCorrect
+          ? `<span class="review-status-pill pill-correct">✓ Correct (+1.0)</span>`
+          : `<span class="review-status-pill pill-wrong">✕ Incorrect (-0.5)</span>`);
+
+      let masteryPillHtml = "";
+      if (isMastered) {
+        masteryPillHtml = `<span class="q-history-badge mastered" style="font-size:11px;">🏆 Mastered (2/2) &bull; Auto-Removed</span>`;
+      } else if (timesCorrect === 1) {
+        masteryPillHtml = `<span class="q-history-badge has-correct" style="font-size:11px;">✓ 1/2 Right &bull; 1 more right to remove</span>`;
+      } else {
+        masteryPillHtml = `<span class="q-history-badge" style="font-size:11px;">Mastery: 0/2</span>`;
+      }
+
+      let optionsRowsHtml = "";
+      q.options.forEach((opt, optIdx) => {
+        let optRowClass = "review-opt-row";
+        let optTag = "";
+
+        if (optIdx === q.correct) {
+          optRowClass += " opt-correct";
+          optTag = `<span class="review-opt-tag">✓ Correct Answer</span>`;
+        } else if (optIdx === selectedIdx && !isCorrect) {
+          optRowClass += " opt-wrong";
+          optTag = `<span class="review-opt-tag">✕ Your Choice</span>`;
+        }
+
+        optionsRowsHtml += `
+          <div class="${optRowClass}">
+            <span class="opt-prefix">${prefixList[optIdx] || (optIdx + 1)}</span>
+            <span>${escapeHtml(opt)}</span>
+            ${optTag}
+          </div>
+        `;
+      });
+
+      reviewItemsHtml += `
+        <div class="review-card glass ${cardStatusClass}">
+          <div class="review-card-top">
+            <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+              <span class="q-badge" style="font-size:11px;">${escapeHtml(q.subject || "General")}</span>
+              <span style="font-weight:700; font-size:13.5px; color:var(--text-soft);">Question ${idx + 1}</span>
+              ${masteryPillHtml}
+            </div>
+            <div>${statusPillHtml}</div>
+          </div>
+          <div class="review-q-title">${idx + 1}. ${escapeHtml(q.question)}</div>
+          <div class="review-options-list">
+            ${optionsRowsHtml}
+          </div>
+          <div class="review-explanation">
+            <strong><i data-lucide="lightbulb" style="width:14px; height:14px; vertical-align:middle;"></i> Explanation &amp; Shortcut:</strong>
+            <div style="margin-top:4px;">${escapeHtml(q.explanation || "No explanation provided.")}</div>
+          </div>
+        </div>
       `;
+    });
+
+    summaryCard.innerHTML = `
+      <div class="exam-summary-wrapper">
+        <div class="exam-summary-header">
+          <div class="exam-result-badge" style="background:${gradeColor}18; color:${gradeColor}; border:1px solid ${gradeColor}50;">
+            ${gradeBadge}
+          </div>
+          <h2 class="summary-title" style="margin-top:12px; margin-bottom:6px;">
+            ${is20ExamMode ? "বিসিএস ২০-প্রশ্ন মডেল টেস্ট সমাপ্ত!" : "MCQ Session Completed!"}
+          </h2>
+          <p style="color:var(--text-soft); font-size:13.5px; margin:0;">
+            Standard BCS Preliminary Negative Marking Applied (+1.0 / -0.5)
+          </p>
+        </div>
+
+        <div class="exam-score-hero glass">
+          <div class="score-main-value">
+            <span class="score-number" style="color:${gradeColor};">${netMarks.toFixed(2)}</span>
+            <span class="score-total">/ ${totalQuestions}.00</span>
+          </div>
+          <div class="score-meta-text">
+            Net Score &bull; Accuracy: <b>${accuracy}%</b> &bull; Score Rate: <b>${percentage}%</b>
+          </div>
+        </div>
+
+        <div class="exam-stat-grid">
+          <div class="exam-stat-box stat-correct">
+            <div class="stat-num">${examCorrect}</div>
+            <div class="stat-lbl">✓ Correct (+${(examCorrect * 1.0).toFixed(1)})</div>
+          </div>
+          <div class="exam-stat-box stat-wrong">
+            <div class="stat-num">${examWrong}</div>
+            <div class="stat-lbl">✕ Wrong (-${(examWrong * 0.5).toFixed(1)})</div>
+          </div>
+          <div class="exam-stat-box stat-skipped">
+            <div class="stat-num">${examSkipped}</div>
+            <div class="stat-lbl">— Skipped (0.0)</div>
+          </div>
+          <div class="exam-stat-box stat-mastered">
+            <div class="stat-num">${userMCQProgress.masteredIds.length}</div>
+            <div class="stat-lbl">🏆 Mastered Total</div>
+          </div>
+        </div>
+
+        ${newlyMasteredQuestions.length > 0 ? `
+          <div class="mastered-celebration-banner glass">
+            <div style="font-size:24px;">🎉</div>
+            <div>
+              <div style="font-weight:700; color:#10b981; font-size:15px;">
+                ${newlyMasteredQuestions.length} Question(s) Mastered &amp; Auto-Removed from Exam!
+              </div>
+              <div style="font-size:13px; color:var(--text-soft); margin-top:3px; line-height:1.5;">
+                You answered these question(s) correctly twice. As requested, they are automatically removed from future exams for this user so you can focus on new and weak questions.
+              </div>
+            </div>
+          </div>
+        ` : `
+          <div class="mastered-info-banner glass" style="padding:12px 18px; border-radius:12px; margin-bottom:22px; font-size:13px; color:var(--text-soft); display:flex; align-items:center; gap:12px; background:rgba(99,102,241,0.06); border:1px solid rgba(99,102,241,0.2);">
+            <div style="font-size:18px;">💡</div>
+            <div><strong>Leitner Auto-Delete Rule:</strong> Any question answered correctly 2 times is automatically removed from future exam pools for your profile.</div>
+          </div>
+        `}
+
+        <div class="summary-actions" style="margin: 20px 0 28px; display:flex; flex-wrap:wrap; gap:12px; justify-content:center;">
+          <button class="pill solid btn-exam20" id="summary-retake-20-btn" style="padding:10px 22px; font-weight:700;">
+            ${ICON.zap} Retake 20 Questions
+          </button>
+          <button class="pill" id="summary-return-bank-btn" style="padding:10px 20px;">
+            ${ICON.undo} Question Bank
+          </button>
+          ${examWrong > 0 ? `
+            <button class="pill danger" id="summary-view-mistakes-btn" style="padding:10px 20px;">
+              ${ICON.x} Review Mistake Bank (${examWrong})
+            </button>
+          ` : ''}
+        </div>
+
+        <div class="exam-review-section">
+          <div class="exam-review-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; border-bottom:1px solid var(--border); padding-bottom:12px;">
+            <h3 style="margin:0; font-size:16.5px; font-weight:700; color:var(--text);">
+              Detailed Question Review (${totalQuestions} Questions)
+            </h3>
+            <span style="font-size:12.5px; color:var(--text-soft);">Solutions &amp; Explanations</span>
+          </div>
+
+          <div class="exam-review-list">
+            ${reviewItemsHtml}
+          </div>
+        </div>
+      </div>
+    `;
+
+    const retakeBtn = document.getElementById("summary-retake-20-btn");
+    const returnBankBtn = document.getElementById("summary-return-bank-btn");
+    const mistakesBtn = document.getElementById("summary-view-mistakes-btn");
+
+    if (retakeBtn) retakeBtn.addEventListener("click", setup20QuestionExam);
+    if (returnBankBtn) returnBankBtn.addEventListener("click", resetMCQQuiz);
+    if (mistakesBtn) {
+      mistakesBtn.addEventListener("click", () => {
+        const mistakeChip = document.querySelector("#quizFlashSwitch [data-view='mistakes']");
+        if (mistakeChip) {
+          mistakeChip.click();
+        }
+      });
+    }
+
+    if (window.lucide && typeof window.lucide.createIcons === "function") {
+      window.lucide.createIcons();
     }
   }
 
@@ -5101,7 +5648,7 @@
     setInterval(renderExams, 1000);
     update24hActivityUI();
     loadMistakes();
-    
+
     initMCQEngine();
     renderMistakes();
 
