@@ -1215,24 +1215,28 @@
       border-radius: 8px !important;
     }
 
-    /* Action buttons: Delete, Edit, Restore, Note Actions converted to clean icon-only buttons */
+    /* Action buttons: Delete, Edit, Restore, Note Actions, Mistake Actions converted to clean icon-only buttons */
     .monthly-routine-actions .pill span,
+    .monthly-routine-actions button span,
     .quote-action-btn span,
     .subject-delete-btn span,
     .subject-restore-btn span,
     .subject-rename-btn span,
     .note-action-btn span,
     .category-action-group .cat-group-btn span,
+    .mistake-del-btn span,
     #qFlagBtn #qFlagText {
       display: none !important;
     }
 
     .monthly-routine-actions .pill,
+    .monthly-routine-actions button,
     .quote-action-btn,
     .subject-delete-btn,
     .subject-restore-btn,
     .subject-rename-btn,
-    .note-action-btn {
+    .note-action-btn,
+    .mistake-del-btn {
       min-width: 32px !important;
       width: 32px !important;
       height: 32px !important;
@@ -1318,15 +1322,19 @@
     }
 
     .monthly-routine-actions .pill svg,
+    .monthly-routine-actions button svg,
     .quote-action-btn svg,
     .subject-delete-btn svg,
     .subject-restore-btn svg,
     .note-action-btn svg,
+    .mistake-del-btn svg,
     .monthly-routine-actions .pill .lucide,
+    .monthly-routine-actions button .lucide,
     .quote-action-btn .lucide,
     .subject-delete-btn .lucide,
     .subject-restore-btn .lucide,
     .note-action-btn .lucide,
+    .mistake-del-btn .lucide,
     .category-action-group svg {
       width: 14px !important;
       height: 14px !important;
@@ -2311,17 +2319,21 @@
   }
 
   .del-row {
-    background: none;
-    border: none;
-    color: var(--accent3);
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text-soft);
     cursor: pointer;
-    padding: 6px 8px;
-    border-radius: 7px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     line-height: 1;
-    transition: all .15s ease;
+    padding: 0;
+    flex-shrink: 0;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   }
 
   .del-row svg {
@@ -2331,8 +2343,11 @@
   }
 
   .del-row:hover {
-    background: rgba(244, 63, 94, 0.15);
-    color: #f43f5e;
+    background: rgba(244, 63, 94, 0.14) !important;
+    border-color: rgba(244, 63, 94, 0.35) !important;
+    color: #f43f5e !important;
+    transform: scale(1.08) translateY(-1px);
+    box-shadow: 0 2px 8px rgba(244, 63, 94, 0.22);
   }
 
   .routine-actions {
@@ -2525,7 +2540,8 @@
   }
 
   /* ==========================================================================
-     Segmented Button Groups (.btn-group)
+     Segmented Button Groups (.btn-group) & Action Button Groups
+     Hover-Expansion Pattern: resting icon-only -> expands text on hover
      ========================================================================== */
   .btn-group {
     display: inline-flex;
@@ -2541,8 +2557,11 @@
 
   .btn-group > button,
   .btn-group > .pill,
+  .btn-group > label,
+  .btn-group > .theme-action-btn,
   .btn-group > .note-action-btn,
   .btn-group > .quote-action-btn,
+  .btn-group > .cat-group-btn,
   .btn-group > .cat-del-btn {
     border-radius: 0 !important;
     border: none !important;
@@ -2556,7 +2575,7 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 5px;
+    gap: 0;
     cursor: pointer;
     transition: background 0.16s ease, color 0.16s ease;
     box-shadow: none !important;
@@ -2567,6 +2586,8 @@
 
   .btn-group > button:last-child,
   .btn-group > .pill:last-child,
+  .btn-group > label:last-child,
+  .btn-group > .theme-action-btn:last-child,
   .btn-group > .note-action-btn:last-child,
   .btn-group > .quote-action-btn:last-child,
   .btn-group > .cat-del-btn:last-child {
@@ -2575,8 +2596,8 @@
 
   .btn-group > button:hover,
   .btn-group > .pill:hover,
-  .btn-group > .note-action-btn.edit-btn:hover,
-  .btn-group > .quote-action-btn.edit-btn:hover {
+  .btn-group > label:hover,
+  .btn-group > .theme-action-btn:hover {
     background: var(--surface-hover, rgba(255, 255, 255, 0.06)) !important;
     color: var(--accent1) !important;
   }
@@ -2599,6 +2620,165 @@
     width: 13px;
     height: 13px;
     flex-shrink: 0;
+  }
+
+  /* Hover-Expanding Action Button Groups (Syllabus, Routine Monthly, Notes, Quotes, Subjects) */
+  .category-action-group,
+  .monthly-routine-actions,
+  .quote-item-actions,
+  .note-actions,
+  .subject-row-actions {
+    overflow: visible !important;
+    position: relative;
+    display: inline-flex;
+    align-items: stretch;
+    border-radius: 9px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    flex-shrink: 0;
+    vertical-align: middle;
+  }
+
+  .category-action-group .cat-group-btn,
+  .monthly-routine-actions button,
+  .quote-item-actions button,
+  .note-actions button,
+  .subject-row-actions button {
+    border-radius: 0 !important;
+    border: none !important;
+    border-right: 1px solid var(--border) !important;
+    margin: 0 !important;
+    background: transparent !important;
+    color: var(--text-soft);
+    font-size: 12px;
+    font-weight: 500;
+    padding: 6px 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0 !important;
+    cursor: pointer;
+    white-space: nowrap;
+    line-height: 1.2;
+    transition: background 0.22s ease, color 0.22s ease;
+    box-shadow: none !important;
+    transform: none !important;
+  }
+
+  .category-action-group > .cat-add-btn,
+  .monthly-routine-actions > button:first-child,
+  .quote-item-actions > button:first-child,
+  .note-actions > button:first-child,
+  .subject-row-actions > button:first-child {
+    border-top-left-radius: 8px !important;
+    border-bottom-left-radius: 8px !important;
+  }
+
+  .category-action-group .cat-del-trigger,
+  .monthly-routine-actions > button:last-child,
+  .quote-item-actions > button:last-child,
+  .note-actions > button:last-child,
+  .subject-row-actions > button:last-child {
+    border-top-right-radius: 8px !important;
+    border-bottom-right-radius: 8px !important;
+    border-right: none !important;
+  }
+
+  .category-action-group svg,
+  .monthly-routine-actions svg,
+  .quote-item-actions svg,
+  .note-actions svg,
+  .subject-row-actions svg {
+    width: 13px;
+    height: 13px;
+    flex-shrink: 0;
+    display: block;
+  }
+
+  /* Span Collapse / Expansion Animation: Default shows only icon, expands smoothly on hover */
+  .category-action-group .cat-group-btn span,
+  .monthly-routine-actions button span,
+  .quote-item-actions button span,
+  .note-actions button span,
+  .subject-row-actions button span {
+    max-width: 0;
+    opacity: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    display: inline-block;
+    vertical-align: middle;
+    margin-left: 0;
+    transition: max-width 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+                opacity 0.2s ease,
+                margin-left 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  .category-action-group .cat-group-btn:hover span,
+  .monthly-routine-actions button:hover span,
+  .quote-item-actions button:hover span,
+  .note-actions button:hover span,
+  .subject-row-actions button:hover span {
+    max-width: 105px;
+    opacity: 1;
+    margin-left: 6px;
+  }
+
+  /* Contextual Hover Accent Colors */
+  /* Edit / Rename / Open & Edit: Purple */
+  .category-action-group .cat-edit-btn:hover,
+  .monthly-routine-actions .action-btn-edit:hover,
+  .quote-item-actions .edit-btn:hover,
+  .note-actions .edit-btn:hover,
+  .subject-row-actions .subject-rename-btn:hover {
+    background: rgba(168, 85, 247, 0.14) !important;
+    color: #c084fc !important;
+  }
+
+  /* Delete / Remove: Rose */
+  .category-action-group .cat-del-trigger:hover,
+  .category-action-group .cat-del-trigger.menu-open,
+  .category-action-group .cat-del-trigger.active,
+  .monthly-routine-actions .action-btn-del:hover,
+  .quote-item-actions .delete-btn:hover,
+  .note-actions .del-btn:hover,
+  .subject-row-actions .subject-delete-btn:hover {
+    background: rgba(244, 63, 94, 0.14) !important;
+    color: #f43f5e !important;
+  }
+
+  /* Add Topic: Cyan / Indigo */
+  .category-action-group .cat-add-btn:hover {
+    background: rgba(103, 232, 249, 0.14) !important;
+    color: var(--accent1, #67e8f9) !important;
+  }
+
+  /* Light Theme Specific Accents for Strong Contrast */
+  html[data-theme="light"] .category-action-group .cat-edit-btn:hover,
+  html[data-theme="light"] .monthly-routine-actions .action-btn-edit:hover,
+  html[data-theme="light"] .quote-item-actions .edit-btn:hover,
+  html[data-theme="light"] .note-actions .edit-btn:hover,
+  html[data-theme="light"] .subject-row-actions .subject-rename-btn:hover {
+    background: rgba(147, 51, 234, 0.12) !important;
+    color: #7e22ce !important;
+  }
+
+  html[data-theme="light"] .category-action-group .cat-del-trigger:hover,
+  html[data-theme="light"] .category-action-group .cat-del-trigger.menu-open,
+  html[data-theme="light"] .category-action-group .cat-del-trigger.active,
+  html[data-theme="light"] .monthly-routine-actions .action-btn-del:hover,
+  html[data-theme="light"] .quote-item-actions .delete-btn:hover,
+  html[data-theme="light"] .note-actions .del-btn:hover,
+  html[data-theme="light"] .subject-row-actions .subject-delete-btn:hover {
+    background: rgba(225, 29, 72, 0.12) !important;
+    color: #e11d48 !important;
+  }
+
+  html[data-theme="light"] .category-action-group .cat-add-btn:hover {
+    background: rgba(14, 165, 233, 0.12) !important;
+    color: #0284c7 !important;
   }
 
   .save-note {
@@ -3267,36 +3447,38 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 32px;
-    height: 32px;
-    border-radius: 10px;
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
     background: var(--surface);
     border: 1px solid var(--border);
     color: var(--text-soft);
     cursor: pointer;
-    transition: all .2s ease;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
     padding: 0;
     flex-shrink: 0;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
   }
 
   .note-card .pin-btn svg,
   .note-card .pin-btn i[data-lucide] svg {
-    width: 14px;
-    height: 14px;
+    width: 13px;
+    height: 13px;
   }
 
   .note-card .pin-btn:hover {
-    background: var(--surface-hover);
-    color: var(--gold);
-    border-color: rgba(245, 158, 11, 0.4);
-    transform: translateY(-1px);
+    background: rgba(245, 158, 11, 0.14) !important;
+    border-color: rgba(245, 158, 11, 0.4) !important;
+    color: #f59e0b !important;
+    transform: scale(1.08) translateY(-1px);
+    box-shadow: 0 2px 8px rgba(245, 158, 11, 0.22);
   }
 
   .note-card .pin-btn.pin-active {
-    background: rgba(245, 158, 11, 0.18);
-    color: var(--gold);
-    border-color: var(--gold);
-    box-shadow: 0 0 10px rgba(245, 158, 11, 0.25);
+    background: rgba(245, 158, 11, 0.2) !important;
+    color: #f59e0b !important;
+    border-color: #f59e0b !important;
+    box-shadow: 0 0 10px rgba(245, 158, 11, 0.3);
   }
 
   .note-card p,
@@ -3343,51 +3525,6 @@
   .note-actions {
     display: inline-flex;
     align-items: stretch;
-  }
-
-  .note-action-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 5px;
-    padding: 5px 10px;
-    font-size: 12px;
-    font-weight: 600;
-    border-radius: 9px;
-    border: 1px solid var(--border);
-    background: var(--surface);
-    color: var(--text-soft);
-    cursor: pointer;
-    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-  }
-
-  .note-action-btn svg,
-  .note-action-btn i[data-lucide] svg {
-    width: 13px;
-    height: 13px;
-  }
-
-  .note-action-btn.edit-btn:hover {
-    background: var(--surface-hover);
-    color: var(--accent1);
-    border-color: var(--accent1);
-    transform: translateY(-1px);
-    box-shadow: 0 2px 8px rgba(99, 102, 241, 0.15);
-  }
-
-  /* Logical Safe Destructive Styling for Delete Note */
-  .note-action-btn.del-btn {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    color: var(--text-soft);
-  }
-
-  .note-action-btn.del-btn:hover {
-    background: rgba(244, 63, 94, 0.12);
-    color: #f43f5e;
-    border-color: rgba(244, 63, 94, 0.35);
-    transform: translateY(-1px);
-    box-shadow: 0 2px 8px rgba(244, 63, 94, 0.22);
   }
 
   .note-edit-area {
@@ -3499,25 +3636,30 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    background: none;
-    border: none;
-    color: var(--text-soft);
-    font-size: 18px;
-    cursor: pointer;
-    padding: 6px;
+    width: 32px;
+    height: 32px;
     border-radius: 8px;
-    transition: all .2s ease;
-  }
-
-  .modal-close:hover {
-    background: var(--surface-strong);
-    color: var(--text);
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text-soft);
+    cursor: pointer;
+    padding: 0;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
   }
 
   .modal-close svg,
   .modal-close .lucide {
-    width: 18px;
-    height: 18px;
+    width: 15px;
+    height: 15px;
+  }
+
+  .modal-close:hover {
+    background: rgba(244, 63, 94, 0.14) !important;
+    border-color: rgba(244, 63, 94, 0.35) !important;
+    color: #f43f5e !important;
+    transform: scale(1.08) translateY(-1px);
+    box-shadow: 0 2px 8px rgba(244, 63, 94, 0.22);
   }
 
   /* ===== Tracker ===== */
@@ -4460,34 +4602,38 @@
     top: 50%;
     transform: translateY(-50%);
     right: 8px;
-    background: none;
-    border: none;
-    color: inherit;
-    opacity: 0.65;
+    width: 22px;
+    height: 22px;
+    border-radius: 6px;
+    border: 1px solid rgba(244, 63, 94, 0.3);
+    background: rgba(244, 63, 94, 0.1);
+    color: #f43f5e;
     cursor: pointer;
-    padding: 3px;
-    border-radius: 5px;
     align-items: center;
     justify-content: center;
     line-height: 1;
-    transition: all .15s ease;
+    padding: 0;
+    transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
   }
 
   .topic-tile .tile-del svg {
-    width: 12px;
-    height: 12px;
+    width: 11px;
+    height: 11px;
     display: block;
   }
 
   .topic-tile .tile-del:hover {
-    opacity: 1;
-    background: rgba(244, 63, 94, 0.25);
-    color: #f43f5e;
+    background: #f43f5e !important;
+    border-color: #f43f5e !important;
+    color: #ffffff !important;
+    transform: translateY(-50%) scale(1.12);
+    box-shadow: 0 2px 8px rgba(244, 63, 94, 0.35);
   }
 
   .topic-tile.done .tile-del:hover {
-    background: rgba(0, 0, 0, 0.3);
-    color: #ffffff;
+    background: #f43f5e !important;
+    border-color: #f43f5e !important;
+    color: #ffffff !important;
   }
 
   /* When Topic Delete Mode is Active: VISIBLE on topic items */
@@ -4649,35 +4795,43 @@
 
   .flash-card-actions {
     position: absolute;
-    top: 6px;
-    right: 6px;
+    top: 8px;
+    right: 8px;
     display: flex;
-    gap: 3px;
+    gap: 4px;
     z-index: 2;
   }
 
   .flash-card-actions button {
-    background: rgba(0, 0, 0, 0.32);
-    border: none;
-    color: #fff;
-    width: 24px;
-    height: 24px;
-    border-radius: 6px;
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    color: var(--text-soft);
     cursor: pointer;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    transition: background 0.15s ease;
+    padding: 0;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   }
 
   .flash-card-actions button svg {
-    width: 12px;
-    height: 12px;
+    width: 13px;
+    height: 13px;
     display: block;
   }
 
   .flash-card-actions button:hover {
-    background: rgba(244, 63, 94, 0.6);
+    background: rgba(244, 63, 94, 0.16) !important;
+    border-color: rgba(244, 63, 94, 0.35) !important;
+    color: #f43f5e !important;
+    transform: scale(1.08) translateY(-1px);
+    box-shadow: 0 2px 8px rgba(244, 63, 94, 0.22);
   }
 
   /* ===== Exam mode ===== */
@@ -5089,15 +5243,17 @@
     border: 1px solid var(--border);
     color: var(--text-soft);
     cursor: pointer;
-    padding: 4px;
-    width: 26px;
-    height: 26px;
+    padding: 0;
+    width: 28px;
+    height: 28px;
     border-radius: 8px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     line-height: 1;
-    transition: all .2s ease;
+    flex-shrink: 0;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   }
 
   .countdown-del-btn svg {
@@ -5107,10 +5263,11 @@
   }
 
   .countdown-del-btn:hover {
-    background: rgba(244, 63, 94, 0.15);
-    border-color: rgba(244, 63, 94, 0.35);
-    color: #f43f5e;
-    transform: scale(1.06);
+    background: rgba(244, 63, 94, 0.14) !important;
+    border-color: rgba(244, 63, 94, 0.35) !important;
+    color: #f43f5e !important;
+    transform: scale(1.08) translateY(-1px);
+    box-shadow: 0 2px 8px rgba(244, 63, 94, 0.22);
   }
 
   /* Quiz & Weakness Bank */
@@ -5526,7 +5683,9 @@
   .segmented-toggle-group,
   .mcq-mode-toggle-group,
   .routine-mode-toggle-group,
-  .theme-mode-toggle-group {
+  .theme-mode-toggle-group,
+  .timer-mode-selector,
+  .quote-source-switch {
     display: inline-flex;
     align-items: center;
     background: var(--surface);
@@ -5537,6 +5696,10 @@
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
   }
 
+  .segmented-toggle-group > button,
+  .segmented-toggle-group > .chip,
+  .segmented-toggle-group > .pill,
+  .segmented-toggle-group > .btn-mode-switch,
   .btn-mode-switch {
     border-radius: 9px !important;
     padding: 6px 14px !important;
@@ -5556,11 +5719,15 @@
     white-space: nowrap !important;
   }
 
+  .segmented-toggle-group > button:hover:not(.active),
+  .segmented-toggle-group > .chip:hover:not(.active),
+  .segmented-toggle-group > .pill:hover:not(.active),
   .btn-mode-switch:hover:not(.active) {
     color: var(--text) !important;
     background: var(--surface-hover) !important;
   }
 
+  .segmented-toggle-group > .active,
   .btn-mode-switch.active,
   .btn-mode-switch.active-theme {
     background: linear-gradient(135deg, var(--accent1), var(--accent2)) !important;
@@ -5574,6 +5741,8 @@
     box-shadow: 0 2px 10px rgba(244, 63, 94, 0.35) !important;
   }
 
+  .segmented-toggle-group svg,
+  .segmented-toggle-group i[data-lucide],
   .btn-mode-switch svg,
   .btn-mode-switch i[data-lucide] {
     width: 14px;
@@ -5582,6 +5751,8 @@
     transition: transform 0.2s ease;
   }
 
+  .segmented-toggle-group > .active svg,
+  .segmented-toggle-group > .active i[data-lucide],
   .btn-mode-switch.active svg,
   .btn-mode-switch.active i[data-lucide],
   .btn-mode-switch.active-theme svg,
@@ -5593,21 +5764,29 @@
   html[data-theme="light"] .segmented-toggle-group,
   html[data-theme="light"] .mcq-mode-toggle-group,
   html[data-theme="light"] .routine-mode-toggle-group,
-  html[data-theme="light"] .theme-mode-toggle-group {
+  html[data-theme="light"] .theme-mode-toggle-group,
+  html[data-theme="light"] .timer-mode-selector,
+  html[data-theme="light"] .quote-source-switch {
     background: #ffffff;
     border-color: rgba(226, 232, 240, 0.95);
     box-shadow: 0 1px 4px rgba(15, 23, 42, 0.05);
   }
 
+  html[data-theme="light"] .segmented-toggle-group > button:not(.active),
+  html[data-theme="light"] .segmented-toggle-group > .chip:not(.active),
+  html[data-theme="light"] .segmented-toggle-group > .pill:not(.active),
   html[data-theme="light"] .btn-mode-switch {
     color: #475569 !important;
   }
 
+  html[data-theme="light"] .segmented-toggle-group > button:hover:not(.active),
+  html[data-theme="light"] .segmented-toggle-group > .chip:hover:not(.active),
   html[data-theme="light"] .btn-mode-switch:hover:not(.active) {
     background: #f1f5f9 !important;
     color: #0f172a !important;
   }
 
+  html[data-theme="light"] .segmented-toggle-group > .active,
   html[data-theme="light"] .btn-mode-switch.active,
   html[data-theme="light"] .btn-mode-switch.active-theme {
     background: linear-gradient(135deg, #4f46e5, #0891b2) !important;
@@ -5615,12 +5794,57 @@
     box-shadow: 0 2px 8px rgba(79, 70, 229, 0.28) !important;
   }
 
+  html[data-theme="light"] .segmented-toggle-group > .active svg,
+  html[data-theme="light"] .segmented-toggle-group > .active i[data-lucide],
   html[data-theme="light"] .btn-mode-switch.active svg,
   html[data-theme="light"] .btn-mode-switch.active i[data-lucide],
   html[data-theme="light"] .btn-mode-switch.active-theme svg,
   html[data-theme="light"] .btn-mode-switch.active-theme i[data-lucide] {
     color: #ffffff !important;
     stroke: #ffffff !important;
+  }
+
+  /* Routine Dynamic & Animated Navigation Controls */
+  @keyframes routineMonthIn {
+    from {
+      opacity: 0;
+      transform: translateY(-4px) scale(0.96);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  @keyframes routineContentFade {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes monthlyCardFadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .routine-card,
+  .date-slider-row {
+    animation: routineContentFade 0.26s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  .monthly-routine-card {
+    animation: monthlyCardFadeIn 0.28s cubic-bezier(0.16, 1, 0.3, 1) both;
   }
 
   /* Routine Month & Year Badge Placeholder */
@@ -5639,6 +5863,7 @@
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
     user-select: none;
     letter-spacing: 0.01em;
+    animation: routineMonthIn 0.24s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   }
 
   .routine-month-badge i[data-lucide],
@@ -5649,10 +5874,151 @@
     flex-shrink: 0;
   }
 
+  /* Routine Animated Month Switcher Controls */
+  .routine-month-select-wrap {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 3px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+    animation: routineMonthIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+
+  .routine-month-select-inner {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0 4px;
+  }
+
+  .routine-month-select-icon {
+    width: 14px;
+    height: 14px;
+    color: var(--accent1);
+    flex-shrink: 0;
+  }
+
+  .routine-month-dropdown {
+    background: transparent;
+    border: none;
+    color: var(--text);
+    font-size: 12.5px;
+    font-weight: 600;
+    font-family: var(--font-sans);
+    cursor: pointer;
+    padding: 5px 6px;
+    outline: none;
+  }
+
+  .routine-month-dropdown option {
+    background: var(--surface-strong);
+    color: var(--text);
+  }
+
+  .month-nav-btn {
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text-soft);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    padding: 0;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .month-nav-btn:hover {
+    background: rgba(99, 102, 241, 0.14) !important;
+    border-color: rgba(99, 102, 241, 0.35) !important;
+    color: var(--accent1) !important;
+    transform: scale(1.08) translateY(-1px);
+    box-shadow: 0 2px 8px rgba(99, 102, 241, 0.22);
+  }
+
+  .month-nav-btn svg {
+    width: 13px;
+    height: 13px;
+  }
+
+  /* Dedicated Today Jump Button */
+  .routine-today-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border-radius: 11px;
+    font-size: 12.5px;
+    font-weight: 600;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text-soft);
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    white-space: nowrap;
+    line-height: 1.2;
+    animation: routineMonthIn 0.24s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+
+  .routine-today-btn:hover {
+    color: var(--accent1);
+    background: var(--surface-hover);
+    border-color: rgba(99, 102, 241, 0.35);
+    transform: translateY(-1px);
+  }
+
+  .routine-today-btn.is-today {
+    color: var(--accent1);
+    border-color: rgba(99, 102, 241, 0.4);
+    background: rgba(99, 102, 241, 0.1);
+  }
+
+  .routine-today-btn svg {
+    width: 14px;
+    height: 14px;
+  }
+
   html[data-theme="light"] .routine-month-badge {
     background: #ffffff;
     border-color: rgba(226, 232, 240, 0.95);
     color: #0f172a;
+  }
+
+  html[data-theme="light"] .routine-month-select-wrap {
+    background: #ffffff;
+    border-color: rgba(226, 232, 240, 0.95);
+  }
+
+  html[data-theme="light"] .routine-month-dropdown {
+    color: #0f172a;
+  }
+
+  html[data-theme="light"] .routine-month-dropdown option {
+    background: #ffffff;
+    color: #0f172a;
+  }
+
+  html[data-theme="light"] .routine-today-btn {
+    background: #ffffff;
+    border-color: rgba(226, 232, 240, 0.95);
+    color: #475569;
+  }
+
+  html[data-theme="light"] .routine-today-btn:hover {
+    background: #f8fafc;
+    color: #4338ca;
+  }
+
+  html[data-theme="light"] .routine-today-btn.is-today {
+    background: rgba(99, 102, 241, 0.1);
+    color: #4338ca;
+    border-color: rgba(99, 102, 241, 0.35);
   }
 
   .mcq-quick-tools {
@@ -7161,11 +7527,6 @@
     flex-shrink: 0;
   }
 
-  .subject-rename-btn:hover {
-    background: rgba(168, 85, 247, 0.14) !important;
-    color: #c084fc !important;
-  }
-
   .subject-manager-row.subject-deleted {
     opacity: 0.6;
     background: rgba(244, 63, 94, 0.06);
@@ -7179,16 +7540,50 @@
 
   .subject-restore-btn {
     font-size: 11.5px !important;
-    padding: 4px 10px !important;
+    padding: 6px 10px !important;
     color: var(--accent1) !important;
     border-color: var(--accent1) !important;
     display: inline-flex !important;
     align-items: center !important;
-    gap: 4px !important;
+    justify-content: center !important;
+    gap: 0 !important;
+    border-radius: 8px !important;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    cursor: pointer;
+  }
+
+  .subject-restore-btn svg {
+    width: 13px;
+    height: 13px;
+    flex-shrink: 0;
+  }
+
+  .subject-restore-btn span {
+    max-width: 0;
+    opacity: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    display: inline-block;
+    vertical-align: middle;
+    margin-left: 0;
+    transition: max-width 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+                opacity 0.2s ease,
+                margin-left 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    font-size: 12px;
+    font-weight: 600;
   }
 
   .subject-restore-btn:hover {
     background: rgba(103, 232, 249, 0.15) !important;
+    border-color: var(--accent1) !important;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(103, 232, 249, 0.22);
+  }
+
+  .subject-restore-btn:hover span {
+    max-width: 75px;
+    opacity: 1;
+    margin-left: 6px;
   }
 
   .routine-hero {
@@ -7417,33 +7812,6 @@
     flex-shrink: 0;
   }
 
-  .quote-action-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    padding: 5px 9px;
-    border-radius: 7px;
-    font-size: 11.5px;
-    font-weight: 500;
-    border: 1px solid var(--border);
-    background: var(--surface-strong);
-    color: var(--text);
-    cursor: pointer;
-    transition: all 0.15s ease;
-  }
-
-  .quote-action-btn:hover {
-    background: var(--surface);
-    border-color: var(--accent1);
-    color: var(--accent1);
-  }
-
-  .quote-action-btn.delete-btn:hover {
-    background: rgba(239, 68, 68, 0.15);
-    border-color: rgba(239, 68, 68, 0.5);
-    color: #f87171;
-  }
-
   .quote-empty-state {
     display: flex;
     flex-direction: column;
@@ -7599,4 +7967,98 @@
       max-height: 94vh;
       width: 96%;
     }
+  }
+
+  /* ==========================================================================
+     Unified Small / Micro Utility Buttons Theme
+     Consistent 28px/8px glass capsules with micro-lift and colored glows
+     ========================================================================== */
+
+  /* 1. Mistake Bank Item Remove Button (.mistake-del-btn) */
+  .mistake-del-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0 !important;
+    padding: 5px 8px;
+    border-radius: 8px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text-soft);
+    cursor: pointer;
+    font-size: 11.5px;
+    font-weight: 600;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .mistake-del-btn svg {
+    width: 13px;
+    height: 13px;
+    flex-shrink: 0;
+    display: block;
+  }
+
+  .mistake-del-btn span {
+    max-width: 0;
+    opacity: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    display: inline-block;
+    vertical-align: middle;
+    margin-left: 0;
+    transition: max-width 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+                opacity 0.2s ease,
+                margin-left 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    font-size: 11.5px;
+    font-weight: 600;
+  }
+
+  .mistake-del-btn:hover {
+    background: rgba(244, 63, 94, 0.14) !important;
+    border-color: rgba(244, 63, 94, 0.35) !important;
+    color: #f43f5e !important;
+    box-shadow: 0 2px 8px rgba(244, 63, 94, 0.22);
+  }
+
+  .mistake-del-btn:hover span {
+    max-width: 75px;
+    opacity: 1;
+    margin-left: 5px;
+  }
+
+  /* 2. Light Theme Overrides for Small Buttons */
+  html[data-theme="light"] .del-row,
+  html[data-theme="light"] .countdown-del-btn,
+  html[data-theme="light"] .flash-card-actions button,
+  html[data-theme="light"] .modal-close,
+  html[data-theme="light"] .note-card .pin-btn,
+  html[data-theme="light"] .month-nav-btn,
+  html[data-theme="light"] .mistake-del-btn,
+  html[data-theme="light"] .subject-restore-btn {
+    background: #ffffff;
+    border-color: #e2e8f0;
+    color: #64748b;
+  }
+
+  html[data-theme="light"] .del-row:hover,
+  html[data-theme="light"] .countdown-del-btn:hover,
+  html[data-theme="light"] .flash-card-actions button:hover,
+  html[data-theme="light"] .modal-close:hover,
+  html[data-theme="light"] .mistake-del-btn:hover {
+    background: rgba(225, 29, 72, 0.12) !important;
+    border-color: rgba(225, 29, 72, 0.35) !important;
+    color: #e11d48 !important;
+  }
+
+  html[data-theme="light"] .month-nav-btn:hover {
+    background: rgba(79, 70, 229, 0.12) !important;
+    border-color: rgba(79, 70, 229, 0.35) !important;
+    color: #4f46e5 !important;
+  }
+
+  html[data-theme="light"] .subject-restore-btn:hover {
+    background: rgba(14, 165, 233, 0.12) !important;
+    border-color: rgba(14, 165, 233, 0.35) !important;
+    color: #0284c7 !important;
   }

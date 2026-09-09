@@ -612,6 +612,76 @@
     textEl.textContent = `${months[currentViewMonth]} ${currentViewYear}`;
   }
 
+  function updateRoutineTodayButtonState() {
+    const btn = document.getElementById('routineGoTodayBtn');
+    if (!btn) return;
+    const isToday = routineDateFilter === dateKey(Date.now());
+    btn.classList.toggle('is-today', isToday);
+    btn.title = isToday ? "Currently viewing today's routine" : "Jump to today's routine";
+  }
+
+  function goToTodayRoutine() {
+    const now = new Date();
+    currentViewYear = now.getFullYear();
+    currentViewMonth = now.getMonth();
+    routineDateFilter = dateKey(now.getTime());
+    const mSel = document.getElementById('monthDropdown');
+    if (mSel) mSel.value = `${currentViewYear}-${String(currentViewMonth + 1).padStart(2, '0')}`;
+    updateMonthYearPlaceholder();
+    toggleMonthlyRoutineView(false);
+    renderDateSlider();
+    renderRoutine();
+    updateRoutineTodayButtonState();
+    if (typeof showToast === 'function') {
+      showToast("Viewing today's routine");
+    }
+  }
+
+  const routineGoTodayBtn = document.getElementById('routineGoTodayBtn');
+  if (routineGoTodayBtn) {
+    routineGoTodayBtn.addEventListener('click', goToTodayRoutine);
+  }
+
+  function shiftRoutineMonth(delta) {
+    currentViewMonth += delta;
+    if (currentViewMonth < 0) {
+      currentViewMonth = 11;
+      currentViewYear -= 1;
+    } else if (currentViewMonth > 11) {
+      currentViewMonth = 0;
+      currentViewYear += 1;
+    }
+    const sel = document.getElementById('monthDropdown');
+    if (sel) {
+      sel.value = `${currentViewYear}-${String(currentViewMonth + 1).padStart(2, '0')}`;
+    }
+    updateMonthYearPlaceholder();
+
+    const now = new Date();
+    if (now.getFullYear() === currentViewYear && now.getMonth() === currentViewMonth) {
+      routineDateFilter = dateKey(now.getTime());
+    } else {
+      routineDateFilter = dateKey(new Date(currentViewYear, currentViewMonth, 1).getTime());
+    }
+    const mBox = document.getElementById('monthlyRoutineView');
+    if (mBox && !mBox.hidden) {
+      showMonthlyRoutines();
+    } else {
+      renderDateSlider();
+      renderRoutine();
+    }
+  }
+
+  const routinePrevMonthBtn = document.getElementById('routinePrevMonthBtn');
+  if (routinePrevMonthBtn) {
+    routinePrevMonthBtn.addEventListener('click', () => shiftRoutineMonth(-1));
+  }
+
+  const routineNextMonthBtn = document.getElementById('routineNextMonthBtn');
+  if (routineNextMonthBtn) {
+    routineNextMonthBtn.addEventListener('click', () => shiftRoutineMonth(1));
+  }
+
   function initMonthDropdown() {
     const sel = document.getElementById('monthDropdown');
     if (!sel) return;
@@ -688,6 +758,7 @@
       </div>`;
     });
     box.innerHTML = html;
+    updateRoutineTodayButtonState();
 
     const activeChip = box.querySelector('.date-chip.active');
     if (activeChip) {
@@ -918,7 +989,8 @@
     const titleEl = document.querySelector('.routine-hero-copy .section-title');
     const leadEl = document.querySelector('.routine-hero-copy .routine-lead');
     const mBtn = document.getElementById('monthlyRoutineBtn');
-    const tBtn = document.getElementById('todayRoutineBtn');
+    const dBtn = document.getElementById('dbdRoutineBtn') || document.getElementById('todayRoutineBtn');
+    const todayBtn = document.getElementById('routineGoTodayBtn');
     const monthPlaceholder = document.getElementById('routineMonthPlaceholder');
     const monthSelectWrap = document.getElementById('routineMonthSelectWrap');
 
@@ -931,7 +1003,8 @@
       if (routineActions) routineActions.hidden = true;
       if (routineSaveNote) routineSaveNote.hidden = true;
       if (mBtn) mBtn.classList.add('active');
-      if (tBtn) tBtn.classList.remove('active');
+      if (dBtn) dBtn.classList.remove('active');
+      if (todayBtn) todayBtn.style.display = 'none';
       if (monthPlaceholder) monthPlaceholder.style.display = 'none';
       if (monthSelectWrap) monthSelectWrap.style.display = 'inline-flex';
       if (titleEl) titleEl.textContent = 'Monthly Study Overview';
@@ -944,12 +1017,14 @@
       if (routineActions) routineActions.hidden = false;
       if (routineSaveNote) routineSaveNote.hidden = false;
       if (mBtn) mBtn.classList.remove('active');
-      if (tBtn) tBtn.classList.add('active');
+      if (dBtn) dBtn.classList.add('active');
+      if (todayBtn) todayBtn.style.display = 'inline-flex';
       if (monthPlaceholder) monthPlaceholder.style.display = 'inline-flex';
       if (monthSelectWrap) monthSelectWrap.style.display = 'none';
       if (titleEl) titleEl.textContent = 'Daily Study Routine';
       if (leadEl) leadEl.textContent = 'Plan your next study block and keep your momentum moving.';
       updateMonthYearPlaceholder();
+      updateRoutineTodayButtonState();
       renderDateSlider();
       renderRoutine();
     }
@@ -967,9 +1042,9 @@
     }, {});
     const dates = Object.keys(byDate).sort();
     box.hidden = false;
-    box.innerHTML = dates.length ? dates.map(date => {
+    box.innerHTML = dates.length ? dates.map((date, idx) => {
       const rows = byDate[date].sort((a, b) => (a.startTime || '').localeCompare(b.startTime || ''));
-      return `<article class="monthly-routine-card" data-month-date="${date}">
+      return `<article class="monthly-routine-card" data-month-date="${date}" style="animation-delay: ${idx * 35}ms;">
         <div class="monthly-routine-head">
           <div style="display:flex; align-items:center; gap:8px;">
             <i data-lucide="calendar" style="width:16px; height:16px; color:var(--accent1);"></i>
@@ -1006,7 +1081,7 @@
         <h4 style="margin:0 0 6px; font-size:16px; color:var(--text);">No routines scheduled for this month</h4>
         <p style="margin:0 0 16px; color:var(--text-soft); font-size:13px;">You have no study blocks planned for ${document.getElementById('monthDropdown')?.selectedOptions[0]?.text || 'this month'}.</p>
         <button class="pill solid" id="monthlyBackToDailyBtn" type="button" style="display:inline-flex; align-items:center; gap:8px;">
-          <i data-lucide="arrow-left"></i> Back to Daily Routine
+          <i data-lucide="arrow-left"></i> Back to Day by Day Routine
         </button>
       </div>
     `;
@@ -1015,17 +1090,17 @@
     }
   }
 
+  const dbdRoutineBtn = document.getElementById('dbdRoutineBtn');
+  if (dbdRoutineBtn) {
+    dbdRoutineBtn.addEventListener('click', () => {
+      toggleMonthlyRoutineView(false);
+    });
+  }
+
   const todayRoutineBtn = document.getElementById('todayRoutineBtn');
   if (todayRoutineBtn) {
     todayRoutineBtn.addEventListener('click', () => {
-      const now = new Date();
-      currentViewYear = now.getFullYear();
-      currentViewMonth = now.getMonth();
-      routineDateFilter = dateKey(now.getTime());
-      const mSel = document.getElementById('monthDropdown');
-      if (mSel) mSel.value = `${currentViewYear}-${String(currentViewMonth + 1).padStart(2, '0')}`;
-      updateMonthYearPlaceholder();
-      toggleMonthlyRoutineView(false);
+      goToTodayRoutine();
     });
   }
 
@@ -6906,7 +6981,7 @@
           <h4 style="margin:0; font-size:15px; font-weight:700; color:var(--text); line-height:1.4;">${escapeHtml(m.q)}</h4>
           <div style="display:flex; align-items:center; gap:8px; flex-shrink:0;">
             ${m.subject ? `<span class="q-badge" style="font-size:11px; padding:2px 8px;">${escapeHtml(m.subject)}</span>` : ""}
-            <button class="pill danger" data-del-mistake="${idx}" style="padding:2px 8px; font-size:11px;">Remove</button>
+            <button class="pill danger mistake-del-btn" data-del-mistake="${idx}" title="Remove question from Mistake Bank" aria-label="Remove question">${ICON.trash} <span>Remove</span></button>
           </div>
         </div>
         <div class="mistake-ans-row" style="display:flex; gap:12px; margin-bottom:8px; flex-wrap:wrap; font-size:13.5px;">
@@ -6922,7 +6997,10 @@
 
     list.querySelectorAll("[data-del-mistake]").forEach(btn => {
       btn.addEventListener("click", (e) => {
-        const i = parseInt(e.target.getAttribute("data-del-mistake"), 10);
+        const targetBtn = e.target.closest("[data-del-mistake]");
+        if (!targetBtn) return;
+        const i = parseInt(targetBtn.getAttribute("data-del-mistake"), 10);
+        if (isNaN(i)) return;
         if (window.confirm("Remove this question from your Mistake Bank?")) {
           mistakes.splice(i, 1);
           saveMistakes();
