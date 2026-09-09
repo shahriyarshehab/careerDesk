@@ -57,16 +57,7 @@
     const today = dateKey(Date.now());
     return {
       routine: buildDefaultRoutine(today),
-      notes: [
-        {
-          id: 1785728326261,
-          title: "Key Quantitative Aptitude Formulas",
-          body: "Speed = Distance / Time; Work Done = Men × Days × Hours; Compound Interest A = P(1 + r/n)^(nt).",
-          tag: "Math",
-          pinned: true,
-          ts: Date.now()
-        }
-      ],
+      notes: [],
       customQuotes: [],
       quoteIdx: 0,
       quoteSource: "all",
@@ -228,7 +219,9 @@
       if (res && res.value) {
         const p = JSON.parse(res.value);
         state.routine = Array.isArray(p.routine) && p.routine.length ? migrateRoutine(p.routine) : getDefaultState().routine;
-        state.notes = Array.isArray(p.notes) && p.notes.length ? p.notes : getDefaultState().notes;
+        state.notes = Array.isArray(p.notes)
+          ? p.notes.filter(n => n && n.id !== 1785728326261 && n.title !== "Key Quantitative Aptitude Formulas")
+          : [];
         state.customQuotes = normalizeCustomQuotes(Array.isArray(p.customQuotes) ? p.customQuotes : []);
         state.quoteIdx = typeof p.quoteIdx === 'number' ? p.quoteIdx : 4;
         state.quoteSource = p.quoteSource || 'all';
@@ -421,8 +414,11 @@
     const darkBtn = document.getElementById('themeDarkBtn');
     const lightBtn = document.getElementById('themeLightBtn');
     if (darkBtn && lightBtn) {
-      darkBtn.classList.toggle('active-theme', state.theme === 'dark');
-      lightBtn.classList.toggle('active-theme', state.theme === 'light');
+      const isDark = state.theme === 'dark';
+      darkBtn.classList.toggle('active', isDark);
+      darkBtn.classList.toggle('active-theme', isDark);
+      lightBtn.classList.toggle('active', !isDark);
+      lightBtn.classList.toggle('active-theme', !isDark);
     }
     syncWatchControls();
   }
@@ -609,6 +605,13 @@
   const routineCardWrap = document.getElementById('routineCardWrap');
   let routineDateFilter = dateKey(Date.now());
 
+  function updateMonthYearPlaceholder() {
+    const textEl = document.getElementById('routineMonthYearText');
+    if (!textEl) return;
+    const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+    textEl.textContent = `${months[currentViewMonth]} ${currentViewYear}`;
+  }
+
   function initMonthDropdown() {
     const sel = document.getElementById('monthDropdown');
     if (!sel) return;
@@ -624,6 +627,7 @@
       }
     }
     sel.innerHTML = html;
+    updateMonthYearPlaceholder();
   }
 
   const monthDropdownSel = document.getElementById('monthDropdown');
@@ -632,6 +636,7 @@
       const [y, m] = e.target.value.split('-');
       currentViewYear = parseInt(y);
       currentViewMonth = parseInt(m) - 1;
+      updateMonthYearPlaceholder();
 
       const now = new Date();
       if (now.getFullYear() === currentViewYear && now.getMonth() === currentViewMonth) {
@@ -714,6 +719,7 @@
       currentViewYear = d.getFullYear();
       const sel = document.getElementById('monthDropdown');
       if (sel) sel.value = `${currentViewYear}-${String(currentViewMonth + 1).padStart(2, '0')}`;
+      updateMonthYearPlaceholder();
     }
 
     renderDateSlider();
@@ -912,6 +918,9 @@
     const titleEl = document.querySelector('.routine-hero-copy .section-title');
     const leadEl = document.querySelector('.routine-hero-copy .routine-lead');
     const mBtn = document.getElementById('monthlyRoutineBtn');
+    const tBtn = document.getElementById('todayRoutineBtn');
+    const monthPlaceholder = document.getElementById('routineMonthPlaceholder');
+    const monthSelectWrap = document.getElementById('routineMonthSelectWrap');
 
     const shouldOpen = typeof forceOpen === 'boolean' ? forceOpen : (mBox && mBox.hidden);
 
@@ -921,11 +930,10 @@
       if (cardWrap) cardWrap.hidden = true;
       if (routineActions) routineActions.hidden = true;
       if (routineSaveNote) routineSaveNote.hidden = true;
-      if (mBtn) {
-        mBtn.classList.add('active');
-        mBtn.title = 'Switch to daily routine view';
-        mBtn.setAttribute('aria-label', 'Switch to daily routine view');
-      }
+      if (mBtn) mBtn.classList.add('active');
+      if (tBtn) tBtn.classList.remove('active');
+      if (monthPlaceholder) monthPlaceholder.style.display = 'none';
+      if (monthSelectWrap) monthSelectWrap.style.display = 'inline-flex';
       if (titleEl) titleEl.textContent = 'Monthly Study Overview';
       if (leadEl) leadEl.textContent = 'Review all scheduled study sessions across the selected month.';
       showMonthlyRoutines();
@@ -935,13 +943,13 @@
       if (cardWrap) cardWrap.hidden = false;
       if (routineActions) routineActions.hidden = false;
       if (routineSaveNote) routineSaveNote.hidden = false;
-      if (mBtn) {
-        mBtn.classList.remove('active');
-        mBtn.title = 'Toggle monthly overview list';
-        mBtn.setAttribute('aria-label', 'Toggle Monthly Overview');
-      }
+      if (mBtn) mBtn.classList.remove('active');
+      if (tBtn) tBtn.classList.add('active');
+      if (monthPlaceholder) monthPlaceholder.style.display = 'inline-flex';
+      if (monthSelectWrap) monthSelectWrap.style.display = 'none';
       if (titleEl) titleEl.textContent = 'Daily Study Routine';
       if (leadEl) leadEl.textContent = 'Plan your next study block and keep your momentum moving.';
+      updateMonthYearPlaceholder();
       renderDateSlider();
       renderRoutine();
     }
@@ -1016,6 +1024,7 @@
       routineDateFilter = dateKey(now.getTime());
       const mSel = document.getElementById('monthDropdown');
       if (mSel) mSel.value = `${currentViewYear}-${String(currentViewMonth + 1).padStart(2, '0')}`;
+      updateMonthYearPlaceholder();
       toggleMonthlyRoutineView(false);
     });
   }
@@ -1023,7 +1032,9 @@
   const monthlyRoutineBtn = document.getElementById('monthlyRoutineBtn');
   if (monthlyRoutineBtn) {
     monthlyRoutineBtn.addEventListener('click', () => {
-      toggleMonthlyRoutineView();
+      const mBox = document.getElementById('monthlyRoutineView');
+      const isOpen = mBox && !mBox.hidden;
+      toggleMonthlyRoutineView(!isOpen);
     });
   }
 
@@ -1462,6 +1473,35 @@
     }).sort((a, b) => (b.pinned - a.pinned) || (b.ts - a.ts));
   }
 
+  function formatKeepDate(ts) {
+    if (!ts) return '';
+    const d = new Date(ts);
+    const now = new Date();
+
+    const isToday = d.getFullYear() === now.getFullYear() &&
+                    d.getMonth() === now.getMonth() &&
+                    d.getDate() === now.getDate();
+
+    const yesterday = new Date(now);
+    yesterday.setDate(now.getDate() - 1);
+    const isYesterday = d.getFullYear() === yesterday.getFullYear() &&
+                        d.getMonth() === yesterday.getMonth() &&
+                        d.getDate() === yesterday.getDate();
+
+    const timeStr = d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+
+    if (isToday) {
+      return `Today, ${timeStr}`;
+    }
+    if (isYesterday) {
+      return `Yesterday, ${timeStr}`;
+    }
+    if (d.getFullYear() === now.getFullYear()) {
+      return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    }
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  }
+
   function renderNotes() {
     const list = filteredNotes();
     notesGrid.innerHTML = '';
@@ -1485,9 +1525,9 @@
         </div>
         <p class="note-body-text">${escapeHtml(n.body || '')}</p>
         <div class="note-footer">
-          <time class="note-date" datetime="${new Date(n.ts).toISOString()}">
+          <time class="note-date" datetime="${new Date(n.ts).toISOString()}" title="${d.toLocaleString('en-US')}">
             <span class="note-date-icon">${ICON.clock}</span>
-            <span>${d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+            <span>${formatKeepDate(n.ts)}</span>
           </time>
           <div class="note-actions btn-group">
             <button class="note-action-btn edit-btn" title="Edit note" aria-label="Edit note" data-id="${n.id}">
@@ -1594,8 +1634,26 @@
     showToast('Note saved successfully!');
   });
 
-  noteSearch.addEventListener('input', renderNotes);
-  noteFilterTag.addEventListener('change', renderNotes);
+  const noteSearchClearBtn = document.getElementById('noteSearchClearBtn');
+  if (noteSearch) {
+    noteSearch.addEventListener('input', () => {
+      if (noteSearchClearBtn) {
+        noteSearchClearBtn.style.display = noteSearch.value.length ? 'inline-flex' : 'none';
+      }
+      renderNotes();
+    });
+  }
+  if (noteSearchClearBtn && noteSearch) {
+    noteSearchClearBtn.addEventListener('click', () => {
+      noteSearch.value = '';
+      noteSearchClearBtn.style.display = 'none';
+      noteSearch.focus();
+      renderNotes();
+    });
+  }
+  if (noteFilterTag) {
+    noteFilterTag.addEventListener('change', renderNotes);
+  }
 
   // ===== Tracker =====
   const sessionSubjectSel = document.getElementById('sessionSubject');

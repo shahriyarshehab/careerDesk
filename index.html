@@ -97,12 +97,26 @@
           <p class="routine-lead">Plan your next study block and keep your momentum moving.</p>
         </div>
         <div class="routine-top-actions">
-          <button class="pill routine-view-btn" id="todayRoutineBtn"
-            title="Show today's routine"><i data-lucide="calendar"></i><span>Today</span></button>
-          <select id="monthDropdown" class="pill" aria-label="Select Month"></select>
-          <button class="pill icon-btn" id="monthlyRoutineBtn" title="Toggle monthly overview list" aria-label="Toggle Monthly Overview">
-            <i data-lucide="calendar-days"></i>
-          </button>
+          <!-- Month & Year display placeholder (visible in Daily/Today mode) -->
+          <div class="routine-month-badge" id="routineMonthPlaceholder" title="Current viewing month & year">
+            <i data-lucide="calendar"></i>
+            <span id="routineMonthYearText">September 2026</span>
+          </div>
+
+          <!-- Month Selector dropdown (visible ONLY in Monthly Overview mode) -->
+          <div id="routineMonthSelectWrap" style="display:none;">
+            <select id="monthDropdown" class="pill" aria-label="Select Month"></select>
+          </div>
+
+          <!-- Segmented Group Button (Today vs Monthly) -->
+          <div class="routine-mode-toggle-group segmented-toggle-group">
+            <button type="button" class="pill btn-mode-switch active" id="todayRoutineBtn" title="Show today's routine">
+              <i data-lucide="calendar"></i> <span>Today</span>
+            </button>
+            <button type="button" class="pill btn-mode-switch" id="monthlyRoutineBtn" title="Toggle monthly overview list">
+              <i data-lucide="calendar-days"></i> <span>Monthly</span>
+            </button>
+          </div>
         </div>
       </div>
 
@@ -160,8 +174,14 @@
         </div>
       </div>
       <div class="note-toolbar">
-        <input type="search" id="noteSearch" placeholder="Search notes by keyword or tag...">
-        <select id="noteFilterTag" class="pill">
+        <div class="search-input-wrapper">
+          <i data-lucide="search" class="search-input-icon"></i>
+          <input type="search" id="noteSearch" placeholder="Search notes by keyword, topic, or tag..." autocomplete="off">
+          <button type="button" class="search-clear-btn" id="noteSearchClearBtn" title="Clear search" aria-label="Clear search" style="display:none;">
+            <i data-lucide="x"></i>
+          </button>
+        </div>
+        <select id="noteFilterTag" class="pill" aria-label="Filter notes by tag">
           <option value="all">All Tags</option>
           <option value="General">General</option>
           <option value="English">English</option>
@@ -663,10 +683,17 @@
       <div class="glass" style="padding:20px; margin-bottom:18px;">
         <h2 class="section-title" style="font-size:16px;">Theme & Display</h2>
         <div class="settings-row">
-          <span>Theme</span>
-          <div class="settings-btn-group">
-            <button class="pill" id="themeDarkBtn">Dark</button>
-            <button class="pill" id="themeLightBtn">Light</button>
+          <div>
+            <strong style="font-size:14px; display:block; color:var(--text); margin-bottom:2px;">Theme &amp; Appearance</strong>
+            <span style="font-size:12px; color:var(--text-soft);">Select dashboard display theme</span>
+          </div>
+          <div class="theme-mode-toggle-group segmented-toggle-group">
+            <button class="pill btn-mode-switch active" id="themeDarkBtn" type="button" title="Switch to dark theme">
+              <i data-lucide="moon"></i> <span>Dark</span>
+            </button>
+            <button class="pill btn-mode-switch" id="themeLightBtn" type="button" title="Switch to light theme">
+              <i data-lucide="sun"></i> <span>Light</span>
+            </button>
           </div>
         </div>
         <div class="settings-row">
