@@ -1230,7 +1230,22 @@
     });
   }
 
-  // Add new quote
+  // ===== Toggle & Add New Quote (Settings) =====
+  const toggleQuoteFormBtn = document.getElementById('toggleQuoteFormBtn');
+  const quoteAddBox = document.getElementById('quoteAddBox');
+  if (toggleQuoteFormBtn && quoteAddBox) {
+    toggleQuoteFormBtn.addEventListener('click', () => {
+      const isOpen = quoteAddBox.style.display !== 'none';
+      quoteAddBox.style.display = isOpen ? 'none' : 'block';
+      toggleQuoteFormBtn.innerHTML = isOpen ? `${ICON.plus} <span>New Quote</span>` : `${ICON.x} <span>Close</span>`;
+      toggleQuoteFormBtn.classList.toggle('active-open', !isOpen);
+      if (!isOpen) {
+        const input = document.getElementById('customQuoteInput');
+        if (input) input.focus();
+      }
+    });
+  }
+
   const addQuoteBtn = document.getElementById('addQuoteBtn');
   if (addQuoteBtn) {
     addQuoteBtn.addEventListener('click', () => {
@@ -1248,6 +1263,11 @@
       state.quoteIdx = 0;
       if (input) input.value = '';
       if (authorInput) authorInput.value = '';
+      if (quoteAddBox && toggleQuoteFormBtn) {
+        quoteAddBox.style.display = 'none';
+        toggleQuoteFormBtn.innerHTML = `${ICON.plus} <span>New Quote</span>`;
+        toggleQuoteFormBtn.classList.remove('active-open');
+      }
       renderQuoteManager();
       renderQuote();
       saveData();
@@ -1628,7 +1648,16 @@
     'আন্তর্জাতিক বিষয়াবলী': 'International Affairs',
     'আন্তর্জাতিক বিষয়াবলী': 'International Affairs',
     'computer & ict': 'Computer & ICT',
-    'কম্পিউটার ও আইসিটি': 'Computer & ICT'
+    'কম্পিউটার ও আইসিটি': 'Computer & ICT',
+    'english language & literature': 'English',
+    'mathematics & mental ability': 'Mathematics',
+    'analytical ability': 'Mental Ability',
+    'mental ability': 'Mental Ability',
+    'মানসিক দক্ষতা': 'Mental Ability',
+    'geography & environment': 'Geography & Environment',
+    'ভূগোল ও পরিবেশ': 'Geography & Environment',
+    'ethics & good governance': 'Ethics & Good Governance',
+    'নৈতিকতা ও সুশাসন': 'Ethics & Good Governance'
   };
 
   function canonicalSubjectName(subject) {
@@ -1654,7 +1683,10 @@
     'Bangladesh Affairs',
     'International Affairs',
     'General Science',
-    'Computer & ICT'
+    'Computer & ICT',
+    'Mental Ability',
+    'Geography & Environment',
+    'Ethics & Good Governance'
   ];
 
   function masterSubjectList(includeDeleted = false) {
@@ -2016,20 +2048,212 @@
     });
   }
 
-  // Reset default curriculum subjects
+  // ==========================================
+  // FIRST-TIME USER ONBOARDING SUBJECT WIZARD
+  // ==========================================
+  const ONBOARDING_KEY = 'careerdesk_onboarding_done';
+
+  const CURRICULUM_SUBJECT_CHOICES = [
+    { name: 'Bangla Literature', bn: 'বাংলা সাহিত্য', desc: 'প্রাচীন, মধ্য ও আধুনিক যুগ, কবি-সাহিত্যিক' },
+    { name: 'Bangla Grammar', bn: 'বাংলা ব্যাকরণ', desc: 'ধ্বনি, সন্ধি, সমাস, প্রত্যয়, বাক্য ও শুদ্ধি' },
+    { name: 'English', bn: 'English Language & Literature', desc: 'Grammar, Vocabulary, Idioms & Literature' },
+    { name: 'Mathematics', bn: 'গণিত ও গাণিতিক যুক্তি', desc: 'পাটিগণিত, বীজগণিত, জ্যামিতি ও স্থানাঙ্ক' },
+    { name: 'Bangladesh Affairs', bn: 'বাংলাদেশ বিষয়াবলী', desc: 'ইতিহাস, মুক্তিযুদ্ধ, সংবিধান, অর্থনীতি ও ভূগোল' },
+    { name: 'International Affairs', bn: 'আন্তর্জাতিক বিষয়াবলী', desc: 'আন্তর্জাতিক ব্যবস্থা, কূটনীতি, চুক্তি ও সংস্থা' },
+    { name: 'General Science', bn: 'সাধারণ বিজ্ঞান', desc: 'ভৌত বিজ্ঞান, জীব বিজ্ঞান ও আধুনিক প্রযুক্তি' },
+    { name: 'Computer & ICT', bn: 'কম্পিউটার ও তথ্যপ্রযুক্তি', desc: 'কম্পিউটার সংগঠন, নেটওয়ার্কিং, ইন্টারনেট ও নিরাপত্তা' },
+    { name: 'Mental Ability', bn: 'মানসিক দক্ষতা', desc: 'যুক্তি, সমস্যা সমাধান, সম্পর্ক ও সংখ্যা বিশ্লেষণ' },
+    { name: 'Geography & Environment', bn: 'ভূগোল ও পরিবেশ', desc: 'বাংলাদেশ ও বিশ্ব ভূগোল, পরিবেশ ও দুর্যোগ' },
+    { name: 'Ethics & Good Governance', bn: 'নৈতিকতা ও সুশাসন', desc: 'মূল্যবোধ, সুশাসন, সততা ও নাগরিক দায়িত্ব' }
+  ];
+
+  function openOnboardingModal(isReset = false) {
+    const modal = document.getElementById('onboardingModal');
+    const grid = document.getElementById('onboardingSubjectGrid');
+    if (!modal || !grid) return;
+
+    let activeSet;
+    if (isReset) {
+      activeSet = new Set(CURRICULUM_SUBJECT_CHOICES.map(c => canonicalSubjectName(c.name).toLowerCase()));
+    } else {
+      const currentActive = masterSubjectList(false);
+      if (currentActive.length > 0 && Array.isArray(state.deletedSubjects) && state.deletedSubjects.length > 0) {
+        activeSet = new Set(currentActive.map(s => canonicalSubjectName(s).toLowerCase()));
+      } else {
+        activeSet = new Set(CURRICULUM_SUBJECT_CHOICES.map(c => canonicalSubjectName(c.name).toLowerCase()));
+      }
+    }
+
+    grid.innerHTML = CURRICULUM_SUBJECT_CHOICES.map(item => {
+      const canonical = canonicalSubjectName(item.name).toLowerCase();
+      const isChecked = activeSet.has(canonical);
+      return `
+        <label class="onboarding-subject-item ${isChecked ? 'selected' : ''}" data-subject-name="${escapeAttr(item.name)}">
+          <input type="checkbox" class="onboarding-checkbox" value="${escapeAttr(item.name)}" ${isChecked ? 'checked' : ''}>
+          <div class="onboarding-item-info">
+            <span class="onboarding-item-title">${escapeHtml(item.name)}</span>
+            <span class="onboarding-item-alias">${escapeHtml(item.bn)}</span>
+            <span class="onboarding-item-desc">${escapeHtml(item.desc)}</span>
+          </div>
+        </label>
+      `;
+    }).join('');
+
+    updateOnboardingSelectedCount();
+
+    modal.style.display = 'flex';
+    setTimeout(() => {
+      modal.classList.add('open');
+    }, 20);
+
+    if (window.lucide && typeof window.lucide.createIcons === 'function') {
+      window.lucide.createIcons();
+    }
+  }
+
+  function closeOnboardingModal() {
+    const modal = document.getElementById('onboardingModal');
+    if (!modal) return;
+    modal.classList.remove('open');
+    setTimeout(() => {
+      modal.style.display = 'none';
+    }, 250);
+  }
+
+  function updateOnboardingSelectedCount() {
+    const grid = document.getElementById('onboardingSubjectGrid');
+    const badge = document.getElementById('onboardingSelectedCount');
+    if (!grid || !badge) return;
+    const checkedCount = grid.querySelectorAll('.onboarding-checkbox:checked').length;
+    const totalCount = CURRICULUM_SUBJECT_CHOICES.length;
+    badge.textContent = `${checkedCount} of ${totalCount}`;
+  }
+
+  // Click delegation on onboarding items
+  const onboardingGrid = document.getElementById('onboardingSubjectGrid');
+  if (onboardingGrid) {
+    onboardingGrid.addEventListener('change', (e) => {
+      if (e.target.classList.contains('onboarding-checkbox')) {
+        const item = e.target.closest('.onboarding-subject-item');
+        if (item) item.classList.toggle('selected', e.target.checked);
+        updateOnboardingSelectedCount();
+      }
+    });
+  }
+
+  // Select All button
+  const onboardingSelectAllBtn = document.getElementById('onboardingSelectAllBtn');
+  if (onboardingSelectAllBtn) {
+    onboardingSelectAllBtn.addEventListener('click', () => {
+      const grid = document.getElementById('onboardingSubjectGrid');
+      if (!grid) return;
+      grid.querySelectorAll('.onboarding-checkbox').forEach(cb => {
+        cb.checked = true;
+        const item = cb.closest('.onboarding-subject-item');
+        if (item) item.classList.add('selected');
+      });
+      updateOnboardingSelectedCount();
+    });
+  }
+
+  // Deselect All button
+  const onboardingClearAllBtn = document.getElementById('onboardingClearAllBtn');
+  if (onboardingClearAllBtn) {
+    onboardingClearAllBtn.addEventListener('click', () => {
+      const grid = document.getElementById('onboardingSubjectGrid');
+      if (!grid) return;
+      grid.querySelectorAll('.onboarding-checkbox').forEach(cb => {
+        cb.checked = false;
+        const item = cb.closest('.onboarding-subject-item');
+        if (item) item.classList.remove('selected');
+      });
+      updateOnboardingSelectedCount();
+    });
+  }
+
+  // Confirm selection button
+  const confirmOnboardingBtn = document.getElementById('confirmOnboardingSubjectsBtn');
+  if (confirmOnboardingBtn) {
+    confirmOnboardingBtn.addEventListener('click', () => {
+      const grid = document.getElementById('onboardingSubjectGrid');
+      if (!grid) return;
+      const checkedInputs = Array.from(grid.querySelectorAll('.onboarding-checkbox:checked'));
+      if (checkedInputs.length === 0) {
+        showToast('Please select at least one subject to get started', true);
+        return;
+      }
+
+      const selectedNames = checkedInputs.map(cb => cb.value.trim());
+      const selectedCanonicals = new Set(selectedNames.map(s => canonicalSubjectName(s).toLowerCase()));
+
+      if (!Array.isArray(state.deletedSubjects)) state.deletedSubjects = [];
+      if (!Array.isArray(state.customSubjects)) state.customSubjects = [];
+
+      // Collect all known subjects across system to ensure unselected items are removed
+      const allKnown = masterSubjectList(true);
+      CURRICULUM_SUBJECT_CHOICES.forEach(c => {
+        if (!allKnown.some(s => canonicalSubjectName(s).toLowerCase() === canonicalSubjectName(c.name).toLowerCase())) {
+          allKnown.push(c.name);
+        }
+      });
+
+      allKnown.forEach(sub => {
+        const subCanonical = canonicalSubjectName(sub).toLowerCase();
+        const isSelected = selectedCanonicals.has(subCanonical);
+        if (!isSelected) {
+          if (!state.deletedSubjects.some(d => canonicalSubjectName(d).toLowerCase() === subCanonical)) {
+            state.deletedSubjects.push(sub);
+          }
+          state.customSubjects = state.customSubjects.filter(c => canonicalSubjectName(c).toLowerCase() !== subCanonical);
+        } else {
+          state.deletedSubjects = state.deletedSubjects.filter(d => canonicalSubjectName(d).toLowerCase() !== subCanonical);
+          const isDefault = DEFAULT_SUBJECTS.some(d => canonicalSubjectName(d).toLowerCase() === subCanonical);
+          if (!isDefault && !state.customSubjects.some(c => canonicalSubjectName(c).toLowerCase() === subCanonical)) {
+            state.customSubjects.push(sub);
+          }
+        }
+      });
+
+      try { localStorage.setItem(ONBOARDING_KEY, 'true'); } catch (e) { }
+
+      saveData();
+      syncAllSubjectSelects();
+      renderSubjectManager();
+      renderRoutine();
+      renderTrackerAll();
+      renderCategories();
+
+      closeOnboardingModal();
+      showToast(`${selectedNames.length} subjects configured for your dashboard!`);
+    });
+  }
+
+  // Reset default curriculum subjects (re-open wizard like new user)
   const resetDefaultsBtn = document.getElementById('resetDefaultSubjectsBtn');
   if (resetDefaultsBtn) {
     resetDefaultsBtn.addEventListener('click', () => {
-      const ok = confirm('Reset subjects to default curriculum list?\n\nThis will restore any default subjects that were hidden.');
+      const ok = confirm('Reset subjects to default curriculum list?\n\nThis will open the subject selection wizard so you can configure your subjects as a new user.');
       if (!ok) return;
-      const defaultCanonicals = new Set(DEFAULT_SUBJECTS.map(s => canonicalSubjectName(s).toLowerCase()));
-      if (Array.isArray(state.deletedSubjects)) {
-        state.deletedSubjects = state.deletedSubjects.filter(s => !defaultCanonicals.has(canonicalSubjectName(s).toLowerCase()));
-      }
+      state.deletedSubjects = [];
+      state.customSubjects = [];
+      try { localStorage.removeItem(ONBOARDING_KEY); } catch (e) { }
       saveData();
       syncAllSubjectSelects();
-      showToast('Default curriculum subjects restored.');
+      renderSubjectManager();
+      openOnboardingModal(true);
+      showToast('Curriculum reset — please select your study subjects.');
     });
+  }
+
+  function checkFirstTimeUser() {
+    try {
+      const done = localStorage.getItem(ONBOARDING_KEY);
+      if (!done) {
+        setTimeout(() => {
+          openOnboardingModal(false);
+        }, 120);
+      }
+    } catch (e) { }
   }
 
   function refreshTimerSub() {
@@ -3203,6 +3427,7 @@
       localStorage.removeItem('jobprep_break_minutes_today');
       localStorage.removeItem('custom_bcs_questions_v3');
       localStorage.removeItem('jobprep_custom_quiz_questions');
+      localStorage.removeItem(ONBOARDING_KEY);
     } catch (e) { }
     await storageAdapter.set(STORAGE_KEY, JSON.stringify(state));
     await writeToAutoBackupFile();
@@ -3210,9 +3435,24 @@
     setTimeout(() => location.reload(), 800);
   });
 
-  // ===== Add Custom Subject Button (Settings) =====
+  // ===== Toggle & Add Custom Subject (Settings) =====
+  const toggleSubjectBtn = document.getElementById('toggleSubjectFormBtn');
+  const subjectAddForm = document.getElementById('subjectAddForm');
   const addSubjectBtn = document.getElementById('addSubjectBtn');
   const newSubjectInput = document.getElementById('newSubjectInput');
+
+  if (toggleSubjectBtn && subjectAddForm) {
+    toggleSubjectBtn.addEventListener('click', () => {
+      const isOpen = subjectAddForm.style.display !== 'none';
+      subjectAddForm.style.display = isOpen ? 'none' : 'flex';
+      toggleSubjectBtn.innerHTML = isOpen ? `${ICON.plus} <span>New Subject</span>` : `${ICON.x} <span>Close</span>`;
+      toggleSubjectBtn.classList.toggle('active-open', !isOpen);
+      if (!isOpen && newSubjectInput) {
+        newSubjectInput.focus();
+      }
+    });
+  }
+
   if (addSubjectBtn && newSubjectInput) {
     addSubjectBtn.addEventListener('click', () => {
       const name = newSubjectInput.value.trim();
@@ -3228,6 +3468,11 @@
       saveData();
       syncAllSubjectSelects();
       newSubjectInput.value = '';
+      if (subjectAddForm && toggleSubjectBtn) {
+        subjectAddForm.style.display = 'none';
+        toggleSubjectBtn.innerHTML = `${ICON.plus} <span>New Subject</span>`;
+        toggleSubjectBtn.classList.remove('active-open');
+      }
       showToast(`"${name}" added to subject list.`);
     });
     newSubjectInput.addEventListener('keydown', e => {
@@ -7319,6 +7564,8 @@
     syncMiniTimerWidget();
 
     tickInterval = setInterval(() => { tickTimer(); }, 1000);
+
+    checkFirstTimeUser();
 
     if (window.lucide) {
       lucide.createIcons();

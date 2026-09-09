@@ -7287,3 +7287,97 @@
     font-family: inherit;
     transition: border-color 0.15s ease, box-shadow 0.15s ease;
   }
+
+  /* ===== Toggle Form Buttons ===== */
+  .toggle-form-btn.active-open {
+    background: rgba(239, 68, 68, 0.15) !important;
+    border-color: rgba(239, 68, 68, 0.4) !important;
+    color: #f87171 !important;
+  }
+
+  /* ===== First-Time User Onboarding Subject Modal ===== */
+  .onboarding-card {
+    border-radius: 20px;
+    background: var(--surface-strong);
+    border: 1px solid var(--border);
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55), 0 0 40px rgba(99, 102, 241, 0.18);
+  }
+
+  .onboarding-subject-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 10px;
+  }
+
+  .onboarding-subject-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px 14px;
+    border-radius: 12px;
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    position: relative;
+    user-select: none;
+  }
+
+  .onboarding-subject-item:hover {
+    border-color: rgba(99, 102, 241, 0.5);
+    background: rgba(99, 102, 241, 0.06);
+    transform: translateY(-1px);
+  }
+
+  .onboarding-subject-item.selected {
+    border-color: var(--accent1);
+    background: rgba(99, 102, 241, 0.12);
+    box-shadow: 0 4px 14px rgba(99, 102, 241, 0.15);
+  }
+
+  .onboarding-checkbox {
+    width: 17px;
+    height: 17px;
+    margin-top: 3px;
+    accent-color: var(--accent1);
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+
+  .onboarding-item-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .onboarding-item-title {
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--text);
+    line-height: 1.25;
+  }
+
+  .onboarding-item-alias {
+    font-size: 11.5px;
+    color: var(--accent2);
+    font-weight: 500;
+  }
+
+  .onboarding-item-desc {
+    font-size: 11px;
+    color: var(--text-soft);
+    margin-top: 3px;
+    line-height: 1.35;
+  }
+
+  @media (max-width: 600px) {
+    .onboarding-subject-grid {
+      grid-template-columns: 1fr;
+    }
+    .onboarding-card {
+      max-height: 94vh;
+      width: 96%;
+    }
+  }
