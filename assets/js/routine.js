@@ -328,7 +328,12 @@ document.addEventListener('input', (e) => {
     if (row) {
       row[t.dataset.field] = t.value;
       if (t.dataset.field === 'subject') {
-        syncAllSubjectSelects();
+        const val = t.value.trim();
+        if (val && typeof addSubject === 'function') {
+          addSubject(val);
+        } else {
+          syncAllSubjectSelects();
+        }
       }
       saveData();
     }

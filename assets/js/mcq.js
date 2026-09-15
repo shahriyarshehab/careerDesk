@@ -1384,14 +1384,10 @@ function resetMCQQuiz() {
 }
 
 const DEFAULT_MCQ_SUBJECTS = [
-  "বাংলা সাহিত্য",
-  "বাংলা ব্যাকরণ",
+  "Bangla",
   "English",
-  "গণিত",
-  "বাংলাদেশ বিষয়াবলী",
-  "আন্তর্জাতিক বিষয়াবলী",
-  "সাধারণ বিজ্ঞান",
-  "কম্পিউটার ও আইসিটি"
+  "Mathematics",
+  "General Knowledge"
 ];
 
 let currentSelectedSubject = "all";
@@ -1403,19 +1399,14 @@ function renderMCQFilterBar() {
   if (!userMCQProgress.removedSubjects) {
     userMCQProgress.removedSubjects = [];
   }
-  const removedSet = new Set(userMCQProgress.removedSubjects);
+  const removedSet = new Set((userMCQProgress.removedSubjects || []).map(s => (typeof canonicalSubjectName === 'function' ? canonicalSubjectName(s) : s).toLowerCase()));
 
-  // Collect all unique subjects from defaults and loaded questions
-  const subjectSet = new Set(DEFAULT_MCQ_SUBJECTS);
-  const stored = getStoredQuestions();
-  [...defaultQuestions, ...aiCuratedPool, ...stored].forEach(q => {
-    if (q && q.subject && q.subject !== "all" && q.subject !== "custom") {
-      subjectSet.add(q.subject);
-    }
+  // Collect all active subjects from masterSubjectList
+  const masterSubs = (typeof masterSubjectList === 'function' ? masterSubjectList(false) : DEFAULT_MCQ_SUBJECTS);
+  const visibleSubjects = masterSubs.filter(s => {
+    const canonical = (typeof canonicalSubjectName === 'function' ? canonicalSubjectName(s) : s).toLowerCase();
+    return !removedSet.has(canonical);
   });
-
-  // Visible subjects exclude removed ones
-  const visibleSubjects = Array.from(subjectSet).filter(s => !removedSet.has(s));
 
   let html = `
     <button class="filter-pill ${currentSelectedSubject === 'all' ? 'active' : ''}" data-subject="all">
@@ -1456,7 +1447,11 @@ function filterMCQPoolBySubject(selectedSubject) {
   } else if (selectedSubject === "custom") {
     activeExamPool = allQuestions.filter(q => q.isCustom || q.isAutoAdded).map(q => autoShuffleOptions(q));
   } else {
-    activeExamPool = allQuestions.filter(q => q.subject === selectedSubject).map(q => autoShuffleOptions(q));
+    const targetCanonical = (typeof canonicalSubjectName === 'function' ? canonicalSubjectName(selectedSubject) : selectedSubject).toLowerCase();
+    activeExamPool = allQuestions.filter(q => {
+      const qCanonical = (typeof canonicalSubjectName === 'function' ? canonicalSubjectName(q.subject) : (q.subject || '')).toLowerCase();
+      return qCanonical === targetCanonical;
+    }).map(q => autoShuffleOptions(q));
   }
   currentMCQIndex = 0;
   sessionAnswered = {};
@@ -1837,7 +1832,8 @@ function initMCQEngine() {
   if (addForm) {
     addForm.addEventListener("submit", (e) => {
       e.preventDefault();
-      const subject = document.getElementById("new-subject").value;
+      const rawSubj = (document.getElementById("new-subject")?.value || 'General Knowledge').trim();
+      const subject = (typeof addSubject === 'function' ? addSubject(rawSubj) : rawSubj) || rawSubj;
       const question = document.getElementById("new-question").value.trim();
       const opt0 = document.getElementById("opt-0").value.trim();
       const opt1 = document.getElementById("opt-1").value.trim();

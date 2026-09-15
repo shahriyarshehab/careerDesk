@@ -11,49 +11,15 @@ const startBtn = document.getElementById('startBtn');
 const stopBtn = document.getElementById('stopBtn');
 const targetHoursInput = document.getElementById('targetHours');
 
-// Quick subject chips click handler
-const quickSubjectChipsEl = document.getElementById('quickSubjectChips');
-if (quickSubjectChipsEl) {
-  quickSubjectChipsEl.addEventListener('click', (e) => {
-    const chip = e.target.closest('[data-subject-chip]');
-    if (!chip) return;
-    if (state.activeSession) {
-      showToast('A study session is currently active. Stop it before switching subjects.', true);
-      return;
-    }
-    const subj = chip.dataset.subjectChip;
-    const sel = document.getElementById('sessionSubject');
-    if (sel) {
-      sel.value = subj;
-      if (sessionCustomInput) {
-        sessionCustomInput.style.display = 'none';
-        sessionCustomInput.value = '';
-      }
-    }
-    quickSubjectChipsEl.querySelectorAll('.subject-chip').forEach(c => {
-      c.classList.toggle('active', c.dataset.subjectChip === subj);
-    });
-    refreshTimerSub();
-  });
-}
-
-
 // ==========================================
 // FIRST-TIME USER ONBOARDING SUBJECT WIZARD
 // ==========================================
 
 const CURRICULUM_SUBJECT_CHOICES = [
-  { name: 'Bangla Literature', bn: 'বাংলা সাহিত্য', desc: 'প্রাচীন, মধ্য ও আধুনিক যুগ, কবি-সাহিত্যিক' },
-  { name: 'Bangla Grammar', bn: 'বাংলা ব্যাকরণ', desc: 'ধ্বনি, সন্ধি, সমাস, প্রত্যয়, বাক্য ও শুদ্ধি' },
-  { name: 'English', bn: 'English Language & Literature', desc: 'Grammar, Vocabulary, Idioms & Literature' },
-  { name: 'Mathematics', bn: 'গণিত ও গাণিতিক যুক্তি', desc: 'পাটিগণিত, বীজগণিত, জ্যামিতি ও স্থানাঙ্ক' },
-  { name: 'Bangladesh Affairs', bn: 'বাংলাদেশ বিষয়াবলী', desc: 'ইতিহাস, মুক্তিযুদ্ধ, সংবিধান, অর্থনীতি ও ভূগোল' },
-  { name: 'International Affairs', bn: 'আন্তর্জাতিক বিষয়াবলী', desc: 'আন্তর্জাতিক ব্যবস্থা, কূটনীতি, চুক্তি ও সংস্থা' },
-  { name: 'General Science', bn: 'সাধারণ বিজ্ঞান', desc: 'ভৌত বিজ্ঞান, জীব বিজ্ঞান ও আধুনিক প্রযুক্তি' },
-  { name: 'Computer & ICT', bn: 'কম্পিউটার ও তথ্যপ্রযুক্তি', desc: 'কম্পিউটার সংগঠন, নেটওয়ার্কিং, ইন্টারনেট ও নিরাপত্তা' },
-  { name: 'Mental Ability', bn: 'মানসিক দক্ষতা', desc: 'যুক্তি, সমস্যা সমাধান, সম্পর্ক ও সংখ্যা বিশ্লেষণ' },
-  { name: 'Geography & Environment', bn: 'ভূগোল ও পরিবেশ', desc: 'বাংলাদেশ ও বিশ্ব ভূগোল, পরিবেশ ও দুর্যোগ' },
-  { name: 'Ethics & Good Governance', bn: 'নৈতিকতা ও সুশাসন', desc: 'মূল্যবোধ, সুশাসন, সততা ও নাগরিক দায়িত্ব' }
+  { name: 'Bangla', bn: 'বাংলা ভাষা ও সাহিত্য', desc: 'প্রাচীন, মধ্য ও আধুনিক যুগ, ব্যাকরণ ও সাহিত্য' },
+  { name: 'English', bn: 'English Language & Literature', desc: 'Grammar, Vocabulary, Comprehension & Literature' },
+  { name: 'Mathematics', bn: 'গণিত ও গাণিতিক যুক্তি', desc: 'পাটিগণিত, বীজগণিত, জ্যামিতি ও বিশ্লেষণ' },
+  { name: 'General Knowledge', bn: 'সাধারণ জ্ঞান (বাংলাদেশ ও আন্তর্জাতিক)', desc: 'ইতিহাস, মুক্তিযুদ্ধ, বিজ্ঞান, আইসিটি ও আন্তর্জাতিক' }
 ];
 
 function openOnboardingModal(isReset = false) {
@@ -268,13 +234,6 @@ sessionSubjectSel.addEventListener('change', () => {
   if (sessionSubjectSel.value !== '__custom__') {
     sessionCustomInput.value = '';
   }
-  const currentVal = sessionSubjectSel.value;
-  const chipsContainer = document.getElementById('quickSubjectChips');
-  if (chipsContainer) {
-    chipsContainer.querySelectorAll('.subject-chip').forEach(c => {
-      c.classList.toggle('active', c.dataset.subjectChip === currentVal);
-    });
-  }
   refreshTimerSub();
 });
 if (sessionCustomInput) {
@@ -292,7 +251,8 @@ startBtn.addEventListener('click', () => {
   if (!timerMode) return;
   const subj = currentSubjectValue();
   if (!subj) { sessionCustomInput.style.display = 'block'; sessionCustomInput.focus(); return; }
-  state.activeSession = { subject: subj, start: Date.now() };
+  const canonical = (typeof addSubject === 'function' ? addSubject(subj) : subj) || subj;
+  state.activeSession = { subject: canonical, start: Date.now() };
   saveData();
   renderTrackerAll();
 });
@@ -893,6 +853,7 @@ function startCustomCountdown() {
       showToast('Please enter or select a study subject', true);
       return;
     }
+    if (typeof addSubject === 'function') addSubject(subj);
   }
   window.isCustomCountdownActive = true;
   const display = document.getElementById('timerDisplay');

@@ -112,21 +112,40 @@ function getDefaultState() {
     syllabus: [
       {
         id: 1,
-        name: "English Language & Literature",
+        name: "Bangla",
         topics: [
-          { id: 101, name: "Parts of Speech & Identification", done: true },
-          { id: 102, name: "Subject-Verb Agreement", done: true },
-          { id: 103, name: "High-Yield Idioms & Phrases", done: false },
-          { id: 104, name: "Literary Terms & Eras", done: false }
+          { id: 101, name: "প্রাচীন ও মধ্যযুগীয় সাহিত্য (চর্যাপদ ও মঙ্গলকাব্য)", done: true },
+          { id: 102, name: "আধুনিক যুগ ও প্রধান কবি-সাহিত্যিক", done: false },
+          { id: 103, name: "বাংলা ব্যাকরণ (ধ্বনি, সন্ধি ও সমাস)", done: true },
+          { id: 104, name: "বানান ও বাক্য শুদ্ধি", done: false }
         ]
       },
       {
         id: 2,
-        name: "Mathematics & Mental Ability",
+        name: "English",
         topics: [
-          { id: 201, name: "Percentages, Profit & Loss", done: true },
-          { id: 202, name: "Ratios, Proportions & Mixtures", done: false },
-          { id: 203, name: "Geometry & Coordinate Basics", done: false }
+          { id: 201, name: "Parts of Speech & Identification", done: true },
+          { id: 202, name: "Subject-Verb Agreement", done: true },
+          { id: 203, name: "High-Yield Idioms & Phrases", done: false },
+          { id: 204, name: "Literary Terms & Eras", done: false }
+        ]
+      },
+      {
+        id: 3,
+        name: "Mathematics",
+        topics: [
+          { id: 301, name: "Percentages, Profit & Loss", done: true },
+          { id: 302, name: "Ratios, Proportions & Mixtures", done: false },
+          { id: 303, name: "Geometry & Coordinate Basics", done: false }
+        ]
+      },
+      {
+        id: 4,
+        name: "General Knowledge",
+        topics: [
+          { id: 401, name: "বাংলাদেশ বিষয়াবলী (ইতিহাস, মুক্তিযুদ্ধ ও সংবিধান)", done: true },
+          { id: 402, name: "আন্তর্জাতিক বিষয়াবলী ও সাম্প্রতিক ঘটনাবলী", done: false },
+          { id: 403, name: "সাধারণ বিজ্ঞান ও তথ্যপ্রযুক্তি", done: false }
         ]
       }
     ],
@@ -136,26 +155,26 @@ function getDefaultState() {
       { id: 3, front: "What is the correct spelling of 'Millennium'?", back: "✓ Millennium\n\n💡 Explanation: Spelled with double 'l' and double 'n' (M-i-l-l-e-n-n-i-u-m).", category: "English" },
       { id: 4, front: "What is the meaning of the idiom 'To kick the bucket'?", back: "✓ To die\n\n💡 Explanation: An informal English idiom meaning someone has passed away.", category: "English" },
       { id: 5, front: "Which verb form follows the prepositional phrase 'Look forward to'?", back: "✓ Gerund (Verb + ing)\n\n💡 Explanation: Example: 'I look forward to meeting you.'", category: "English" },
-      { id: 6, front: "‘চর্যাপদ’ মূলত কোন ছন্দে রচিত?", back: "✓ মাত্রাবৃত্ত (পাদাকুলক)\n\n💡 ব্যাখ্যা: চর্যাপদ মূলত মাত্রাবৃত্ত বা পাদাকুলক মাত্রার ছন্দে রচিত প্রাচীনতম বাংলা কাব্যগ্রন্থ।", category: "বাংলা সাহিত্য" },
-      { id: 7, front: "বাংলা সাহিত্যের প্রথম ‘সার্থক’ উপন্যাস কোনটি এবং কার লেখা?", back: "✓ দুর্গেশনন্দিনী (বঙ্কিমচন্দ্র চট্টোপাধ্যায়, ১৮৬৫)\n\n💡 ব্যাখ্যা: ১৮৬৫ সালে প্রকাশিত দুর্গেশনন্দিনী বাংলা সাহিত্যের প্রথম সার্থক উপন্যাস হিসেবে স্বীকৃত।", category: "বাংলা সাহিত্য" },
-      { id: 8, front: "‘গীতাঞ্জলি’ কাব্যের জন্য রবীন্দ্রনাথ ঠাকুর কত সালে নোবেল পুরস্কার লাভ করেন?", back: "✓ ১৯১৩ সালে\n\n💡 ব্যাখ্যা: ১৯১৩ সালে ‘Song Offerings’ (গীতাঞ্জলি) এর অনুবাদের জন্য তিনি সাহিত্যে এশিয়ার প্রথম নোবেল জয়ী হন।", category: "বাংলা সাহিত্য" },
-      { id: 9, front: "কাজী নজরুল ইসলাম কোন বিখ্যাত পত্রিকার সম্পাদক ছিলেন?", back: "✓ ধূমকেতু (১৯২২)\n\n💡 ব্যাখ্যা: ১৯২২ সালের ১১ আগস্ট তাঁর সম্পাদনায় অর্ধ-সাপ্তাহিক ‘ধূমকেতু’ প্রকাশিত হয়।", category: "বাংলা সাহিত্য" },
-      { id: 10, front: "মুনীর চৌধুরীর ‘রক্তাক্ত প্রান্তর’ নাটকটির ঐতিহাসিক পটভূমি কী?", back: "✓ পানিপথের তৃতীয় যুদ্ধ (১৭৬১)\n\n💡 ব্যাখ্যা: নাটকটি ১৭৬১ সালে সংঘটিত ঐতিহাসিক পানিপথের তৃতীয় যুদ্ধের পটভূমিতে রচিত।", category: "বাংলা সাহিত্য" },
-      { id: 11, front: "‘সন্ধি’ বাংলা ব্যাকরণের কোন অংশে আলোচিত হয়?", back: "✓ ধ্বনিতত্ত্ব (Phonology)\n\n💡 ব্যাখ্যা: সন্ধি হলো পাশাপাশি অবস্থিত দুটি ধ্বনির মিলন, তাই এটি ধ্বনিতত্ত্বে আলোচিত হয়।", category: "বাংলা ব্যাকরণ" },
-      { id: 12, front: "‘সূর্য’ শব্দের প্রধান কয়েকটি সমার্থক শব্দ কী কী?", back: "✓ মিহির, আদিত্য, ভাস্কর, তপন, রবি, দিনমণি, দিবাকর\n\n💡 ব্যাখ্যা: বিসিএস ও পিএসসি পরীক্ষায় ‘সূর্য’ এর সমার্থক শব্দ প্রায়শই আসে।", category: "বাংলা ব্যাকরণ" },
-      { id: 13, front: "যেকোনো ত্রিভুজের তিন কোণের সমষ্টি কত ডিগ্রি?", back: "✓ ১৮০° (বা দুই সমকোণ)\n\n💡 ব্যাখ্যা: ইউক্লিডীয় জ্যামিতি অনুসারে যেকোনো ত্রিভুজের তিনটি অন্তঃস্থ কোণের যোগফল সর্বদা ১৮০ ডিগ্রি।", category: "গণিত" },
-      { id: 14, front: "২০ থেকে ৩০ এর মধ্যে মৌলিক সংখ্যা (Prime numbers) কয়টি ও কী কী?", back: "✓ ২টি (২৩ এবং ২৯)\n\n💡 ব্যাখ্যা: ২০ থেকে ৩০ এর মধ্যে একমাত্র ২৩ ও ২৯ কেবল ১ এবং ঐ সংখ্যা ব্যতীত অন্য কোনো সংখ্যা দ্বারা বিভাজ্য নয়।", category: "গণিত" },
-      { id: 15, front: "বৃত্তের ক্ষেত্রফল (Area) এবং পরিধির (Circumference) সূত্র কী?", back: "✓ ক্ষেত্রফল = πr², পরিধি = 2πr\n\n💡 ব্যাখ্যা: এখানে r হলো বৃত্তের ব্যাসার্ধ (Radius) এবং π ≈ ৩.১৪১৬।", category: "গণিত" },
-      { id: 16, front: "x + y = 7 এবং x - y = 3 হলে, x এর মান কত?", back: "✓ x = 5\n\n💡 ব্যাখ্যা: সমীকরণ দুটি যোগ করলে: 2x = 10 ➔ x = 5 (এবং y = 2)।", category: "গণিত" },
-      { id: 17, front: "মুজিবনগর সরকার কবে আনুষ্ঠানিকভাবে শপথ গ্রহণ করে?", back: "✓ ১৭ এপ্রিল ১৯৭১\n\n💡 ব্যাখ্যা: ১৯৭১ সালের ১৭ এপ্রিল মেহেরপুরের বৈদ্যনাথতলার (বর্তমান মুজিবনগর) আম্রকাননে গণপ্রজাতন্ত্রী বাংলাদেশ সরকারের শপথ গ্রহণ অনুষ্ঠিত হয়।", category: "বাংলাদেশ বিষয়াবলী" },
-      { id: 18, front: "বাংলাদেশের জাতীয় সংসদের মোট আসন সংখ্যা কত?", back: "✓ ৩৫০টি\n\n💡 ব্যাখ্যা: সাধারণ আসন ৩০০টি এবং নারীদের জন্য সংরক্ষিত ৫০টি আসন।", category: "বাংলাদেশ বিষয়াবলী" },
-      { id: 19, front: "বাংলাদেশের দীর্ঘতম ও প্রশস্ততম নদী কোনটি?", back: "✓ মেঘনা নদী\n\n💡 ব্যাখ্যা: পানি নিষ্কাশন ও প্রশস্ততার দিক থেকে মেঘনা বাংলাদেশের বৃহত্তম নদী।", category: "বাংলাদেশ বিষয়াবলী" },
-      { id: 20, front: "জাতিসংঘের (United Nations) মূল সদর দপ্তর কোথায় অবস্থিত?", back: "✓ নিউ ইয়র্ক সিটি, যুক্তরাষ্ট্র\n\n💡 ব্যাখ্যা: ১৯৪৫ সালের ২৪ অক্টোবর জাতিসংঘ প্রতিষ্ঠিত হয়। এর মূল সদর দপ্তর নিউ ইয়র্কে অবস্থিত।", category: "আন্তর্জাতিক বিষয়াবলী" },
-      { id: 21, front: "জাপানের মুদ্রার নাম কী?", back: "✓ ইয়েন (Japanese Yen / JPY)\n\n💡 ব্যাখ্যা: জাপানের রাজধানী টোকিও এবং সরকারি মুদ্রা ইয়েন।", category: "আন্তর্জাতিক বিষয়াবলী" },
-      { id: 22, front: "বিশ্বের বৃহত্তম উষ্ণ মরুভূমি কোনটি?", back: "✓ সাহারা মরুভূমি\n\n💡 ব্যাখ্যা: আফ্রিকা মহাদেশে অবস্থিত সাহারা মরুভূমি বিশ্বের বৃহত্তম উষ্ণ মরুভূমি।", category: "আন্তর্জাতিক বিষয়াবলী" },
-      { id: 23, front: "কম্পিউটারের ‘মস্তিষ্ক’ (Brain of the Computer) কাকে বলা হয়?", back: "✓ CPU (Central Processing Unit)\n\n💡 ব্যাখ্যা: সিপিইউ কম্পিউটারের সমস্ত নির্দেশনা প্রক্রিয়াকরণ ও নিয়ন্ত্রণ করে।", category: "কম্পিউটার ও আইসিটি" },
-      { id: 24, front: "মানবদেহে রক্ত জমাট বাঁধতে কোন ভিটামিন সরাসরি সহায়তা করে?", back: "✓ ভিটামিন K\n\n💡 ব্যাখ্যা: ভিটামিন কে রক্তে প্রথম্বিন সংশ্লেষণে অংশ নিয়ে রক্ত তঞ্চন বা জমাট বাঁধায় সাহায্য করে।", category: "সাধারণ বিজ্ঞান" },
-      { id: 25, front: "ইন্টারনেটে নিরাপদ ব্রাউজিংয়ের প্রোটোকল HTTPS এর ডিফল্ট পোর্ট নম্বর কত?", back: "✓ Port 443\n\n💡 ব্যাখ্যা: HTTPS এনক্রিপ্টেড যোগাযোগের জন্য পোর্ট ৪৪৩ এবং সাধারণ HTTP পোর্ট ৮০ ব্যবহার করে।", category: "কম্পিউটার ও আইসিটি" }
+      { id: 6, front: "‘চর্যাপদ’ মূলত কোন ছন্দে রচিত?", back: "✓ মাত্রাবৃত্ত (পাদাকুলক)\n\n💡 ব্যাখ্যা: চর্যাপদ মূলত মাত্রাবৃত্ত বা পাদাকুলক মাত্রার ছন্দে রচিত প্রাচীনতম বাংলা কাব্যগ্রন্থ।", category: "Bangla" },
+      { id: 7, front: "বাংলা সাহিত্যের প্রথম ‘সার্থক’ উপন্যাস কোনটি এবং কার লেখা?", back: "✓ দুর্গেশনন্দিনী (বঙ্কিমচন্দ্র চট্টোপাধ্যায়, ১৮৬৫)\n\n💡 ব্যাখ্যা: ১৮৬৫ সালে প্রকাশিত দুর্গেশনন্দিনী বাংলা সাহিত্যের প্রথম সার্থক উপন্যাস হিসেবে স্বীকৃত।", category: "Bangla" },
+      { id: 8, front: "‘গীতাঞ্জলি’ কাব্যের জন্য রবীন্দ্রনাথ ঠাকুর কত সালে নোবেল পুরস্কার লাভ করেন?", back: "✓ ১৯১৩ সালে\n\n💡 ব্যাখ্যা: ১৯১৩ সালে ‘Song Offerings’ (গীতাঞ্জলি) এর অনুবাদের জন্য তিনি সাহিত্যে এশিয়ার প্রথম নোবেল জয়ী হন।", category: "Bangla" },
+      { id: 9, front: "কাজী নজরুল ইসলাম কোন বিখ্যাত পত্রিকার সম্পাদক ছিলেন?", back: "✓ ধূমকেতু (১৯২২)\n\n💡 ব্যাখ্যা: ১৯২২ সালের ১১ আগস্ট তাঁর সম্পাদনায় অর্ধ-সাপ্তাহিক ‘ধূমকেতু’ প্রকাশিত হয়।", category: "Bangla" },
+      { id: 10, front: "মুনীর চৌধুরীর ‘রক্তাক্ত প্রান্তর’ নাটকটির ঐতিহাসিক পটভূমি কী?", back: "✓ পানিপথের তৃতীয় যুদ্ধ (১৭৬১)\n\n💡 ব্যাখ্যা: নাটকটি ১৭৬১ সালে সংঘটিত ঐতিহাসিক পানিপথের তৃতীয় যুদ্ধের পটভূমিতে রচিত।", category: "Bangla" },
+      { id: 11, front: "‘সন্ধি’ বাংলা ব্যাকরণের কোন অংশে আলোচিত হয়?", back: "✓ ধ্বনিতত্ত্ব (Phonology)\n\n💡 ব্যাখ্যা: সন্ধি হলো পাশাপাশি অবস্থিত দুটি ধ্বনির মিলন, তাই এটি ধ্বনিতত্ত্বে আলোচিত হয়।", category: "Bangla" },
+      { id: 12, front: "‘সূর্য’ শব্দের প্রধান কয়েকটি সমার্থক শব্দ কী কী?", back: "✓ মিহির, আদিত্য, ভাস্কর, তপন, রবি, দিনমণি, দিবাকর\n\n💡 ব্যাখ্যা: বিসিএস ও পিএসসি পরীক্ষায় ‘সূর্য’ এর সমার্থক শব্দ প্রায়শই আসে।", category: "Bangla" },
+      { id: 13, front: "যেকোনো ত্রিভুজের তিন কোণের সমষ্টি কত ডিগ্রি?", back: "✓ ১৮০° (বা দুই সমকোণ)\n\n💡 ব্যাখ্যা: ইউক্লিডীয় জ্যামিতি অনুসারে যেকোনো ত্রিভুজের তিনটি অন্তঃস্থ কোণের যোগফল সর্বদা ১৮০ ডিগ্রি।", category: "Mathematics" },
+      { id: 14, front: "২০ থেকে ৩০ এর মধ্যে মৌলিক সংখ্যা (Prime numbers) কয়টি ও কী কী?", back: "✓ ২টি (২৩ এবং ২৯)\n\n💡 ব্যাখ্যা: ২০ থেকে ৩০ এর মধ্যে একমাত্র ২৩ ও ২৯ কেবল ১ এবং ঐ সংখ্যা ব্যতীত অন্য কোনো সংখ্যা দ্বারা বিভাজ্য নয়।", category: "Mathematics" },
+      { id: 15, front: "বৃত্তের ক্ষেত্রফল (Area) এবং পরিধির (Circumference) সূত্র কী?", back: "✓ ক্ষেত্রফল = πr², পরিধি = 2πr\n\n💡 ব্যাখ্যা: এখানে r হলো বৃত্তের ব্যাসার্ধ (Radius) এবং π ≈ ৩.১৪১৬।", category: "Mathematics" },
+      { id: 16, front: "x + y = 7 এবং x - y = 3 হলে, x এর মান কত?", back: "✓ x = 5\n\n💡 ব্যাখ্যা: সমীকরণ দুটি যোগ করলে: 2x = 10 ➔ x = 5 (এবং y = 2)।", category: "Mathematics" },
+      { id: 17, front: "মুজিবনগর সরকার কবে আনুষ্ঠানিকভাবে শপথ গ্রহণ করে?", back: "✓ ১৭ এপ্রিল ১৯৭১\n\n💡 ব্যাখ্যা: ১৯৭১ সালের ১৭ এপ্রিল মেহেরপুরের বৈদ্যনাথতলার (বর্তমান মুজিবনগর) আম্রকাননে গণপ্রজাতন্ত্রী বাংলাদেশ সরকারের শপথ গ্রহণ অনুষ্ঠিত হয়।", category: "General Knowledge" },
+      { id: 18, front: "বাংলাদেশের জাতীয় সংসদের মোট আসন সংখ্যা কত?", back: "✓ ৩৫০টি\n\n💡 ব্যাখ্যা: সাধারণ আসন ৩০০টি এবং নারীদের জন্য সংরক্ষিত ৫০টি আসন।", category: "General Knowledge" },
+      { id: 19, front: "বাংলাদেশের দীর্ঘতম ও প্রশস্ততম নদী কোনটি?", back: "✓ মেঘনা নদী\n\n💡 ব্যাখ্যা: পানি নিষ্কাশন ও প্রশস্ততার দিক থেকে মেঘনা বাংলাদেশের বৃহত্তম নদী।", category: "General Knowledge" },
+      { id: 20, front: "জাতিসংঘের (United Nations) মূল সদর দপ্তর কোথায় অবস্থিত?", back: "✓ নিউ ইয়র্ক সিটি, যুক্তরাষ্ট্র\n\n💡 ব্যাখ্যা: ১৯৪৫ সালের ২৪ অক্টোবর জাতিসংঘ প্রতিষ্ঠিত হয়। এর মূল সদর দপ্তর নিউ ইয়র্কে অবস্থিত।", category: "General Knowledge" },
+      { id: 21, front: "জাপানের মুদ্রার নাম কী?", back: "✓ ইয়েন (Japanese Yen / JPY)\n\n💡 ব্যাখ্যা: জাপানের রাজধানী টোকিও এবং সরকারি মুদ্রা ইয়েন।", category: "General Knowledge" },
+      { id: 22, front: "বিশ্বের বৃহত্তম উষ্ণ মরুভূমি কোনটি?", back: "✓ সাহারা মরুভূমি\n\n💡 ব্যাখ্যা: আফ্রিকা মহাদেশে অবস্থিত সাহারা মরুভূমি বিশ্বের বৃহত্তম উষ্ণ মরুভূমি।", category: "General Knowledge" },
+      { id: 23, front: "কম্পিউটারের ‘মস্তিষ্ক’ (Brain of the Computer) কাকে বলা হয়?", back: "✓ CPU (Central Processing Unit)\n\n💡 ব্যাখ্যা: সিপিইউ কম্পিউটারের সমস্ত নির্দেশনা প্রক্রিয়াকরণ ও নিয়ন্ত্রণ করে।", category: "General Knowledge" },
+      { id: 24, front: "মানবদেহে রক্ত জমাট বাঁধতে কোন ভিটামিন সরাসরি সহায়তা করে?", back: "✓ ভিটামিন K\n\n💡 ব্যাখ্যা: ভিটামিন কে রক্তে প্রথম্বিন সংশ্লেষণে অংশ নিয়ে রক্ত তঞ্চন বা জমাট বাঁধায় সাহায্য করে।", category: "General Knowledge" },
+      { id: 25, front: "ইন্টারনেটে নিরাপদ ব্রাউজিংয়ের প্রোটোকল HTTPS এর ডিফল্ট পোর্ট নম্বর কত?", back: "✓ Port 443\n\n💡 ব্যাখ্যা: HTTPS এনক্রিপ্টেড যোগাযোগের জন্য পোর্ট ৪৪৩ এবং সাধারণ HTTP পোর্ট ৮০ ব্যবহার করে।", category: "General Knowledge" }
     ],
     quoteCarouselEnabled: true,
     quoteCarouselInterval: 300,
@@ -167,11 +186,11 @@ function getDefaultState() {
 
 function buildDefaultRoutine(dateStr) {
   const template = [
-    { startTime: '06:30', endTime: '08:00', subject: 'English', task: 'Grammar & High-Yield Vocabulary Review' },
-    { startTime: '09:00', endTime: '10:30', subject: 'Mathematics', task: 'Quantitative Aptitude & Problem Solving' },
-    { startTime: '11:30', endTime: '13:00', subject: 'General Knowledge', task: 'Current Affairs & Bangladesh History' },
-    { startTime: '15:30', endTime: '17:00', subject: 'General Science', task: 'Everyday Science & ICT Fundamentals' },
-    { startTime: '20:00', endTime: '21:30', subject: 'Analytical Ability', task: 'Critical Reasoning & Previous Exam Papers' },
+    { startTime: '06:30', endTime: '08:00', subject: 'Bangla', task: 'Literature & Grammar Review' },
+    { startTime: '09:00', endTime: '10:30', subject: 'English', task: 'Grammar & High-Yield Vocabulary Review' },
+    { startTime: '11:30', endTime: '13:00', subject: 'Mathematics', task: 'Quantitative Aptitude & Problem Solving' },
+    { startTime: '15:30', endTime: '17:00', subject: 'General Knowledge', task: 'Current Affairs & Bangladesh/International' },
+    { startTime: '20:00', endTime: '21:30', subject: 'Mathematics', task: 'Critical Reasoning & Problem Solving' },
   ];
   return template.map((t, i) => ({ id: Date.now() + i, date: dateStr, ...t }));
 }
@@ -414,39 +433,50 @@ function saveData() {
 
 // Master Subject Control System
 const SUBJECT_ALIASES = {
+  // English
   'english': 'English',
   'ইংরেজি': 'English',
-  'math': 'Mathematics',
-  'mathematics': 'Mathematics',
-  'গণিত': 'Mathematics',
-  'বাংলা': 'Bangla',
+  'english language & literature': 'English',
+
+  // Bangla
   'bangla': 'Bangla',
-  'বাংলা সাহিত্য': 'Bangla Literature',
-  'bangla literature': 'Bangla Literature',
-  'বাংলা ব্যাকরণ': 'Bangla Grammar',
-  'bangla grammar': 'Bangla Grammar',
+  'বাংলা': 'Bangla',
+  'bangla literature': 'Bangla',
+  'বাংলা সাহিত্য': 'Bangla',
+  'bangla grammar': 'Bangla',
+  'বাংলা ব্যাকরণ': 'Bangla',
+
+  // Mathematics
+  'math': 'Mathematics',
+  'maths': 'Mathematics',
+  'mathematics': 'Mathematics',
+  'mathmatics': 'Mathematics',
+  'গণিত': 'Mathematics',
+  'mathematics & mental ability': 'Mathematics',
+  'mental ability': 'Mathematics',
+  'analytical ability': 'Mathematics',
+  'মানসিক দক্ষতা': 'Mathematics',
+
+  // General Knowledge
   'general knowledge': 'General Knowledge',
+  'general knowladge': 'General Knowledge',
+  'gk': 'General Knowledge',
   'সাধারণ জ্ঞান': 'General Knowledge',
   'সাধারণ জ্ঞান / অন্যান্য': 'General Knowledge',
-  'general science': 'General Science',
-  'সাধারণ বিজ্ঞান': 'General Science',
-  'bangladesh affairs': 'Bangladesh Affairs',
-  'বাংলাদেশ বিষয়াবলী': 'Bangladesh Affairs',
-  'বাংলাদেশ বিষয়াবলী': 'Bangladesh Affairs',
-  'international affairs': 'International Affairs',
-  'আন্তর্জাতিক বিষয়াবলী': 'International Affairs',
-  'আন্তর্জাতিক বিষয়াবলী': 'International Affairs',
-  'computer & ict': 'Computer & ICT',
-  'কম্পিউটার ও আইসিটি': 'Computer & ICT',
-  'english language & literature': 'English',
-  'mathematics & mental ability': 'Mathematics',
-  'analytical ability': 'Mental Ability',
-  'mental ability': 'Mental Ability',
-  'মানসিক দক্ষতা': 'Mental Ability',
-  'geography & environment': 'Geography & Environment',
-  'ভূগোল ও পরিবেশ': 'Geography & Environment',
-  'ethics & good governance': 'Ethics & Good Governance',
-  'নৈতিকতা ও সুশাসন': 'Ethics & Good Governance'
+  'bangladesh affairs': 'General Knowledge',
+  'বাংলাদেশ বিষয়াবলী': 'General Knowledge',
+  'বাংলাদেশ বিষয়াবলী': 'General Knowledge',
+  'international affairs': 'General Knowledge',
+  'আন্তর্জাতিক বিষয়াবলী': 'General Knowledge',
+  'আন্তর্জাতিক বিষয়াবলী': 'General Knowledge',
+  'general science': 'General Knowledge',
+  'সাধারণ বিজ্ঞান': 'General Knowledge',
+  'computer & ict': 'General Knowledge',
+  'কম্পিউটার ও আইসিটি': 'General Knowledge',
+  'geography & environment': 'General Knowledge',
+  'ভূগোল ও পরিবেশ': 'General Knowledge',
+  'ethics & good governance': 'General Knowledge',
+  'নৈতিকতা ও সুশাসন': 'General Knowledge'
 };
 
 function canonicalSubjectName(subject) {
@@ -465,18 +495,28 @@ function uniqueSubjectNames(subjects) {
 }
 
 const DEFAULT_SUBJECTS = [
-  'Bangla Literature',
-  'Bangla Grammar',
+  'Bangla',
   'English',
   'Mathematics',
-  'Bangladesh Affairs',
-  'International Affairs',
-  'General Science',
-  'Computer & ICT',
-  'Mental Ability',
-  'Geography & Environment',
-  'Ethics & Good Governance'
+  'General Knowledge'
 ];
+
+function addSubject(name) {
+  if (!name || typeof name !== 'string') return null;
+  const trimmed = name.trim();
+  if (!trimmed || trimmed === '__custom__' || trimmed.toLowerCase() === 'all') return null;
+  const canonical = canonicalSubjectName(trimmed);
+  if (Array.isArray(state.deletedSubjects)) {
+    state.deletedSubjects = state.deletedSubjects.filter(s => canonicalSubjectName(s).toLowerCase() !== canonical.toLowerCase());
+  }
+  if (!Array.isArray(state.customSubjects)) state.customSubjects = [];
+  if (!state.customSubjects.some(c => canonicalSubjectName(c).toLowerCase() === canonical.toLowerCase())) {
+    state.customSubjects.push(canonical);
+  }
+  saveData();
+  syncAllSubjectSelects();
+  return canonical;
+}
 
 function masterSubjectList(includeDeleted = false) {
   const fromRoutine = (state.routine || []).map(r => r.subject).filter(Boolean);
@@ -507,7 +547,6 @@ function subjectList() {
 
 function renderSubjectSelect() {
   const sel = document.getElementById('sessionSubject');
-  const chipsContainer = document.getElementById('quickSubjectChips');
   const datalist = document.getElementById('appSubjectDatalist');
   const subs = subjectList();
 
@@ -544,20 +583,6 @@ function renderSubjectSelect() {
       } else {
         sessionCustomInput.value = '';
       }
-    }
-  }
-
-  // 3. Populate Quick Select Chips in Tracker
-  if (chipsContainer) {
-    const currentSelected = sel ? sel.value : '';
-    if (!subs.length) {
-      chipsContainer.innerHTML = '<span style="font-size:12px; color:var(--text-soft); padding:4px 0;">No subjects added yet.</span>';
-    } else {
-      chipsContainer.innerHTML = subs.map(s => `
-        <button type="button" class="chip subject-chip ${s === currentSelected ? 'active' : ''}" data-subject-chip="${escapeAttr(s)}" title="Switch to ${escapeAttr(s)}">
-          ${escapeHtml(s)}
-        </button>
-      `).join('');
     }
   }
 }
@@ -665,5 +690,15 @@ function syncAllSubjectSelects() {
   renderSubjectSelect();
   renderFlashCategoryOptions();
   renderSubjectManager();
+  if (typeof renderMCQFilterBar === 'function') {
+    renderMCQFilterBar();
+  }
+  const newSubjSel = document.getElementById('new-subject');
+  if (newSubjSel) {
+    const subs = subjectList();
+    const curVal = newSubjSel.value;
+    newSubjSel.innerHTML = subs.map(s => `<option value="${escapeAttr(s)}">${escapeHtml(s)}</option>`).join('');
+    if (curVal && subs.includes(curVal)) newSubjSel.value = curVal;
+  }
 }
 

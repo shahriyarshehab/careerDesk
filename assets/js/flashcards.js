@@ -68,9 +68,7 @@ function updateFlashcardModeUI() {
 }
 
 function renderFlashCategoryOptions() {
-  const routineSubjs = subjectList();
-  const flashSubjs = Array.from(new Set(state.flashcards.map(f => f.category).filter(Boolean)));
-  const allSubjs = Array.from(new Set([...routineSubjs, ...flashSubjs]));
+  const allSubjs = typeof masterSubjectList === 'function' ? masterSubjectList(false) : subjectList();
 
   const opts = allSubjs.map(s => `<option value="${escapeAttr(s)}">${escapeHtml(s)}</option>`).join('');
   if (flashCategorySel) flashCategorySel.innerHTML = '<option value="">No Category</option>' + opts;
@@ -80,7 +78,10 @@ function renderFlashCategoryOptions() {
 
 function renderFlashcards() {
   const filter = (flashFilterSel && flashFilterSel.value) ? flashFilterSel.value : 'all';
-  const list = filter === 'all' ? state.flashcards : state.flashcards.filter(f => f.category === filter);
+  const list = filter === 'all' ? state.flashcards : state.flashcards.filter(f => {
+    if (!f.category) return false;
+    return f.category === filter || (typeof canonicalSubjectName === 'function' && canonicalSubjectName(f.category) === filter);
+  });
   const countBadge = document.getElementById('flashCountBadge');
   if (countBadge) {
     countBadge.innerHTML = `${ICON.layers} <span>${list.length} ${list.length === 1 ? 'Card' : 'Cards'}</span>`;
@@ -301,7 +302,7 @@ function syncFlashcardsFromMCQs() {
         id: 'mcq_fc_' + (q.id || (Date.now() + Math.random().toString(36).substr(2, 4))),
         front: qText,
         back: `✓ Correct Answer: ${correctOpt}\n\n💡 Explanation: ${exp}`,
-        category: q.subject || 'General'
+        category: (typeof canonicalSubjectName === 'function' ? canonicalSubjectName(q.subject) : q.subject) || 'General Knowledge'
       });
       addedCount++;
     }

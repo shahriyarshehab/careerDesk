@@ -238,13 +238,7 @@
             <select id="sessionSubject" aria-label="Select Focus Subject"></select>
             <input type="text" id="sessionCustomSubject" placeholder="Or enter new subject" style="display:none;">
           </div>
-          <div class="quick-subject-container" id="quickSubjectContainer">
-            <div class="quick-subject-header">
-              <span>Quick Select Subject</span>
-              <a href="#settings" class="manage-subjects-link" title="Manage Subjects in Settings"><i data-lucide="settings"></i> Manage</a>
-            </div>
-            <div class="quick-subject-chips" id="quickSubjectChips"></div>
-          </div>
+
           <div class="session-row" id="breakReasonRow" hidden>
             <select id="breakReason" aria-label="Break reason">
               <option value="Refreshment">Refreshment</option>
@@ -601,28 +595,17 @@
           </div>
         </div>
 
-        <!-- Subject Filter Pills -->
-        <div class="filter-container" id="filter-bar">
+        <!-- Subject Category Filter Bar -->
+        <div class="filter-bar" id="filter-bar">
           <button class="filter-pill active" data-subject="all">All Subjects</button>
-          <button class="filter-pill" data-subject="বাংলা সাহিত্য"><span>বাংলা সাহিত্য</span><span class="pill-del-btn"
-              data-del-subject="বাংলা সাহিত্য" title="Remove বাংলা সাহিত্য"><i data-lucide="x"></i></span></button>
-          <button class="filter-pill" data-subject="বাংলা ব্যাকরণ"><span>বাংলা ব্যাকরণ</span><span class="pill-del-btn"
-              data-del-subject="বাংলা ব্যাকরণ" title="Remove বাংলা ব্যাকরণ"><i data-lucide="x"></i></span></button>
+          <button class="filter-pill" data-subject="Bangla"><span>Bangla</span><span class="pill-del-btn"
+              data-del-subject="Bangla" title="Remove Bangla"><i data-lucide="x"></i></span></button>
           <button class="filter-pill" data-subject="English"><span>English</span><span class="pill-del-btn"
               data-del-subject="English" title="Remove English"><i data-lucide="x"></i></span></button>
-          <button class="filter-pill" data-subject="গণিত"><span>গণিত</span><span class="pill-del-btn"
-              data-del-subject="গণিত" title="Remove গণিত"><i data-lucide="x"></i></span></button>
-          <button class="filter-pill" data-subject="বাংলাদেশ বিষয়াবলী"><span>বাংলাদেশ বিষয়াবলী</span><span
-              class="pill-del-btn" data-del-subject="বাংলাদেশ বিষয়াবলী" title="Remove বাংলাদেশ বিষয়াবলী"><i
-                data-lucide="x"></i></span></button>
-          <button class="filter-pill" data-subject="আন্তর্জাতিক বিষয়াবলী"><span>আন্তর্জাতিক বিষয়াবলী</span><span
-              class="pill-del-btn" data-del-subject="আন্তর্জাতিক বিষয়াবলী" title="Remove আন্তর্জাতিক বিষয়াবলী"><i
-                data-lucide="x"></i></span></button>
-          <button class="filter-pill" data-subject="সাধারণ বিজ্ঞান"><span>সাধারণ বিজ্ঞান</span><span
-              class="pill-del-btn" data-del-subject="সাধারণ বিজ্ঞান" title="Remove সাধারণ বিজ্ঞান"><i
-                data-lucide="x"></i></span></button>
-          <button class="filter-pill" data-subject="কম্পিউটার ও আইসিটি"><span>কম্পিউটার ও আইসিটি</span><span
-              class="pill-del-btn" data-del-subject="কম্পিউটার ও আইসিটি" title="Remove কম্পিউটার ও আইসিটি"><i
+          <button class="filter-pill" data-subject="Mathematics"><span>Mathematics</span><span class="pill-del-btn"
+              data-del-subject="Mathematics" title="Remove Mathematics"><i data-lucide="x"></i></span></button>
+          <button class="filter-pill" data-subject="General Knowledge"><span>General Knowledge</span><span
+              class="pill-del-btn" data-del-subject="General Knowledge" title="Remove General Knowledge"><i
                 data-lucide="x"></i></span></button>
           <button class="filter-pill" data-subject="custom">Custom Questions</button>
         </div>
@@ -968,14 +951,9 @@
               / Category:</label>
             <select id="new-subject" class="pill"
               style="width:100%; border-radius:10px; padding:9px 12px; background:var(--surface); color:var(--text);">
-              <option value="বাংলা সাহিত্য">বাংলা সাহিত্য</option>
-              <option value="বাংলা ব্যাকরণ">বাংলা ব্যাকরণ</option>
+              <option value="Bangla">Bangla</option>
               <option value="English">English</option>
-              <option value="গণিত">গণিত</option>
-              <option value="বাংলাদেশ বিষয়াবলী">বাংলাদেশ বিষয়াবলী</option>
-              <option value="আন্তর্জাতিক বিষয়াবলী">আন্তর্জাতিক বিষয়াবলী</option>
-              <option value="সাধারণ বিজ্ঞান">সাধারণ বিজ্ঞান</option>
-              <option value="কম্পিউটার ও আইসিটি">কম্পিউটার ও আইসিটি</option>
+              <option value="Mathematics">Mathematics</option>
               <option value="General Knowledge">General Knowledge</option>
             </select>
           </div>

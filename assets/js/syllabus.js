@@ -109,6 +109,7 @@ document.getElementById('addCategoryBtn').addEventListener('click', () => {
   const input = document.getElementById('newCategoryInput');
   const name = input.value.trim();
   if (!name) return;
+  if (typeof addSubject === 'function') addSubject(name);
   const topicInput = document.getElementById('newTopicInput');
   const firstTopic = topicInput.value.trim();
   const normalizedName = name.toLowerCase();
@@ -246,9 +247,13 @@ categoryList.addEventListener('click', (e) => {
     const name = window.prompt('Enter new category name:', cat.name);
     if (name === null) return;
     const trimmed = name.trim();
-    if (!trimmed) return;
-    cat.name = trimmed;
-    saveSyllabusAndRefresh();
+    if (!trimmed || trimmed === cat.name) return;
+    if (typeof renameSubject === 'function') {
+      renameSubject(cat.name, trimmed);
+    } else {
+      cat.name = trimmed;
+      saveSyllabusAndRefresh();
+    }
     return;
   }
 });
@@ -283,9 +288,13 @@ categoryList.addEventListener('dblclick', (e) => {
     const name = window.prompt('Enter new category name:', cat.name);
     if (name === null) return;
     const trimmed = name.trim();
-    if (!trimmed) return;
-    cat.name = trimmed;
-    saveSyllabusAndRefresh();
+    if (!trimmed || trimmed === cat.name) return;
+    if (typeof renameSubject === 'function') {
+      renameSubject(cat.name, trimmed);
+    } else {
+      cat.name = trimmed;
+      saveSyllabusAndRefresh();
+    }
   }
 });
 

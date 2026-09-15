@@ -1,1 +1,3 @@
 *.bak
+*-backup.json
+careerdesk-backup.json

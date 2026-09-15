@@ -295,23 +295,14 @@ if (addSubjectBtn && newSubjectInput) {
   addSubjectBtn.addEventListener('click', () => {
     const name = newSubjectInput.value.trim();
     if (!name) { newSubjectInput.focus(); return; }
-    const canonical = canonicalSubjectName(name).toLowerCase();
-    // Remove from deletedSubjects if it was previously deleted/hidden
-    state.deletedSubjects = (state.deletedSubjects || []).filter(d => canonicalSubjectName(d).toLowerCase() !== canonical);
-    // Add to custom subjects list so it persists
-    if (!Array.isArray(state.customSubjects)) state.customSubjects = [];
-    if (!state.customSubjects.some(c => canonicalSubjectName(c).toLowerCase() === canonical)) {
-      state.customSubjects.push(name);
-    }
-    saveData();
-    syncAllSubjectSelects();
+    const added = (typeof addSubject === 'function' ? addSubject(name) : name) || name;
     newSubjectInput.value = '';
     if (subjectAddForm && toggleSubjectBtn) {
       subjectAddForm.style.display = 'none';
       toggleSubjectBtn.innerHTML = `${ICON.plus} <span>New Subject</span>`;
       toggleSubjectBtn.classList.remove('active-open');
     }
-    showToast(`"${name}" added to subject list.`);
+    showToast(`"${added}" added to subject list.`);
   });
   newSubjectInput.addEventListener('keydown', e => {
     if (e.key === 'Enter') addSubjectBtn.click();
