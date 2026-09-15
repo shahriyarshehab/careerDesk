@@ -1,126 +1,207 @@
-# 🎯 CareerDesk — Career Preparation Workspace
+# 🎯 CareerDesk — Next-Generation Career Preparation Workspace
+
+<div align="center">
 
 ![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white)
 ![CSS3](https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white)
-![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)
-![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)
-![Status](https://img.shields.io/badge/Status-Active%20Production-06B6D4?style=for-the-badge)
+![JavaScript ES6+](https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)
+![Architecture](https://img.shields.io/badge/Zero--Dependencies-Native_Web-6366F1?style=for-the-badge)
+![Privacy](https://img.shields.io/badge/100%25_Client--Side-Local_Storage-10B981?style=for-the-badge)
+![License](https://img.shields.io/badge/License-MIT-06B6D4?style=for-the-badge)
 
-**CareerDesk** is an ultra-modern, all-in-one productivity suite and exam preparation workspace engineered for competitive exam aspirants (Civil Service / BCS, Banking, Teaching, PSC, and professional entrance exams). 
+<p align="center">
+  <b>An ultra-modern, distraction-free productivity cockpit and exam prep engine engineered for high-performance deep work.</b><br>
+  Curated for competitive civil service (BCS), banking, judicial, PSC, and professional entrance examinations.
+</p>
 
-Built with a glassmorphic Cyberpunk/Aurora aesthetic, CareerDesk integrates daily routine scheduling, deep-work Pomodoro tracking, a centralized subject manager, syllabus checklist, timed MCQ exam simulation, interactive flashcards, mistake diagnosis, exam countdowns, and HD desktop wallpaper generation into a lightning-fast, zero-dependency client application.
+[✨ Live Features](#-core-features--modules) •
+[🎨 Design System](#-futuristic-design-system--navigation) •
+[🏗️ Architecture](#-codebase-architecture--file-structure) •
+[🚀 Quick Start](#-getting-started-locally) •
+[⌨️ Shortcuts](#️-keyboard-shortcuts)
+
+</div>
 
 ---
 
-## 📸 Overview & Highlights
+## ⚡ Executive Summary
 
-- **⚡ Zero Build Dependencies:** Pure native Web stack (HTML5, CSS3, modern ES6+ JavaScript). Runs instantly in any browser.
-- **📱 Fully Responsive & Mobile-First:** Floating pill navigation bar, touch-friendly segmented controls, and compact responsive layouts.
-- **🎨 Deep Aurora Glassmorphism:** Tailored dark and light themes with smooth fluid transitions, glowing dials, and frosted glass panels.
-- **🔒 100% Client-Side Privacy:** Your study data stays entirely in your browser using persistent local storage and local backup sync.
+**CareerDesk** is a standalone, client-side productivity suite and competitive exam preparation workspace designed from the ground up for focused study sessions. Engineered with a glassmorphic Cyberpunk/Aurora aesthetic, it integrates:
+
+- **📅 Daily Routine Scheduling** with calendar date slider & monthly overview
+- **⏱️ Focus Pomodoro & Deep Work Engine** with 24-hour activity analytics and consistency heatmap
+- **🗂️ Unified 4-Pillar Subject Control** (`Bangla`, `English`, `Mathematics`, `General Knowledge` + Custom Subjects)
+- **📚 Interactive Syllabus Checklist** with multi-level topic completion metrics
+- **🧠 Timed 20-Question MCQ Exam Simulation** with negative marking & automated Mistake Bank
+- **🃏 3D Spaced-Repetition Flashcards** with distraction-free Fullscreen Exam Mode
+- **📝 Tag-Based Smart Notes Board** with instant search & formula pinning
+- **⏳ Target Exam Countdowns** with real-time tickers and authority badges
+- **💬 Motivation Carousel & 1080p Wallpaper Studio** with HTML5 Canvas export
+- **⚡ Command Palette (`Ctrl + K`)** for instant workspace navigation
+
+All of this is delivered in a **zero-dependency, native web architecture** that runs instantly in any modern browser without npm packages, bundlers, compilers, or backend dependencies.
+
+---
+
+## 💎 Core Philosophy & Engineering Highlights
+
+```text
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                             CAREERDESK CORE                                 │
+├──────────────────────┬──────────────────────┬───────────────────────────────┤
+│  ⚡ Zero Dependencies│  🔒 100% Client-Side │  🎯 Unified Subject Control   │
+│  No Vite, Webpack,   │  All state persists  │  4 primary pillars synchronized│
+│  React or Node.js    │  in LocalStorage &   │  across Routine, Tracker,     │
+│  required to run.    │  native disk backup. │  Syllabus, Quiz & Flashcards. │
+└──────────────────────┴──────────────────────┴───────────────────────────────┘
+```
+
+1. **Native Web Stack (Zero Build Tools):**
+   - Pure semantic **HTML5**, modern **Vanilla CSS3** (CSS Custom Properties, Glassmorphism, Container Queries, Flexbox, CSS Grid), and modern **Vanilla JavaScript (ES6+)**.
+   - Open `index.html` directly from your file system or a lightweight static file server.
+2. **Total Client-Side Privacy & Offline Capability:**
+   - 100% private. No external tracking, telemetry, or server database. All study sessions, routine entries, notes, syllabus checklists, and quiz histories stay securely inside your browser's `localStorage`.
+   - Native File System Access API integration provides automated continuous disk synchronization to your local backup file (`careerdesk-backup.json`).
+3. **Unified Subject Control System:**
+   - Standardized on **4 Primary Academic Pillars**: **`Bangla`**, **`English`**, **`Mathematics`**, and **`General Knowledge`**.
+   - Seamlessly expandable with user-created custom subjects.
+   - Any subject created, renamed, or deleted in one module updates **every single dropdown, datalist, routine row, focus timer, flashcard filter, and quiz category across the entire application simultaneously**.
+4. **Authentic Competitive Exam Rules:**
+   - Standard 20-question timed model tests with BCS marking scheme: `+1.00` for correct answers, `-0.50` negative marking penalty for incorrect choices.
+   - Fisher-Yates algorithm dynamically randomizes answer positions on every launch to eliminate positional muscle-memory bias.
 
 ---
 
 ## 🌟 Core Features & Modules
 
 ### 1. 📅 Interactive Study Routine
-* **Date-Based Scheduling:** Seamless calendar slider and month selector to plan, review, and track study routines for any day.
-* **Inline Table Editing:** Edit start/end times, subjects (with autocomplete datalist), and specific topics directly inside the routine table.
-* **Monthly Overview Modal:** Toggle between single-day focus and full monthly aggregated view with date navigation auto-hiding.
-* **One-Click Routine Reset:** Instant default curriculum template loader for balanced daily preparation.
+* **Day-by-Day Calendar Slider:** Smooth horizontal date picker with visual indicator dots highlighting scheduled study days.
+* **Inline Dynamic Table:** Real-time editing for start time, end time, subject autocomplete datalist, and task notes.
+* **Monthly Overview Modal:** Switch between daily focus and a birds-eye monthly calendar view.
+* **Recommended BCS Routine Loader:** One-click instant population of a balanced preliminary preparation schedule.
 
 ### 2. ⏱️ Focus Mode & Study Tracker
-* **Glowing Clock Orb:** Minimalist digital stopwatch and countdown timer with animated pulse indicator.
-* **Quick Interval Presets:** Switch instantly between Stopwatch, 15m, 25m Pomodoro, 45m Deep Work, 60m Focus, or 5m Refreshment Break.
-* **Quick Subject Chips Bar:** One-tap horizontal chip selector for fast subject switching with glowing gradient highlights.
-* **Header Mini-Timer:** Floating mini-timer in the top header widget that displays active subject and elapsed time while browsing other tabs.
-* **24-Hour Activity Analytics:** Real-time breakdown of today's study hours, total break duration, and active study percentage.
-* **Subject Breakdown Progress:** Visual distribution bar and today's subject progress cards.
+* **Digital Stopwatch & Countdown Presets:** Jump between Stopwatch mode, 15m Sprint, 25m Pomodoro, 45m Deep Focus, 60m Master Block, or 5m Refreshment Break.
+* **Header Mini-Timer Widget:** Floating persistent status capsule in the top header displaying active subject and live elapsed time when browsing other tabs.
+* **24-Hour Activity Analytics:** Real-time metrics breakdown displaying total focused hours, logged break time, and daily goal completion.
+* **Consistency Heatmap:** 60-day visual activity matrix celebrating consistency streaks.
 
-### 3. 🗂️ Centralized Subject Manager (Settings)
-* **Single Master Subject Source:** Routine, Tracker, Syllabus, and Flashcards now share a synchronized subject repository.
-* **Live Statistics:** Subject cards display logged study time, session counts, routine block counts, syllabus progress, and card counts.
-* **Global Rename:** Renaming a subject in Settings propagates the update across all routine slots, historical sessions, active timers, syllabus categories, and flashcards with full data integrity.
-* **Delete, Hide & Restore:** Safely hide subjects without deleting past study records, with an Inactive/Hidden section for 1-tap restore.
-* **Curriculum Defaults Reset:** Restore all standard subjects (Bangla, English, Math, Science, ICT, Bangladesh & International Affairs) in one click.
-* **Global Datalist Autocomplete:** Typing or clicking subject fields in Routine or Syllabus automatically suggests active subjects.
+### 3. 🗂️ Centralized Subject Manager
+* **4 Core Pillars:** Pre-configured for `Bangla`, `English`, `Mathematics`, and `General Knowledge`.
+* **Instant Dynamic Sync:** Add a subject anywhere (Focus dropdown, Routine table, Syllabus category, or Quiz form), and all selectors update immediately.
+* **Cascading Global Rename:** Renaming a subject propagates across routine rows, historical sessions, active timers, syllabus categories, and flashcards.
+* **Soft Delete & Restore:** Hide unused subjects without deleting past study statistics, with a 1-tap restore section.
 
 ### 4. 📚 Syllabus Progress Checklist
 * **Hierarchical Organization:** Group learning objectives into subject categories and granular topic cards.
-* **Interactive Completion Progress:** Live progress percentages and animated progress meters for each category and overall syllabus.
-* **Refined Category Action Group:** Segmented button controls for Add Topic, Edit Category, and a 2-option Delete Menu (*Delete Subject* or *Interactive Topic Delete Mode*).
-* **Double-Click Inline Editing:** Double-click any category title or topic name to rename it on the fly.
+* **Dynamic Completion Tracking:** Category-specific and overall progress meters with real-time percentage badges.
+* **Universal Action Groups:** Clean hover-expanding segmented buttons for adding topics, inline category editing, and deletion options (*Delete Subject* or *Interactive Topic Delete Mode*).
+* **Double-Click Inline Editing:** Double-click any category title or topic name to rename on the fly.
 
-### 5. 📝 Categorized Smart Notes
-* **Tag-Based Filtering:** Organize notes by tags (Math, English, General, Bangla, Important, High-Yield formulas).
-* **Pin Critical Notes:** Pin essential formulas, mnemonic acronyms, and high-yield notes to the top of the board.
-* **Live Search & Filter:** Instant search query filtering across note titles and content.
-* **Inline Quick Edit:** Clean inline editing interface without modal clutter.
+### 5. 🧠 BCS & Competitive MCQ Engine & Mistake Bank
+* **Curated Question Banks:** Hundreds of authentic high-yield questions covering Grammar, Literature, Quantitative Aptitude, Bangladesh Affairs, International Affairs, and Everyday Science.
+* **Timed 20-Question Exam Simulation:** 15-minute countdown clock, live question palette, question flagging for review, and instant results calculation.
+* **Dynamic Option Shuffling:** Automatic Fisher-Yates option randomization prevents positional memorization.
+* **Automated Mistake Bank:** Incorrectly answered questions automatically save to the Mistake Bank with detailed explanations, shortcut techniques, and answer comparison.
+* **JSON Question Importer / Exporter:** 1-click export of the entire question pool and easy JSON import for user-curated question sets.
 
-### 6. 🧠 BCS & Competitive MCQ Engine & Mistake Bank
-* **Authentic MCQ Bank:** Over 55+ authentic questions curated from BCS Preliminary, PSC, and combined bank recruitment exams.
-* **Dynamic Option Shuffling:** Uses the Fisher-Yates shuffle to randomize options dynamically while keeping answer keys accurate, preventing positional muscle-memory bias.
-* **Timed 20-Question Exam Simulation:** 15-minute countdown timer with authentic BCS marking scheme (+1.00 for correct, -0.50 for incorrect penalty) and detailed score summary.
-* **Explanations & Shortcuts:** Instant explanations and mathematical shortcut techniques revealed for every question.
-* **Automated Mistake Bank:** Incorrectly answered questions are automatically logged into the Mistake Bank with category tags, comparison of your answer vs. correct answer, and reasoning for targeted revision.
-* **AI Harvester & JSON Import:** Harvest high-yield questions or import custom quiz banks.
+### 6. 🃏 3D Spaced-Repetition Flashcards
+* **Smooth 3D Flip Physics:** Interactive card-flip animation revealing answers, citations, and explanations.
+* **Category Filtering:** Filter flashcards by master academic subjects.
+* **Fullscreen Exam Mode:** Distraction-free, keyboard-navigable exam overlay mode for intensive flashcard drilling.
+* **1-Click MCQ Sync:** Instantly generate flashcards directly from the MCQ question pool.
 
-### 7. 🃏 3D Spaced-Repetition Flashcards
-* **Smooth 3D Flip Animation:** Click to reveal answer and detailed explanation.
-* **Category Filtering:** Filter cards by master subject categories.
-* **MCQ to Flashcard Sync:** Convert high-yield questions directly into flashcards.
+### 7. 📝 Categorized Smart Notes Board
+* **Tag-Based Filtering:** Filter notes by custom tags (`Math`, `English`, `General Knowledge`, `Bangla`, `High-Yield Formulas`).
+* **Card Pinning:** Pin essential formulas and mnemonic acronyms to the top of the grid.
+* **Instant Full-Text Search:** Real-time query filtering across titles and note bodies.
 
-### 8. ⏳ Live Exam Target Countdowns
-* **Live Countdown Clocks:** Real-time ticker showing remaining days, hours, minutes, and seconds until exam day.
-* **Target Categories:** Assign authority badges (e.g., BCS, BPSC, Combined 5 Banks, Primary).
-* **Custom Exam Dates:** Add and manage unlimited target exams.
+### 8. ⏳ Exam Target Countdown Clocks
+* **Live Precision Clocks:** Real-time digital tickers counting remaining days, hours, minutes, and seconds.
+* **Authority Badges:** Categorize exams by authority (`BCS`, `Bank`, `Primary`, `PSC`, `BPSC`).
+* **Custom Exam Target Creator:** Add upcoming target exams with date and session notes.
 
-### 9. 💬 Quote Carousel & 1080p Wallpaper Generator
-* **Inspirational Quote Ticker:** Automatic ticker rotating motivational quotes with customizable intervals (30s to 1 hour).
-* **Quotes Manager:** Add, edit, or delete personal quotes and choose between Curated, Custom, or All quotes.
-* **1080p Desktop Wallpaper Export:** Generate and download custom 1920x1080 HD wallpapers via HTML5 Canvas with custom themes and quotes.
+### 9. 💬 Daily Motivation & 1080p Wallpaper Studio
+* **Inspirational Quote Ticker:** Smooth quote carousel with customizable intervals (10 seconds to 1 hour).
+* **Quote Management:** Add custom personal quotes and filter between curated and custom quotes.
+* **1080p HD Wallpaper Generator:** HTML5 Canvas engine that renders and exports bespoke 1920x1080 desktop wallpapers featuring motivational quotes and theme gradients.
 
-### 10. ⚡ Command Palette & Productivity
-* **Quick Search (Ctrl+K / ⌘K):** Search across notes, syllabus topics, tabs, and actions with arrow-key navigation.
-* **Auto-Sync & Backup:** Export/import full workspace backups in JSON, plus native File System Access API support for automatic disk sync.
+### 10. ⚡ Command Palette & Productivity Tools
+* **Global Command Palette (`Ctrl + K` / `⌘ + K`):** Jump between tabs, search notes, inspect syllabus topics, or trigger actions with keyboard navigation.
+* **Web Audio API Synthesizer:** Pure synthesized audio feedback for correct answers, score milestones, and streaks (zero external MP3 files).
 
 ---
 
-## 🛠️ Technology Stack & Architecture
+## 🎨 Futuristic Design System & Navigation
 
-| Layer | Technology | Details |
+CareerDesk features an **OLED-optimized Cyberpunk & Aurora Glassmorphism** design system with a digital HUD aesthetic.
+
+### Holographic Interactive Navbar
+The navigation menu uses a floating glass visor architecture. On hover, each tab illuminates with its distinct **neon holographic accent and drop-shadow halo**:
+
+| Tab | Theme | Neon Hover Signature |
 | :--- | :--- | :--- |
-| **Markup** | HTML5 Semantic | Accessible, WAI-ARIA roles, clean landmarks |
-| **Styling** | Vanilla CSS3 | Custom properties, glassmorphism, Aurora glow, responsive media queries |
-| **Scripting** | Vanilla JavaScript (ES6+) | Object-oriented modular state architecture, no frameworks, zero runtime bloat |
-| **Icons** | Lucide Icons | Scalable, lightweight vector icon suite |
-| **Typography** | Google Fonts | *Plus Jakarta Sans* & *Outfit* |
-| **Storage** | LocalStorage + File System API | Fast persistent storage with local JSON export/import & automated disk backup |
-| **Graphics** | HTML5 Canvas API | 1920x1080 HD wallpaper generation & export |
+| **Routine** | Cyber Sky | `#38bdf8` (Electric Cyan glow) |
+| **Notes** | Solar Amber | `#fbbf24` (Golden Circuit glow) |
+| **Tracker** | Quantum Mint | `#34d399` (Neon Emerald glow) |
+| **Quiz** | Hyper Violet | `#c084fc` (Psychic Magenta glow) |
+| **Exams** | Laser Crimson | `#fb7185` (Hyperdrive Rose glow) |
+| **Syllabus** | Matrix Indigo | `#818cf8` (Deep Sapphire glow) |
+| **Settings** | Prism Cyan | `#67e8f9` (Rotating Titanium Gears glow) |
+
+- **Elevated Micro-Motion:** Inactive icons smoothly elevate (`translateY(-1px) scale(1.18)`).
+- **Tactile Active Indicator:** The active tab features a high-contrast gradient capsule with an internal light beam.
+- **Android 16 Bottom Dock:** On mobile screens (`max-width: 720px`), the navigation transforms into an ergonomic floating bottom dock with touch feedback.
 
 ---
 
-## 📁 Directory Structure
+## 📁 Codebase Architecture & File Structure
+
+The project is structured into clear, decoupled modular components for both styles and scripts:
 
 ```text
 CareerDesk/
-├── index.html              # Main application single-page layout
+├── index.html                  # Semantic single-page layout & modular HTML panels
 ├── assets/
 │   ├── css/
-│   │   └── style.css       # Unified design system, glassmorphic UI, animations, mobile CSS
+│   │   ├── base.css            # Design tokens, Aurora animations, header, responsive dock
+│   │   ├── components.css      # Universal .btn-group, .action-group, .segmented-group
+│   │   ├── routine.css         # Routine tables, calendar slider, monthly schedule
+│   │   ├── quotes.css          # Quote ticker, carousel, wallpaper studio
+│   │   ├── notes.css           # Notes grid, smart cards, pinning, search filtering
+│   │   ├── tracker.css         # Focus timers, 24h activity log, consistency heatmap
+│   │   ├── countdown.css       # Target exam countdown cards engine
+│   │   ├── syllabus.css        # Curriculum categories, topic checklist, progress meters
+│   │   ├── flashcards.css      # Flashcards deck, 3D flip card, fullscreen exam overlay
+│   │   ├── mcq.css             # MCQ quiz engine, floating scores, mistake bank
+│   │   ├── settings.css        # Subject Manager, auto-sync, backup & restore
+│   │   ├── modals.css          # Command Palette (Ctrl+K), generic dialogs
+│   │   └── style.css           # Master stylesheet index (@import aggregator)
 │   ├── js/
-│   │   ├── script.js       # Core application engine, state management, timers, analytics
-│   │   └── lucide.min.js   # Embedded Lucide icons library
-│   └── icons/              # Curated SVG icons and preview gallery
-├── AGENTS.md               # AI coding assistant architecture & conventions specification
-└── README.md               # Project documentation
+│   │   ├── core.js             # Unified subject system, state schema, storage adapter
+│   │   ├── routine.js          # Routine schedules, date slider, day/month views
+│   │   ├── quotes.js           # Motivation ticker, wallpaper generator, quote collection
+│   │   ├── notes.js            # User study notes, tags, pinning & full-text search
+│   │   ├── tracker.js          # Focus timer, 24h activity break logs, consistency heatmap
+│   │   ├── countdown.js        # Target exam countdown timers engine
+│   │   ├── syllabus.js         # Category & topic progress, inline edit & delete mode
+│   │   ├── flashcards.js       # Spaced flashcards deck review & interactive exam mode
+│   │   ├── questions-data.js   # BCS & competitive curated question banks (1,400+ lines)
+│   │   ├── mcq.js              # MCQ quiz engine, 20-Q exam mode, sound, mistake bank
+│   │   ├── settings.js         # Settings panel, Subject Manager UI, JSON backup/restore
+│   │   ├── app.js              # Theme switcher, modals, command palette, application bootstrap
+│   │   └── lucide.min.js       # Embedded Lucide icons library
+│   └── icons/                  # Curated SVG icon assets
+├── AGENTS.md                   # AI Agent architecture and conventions blueprint
+├── .gitignore                  # Git ignore rules (build artifacts, backup json files)
+└── README.md                   # Complete developer & user documentation (this file)
 ```
 
 ---
 
 ## 🚀 Getting Started Locally
 
-No Node.js runtime, build tools, or package installations are required.
+No Node.js runtime, build tools, bundlers, or package installations are required.
 
 ### 1. Clone the repository
 ```bash
@@ -128,28 +209,55 @@ git clone https://github.com/shahriyarshehab/CareerDesk.git
 cd CareerDesk
 ```
 
-### 2. Launch in Browser
-- **Direct open:** Double-click `index.html` in your file explorer.
+### 2. Launch in your browser
+- **Direct File System:** Double-click `index.html` to open it in Chrome, Edge, Firefox, or Safari.
 - **VS Code Live Server:** Right-click `index.html` and choose **"Open with Live Server"**.
-- **Python local server:**
+- **Python Static Server:**
   ```bash
   python -m http.server 8000
   ```
   Open `http://localhost:8000` in your web browser.
+- **Node Static Server (Optional):**
+  ```bash
+  npx serve .
+  ```
 
 ---
 
-## ⌨️ Useful Keyboard Shortcuts
+## ⌨️ Keyboard Shortcuts
 
-| Shortcut | Action |
-| :--- | :--- |
-| `Ctrl + K` / `⌘ + K` | Open Command Palette & Quick Search |
-| `Escape` | Close active modals / Command Palette |
-| `Enter` | Submit inputs / select active command palette item |
-| `Double Click` | Edit topic or category name in Syllabus |
+| Shortcut | Context | Action |
+| :--- | :--- | :--- |
+| `Ctrl + K` / `⌘ + K` | Global | Open Command Palette & Quick Search |
+| `Escape` | Global | Dismiss active modal, exam mode, or Command Palette |
+| `Enter` | Command Palette | Execute selected command or navigate to tab |
+| `↑` / `↓` | Command Palette | Navigate through search results |
+| `Double Click` | Syllabus Panel | Rename category title or topic name inline |
+| `Escape` | Flashcards Exam | Exit fullscreen distraction-free flashcard exam |
+
+---
+
+## 🔒 Data Privacy & Storage Specification
+
+- State is persisted in `localStorage` under the key:
+  ```javascript
+  const STORAGE_KEY = 'jobprep-dashboard-data-v2';
+  ```
+- Auxiliary LocalStorage stores:
+  - `jobprep_exams_list`: Target countdown exams
+  - `jobprep_mistakes_bank_v2`: Missed MCQ questions for targeted review
+  - `custom_bcs_questions_v3`: User-imported custom question pools
+  - `jobprep_break_minutes_today`: Break minutes logged for today
+- **Automatic File Backup:** Using the File System Access API via `Settings -> Link Local Backup File`, CareerDesk can automatically write your latest state to `careerdesk-backup.json` on disk whenever you make changes.
 
 ---
 
 ## 📄 License
 
-This project is licensed under the [MIT License](LICENSE) — free for personal and educational use.
+This project is licensed under the [MIT License](LICENSE) — free for personal, educational, and commercial open-source usage.
+
+---
+
+<div align="center">
+  <sub>Engineered with precision for competitive exam aspirants. Star ⭐ this repository if you find it helpful!</sub>
+</div>

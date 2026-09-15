@@ -463,21 +463,158 @@
     width: 15px;
     height: 15px;
     flex-shrink: 0;
-    transition: transform 0.18s ease, color 0.18s ease;
+    transition: transform 0.24s cubic-bezier(0.34, 1.56, 0.64, 1),
+                color 0.2s ease,
+                stroke 0.2s ease,
+                filter 0.22s ease,
+                opacity 0.2s ease;
+    will-change: transform, filter;
   }
 
   .tab-btn:hover:not(.active),
   .nav-link:hover:not(.active) {
     color: var(--text);
-    background: var(--surface-hover);
-    border-color: rgba(255, 255, 255, 0.06);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.02) 100%);
+    border-color: rgba(255, 255, 255, 0.12);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+    transform: translateY(-1px);
   }
 
+  .tab-btn:hover:not(.active) i[data-lucide],
+  .tab-btn:hover:not(.active) svg,
+  .tab-btn:hover:not(.active) .lucide {
+    transform: scale(1.18) translateY(-1px);
+    opacity: 1;
+  }
+
+  /* --- Futuristic Per-Tab Neon Hologram Accents on Hover --- */
+  /* 1. Routine: Electric Cyber Cyan */
+  .tab-btn[data-tab="routine"]:hover:not(.active) i[data-lucide],
+  .tab-btn[data-tab="routine"]:hover:not(.active) svg,
+  .tab-btn[data-tab="routine"]:hover:not(.active) .lucide {
+    color: #38bdf8 !important;
+    stroke: #38bdf8 !important;
+    filter: drop-shadow(0 0 6px rgba(56, 189, 248, 0.8));
+  }
+
+  /* 2. Notes: Solar Amber / Golden Circuit */
+  .tab-btn[data-tab="notes"]:hover:not(.active) i[data-lucide],
+  .tab-btn[data-tab="notes"]:hover:not(.active) svg,
+  .tab-btn[data-tab="notes"]:hover:not(.active) .lucide {
+    color: #fbbf24 !important;
+    stroke: #fbbf24 !important;
+    filter: drop-shadow(0 0 6px rgba(251, 191, 36, 0.8));
+  }
+
+  /* 3. Tracker: Quantum Mint / Neon Emerald */
+  .tab-btn[data-tab="tracker"]:hover:not(.active) i[data-lucide],
+  .tab-btn[data-tab="tracker"]:hover:not(.active) svg,
+  .tab-btn[data-tab="tracker"]:hover:not(.active) .lucide {
+    color: #34d399 !important;
+    stroke: #34d399 !important;
+    filter: drop-shadow(0 0 6px rgba(52, 211, 153, 0.8));
+  }
+
+  /* 4. Quiz / Flashcards: Hyper Violet / Cyber Magenta */
+  .tab-btn[data-tab="flashcards"]:hover:not(.active) i[data-lucide],
+  .tab-btn[data-tab="flashcards"]:hover:not(.active) svg,
+  .tab-btn[data-tab="flashcards"]:hover:not(.active) .lucide {
+    color: #c084fc !important;
+    stroke: #c084fc !important;
+    filter: drop-shadow(0 0 6px rgba(192, 132, 252, 0.8));
+  }
+
+  /* 5. Exams / Countdown: Laser Crimson / Hyper Rose */
+  .tab-btn[data-tab="countdown"]:hover:not(.active) i[data-lucide],
+  .tab-btn[data-tab="countdown"]:hover:not(.active) svg,
+  .tab-btn[data-tab="countdown"]:hover:not(.active) .lucide {
+    color: #fb7185 !important;
+    stroke: #fb7185 !important;
+    filter: drop-shadow(0 0 6px rgba(251, 113, 133, 0.8));
+  }
+
+  /* 6. Syllabus: Electric Matrix Indigo / Deep Sapphire */
+  .tab-btn[data-tab="syllabus"]:hover:not(.active) i[data-lucide],
+  .tab-btn[data-tab="syllabus"]:hover:not(.active) svg,
+  .tab-btn[data-tab="syllabus"]:hover:not(.active) .lucide {
+    color: #818cf8 !important;
+    stroke: #818cf8 !important;
+    filter: drop-shadow(0 0 6px rgba(129, 140, 248, 0.8));
+  }
+
+  /* 7. Settings: Prism Cyan / Rotating Titanium Gears */
+  .tab-btn[data-tab="settings"]:hover:not(.active) i[data-lucide],
+  .tab-btn[data-tab="settings"]:hover:not(.active) svg,
+  .tab-btn[data-tab="settings"]:hover:not(.active) .lucide {
+    color: #67e8f9 !important;
+    stroke: #67e8f9 !important;
+    transform: scale(1.18) rotate(45deg);
+    filter: drop-shadow(0 0 6px rgba(103, 232, 249, 0.8));
+  }
+
+  /* Light Theme Specific Hover States */
   html[data-theme="light"] .tab-btn:hover:not(.active),
   html[data-theme="light"] .nav-link:hover:not(.active) {
-    color: var(--text);
-    background: rgba(0, 0, 0, 0.04);
-    border-color: rgba(0, 0, 0, 0.05);
+    color: #0f172a;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, rgba(241, 245, 249, 0.9) 100%);
+    border-color: rgba(99, 102, 241, 0.22);
+    box-shadow: 0 4px 14px rgba(15, 23, 42, 0.08), inset 0 1px 0 rgba(255, 255, 255, 1);
+  }
+
+  html[data-theme="light"] .tab-btn[data-tab="routine"]:hover:not(.active) i[data-lucide],
+  html[data-theme="light"] .tab-btn[data-tab="routine"]:hover:not(.active) svg,
+  html[data-theme="light"] .tab-btn[data-tab="routine"]:hover:not(.active) .lucide {
+    color: #0284c7 !important;
+    stroke: #0284c7 !important;
+    filter: drop-shadow(0 0 4px rgba(2, 132, 199, 0.5));
+  }
+
+  html[data-theme="light"] .tab-btn[data-tab="notes"]:hover:not(.active) i[data-lucide],
+  html[data-theme="light"] .tab-btn[data-tab="notes"]:hover:not(.active) svg,
+  html[data-theme="light"] .tab-btn[data-tab="notes"]:hover:not(.active) .lucide {
+    color: #d97706 !important;
+    stroke: #d97706 !important;
+    filter: drop-shadow(0 0 4px rgba(217, 119, 6, 0.5));
+  }
+
+  html[data-theme="light"] .tab-btn[data-tab="tracker"]:hover:not(.active) i[data-lucide],
+  html[data-theme="light"] .tab-btn[data-tab="tracker"]:hover:not(.active) svg,
+  html[data-theme="light"] .tab-btn[data-tab="tracker"]:hover:not(.active) .lucide {
+    color: #059669 !important;
+    stroke: #059669 !important;
+    filter: drop-shadow(0 0 4px rgba(5, 150, 105, 0.5));
+  }
+
+  html[data-theme="light"] .tab-btn[data-tab="flashcards"]:hover:not(.active) i[data-lucide],
+  html[data-theme="light"] .tab-btn[data-tab="flashcards"]:hover:not(.active) svg,
+  html[data-theme="light"] .tab-btn[data-tab="flashcards"]:hover:not(.active) .lucide {
+    color: #9333ea !important;
+    stroke: #9333ea !important;
+    filter: drop-shadow(0 0 4px rgba(147, 51, 234, 0.5));
+  }
+
+  html[data-theme="light"] .tab-btn[data-tab="countdown"]:hover:not(.active) i[data-lucide],
+  html[data-theme="light"] .tab-btn[data-tab="countdown"]:hover:not(.active) svg,
+  html[data-theme="light"] .tab-btn[data-tab="countdown"]:hover:not(.active) .lucide {
+    color: #e11d48 !important;
+    stroke: #e11d48 !important;
+    filter: drop-shadow(0 0 4px rgba(225, 29, 72, 0.5));
+  }
+
+  html[data-theme="light"] .tab-btn[data-tab="syllabus"]:hover:not(.active) i[data-lucide],
+  html[data-theme="light"] .tab-btn[data-tab="syllabus"]:hover:not(.active) svg,
+  html[data-theme="light"] .tab-btn[data-tab="syllabus"]:hover:not(.active) .lucide {
+    color: #4f46e5 !important;
+    stroke: #4f46e5 !important;
+    filter: drop-shadow(0 0 4px rgba(79, 70, 229, 0.5));
+  }
+
+  html[data-theme="light"] .tab-btn[data-tab="settings"]:hover:not(.active) i[data-lucide],
+  html[data-theme="light"] .tab-btn[data-tab="settings"]:hover:not(.active) svg,
+  html[data-theme="light"] .tab-btn[data-tab="settings"]:hover:not(.active) .lucide {
+    color: #0891b2 !important;
+    stroke: #0891b2 !important;
+    filter: drop-shadow(0 0 4px rgba(8, 145, 178, 0.5));
   }
 
   .tab-btn.active,
@@ -485,7 +622,7 @@
     color: #ffffff;
     background: linear-gradient(135deg, var(--accent1), var(--accent2));
     border-color: transparent;
-    box-shadow: 0 4px 14px rgba(99, 102, 241, 0.35);
+    box-shadow: 0 4px 18px rgba(99, 102, 241, 0.42), inset 0 1px 0 rgba(255, 255, 255, 0.35);
     font-weight: 700;
   }
 
@@ -493,8 +630,10 @@
   .tab-btn.active i[data-lucide] svg,
   .tab-btn.active svg,
   .tab-btn.active .lucide {
-    color: #ffffff;
-    stroke: #ffffff;
+    color: #ffffff !important;
+    stroke: #ffffff !important;
+    filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.7));
+    transform: scale(1.06);
   }
 
   html[data-theme="light"] .tab-btn.active,
@@ -502,15 +641,16 @@
     color: #ffffff;
     background: linear-gradient(135deg, var(--accent1), var(--accent2));
     border-color: transparent;
-    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.28);
+    box-shadow: 0 4px 16px rgba(79, 70, 229, 0.32), inset 0 1px 0 rgba(255, 255, 255, 0.4);
   }
 
   html[data-theme="light"] .tab-btn.active i[data-lucide],
   html[data-theme="light"] .tab-btn.active i[data-lucide] svg,
   html[data-theme="light"] .tab-btn.active svg,
   html[data-theme="light"] .tab-btn.active .lucide {
-    color: #ffffff;
-    stroke: #ffffff;
+    color: #ffffff !important;
+    stroke: #ffffff !important;
+    filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.7));
   }
 
   .tab-btn:focus-visible,
@@ -1093,12 +1233,11 @@
       background: rgba(79, 70, 229, 0.08);
     }
 
-    .tab-btn:hover i[data-lucide] svg,
-    .tab-btn:hover svg,
-    .tab-btn:hover .lucide {
+    .tab-btn:hover:not(.active) i[data-lucide] svg,
+    .tab-btn:hover:not(.active) svg,
+    .tab-btn:hover:not(.active) .lucide {
       opacity: 1;
-      color: var(--text);
-      stroke: var(--text);
+      transform: scale(1.15) translateY(-1px);
     }
 
     .tab-btn.active i[data-lucide] svg,
@@ -1112,20 +1251,12 @@
     }
 
     /* Mobile Navigation Icons Light Mode Fix */
-    html[data-theme="light"] .tab-btn i,
-    html[data-theme="light"] .tab-btn svg,
-    html[data-theme="light"] .tab-btn .lucide {
+    html[data-theme="light"] .tab-btn:not(.active):not(:hover) i,
+    html[data-theme="light"] .tab-btn:not(.active):not(:hover) svg,
+    html[data-theme="light"] .tab-btn:not(.active):not(:hover) .lucide {
       color: #334155 !important;
       stroke: #334155 !important;
       opacity: 0.88 !important;
-    }
-
-    html[data-theme="light"] .tab-btn:hover i,
-    html[data-theme="light"] .tab-btn:hover svg,
-    html[data-theme="light"] .tab-btn:hover .lucide {
-      color: #0f172a !important;
-      stroke: #0f172a !important;
-      opacity: 1 !important;
     }
 
     html[data-theme="light"] .tab-btn.active i,
