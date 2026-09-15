@@ -15,6 +15,7 @@
   <!-- Modular Design System Stylesheets -->
   <link rel="stylesheet" href="assets/css/base.css">
   <link rel="stylesheet" href="assets/css/components.css">
+  <link rel="stylesheet" href="assets/css/home.css">
   <link rel="stylesheet" href="assets/css/routine.css">
   <link rel="stylesheet" href="assets/css/quotes.css">
   <link rel="stylesheet" href="assets/css/notes.css">
@@ -58,7 +59,9 @@
 
     <!-- Nav Menu Pills -->
     <nav class="tabs nav-menu" role="tablist" aria-label="Primary Navigation">
-      <button class="tab-btn nav-link active" data-tab="routine" role="tab" aria-selected="true" title="Study Routine"
+      <button class="tab-btn nav-link active" data-tab="home" role="tab" aria-selected="true" title="Mission Control Home"
+        aria-label="Dashboard Home"><i data-lucide="layout-dashboard"></i><span>Home</span></button>
+      <button class="tab-btn nav-link" data-tab="routine" role="tab" aria-selected="false" title="Study Routine"
         aria-label="Study Routine"><i data-lucide="calendar-days"></i><span>Routine</span></button>
       <button class="tab-btn nav-link" data-tab="notes" role="tab" aria-selected="false" title="Smart Notes"
         aria-label="Smart Notes"><i data-lucide="notebook-pen"></i><span>Notes</span></button>
@@ -93,8 +96,11 @@
   <main>
     <datalist id="appSubjectDatalist"></datalist>
 
+    <!-- ===== HOME MISSION CONTROL DASHBOARD ===== -->
+    <section class="panel active" id="panel-home"></section>
+
     <!-- ===== ROUTINE ===== -->
-    <section class="panel active" id="panel-routine">
+    <section class="panel" id="panel-routine">
       <div style="height: 12px;"></div>
 
       <div class="quote-ticker glass" id="quoteTicker">
@@ -1205,6 +1211,7 @@
   <script src="assets/js/questions-data.js"></script>
   <script src="assets/js/mcq.js"></script>
   <script src="assets/js/settings.js"></script>
+  <script src="assets/js/home.js"></script>
   <script src="assets/js/app.js"></script>
   <script>
     window.addEventListener('load', function () {

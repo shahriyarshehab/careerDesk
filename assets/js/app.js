@@ -93,7 +93,8 @@ document.addEventListener('click', (e) => {
 // ===== Tabs =====
 
 function normalizeTabName(tabName) {
-  if (!tabName) return 'routine';
+  if (!tabName) return 'home';
+  if (tabName === 'dashboard') return 'home';
   if (tabName === 'quiz') return 'flashcards';
   if (tabName === 'exams') return 'countdown';
   return tabName;
@@ -119,6 +120,12 @@ function activateTab(rawTabName, persist = false) {
     try { if (window.location.hash !== '#' + tabName) history.replaceState(null, '', '#' + tabName); } catch (e) { }
   }
 
+  if (tabName === 'home') {
+    if (typeof renderHomeDashboard === 'function') {
+      renderHomeDashboard();
+    }
+  }
+
   if (tabName === 'settings') {
     renderSubjectManager();
     renderQuoteManager();
@@ -141,12 +148,12 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
 try {
   const hashTab = window.location.hash ? window.location.hash.replace('#', '') : null;
   const savedTab = localStorage.getItem(ACTIVE_TAB_KEY);
-  const initialTab = normalizeTabName(hashTab || savedTab || 'routine');
+  const initialTab = normalizeTabName(hashTab || savedTab || 'home');
   if (initialTab) activateTab(initialTab, false);
 } catch (e) { }
 
 window.addEventListener('hashchange', () => {
-  const rawTab = window.location.hash ? window.location.hash.replace('#', '') : 'routine';
+  const rawTab = window.location.hash ? window.location.hash.replace('#', '') : 'home';
   activateTab(normalizeTabName(rawTab), false);
 });
 
@@ -164,6 +171,7 @@ function initCommandPalette() {
   let currentItems = [];
 
   const staticCommands = [
+    { id: 'tab-home', category: 'Navigation', icon: 'layout-dashboard', title: 'Go to Home Dashboard', subtitle: 'Mission Control & daily briefing', action: () => activateTab('home', true) },
     { id: 'tab-routine', category: 'Navigation', icon: 'calendar-days', title: 'Go to Routine', subtitle: 'View daily study schedule', action: () => activateTab('routine', true) },
     { id: 'tab-notes', category: 'Navigation', icon: 'notebook-pen', title: 'Go to Smart Notes', subtitle: 'Study notes, formulas & tags', action: () => activateTab('notes', true) },
     { id: 'tab-tracker', category: 'Navigation', icon: 'timer', title: 'Go to Tracker & Focus', subtitle: 'Pomodoro timer & activity stats', action: () => activateTab('tracker', true) },
@@ -433,6 +441,10 @@ function initCommandPalette() {
   syncMiniTimerWidget();
 
   tickInterval = setInterval(() => { tickTimer(); }, 1000);
+
+  if (typeof renderHomeDashboard === 'function') {
+    renderHomeDashboard();
+  }
 
   checkFirstTimeUser();
 
