@@ -1,0 +1,872 @@
+/* ==========================================================================
+   CareerDesk — Universal Components: Button Groups, Action Groups, Segmented Controls & Inputs
+   ========================================================================== */
+
+/* Universal Segmented Button Group (.btn-group) & Hover-Expanding Action Groups */
+  /* ==========================================================================
+     Segmented Button Groups (.btn-group) & Action Button Groups
+     Hover-Expansion Pattern: resting icon-only -> expands text on hover
+     ========================================================================== */
+  .btn-group {
+    display: inline-flex;
+    align-items: stretch;
+    border-radius: 9px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    flex-shrink: 0;
+    vertical-align: middle;
+  }
+
+  .btn-group > button,
+  .btn-group > .pill,
+  .btn-group > label,
+  .btn-group > .theme-action-btn,
+  .btn-group > .note-action-btn,
+  .btn-group > .quote-action-btn,
+  .btn-group > .cat-group-btn,
+  .btn-group > .cat-del-btn {
+    border-radius: 0 !important;
+    border: none !important;
+    border-right: 1px solid var(--border) !important;
+    margin: 0 !important;
+    background: transparent !important;
+    color: var(--text-soft);
+    font-size: 12px;
+    font-weight: 500;
+    padding: 5px 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    cursor: pointer;
+    transition: background 0.16s ease, color 0.16s ease;
+    box-shadow: none !important;
+    transform: none !important;
+    white-space: nowrap;
+    line-height: 1.2;
+  }
+
+  .btn-group > button:last-child,
+  .btn-group > .pill:last-child,
+  .btn-group > label:last-child,
+  .btn-group > .theme-action-btn:last-child,
+  .btn-group > .note-action-btn:last-child,
+  .btn-group > .quote-action-btn:last-child,
+  .btn-group > .cat-del-btn:last-child {
+    border-right: none !important;
+  }
+
+  .btn-group > button:hover,
+  .btn-group > .pill:hover,
+  .btn-group > label:hover,
+  .btn-group > .theme-action-btn:hover {
+    background: var(--surface-hover, rgba(255, 255, 255, 0.06)) !important;
+    color: var(--accent1) !important;
+  }
+
+  .btn-group > .del-btn:hover,
+  .btn-group > .delete-btn:hover,
+  .btn-group > .action-btn-del:hover,
+  .btn-group > .cat-del-btn:hover {
+    background: rgba(244, 63, 94, 0.14) !important;
+    color: #f43f5e !important;
+  }
+
+  .btn-group > button:active,
+  .btn-group > .pill:active {
+    opacity: 0.82;
+  }
+
+  .btn-group svg,
+  .btn-group .lucide {
+    width: 13px;
+    height: 13px;
+    flex-shrink: 0;
+  }
+
+  /* Hover-Expanding Action Button Groups (Syllabus, Flashcards, Routine Monthly, Notes, Quotes, Subjects) */
+  .category-action-group,
+  .flashcard-action-group,
+  .monthly-routine-actions,
+  .quote-item-actions,
+  .note-actions,
+  .subject-row-actions {
+    overflow: visible !important;
+    position: relative;
+    display: inline-flex;
+    align-items: stretch;
+    border-radius: 9px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    flex-shrink: 0;
+    vertical-align: middle;
+  }
+
+  .category-action-group .cat-group-btn,
+  .flashcard-action-group .cat-group-btn,
+  .monthly-routine-actions button,
+  .quote-item-actions button,
+  .note-actions button,
+  .subject-row-actions button {
+    border-radius: 0 !important;
+    border: none !important;
+    border-right: 1px solid var(--border) !important;
+    margin: 0 !important;
+    background: transparent !important;
+    color: var(--text-soft);
+    font-size: 12px;
+    font-weight: 500;
+    padding: 6px 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0 !important;
+    cursor: pointer;
+    white-space: nowrap;
+    line-height: 1.2;
+    transition: background 0.22s ease, color 0.22s ease;
+    box-shadow: none !important;
+    transform: none !important;
+  }
+
+  .category-action-group > .cat-add-btn,
+  .flashcard-action-group > .cat-add-btn,
+  .monthly-routine-actions > button:first-child,
+  .quote-item-actions > button:first-child,
+  .note-actions > button:first-child,
+  .subject-row-actions > button:first-child {
+    border-top-left-radius: 8px !important;
+    border-bottom-left-radius: 8px !important;
+  }
+
+  .category-action-group .cat-del-trigger,
+  .flashcard-action-group > button:last-child,
+  .monthly-routine-actions > button:last-child,
+  .quote-item-actions > button:last-child,
+  .note-actions > button:last-child,
+  .subject-row-actions > button:last-child {
+    border-top-right-radius: 8px !important;
+    border-bottom-right-radius: 8px !important;
+    border-right: none !important;
+  }
+
+  .flashcard-action-group .cat-del-trigger {
+    border-radius: 0 !important;
+    border-right: 1px solid var(--border) !important;
+  }
+
+  .category-action-group svg,
+  .flashcard-action-group svg,
+  .monthly-routine-actions svg,
+  .quote-item-actions svg,
+  .note-actions svg,
+  .subject-row-actions svg {
+    width: 13px;
+    height: 13px;
+    flex-shrink: 0;
+    display: block;
+  }
+
+  /* Span Collapse / Expansion Animation: Default shows only icon, expands smoothly on hover */
+  .category-action-group .cat-group-btn span,
+  .flashcard-action-group .cat-group-btn span,
+  .monthly-routine-actions button span,
+  .quote-item-actions button span,
+  .note-actions button span,
+  .subject-row-actions button span {
+    max-width: 0;
+    opacity: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    display: inline-block;
+    vertical-align: middle;
+    margin-left: 0;
+    transition: max-width 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+                opacity 0.2s ease,
+                margin-left 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  .category-action-group .cat-group-btn:hover span,
+  .category-action-group .cat-group-btn.active span,
+  .flashcard-action-group .cat-group-btn:hover span,
+  .flashcard-action-group .cat-group-btn.active span,
+  .monthly-routine-actions button:hover span,
+  .quote-item-actions button:hover span,
+  .note-actions button:hover span,
+  .subject-row-actions button:hover span {
+    max-width: 105px;
+    opacity: 1;
+    margin-left: 6px;
+  }
+
+  /* Contextual Hover Accent Colors */
+  /* Edit / Rename / Open & Edit: Purple */
+  .category-action-group .cat-edit-btn:hover,
+  .category-action-group .cat-edit-btn.active,
+  .flashcard-action-group .cat-edit-btn:hover,
+  .flashcard-action-group .cat-edit-btn.active,
+  .monthly-routine-actions .action-btn-edit:hover,
+  .quote-item-actions .edit-btn:hover,
+  .note-actions .edit-btn:hover,
+  .subject-row-actions .subject-rename-btn:hover {
+    background: rgba(168, 85, 247, 0.14) !important;
+    color: #c084fc !important;
+  }
+
+  /* Delete / Remove: Rose */
+  .category-action-group .cat-del-trigger:hover,
+  .category-action-group .cat-del-trigger.menu-open,
+  .category-action-group .cat-del-trigger.active,
+  .flashcard-action-group .cat-del-trigger:hover,
+  .flashcard-action-group .cat-del-trigger.active,
+  .monthly-routine-actions .action-btn-del:hover,
+  .quote-item-actions .delete-btn:hover,
+  .note-actions .del-btn:hover,
+  .subject-row-actions .subject-delete-btn:hover {
+    background: rgba(244, 63, 94, 0.14) !important;
+    color: #f43f5e !important;
+  }
+
+  /* Add Topic / Add Card: Cyan / Indigo */
+  .category-action-group .cat-add-btn:hover,
+  .category-action-group .cat-add-btn.active,
+  .flashcard-action-group .cat-add-btn:hover,
+  .flashcard-action-group .cat-add-btn.active {
+    background: rgba(103, 232, 249, 0.14) !important;
+    color: var(--accent1, #67e8f9) !important;
+  }
+
+  /* Shuffle: Amber */
+  .category-action-group .cat-shuffle-btn:hover,
+  .category-action-group .cat-shuffle-btn.active,
+  .flashcard-action-group .cat-shuffle-btn:hover,
+  .flashcard-action-group .cat-shuffle-btn.active {
+    background: rgba(245, 158, 11, 0.14) !important;
+    color: #f59e0b !important;
+  }
+
+  /* Exam Mode inside flashcard-action-group: Indigo / Cyan */
+  .flashcard-action-group .btn-exam-mode:hover,
+  .flashcard-action-group .btn-exam-mode.active {
+    background: rgba(99, 102, 241, 0.16) !important;
+    color: var(--accent1, #6366f1) !important;
+  }
+
+  /* Light Theme Specific Accents for Strong Contrast */
+  html[data-theme="light"] .category-action-group .cat-edit-btn:hover,
+  html[data-theme="light"] .category-action-group .cat-edit-btn.active,
+  html[data-theme="light"] .flashcard-action-group .cat-edit-btn:hover,
+  html[data-theme="light"] .flashcard-action-group .cat-edit-btn.active,
+  html[data-theme="light"] .monthly-routine-actions .action-btn-edit:hover,
+  html[data-theme="light"] .quote-item-actions .edit-btn:hover,
+  html[data-theme="light"] .note-actions .edit-btn:hover,
+  html[data-theme="light"] .subject-row-actions .subject-rename-btn:hover {
+    background: rgba(147, 51, 234, 0.12) !important;
+    color: #7e22ce !important;
+  }
+
+  html[data-theme="light"] .category-action-group .cat-del-trigger:hover,
+  html[data-theme="light"] .category-action-group .cat-del-trigger.menu-open,
+  html[data-theme="light"] .category-action-group .cat-del-trigger.active,
+  html[data-theme="light"] .flashcard-action-group .cat-del-trigger:hover,
+  html[data-theme="light"] .flashcard-action-group .cat-del-trigger.active,
+  html[data-theme="light"] .monthly-routine-actions .action-btn-del:hover,
+  html[data-theme="light"] .quote-item-actions .delete-btn:hover,
+  html[data-theme="light"] .note-actions .del-btn:hover,
+  html[data-theme="light"] .subject-row-actions .subject-delete-btn:hover {
+    background: rgba(225, 29, 72, 0.12) !important;
+    color: #e11d48 !important;
+  }
+
+  html[data-theme="light"] .category-action-group .cat-add-btn:hover,
+  html[data-theme="light"] .category-action-group .cat-add-btn.active,
+  html[data-theme="light"] .flashcard-action-group .cat-add-btn:hover,
+  html[data-theme="light"] .flashcard-action-group .cat-add-btn.active {
+    background: rgba(14, 165, 233, 0.12) !important;
+    color: #0284c7 !important;
+  }
+
+  html[data-theme="light"] .category-action-group .cat-shuffle-btn:hover,
+  html[data-theme="light"] .category-action-group .cat-shuffle-btn.active,
+  html[data-theme="light"] .flashcard-action-group .cat-shuffle-btn:hover,
+  html[data-theme="light"] .flashcard-action-group .cat-shuffle-btn.active {
+    background: rgba(217, 119, 6, 0.12) !important;
+    color: #d97706 !important;
+  }
+
+  html[data-theme="light"] .flashcard-action-group .btn-exam-mode:hover,
+  html[data-theme="light"] .flashcard-action-group .btn-exam-mode.active {
+    background: rgba(99, 102, 241, 0.12) !important;
+    color: #4f46e5 !important;
+  }
+
+  .save-note {
+    font-size: 12.5px;
+    color: var(--text-soft);
+    margin-top: 10px;
+  }
+
+  .date-slider {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding: 6px 4px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .date-slider::-webkit-scrollbar {
+    display: none;
+  }
+
+  .date-chip {
+    flex-shrink: 0;
+    min-width: 62px;
+    padding: 10px 8px 12px;
+    border-radius: 14px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    text-align: center;
+    cursor: pointer;
+    transition: all .15s ease;
+    user-select: none;
+    position: relative;
+  }
+
+  .date-chip:hover {
+    border-color: var(--accent1);
+    transform: translateY(-1px);
+  }
+
+  .date-chip .dc-day {
+    font-size: 10.5px;
+    color: var(--text-soft);
+    display: block;
+  }
+
+  .date-chip .dc-num {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 15px;
+    display: block;
+    margin-top: 2px;
+  }
+
+  .date-chip.has-routine::after {
+    content: '';
+    position: absolute;
+    bottom: 4px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--accent2);
+  }
+
+  .date-chip.active {
+    background: linear-gradient(135deg, var(--accent1), var(--accent2));
+    color: #fff;
+    border-color: transparent;
+    box-shadow: 0 8px 18px rgba(6, 182, 212, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.24);
+  }
+
+  .date-chip.active .dc-day {
+    color: rgba(255, 255, 255, 0.85);
+  }
+
+  .date-chip.active.has-routine::after {
+    background: #ffffff;
+    box-shadow: 0 0 6px rgba(255, 255, 255, 0.8);
+  }
+
+  .date-slider-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 8px;
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    background: var(--surface);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  }
+
+  .date-slider-row .date-slider {
+    flex: 1;
+  }
+
+  .date-nav-btn {
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all .2s ease;
+  }
+
+  .date-nav-btn:hover {
+    border-color: var(--accent1);
+    background: var(--surface-strong);
+    color: var(--accent1);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
+  }
+
+  .date-nav-btn svg,
+  .date-nav-btn .lucide {
+    width: 18px;
+    height: 18px;
+  }
+
+  .routine-date-group {
+    border-top: 1px solid var(--border);
+  }
+
+  .routine-date-group:first-child {
+    border-top: none;
+  }
+
+  .routine-date-heading {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 13px;
+    color: var(--text-soft);
+    padding: 14px 16px 4px;
+  }
+
+
+/* Dropdowns & Selects Glassmorphic Shape */
+  /* ===== Dropdowns Glassmorphism Boxy Shape (Matching Navbar Button) ===== */
+  select {
+    padding: 9px 36px 9px 14px !important;
+    border-radius: 12px !important;
+    border: 1px solid var(--border) !important;
+    background-color: var(--surface) !important;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238890A5' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e") !important;
+    background-repeat: no-repeat !important;
+    background-position: right 14px center !important;
+    background-size: 15px !important;
+    color: var(--text) !important;
+    font-family: var(--font-sans) !important;
+    font-weight: 600 !important;
+    font-size: 13.5px !important;
+    cursor: pointer;
+    outline: none;
+    backdrop-filter: blur(14px) !important;
+    -webkit-backdrop-filter: blur(14px) !important;
+    transition: all .2s ease;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+  }
+
+  select:hover {
+    border-color: var(--accent1) !important;
+    background-color: var(--surface-hover) !important;
+    box-shadow: 0 4px 16px rgba(99, 102, 241, 0.18) !important;
+    transform: translateY(-1px);
+  }
+
+  select:focus {
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.28) !important;
+    border-color: var(--accent1) !important;
+  }
+
+  select option {
+    background-color: var(--select-option-bg) !important;
+    color: var(--text) !important;
+    font-family: var(--font-sans) !important;
+    font-size: 13.5px !important;
+    font-weight: 600 !important;
+    padding: 10px 14px !important;
+  }
+
+  select option:checked,
+  select option:hover {
+    background-color: var(--accent1) !important;
+    color: #ffffff !important;
+  }
+
+
+/* Unified Segmented Toggle Groups & Mode Switches */
+  /* ===== Unified Segmented Toggle Groups & Mode Switches ===== */
+  .segmented-toggle-group,
+  .mcq-mode-toggle-group,
+  .routine-mode-toggle-group,
+  .theme-mode-toggle-group,
+  .timer-mode-selector,
+  .quote-source-switch {
+    display: inline-flex;
+    align-items: center;
+    background: var(--surface);
+    padding: 3px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    gap: 3px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+  }
+
+  .segmented-toggle-group > button,
+  .segmented-toggle-group > .chip,
+  .segmented-toggle-group > .pill,
+  .segmented-toggle-group > .btn-mode-switch,
+  .btn-mode-switch {
+    border-radius: 9px !important;
+    padding: 6px 14px !important;
+    font-size: 12.5px !important;
+    font-weight: 600 !important;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    border: none !important;
+    background: transparent !important;
+    color: var(--text-soft) !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 6px !important;
+    cursor: pointer !important;
+    user-select: none !important;
+    line-height: 1.2 !important;
+    white-space: nowrap !important;
+  }
+
+  .segmented-toggle-group > button:hover:not(.active),
+  .segmented-toggle-group > .chip:hover:not(.active),
+  .segmented-toggle-group > .pill:hover:not(.active),
+  .btn-mode-switch:hover:not(.active) {
+    color: var(--text) !important;
+    background: var(--surface-hover) !important;
+  }
+
+  .segmented-toggle-group > .active,
+  .btn-mode-switch.active,
+  .btn-mode-switch.active-theme {
+    background: linear-gradient(135deg, var(--accent1), var(--accent2)) !important;
+    color: #ffffff !important;
+    font-weight: 700 !important;
+    box-shadow: 0 2px 10px rgba(99, 102, 241, 0.32) !important;
+  }
+
+  .btn-mode-switch.btn-exam20.active {
+    background: linear-gradient(135deg, #f43f5e, #e11d48) !important;
+    box-shadow: 0 2px 10px rgba(244, 63, 94, 0.35) !important;
+  }
+
+  .segmented-toggle-group svg,
+  .segmented-toggle-group i[data-lucide],
+  .btn-mode-switch svg,
+  .btn-mode-switch i[data-lucide] {
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+    transition: transform 0.2s ease;
+  }
+
+  .segmented-toggle-group > .active svg,
+  .segmented-toggle-group > .active i[data-lucide],
+  .btn-mode-switch.active svg,
+  .btn-mode-switch.active i[data-lucide],
+  .btn-mode-switch.active-theme svg,
+  .btn-mode-switch.active-theme i[data-lucide] {
+    color: #ffffff !important;
+    stroke: #ffffff !important;
+  }
+
+  html[data-theme="light"] .segmented-toggle-group,
+  html[data-theme="light"] .mcq-mode-toggle-group,
+  html[data-theme="light"] .routine-mode-toggle-group,
+  html[data-theme="light"] .theme-mode-toggle-group,
+  html[data-theme="light"] .timer-mode-selector,
+  html[data-theme="light"] .quote-source-switch {
+    background: #ffffff;
+    border-color: rgba(226, 232, 240, 0.95);
+    box-shadow: 0 1px 4px rgba(15, 23, 42, 0.05);
+  }
+
+  html[data-theme="light"] .segmented-toggle-group > button:not(.active),
+  html[data-theme="light"] .segmented-toggle-group > .chip:not(.active),
+  html[data-theme="light"] .segmented-toggle-group > .pill:not(.active),
+  html[data-theme="light"] .btn-mode-switch {
+    color: #475569 !important;
+  }
+
+  html[data-theme="light"] .segmented-toggle-group > button:hover:not(.active),
+  html[data-theme="light"] .segmented-toggle-group > .chip:hover:not(.active),
+  html[data-theme="light"] .btn-mode-switch:hover:not(.active) {
+    background: #f1f5f9 !important;
+    color: #0f172a !important;
+  }
+
+  html[data-theme="light"] .segmented-toggle-group > .active,
+  html[data-theme="light"] .btn-mode-switch.active,
+  html[data-theme="light"] .btn-mode-switch.active-theme {
+    background: linear-gradient(135deg, #4f46e5, #0891b2) !important;
+    color: #ffffff !important;
+    box-shadow: 0 2px 8px rgba(79, 70, 229, 0.28) !important;
+  }
+
+  html[data-theme="light"] .segmented-toggle-group > .active svg,
+  html[data-theme="light"] .segmented-toggle-group > .active i[data-lucide],
+  html[data-theme="light"] .btn-mode-switch.active svg,
+  html[data-theme="light"] .btn-mode-switch.active i[data-lucide],
+
+/* Ultra-Modern Form Controls & Global Polishing */
+  /* ===== Ultra-Modern Form Controls & Global Polishing ===== */
+  input:focus,
+  select:focus,
+  textarea:focus {
+    outline: none;
+    border-color: var(--accent1) !important;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.24) !important;
+  }
+
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(148, 163, 184, 0.25) transparent;
+  }
+
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: rgba(148, 163, 184, 0.25);
+    border-radius: 999px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(148, 163, 184, 0.4);
+  }
+
+  .pill,
+  .chip {
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .pill:active,
+  .chip:active {
+    transform: scale(0.97);
+  }
+
+  .glass {
+    transition: border-color 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease;
+  }
+
+  .routine-card,
+  .session-card,
+  .target-card,
+  .countdown-card,
+  .note-card {
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+
+/* Unified Small / Micro Utility Buttons Theme */
+  /* ==========================================================================
+     Unified Small / Micro Utility Buttons Theme
+     Consistent 28px/8px glass capsules with micro-lift and colored glows
+     ========================================================================== */
+
+  /* 1. Mistake Bank Item Remove Button (.mistake-del-btn) */
+  .mistake-del-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0 !important;
+    padding: 5px 8px;
+    border-radius: 8px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text-soft);
+    cursor: pointer;
+    font-size: 11.5px;
+    font-weight: 600;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .mistake-del-btn svg {
+    width: 13px;
+    height: 13px;
+    flex-shrink: 0;
+    display: block;
+  }
+
+  .mistake-del-btn span {
+    max-width: 0;
+    opacity: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    display: inline-block;
+    vertical-align: middle;
+    margin-left: 0;
+    transition: max-width 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+                opacity 0.2s ease,
+                margin-left 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    font-size: 11.5px;
+    font-weight: 600;
+  }
+
+  .mistake-del-btn:hover {
+    background: rgba(244, 63, 94, 0.14) !important;
+    border-color: rgba(244, 63, 94, 0.35) !important;
+    color: #f43f5e !important;
+    box-shadow: 0 2px 8px rgba(244, 63, 94, 0.22);
+  }
+
+  .mistake-del-btn:hover span {
+    max-width: 75px;
+    opacity: 1;
+    margin-left: 5px;
+  }
+
+  /* 2. Light Theme Overrides for Small Buttons */
+  html[data-theme="light"] .del-row,
+  html[data-theme="light"] .countdown-del-btn,
+  html[data-theme="light"] .flash-card-actions button,
+  html[data-theme="light"] .modal-close,
+  html[data-theme="light"] .note-card .pin-btn,
+  html[data-theme="light"] .month-nav-btn,
+  html[data-theme="light"] .mistake-del-btn,
+  html[data-theme="light"] .subject-restore-btn {
+    background: #ffffff;
+    border-color: #e2e8f0;
+    color: #64748b;
+  }
+
+  html[data-theme="light"] .del-row:hover,
+  html[data-theme="light"] .countdown-del-btn:hover,
+  html[data-theme="light"] .flash-card-actions button:hover,
+  html[data-theme="light"] .modal-close:hover,
+  html[data-theme="light"] .mistake-del-btn:hover {
+    background: rgba(225, 29, 72, 0.12) !important;
+    border-color: rgba(225, 29, 72, 0.35) !important;
+    color: #e11d48 !important;
+  }
+
+  html[data-theme="light"] .month-nav-btn:hover {
+    background: rgba(79, 70, 229, 0.12) !important;
+    border-color: rgba(79, 70, 229, 0.35) !important;
+    color: #4f46e5 !important;
+  }
+
+  html[data-theme="light"] .subject-restore-btn:hover {
+    background: rgba(14, 165, 233, 0.12) !important;
+    border-color: rgba(14, 165, 233, 0.35) !important;
+    color: #0284c7 !important;
+  }
+
+
+/* Preview Control Pill Bar & Action Buttons */
+  /* ===== Exclusive Modern Preview ControlPillBar ===== */
+  .preview-control-capsule {
+    display: inline-flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 46px;
+    width: auto;
+    max-width: 100%;
+    padding: 3px;
+    border-radius: 14px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.22), inset 0 1px 1.5px rgba(255, 255, 255, 0.12);
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    user-select: none;
+    position: relative;
+  }
+
+  .preview-control-capsule:hover {
+    border-color: rgba(99, 102, 241, 0.4);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.28), 0 0 24px rgba(99, 102, 241, 0.18);
+  }
+
+  .preview-control-capsule .control-item {
+    height: 100%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    color: var(--text) !important;
+    font-family: var(--font-sans);
+    font-weight: 600;
+    font-size: 13px;
+    font-variant-numeric: tabular-nums;
+    cursor: pointer;
+    padding: 0 14px !important;
+    white-space: nowrap;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  }
+
+  .preview-control-capsule .control-item:hover {
+    background: var(--surface-strong) !important;
+    color: var(--accent1) !important;
+  }
+
+  /* Standalone uniform header button styles */
+  #ControlPillBar #navClock,
+  .preview-control-capsule #navClock {
+    border-radius: 10px !important;
+    padding: 0 18px !important;
+  }
+
+  #ControlPillBar #fullscreenToggle,
+  .preview-control-capsule #fullscreenToggle {
+    border-radius: 10px !important;
+    min-width: 42px !important;
+    width: 42px !important;
+    padding: 0 !important;
+  }
+
+  #ControlPillBar #themeToggle,
+  .preview-control-capsule #themeToggle {
+    border-radius: 10px !important;
+    min-width: 42px !important;
+    width: 42px !important;
+    padding: 0 !important;
+  }
+
+  .preview-control-capsule .pulse-indicator {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--accent2);
+    box-shadow: 0 0 8px var(--accent2);
+    animation: pulse 1.8s ease-in-out infinite;
+    flex-shrink: 0;
+  }
+
+  .preview-control-capsule .control-icon {
+    font-size: 15px;
+    line-height: 1;
+    display: inline-block;
+  }
+
+  .preview-control-capsule .control-divider {
+    width: 1px;
+    height: 18px;
+    background: var(--border);
+  }
+

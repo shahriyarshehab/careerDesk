@@ -1,0 +1,486 @@
+/* ==========================================================================
+   CareerDesk — Syllabus Module: Categories, Progress Bars & Topic Management
+   ========================================================================== */
+
+  /* ===== Syllabus ===== */
+  .syllabus-add-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 18px;
+    flex-wrap: wrap;
+  }
+
+  .syllabus-add-row input {
+    flex: 1;
+    min-width: 200px;
+    padding: 11px 16px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    font-family: var(--font-sans);
+    font-size: 14px;
+  }
+
+  .syllabus-add-row input:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--accent1);
+  }
+
+  .syllabus-overall {
+    padding: 18px 20px;
+    margin-bottom: 18px;
+  }
+
+  .overall-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    color: var(--text-soft);
+    margin-bottom: 8px;
+  }
+
+  .category-card {
+    padding: 16px 20px;
+    margin-bottom: 14px;
+  }
+
+  .category-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .category-head-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+  }
+
+  .category-head-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-left: auto;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+
+  .category-head-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .category-head h3 {
+    font-family: var(--font-display);
+    font-size: 16.5px;
+    margin: 0;
+  }
+
+  .category-progress-text {
+    font-size: 12px;
+    color: var(--text-soft);
+    white-space: nowrap;
+  }
+
+  .category-mini-track {
+    height: 6px;
+    width: 70px;
+    border-radius: 999px;
+    background: var(--surface-strong);
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+
+  .category-mini-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent1), var(--accent2));
+  }
+
+  .category-body {
+    margin-top: 14px;
+    display: block;
+  }
+
+  /* Category & Flashcard Action 3-Button Group (.category-action-group, .flashcard-action-group) */
+  .category-action-group,
+  .flashcard-action-group {
+    overflow: visible !important;
+    position: relative;
+    display: inline-flex;
+    align-items: stretch;
+    border-radius: 9px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    flex-shrink: 0;
+  }
+
+  .category-action-group .cat-group-btn,
+  .flashcard-action-group .cat-group-btn {
+    border-radius: 0 !important;
+    border: none !important;
+    border-right: 1px solid var(--border) !important;
+    margin: 0 !important;
+    background: transparent !important;
+    color: var(--text-soft);
+    font-size: 12px;
+    font-weight: 500;
+    padding: 6px 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    white-space: nowrap;
+    line-height: 1.2;
+    transition: background 0.22s ease, color 0.22s ease;
+  }
+
+  .category-action-group > .cat-add-btn,
+  .flashcard-action-group > .cat-add-btn {
+    border-top-left-radius: 8px !important;
+    border-bottom-left-radius: 8px !important;
+  }
+
+  .category-action-group .cat-del-trigger,
+  .flashcard-action-group > button:last-child {
+    border-top-right-radius: 8px !important;
+    border-bottom-right-radius: 8px !important;
+    border-right: none !important;
+  }
+
+  .flashcard-action-group .cat-del-trigger {
+    border-radius: 0 !important;
+    border-right: 1px solid var(--border) !important;
+  }
+
+  .category-action-group .cat-group-btn svg,
+  .flashcard-action-group .cat-group-btn svg {
+    width: 13px;
+    height: 13px;
+    flex-shrink: 0;
+    display: block;
+  }
+
+  /* Hover Expansion Effect: Primary shows only icon, expands on hover with distinctive colors */
+  .category-action-group .cat-group-btn span {
+    max-width: 0;
+    opacity: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    display: inline-block;
+    vertical-align: middle;
+    margin-left: 0;
+    transition: max-width 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+                opacity 0.2s ease,
+                margin-left 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  .category-action-group .cat-group-btn:hover span {
+    max-width: 85px;
+    opacity: 1;
+    margin-left: 6px;
+  }
+
+  .category-action-group .cat-add-btn:hover {
+    background: rgba(103, 232, 249, 0.14) !important;
+    color: var(--accent1, #67e8f9) !important;
+  }
+
+  .category-action-group .cat-edit-btn:hover {
+    background: rgba(168, 85, 247, 0.14) !important;
+    color: #c084fc !important;
+  }
+
+  .category-action-group .cat-del-trigger:hover,
+  .category-action-group .cat-del-trigger.menu-open,
+  .category-action-group .cat-del-trigger.active {
+    background: rgba(244, 63, 94, 0.14) !important;
+    color: #f43f5e !important;
+  }
+
+  /* 2-Option Dropdown Menu for Delete */
+  .cat-del-dropdown-wrap {
+    position: relative;
+    display: inline-flex;
+    align-items: stretch;
+  }
+
+  .cat-del-menu {
+    position: absolute;
+    top: calc(100% + 6px);
+    right: 0;
+    z-index: 100;
+    min-width: 165px;
+    background: #0f172a;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 12px;
+    padding: 6px;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.75), 0 2px 10px rgba(0, 0, 0, 0.4);
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    animation: dropdownFade 0.16s ease-out;
+  }
+
+  html[data-theme="light"] .cat-del-menu {
+    background: #ffffff;
+    border-color: #cbd5e1;
+    box-shadow: 0 14px 34px rgba(0, 0, 0, 0.18), 0 2px 8px rgba(0, 0, 0, 0.08);
+  }
+
+  @keyframes dropdownFade {
+    from {
+      opacity: 0;
+      transform: translateY(-4px) scale(0.96);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  .cat-del-menu-item {
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    width: 100% !important;
+    padding: 8px 12px !important;
+    border: none !important;
+    border-radius: 8px !important;
+    background: transparent !important;
+    color: var(--text) !important;
+    font-size: 12px !important;
+    font-weight: 500 !important;
+    cursor: pointer !important;
+    text-align: left !important;
+    transition: all 0.15s ease !important;
+    white-space: nowrap !important;
+    box-sizing: border-box !important;
+  }
+
+  .cat-del-menu-item svg {
+    width: 13px !important;
+    height: 13px !important;
+    flex-shrink: 0 !important;
+    display: block !important;
+  }
+
+  .cat-del-menu-item.item-subject {
+    color: #fb7185 !important;
+  }
+
+  .cat-del-menu-item.item-subject:hover {
+    background: rgba(244, 63, 94, 0.22) !important;
+    color: #fda4af !important;
+  }
+
+  .cat-del-menu-item.item-topics {
+    color: #38bdf8 !important;
+  }
+
+  .cat-del-menu-item.item-topics:hover {
+    background: rgba(56, 189, 248, 0.2) !important;
+    color: #7dd3fc !important;
+  }
+
+  .cat-del-menu-item.item-topics.active-mode {
+    background: rgba(56, 189, 248, 0.25) !important;
+    color: #bae6fd !important;
+    font-weight: 600 !important;
+  }
+
+  /* Active Topic Delete Mode Banner */
+  .topic-del-active-banner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 8px 12px;
+    margin-bottom: 12px;
+    border-radius: 9px;
+    background: rgba(244, 63, 94, 0.08);
+    border: 1px dashed rgba(244, 63, 94, 0.35);
+    font-size: 12px;
+    color: var(--text);
+    animation: fadeInDown 0.2s ease-out;
+  }
+
+  .del-banner-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .del-pulse-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #f43f5e;
+    box-shadow: 0 0 8px rgba(244, 63, 94, 0.8);
+    animation: pulseDot 1.5s infinite ease-in-out;
+    flex-shrink: 0;
+  }
+
+  @keyframes pulseDot {
+    0%, 100% { transform: scale(1); opacity: 0.8; }
+    50% { transform: scale(1.35); opacity: 1; }
+  }
+
+  .mini-exit-del-btn {
+    padding: 4px 10px !important;
+    font-size: 11.5px !important;
+    border-radius: 7px !important;
+    color: var(--accent1) !important;
+    border: 1px solid rgba(103, 232, 249, 0.3) !important;
+    background: transparent !important;
+    cursor: pointer;
+  }
+
+  .mini-exit-del-btn:hover {
+    background: rgba(103, 232, 249, 0.15) !important;
+  }
+
+  /* Topic Tiles & Selective Delete Visibility */
+  .topic-tile-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 14px;
+  }
+
+  .topic-tile {
+    position: relative;
+    padding: 9px 14px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    font-size: 13.5px;
+    cursor: pointer;
+    user-select: none;
+    transition: all .15s ease;
+  }
+
+  .topic-tile:hover {
+    transform: translateY(-1px);
+    border-color: var(--accent1);
+  }
+
+  .topic-tile.done {
+    background: linear-gradient(135deg, var(--accent1), var(--accent2));
+    color: #fff;
+    border-color: transparent;
+  }
+
+  .topic-tile.done .tile-label {
+    text-decoration: line-through;
+    opacity: 0.9;
+  }
+
+  /* Topic Delete Button: HIDDEN by default ("other wize no button show") */
+  .topic-tile .tile-del {
+    display: none;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    right: 8px;
+    width: 22px;
+    height: 22px;
+    border-radius: 6px;
+    border: 1px solid rgba(244, 63, 94, 0.3);
+    background: rgba(244, 63, 94, 0.1);
+    color: #f43f5e;
+    cursor: pointer;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    padding: 0;
+    transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .topic-tile .tile-del svg {
+    width: 11px;
+    height: 11px;
+    display: block;
+  }
+
+  .topic-tile .tile-del:hover {
+    background: #f43f5e !important;
+    border-color: #f43f5e !important;
+    color: #ffffff !important;
+    transform: translateY(-50%) scale(1.12);
+    box-shadow: 0 2px 8px rgba(244, 63, 94, 0.35);
+  }
+
+  .topic-tile.done .tile-del:hover {
+    background: #f43f5e !important;
+    border-color: #f43f5e !important;
+    color: #ffffff !important;
+  }
+
+  /* When Topic Delete Mode is Active: VISIBLE on topic items */
+  .category-card.topic-delete-mode .topic-tile {
+    padding-right: 32px;
+    border-style: dashed;
+    border-color: rgba(244, 63, 94, 0.4);
+  }
+
+  .category-card.topic-delete-mode .topic-tile .tile-del {
+    display: inline-flex;
+    animation: fadeInTileDel 0.18s ease-out;
+  }
+
+  @keyframes fadeInTileDel {
+    from {
+      opacity: 0;
+      transform: translateY(-50%) scale(0.65);
+    }
+    to {
+      opacity: 0.65;
+      transform: translateY(-50%) scale(1);
+    }
+  }
+
+  .syllabus-inline-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 10px;
+  }
+
+  .pill.subtle {
+    padding: 7px 12px;
+    font-size: 12.5px;
+    background: var(--surface-strong);
+  }
+
+  .add-topic-row {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+  }
+
+  .add-topic-row input {
+    flex: 1;
+    padding: 9px 12px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    font-family: var(--font-sans);
+    font-size: 13.5px;
+  }
+
+  .add-topic-row input:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--accent1);
+  }
+

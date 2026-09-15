@@ -27,9 +27,33 @@ CareerDesk/
 ├── index.html              # Main application single-page layout & UI panels
 ├── assets/
 │   ├── css/
-│   │   └── style.css       # Unified design system, glassmorphism, mobile dock, animations
+│   │   ├── base.css        # Theme variables, reset, typography, header, mobile dock navbar
+│   │   ├── components.css  # Universal .btn-group, .action-group, .segmented-group, .micro-btn
+│   │   ├── routine.css     # Routine tables, calendar date slider, monthly schedule
+│   │   ├── quotes.css      # Motivation ticker, wallpaper generator, quotes manager
+│   │   ├── notes.css       # Quick notes grid, cards, pinning, search filtering
+│   │   ├── tracker.css     # Timers, 24h activity log, consistency heatmap, onboarding
+│   │   ├── countdown.css   # Target exam countdown cards engine
+│   │   ├── syllabus.css    # Curriculum categories, topic checklist, progress bars
+│   │   ├── flashcards.css  # Flashcards deck, flip card animation, fullscreen exam overlay
+│   │   ├── mcq.css         # BCS MCQ engine, options, floating points, mistake bank
+│   │   ├── settings.css    # Settings panel, Subject Manager, backup/restore
+│   │   ├── modals.css      # Command Palette (Ctrl+K), generic modals & dialogs
+│   │   └── style.css       # Master stylesheet index (@import aggregator & standalone backup)
 │   ├── js/
-│   │   ├── script.js       # Central application engine, state management, timers, analytics
+│   │   ├── core.js         # Master subject control, data schema, localStorage adapter & utilities
+│   │   ├── routine.js      # Routine schedules, date slider, day-by-day & monthly views
+│   │   ├── quotes.js       # Quote ticker, carousel, quotes manager & canvas wallpaper export
+│   │   ├── notes.js        # Quick notes, categorization tags, pinning & search
+│   │   ├── tracker.js      # Focus timer, 24h activity break tracker, heatmap & onboarding
+│   │   ├── countdown.js    # Target exam countdown timers engine
+│   │   ├── syllabus.js     # Category & topic progress tracking, inline edit & delete mode
+│   │   ├── flashcards.js   # Flashcard deck review, flip animation & interactive exam mode
+│   │   ├── questions-data.js # BCS & Job prep curated question banks (1,400+ lines)
+│   │   ├── mcq.js          # MCQ practice engine, 20-Q exam mode, sound, mistake bank
+│   │   ├── settings.js     # Settings panel, subject manager UI, JSON backup/restore & reset
+│   │   ├── app.js          # Theme, fullscreen, modals, tabs router, command palette & init
+│   │   ├── script.js       # Monolithic script backup (preserved for standalone reference)
 │   │   └── lucide.min.js   # Embedded Lucide icons library
 │   └── icons/              # Curated SVG icon assets and preview showcase gallery
 ├── AGENTS.md               # AI Agent architecture and conventions guide (this file)
@@ -40,10 +64,21 @@ CareerDesk/
 ```
 
 ### Key File Roles:
-- **`index.html`**: Contains semantic panels (`#panel-routine`, `#panel-notes`, `#panel-tracker`, `#panel-flashcards`, `#panel-countdown`, `#panel-syllabus`, `#panel-settings`). Global subject autocomplete uses `<datalist id="appSubjectDatalist">`.
+- **`index.html`**: Contains semantic panels (`#panel-routine`, `#panel-notes`, `#panel-tracker`, `#panel-flashcards`, `#panel-countdown`, `#panel-syllabus`, `#panel-settings`). Loads the modular scripts in sequential order.
 - **`assets/css/style.css`**: Complete design system with CSS custom properties (`--bg`, `--surface`, `--accent1`, `--accent2`, `--border`, etc.). Handles responsive layout, floating pill navigation dock, and dark/light modes.
-- **`assets/js/script.js`**: Self-contained application engine enclosed in an IIFE. Manages state, routines, timers, MCQ engine, Mistake Bank, quotes rotation, canvas wallpaper generator, and subject synchronization.
-- **`assets/js/lucide.min.js`**: Replaces `<i data-lucide="...">` with SVG icons on startup. In dynamically generated JS templates, use the inline `ICON` object.
+- **`assets/js/core.js`**: Central storage adapter, state initialization (`getDefaultState`), global utilities (`escapeHtml`, `escapeAttr`, `toBnDigits`, `dateKey`), and the Unified Subject Control System (`masterSubjectList`, `canonicalSubjectName`, `renameSubject`, `syncAllSubjectSelects`).
+- **`assets/js/routine.js`**: Manages day-by-day and monthly routine views, calendar sliders, task editing, and time blocks.
+- **`assets/js/quotes.js`**: Handles motivational quote rotations, the quote manager, interval carousels, and 1920x1080 canvas wallpaper generation.
+- **`assets/js/notes.js`**: Manages user study notes with tags, full-text search, and pinning.
+- **`assets/js/tracker.js`**: Real-time study timer, 24h break logs, activity heatmap, target hours, and first-time onboarding wizard.
+- **`assets/js/countdown.js`**: Target exam countdown cards, date differentials, and exam target creation.
+- **`assets/js/syllabus.js`**: Interactive curriculum tracking, progress bars, topic completion toggles, and deletion modes.
+- **`assets/js/flashcards.js`**: Spaced flashcards deck, flip card animations, category filters, and full-screen distraction-free Exam Mode.
+- **`assets/js/questions-data.js`**: Dedicated static repository containing default questions, AI-curated pool, and extended BCS question pools.
+- **`assets/js/mcq.js`**: Real-time MCQ quiz practice engine, 20-question timed exam mode, audio sound effects, mistake bank remediation, and JSON question import/export.
+- **`assets/js/settings.js`**: Subject management UI, activity statistics per subject, JSON backup and restore, and full data reset.
+- **`assets/js/app.js`**: Application router (`activateTab`), modal controllers, fullscreen toggles, Command Palette (`Ctrl+K`), and bootstrap `init()`.
+- **`assets/js/lucide.min.js`**: Replaces `<i data-lucide="...">` with SVG icons on startup. In dynamically generated JS templates, use the inline `ICON` object from `core.js`.
 
 ---
 
@@ -148,7 +183,13 @@ All subjects across **Routine**, **Tracker & Focus**, **Syllabus**, and **Quizze
 - Light Mode: Controlled via `html[data-theme="light"]`. Clean white cards, light borders (`#e2e8f0`), soft slate text.
 - Accent Gradients: Primary cyan/indigo gradient (`var(--accent1): #6366f1`, `var(--accent2): #06b6d4`).
 
-### Segmented Button Groups (`.btn-group`)
+### Universal Component Classes (`assets/css/components.css`)
+- **`.btn-group`**: Universal segmented button group with unified `border-radius: 9px`, subtle outer border, and seamless child divider borders.
+- **`.action-group` & `.action-group-btn`**: Universal hover-expanding action groups (used in Category, Flashcard, Routine, Notes, Quotes, and Subject rows). Resting state is clean and icon-only; expands text smoothly on hover (`max-width: 0 -> 105px; opacity: 0 -> 1`).
+- **`.segmented-group` & `.segmented-toggle-group`**: Segmented pill mode switches with high-contrast active gradient (`var(--accent1)` to `var(--accent2)`) and micro-shadow. Used for Practice/Exam mode, Flashcard/Quiz switcher, and Routine view modes.
+- **`.micro-btn`**: 28px/8px glass capsules with colored micro-glows on hover (`.danger`, `.edit`, `.subtle`). Used for delete/close buttons across tables and lists.
+
+### Segmented Button Groups (`.btn-group`) & Action Groups
 - Segmented controls (Add Topic, Edit, Delete) share unified border-radius and borders.
 - On mobile devices (`max-width: 768px`), secondary action buttons collapse into 32x32px square icon buttons (`.pill span { display: none !important; }`).
 - **Critical Exception**: Dropdown menu items inside `.cat-del-menu` must keep both text and icons visible at all times! Always scope span-hiding to `.category-action-group .cat-group-btn span`.

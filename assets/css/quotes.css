@@ -1,0 +1,518 @@
+/* ==========================================================================
+   CareerDesk — Quotes Module: Motivation Ticker, Wallpaper Generator & Quotes Manager
+   ========================================================================== */
+
+  /* ===== Quote wallpaper ===== */
+  .quote-source-switch {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 18px;
+    flex-wrap: wrap;
+  }
+
+  .chip {
+    font-size: 13px;
+    padding: 7px 15px;
+    border-radius: 10px;
+    cursor: pointer;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text-soft);
+    transition: all .18s ease;
+  }
+
+  .chip.active {
+    background: linear-gradient(135deg, var(--accent1), var(--accent2));
+    color: #fff;
+    border-color: transparent;
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.25);
+  }
+
+  .wallpaper-stage {
+    display: flex;
+    justify-content: center;
+    padding: 6px 0 4px;
+  }
+
+  .wallpaper-card {
+    position: relative;
+    width: 100%;
+    max-width: 340px;
+    aspect-ratio: 16/9;
+    border-radius: 16px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    background: linear-gradient(135deg, var(--card-quote-a), var(--card-quote-b));
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 18px 20px;
+    text-align: center;
+    box-shadow: var(--shadow);
+  }
+
+  .wallpaper-card::before,
+  .wallpaper-card::after {
+    content: "";
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(50px);
+    opacity: 0.45;
+  }
+
+  .wallpaper-card::before {
+    width: 120px;
+    height: 120px;
+    background: var(--accent1);
+    top: -40px;
+    left: -30px;
+  }
+
+  .wallpaper-card::after {
+    width: 110px;
+    height: 110px;
+    background: var(--accent2);
+    bottom: -40px;
+    right: -20px;
+  }
+
+  .wp-quote {
+    position: relative;
+    z-index: 1;
+    font-family: var(--font-display);
+    font-size: clamp(12px, 2.6vw, 15px);
+    font-weight: 600;
+    line-height: 1.45;
+    color: var(--text);
+  }
+
+  .wp-author {
+    position: relative;
+    z-index: 1;
+    margin-top: 8px;
+    font-size: 11px;
+    color: var(--text-soft);
+    letter-spacing: 0.3px;
+  }
+
+  .wp-tag {
+    position: absolute;
+    top: 10px;
+    left: 12px;
+    z-index: 1;
+    font-size: 9.5px;
+    padding: 3px 8px;
+    border-radius: 8px;
+    background: var(--surface-strong);
+    color: var(--text-soft);
+    border: 1px solid var(--border);
+  }
+
+  .quote-actions {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 22px;
+    flex-wrap: wrap;
+  }
+
+  .quote-ticker {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    height: 48px;
+    padding: 0 22px;
+    border-radius: 14px;
+    margin-bottom: 24px;
+    overflow: hidden;
+  }
+
+  .ticker-dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    background: linear-gradient(135deg, var(--accent1), var(--accent2));
+    box-shadow: 0 0 9px var(--accent1);
+    animation: pulse 1.6s ease-in-out infinite;
+  }
+
+  .ticker-text {
+    font-family: var(--font-sans);
+    font-size: 13.5px;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    opacity: 1;
+    transition: opacity .35s ease;
+  }
+
+  .ticker-text.fade {
+    opacity: 0;
+  }
+
+  .custom-quote-form {
+    margin-top: 28px;
+    padding: 18px;
+  }
+
+  .custom-quote-form label {
+    display: block;
+    font-size: 13px;
+    color: var(--text-soft);
+    margin-bottom: 8px;
+    font-weight: 600;
+  }
+
+  .custom-quote-form textarea,
+  .custom-quote-form input {
+    width: 100%;
+    font-family: var(--font-sans);
+    font-size: 14.5px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px;
+    resize: vertical;
+    background: var(--surface);
+    color: var(--text);
+    margin-bottom: 10px;
+  }
+
+  .quote-manager-card {
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 12px;
+    background: var(--surface-strong);
+    max-height: 290px;
+    overflow-y: auto;
+  }
+
+  .quote-manager-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+    font-size: 13px;
+    color: var(--text-soft);
+  }
+
+  .quote-manager-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding-right: 4px;
+  }
+
+  .quote-manager-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 12px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+  }
+
+  .quote-manager-item strong {
+    display: block;
+    font-size: 13px;
+    margin-bottom: 4px;
+  }
+
+  .quote-manager-item span {
+    display: block;
+    font-size: 12px;
+    color: var(--text-soft);
+    line-height: 1.45;
+  }
+
+  .quote-manager-actions {
+    display: flex;
+    gap: 6px;
+    flex-shrink: 0;
+    flex-wrap: wrap;
+  }
+
+  .quote-manager-actions button {
+    padding: 6px 8px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--surface-strong);
+    color: var(--text);
+    cursor: pointer;
+  }
+
+  .custom-quote-form textarea:focus,
+  .custom-quote-form input:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--accent1);
+  }
+
+
+  /* ===== Quotes Manager Design (Settings) ===== */
+  .quote-manager-panel {
+    border: 1px solid var(--border);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .quote-manager-head-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .quote-header-badge {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    background: var(--surface-strong);
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--accent1);
+    flex-shrink: 0;
+  }
+
+  .quote-interval-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 14px;
+    flex-wrap: wrap;
+    margin-top: 16px;
+    padding: 12px 14px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+  }
+
+  .quote-list-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 16px;
+  }
+
+  .quote-list-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .quote-list-title {
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .quote-count-badge {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 8px;
+    background: rgba(103, 232, 249, 0.15);
+    color: var(--accent1);
+    border: 1px solid rgba(103, 232, 249, 0.3);
+  }
+
+  .quote-list-hint {
+    font-size: 11.5px;
+    color: var(--text-soft);
+  }
+
+  /* Fixed Height & Width Quotes Scrollbox */
+  .quote-manager-box {
+    height: 260px;
+    max-height: 260px;
+    width: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: var(--surface-strong);
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    box-sizing: border-box;
+  }
+
+  .quote-manager-box::-webkit-scrollbar {
+    width: 6px;
+  }
+  .quote-manager-box::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .quote-manager-box::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 6px;
+  }
+  .quote-manager-box::-webkit-scrollbar-thumb:hover {
+    background: var(--text-soft);
+  }
+
+  .quote-item-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    transition: all 0.18s ease;
+  }
+
+  .quote-item-card:hover {
+    border-color: rgba(103, 232, 249, 0.35);
+    background: rgba(255, 255, 255, 0.04);
+    transform: translateY(-1px);
+  }
+
+  .quote-item-body {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .quote-item-text {
+    font-size: 13px;
+    line-height: 1.45;
+    color: var(--text);
+    word-break: break-word;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .quote-item-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 5px;
+  }
+
+  .quote-item-author {
+    font-size: 11.5px;
+    color: var(--text-soft);
+    font-style: italic;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 200px;
+  }
+
+  .quote-item-badge {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 1.5px 6px;
+    border-radius: 6px;
+    font-weight: 600;
+  }
+
+  .quote-item-badge.badge-custom {
+    background: rgba(103, 232, 249, 0.15);
+    color: var(--accent1);
+    border: 1px solid rgba(103, 232, 249, 0.3);
+  }
+
+  .quote-item-badge.badge-famous {
+    background: rgba(168, 85, 247, 0.15);
+    color: #c084fc;
+    border: 1px solid rgba(168, 85, 247, 0.3);
+  }
+
+  .quote-item-badge.badge-builtin {
+    background: rgba(245, 158, 11, 0.15);
+    color: #fbbf24;
+    border: 1px solid rgba(245, 158, 11, 0.3);
+  }
+
+  .quote-item-actions {
+    display: inline-flex;
+    align-items: stretch;
+    flex-shrink: 0;
+  }
+
+  .quote-empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: var(--text-soft);
+    font-size: 13px;
+    gap: 8px;
+    padding: 24px;
+    text-align: center;
+  }
+
+  /* Add Quote Section */
+  .quote-add-box {
+    margin-top: 16px;
+    padding: 14px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    transition: border-color 0.2s ease;
+  }
+
+  .quote-textarea-field {
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: var(--surface-strong);
+    color: var(--text);
+    font-size: 13px;
+    font-family: inherit;
+    resize: vertical;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  }
+
+  .quote-textarea-field:focus,
+  .quote-author-field:focus {
+    outline: none;
+    border-color: var(--accent1);
+    box-shadow: 0 0 0 2px rgba(103, 232, 249, 0.2);
+  }
+
+  .quote-add-bottom-row {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .quote-author-field {
+    flex: 1;
+    min-width: 180px;
+    padding: 9px 12px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: var(--surface-strong);
+    color: var(--text);
+    font-size: 13px;
+    font-family: inherit;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  }
+
+  /* ===== Toggle Form Buttons ===== */
+  .toggle-form-btn.active-open {
+    background: rgba(239, 68, 68, 0.15) !important;
+    border-color: rgba(239, 68, 68, 0.4) !important;
+    color: #f87171 !important;
+  }
+

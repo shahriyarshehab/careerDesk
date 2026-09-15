@@ -3115,6 +3115,66 @@
   const flashGrid = document.getElementById('flashGrid');
   const flashCategorySel = document.getElementById('flashCategory');
   const flashFilterSel = document.getElementById('flashFilterCategory');
+  const editFlashModal = document.getElementById('editFlashModal');
+  const editFlashId = document.getElementById('editFlashId');
+  const editFlashFront = document.getElementById('editFlashFront');
+  const editFlashBack = document.getElementById('editFlashBack');
+  const editFlashCategory = document.getElementById('editFlashCategory');
+  const closeEditFlashModal = document.getElementById('closeEditFlashModal');
+  const cancelEditFlashBtn = document.getElementById('cancelEditFlashBtn');
+  const saveEditFlashBtn = document.getElementById('saveEditFlashBtn');
+  const flashModeBanner = document.getElementById('flashModeBanner');
+
+  let flashcardMode = null; // null | 'edit' | 'delete'
+
+  function exitFlashcardMode() {
+    flashcardMode = null;
+    updateFlashcardModeUI();
+  }
+
+  function updateFlashcardModeUI() {
+    const editBtn = document.getElementById('toggle-edit-card-btn');
+    const delBtn = document.getElementById('toggle-delete-card-btn');
+
+    if (editBtn) editBtn.classList.toggle('active', flashcardMode === 'edit');
+    if (delBtn) delBtn.classList.toggle('active', flashcardMode === 'delete');
+
+    if (flashGrid) {
+      flashGrid.classList.toggle('edit-mode', flashcardMode === 'edit');
+      flashGrid.classList.toggle('delete-mode', flashcardMode === 'delete');
+    }
+
+    if (flashModeBanner) {
+      if (flashcardMode === 'edit') {
+        flashModeBanner.className = 'flash-mode-banner flash-edit-banner';
+        flashModeBanner.style.display = 'flex';
+        flashModeBanner.innerHTML = `
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span style="display:inline-flex; align-items:center; justify-content:center; color:#c084fc;">${ICON.edit}</span>
+            <span><strong>Edit Mode Active:</strong> Click the edit button on any flashcard to modify it.</span>
+          </div>
+          <button class="pill" id="exitFlashModeBtn" type="button" style="font-size:11px; padding:3px 10px; cursor:pointer;">Done</button>
+        `;
+        const exitBtn = document.getElementById('exitFlashModeBtn');
+        if (exitBtn) exitBtn.addEventListener('click', exitFlashcardMode);
+      } else if (flashcardMode === 'delete') {
+        flashModeBanner.className = 'flash-mode-banner flash-del-banner';
+        flashModeBanner.style.display = 'flex';
+        flashModeBanner.innerHTML = `
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span style="display:inline-flex; align-items:center; justify-content:center; color:#f43f5e;">${ICON.trash}</span>
+            <span><strong>Delete Mode Active:</strong> Click the red trash button on any flashcard to delete it.</span>
+          </div>
+          <button class="pill" id="exitFlashModeBtn" type="button" style="font-size:11px; padding:3px 10px; cursor:pointer;">Done</button>
+        `;
+        const exitBtn = document.getElementById('exitFlashModeBtn');
+        if (exitBtn) exitBtn.addEventListener('click', exitFlashcardMode);
+      } else {
+        flashModeBanner.style.display = 'none';
+        flashModeBanner.innerHTML = '';
+      }
+    }
+  }
 
   function renderFlashCategoryOptions() {
     const routineSubjs = subjectList();
@@ -3124,24 +3184,27 @@
     const opts = allSubjs.map(s => `<option value="${escapeAttr(s)}">${escapeHtml(s)}</option>`).join('');
     if (flashCategorySel) flashCategorySel.innerHTML = '<option value="">No Category</option>' + opts;
     if (flashFilterSel) flashFilterSel.innerHTML = '<option value="all">All Subjects</option>' + opts;
+    if (editFlashCategory) editFlashCategory.innerHTML = '<option value="">No Category</option>' + opts;
   }
 
   function renderFlashcards() {
-    const filter = flashFilterSel.value || 'all';
+    const filter = (flashFilterSel && flashFilterSel.value) ? flashFilterSel.value : 'all';
     const list = filter === 'all' ? state.flashcards : state.flashcards.filter(f => f.category === filter);
     const countBadge = document.getElementById('flashCountBadge');
     if (countBadge) {
-      countBadge.innerHTML = `${ICON.layers} ${list.length} ${list.length === 1 ? 'Card' : 'Cards'}`;
+      countBadge.innerHTML = `${ICON.layers} <span>${list.length} ${list.length === 1 ? 'Card' : 'Cards'}</span>`;
     }
 
     if (!list.length) {
-      flashGrid.innerHTML = '<div class="empty-state">No flashcards in this category. Click "Sync from MCQs" or "Create Card" above.</div>';
+      flashGrid.innerHTML = '<div class="empty-state">No flashcards in this category. Click "Sync MCQs" or "Add Card" above.</div>';
+      updateFlashcardModeUI();
       return;
     }
     flashGrid.innerHTML = list.map(f => `
       <div class="flash-card" data-id="${f.id}">
         <div class="flash-card-actions">
-          <button data-del="${f.id}" title="Delete Card">${ICON.x}</button>
+          <button type="button" class="card-edit-btn" data-edit="${f.id}" title="Edit Flashcard" aria-label="Edit Flashcard">${ICON.edit}</button>
+          <button type="button" class="card-del-btn" data-del="${f.id}" title="Delete Flashcard" aria-label="Delete Flashcard">${ICON.trash}</button>
         </div>
         <div class="flash-card-inner">
           <div class="flash-face flash-front">
@@ -3155,32 +3218,106 @@
         </div>
       </div>
     `).join('');
+
+    updateFlashcardModeUI();
   }
 
-  flashGrid.addEventListener('click', (e) => {
-    const delBtn = e.target.closest('[data-del]');
-    if (delBtn) {
-      if (window.confirm('Are you sure you want to delete this flashcard?')) {
-        state.flashcards = state.flashcards.filter(f => String(f.id) !== delBtn.dataset.del);
-        renderFlashcards();
-        renderFlashCategoryOptions();
-        saveData();
-        showToast('Flashcard deleted');
+  function openEditFlashcardModal(id) {
+    const card = state.flashcards.find(f => String(f.id) === String(id));
+    if (!card || !editFlashModal) return;
+
+    if (editFlashId) editFlashId.value = card.id;
+    if (editFlashFront) editFlashFront.value = card.front || '';
+    if (editFlashBack) editFlashBack.value = card.back || '';
+    renderFlashCategoryOptions();
+    if (editFlashCategory) editFlashCategory.value = card.category || '';
+
+    editFlashModal.style.display = 'flex';
+    if (editFlashFront) editFlashFront.focus();
+  }
+
+  function hideEditFlashcardModal() {
+    if (editFlashModal) editFlashModal.style.display = 'none';
+  }
+
+  if (closeEditFlashModal) closeEditFlashModal.addEventListener('click', hideEditFlashcardModal);
+  if (cancelEditFlashBtn) cancelEditFlashBtn.addEventListener('click', hideEditFlashcardModal);
+  if (editFlashModal) {
+    editFlashModal.addEventListener('click', (e) => {
+      if (e.target === editFlashModal) hideEditFlashcardModal();
+    });
+  }
+
+  if (saveEditFlashBtn) {
+    saveEditFlashBtn.addEventListener('click', () => {
+      const id = editFlashId ? editFlashId.value : null;
+      const card = state.flashcards.find(f => String(f.id) === String(id));
+      if (!card) {
+        hideEditFlashcardModal();
+        return;
       }
-      return;
+      const front = (editFlashFront?.value || '').trim();
+      const back = (editFlashBack?.value || '').trim();
+      if (!front || !back) {
+        showToast('Please provide both question and answer', true);
+        return;
+      }
+      card.front = front;
+      card.back = back;
+      card.category = editFlashCategory?.value || 'General';
+
+      hideEditFlashcardModal();
+      renderFlashcards();
+      renderFlashCategoryOptions();
+      syncAllSubjectSelects();
+      saveData();
+      showToast('Flashcard updated successfully!');
+    });
+  }
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && editFlashModal && editFlashModal.style.display === 'flex') {
+      hideEditFlashcardModal();
     }
-    const card = e.target.closest('.flash-card');
-    if (card) card.classList.toggle('flipped');
   });
 
+  if (flashGrid) {
+    flashGrid.addEventListener('click', (e) => {
+      const editBtn = e.target.closest('[data-edit]');
+      if (editBtn) {
+        e.stopPropagation();
+        openEditFlashcardModal(editBtn.dataset.edit);
+        return;
+      }
+
+      const delBtn = e.target.closest('[data-del]');
+      if (delBtn) {
+        e.stopPropagation();
+        if (window.confirm('Are you sure you want to delete this flashcard?')) {
+          state.flashcards = state.flashcards.filter(f => String(f.id) !== delBtn.dataset.del);
+          renderFlashcards();
+          renderFlashCategoryOptions();
+          saveData();
+          showToast('Flashcard deleted');
+        }
+        return;
+      }
+
+      if (e.target.closest('.flash-card-actions')) return;
+
+      const card = e.target.closest('.flash-card');
+      if (card) card.classList.toggle('flipped');
+    });
+  }
+
   // ===== Flashcards Form Toggle =====
-  const toggleFlashBtn = document.getElementById('toggleFlashFormBtn');
+  const toggleFlashBtn = document.getElementById('add-flashcard-btn') || document.getElementById('toggleFlashFormBtn');
   const flashWrap = document.getElementById('flashFormWrap');
   if (toggleFlashBtn && flashWrap) {
     toggleFlashBtn.addEventListener('click', () => {
       const isOpen = flashWrap.style.display !== 'none';
       flashWrap.style.display = isOpen ? 'none' : 'block';
-      toggleFlashBtn.innerHTML = isOpen ? `${ICON.plus} Create Card` : `${ICON.x} Close Form`;
+      toggleFlashBtn.classList.toggle('active', !isOpen);
       toggleFlashBtn.classList.toggle('active-open', !isOpen);
       if (!isOpen) {
         const front = document.getElementById('flashFront');
@@ -3189,28 +3326,63 @@
     });
   }
 
-  document.getElementById('addFlashBtn').addEventListener('click', () => {
-    const frontEl = document.getElementById('flashFront');
-    const backEl = document.getElementById('flashBack');
-    const front = frontEl.value.trim();
-    const back = backEl.value.trim();
-    if (!front || !back) {
-      showToast('Please provide both question and answer', true);
-      return;
-    }
-    state.flashcards.push({ id: Date.now(), front, back, category: flashCategorySel.value || 'General' });
-    frontEl.value = ''; backEl.value = '';
-    renderFlashCategoryOptions();
-    renderFlashcards();
-    saveData();
+  const toggleEditCardBtn = document.getElementById('toggle-edit-card-btn');
+  if (toggleEditCardBtn) {
+    toggleEditCardBtn.addEventListener('click', () => {
+      flashcardMode = (flashcardMode === 'edit') ? null : 'edit';
+      updateFlashcardModeUI();
+    });
+  }
 
-    if (flashWrap && toggleFlashBtn) {
-      flashWrap.style.display = 'none';
-      toggleFlashBtn.innerHTML = `${ICON.plus} Create Card`;
-      toggleFlashBtn.classList.remove('active-open');
-    }
-    showToast('Flashcard created successfully!');
-  });
+  const shuffleFlashcardsBtn = document.getElementById('shuffle-flashcards-btn');
+  if (shuffleFlashcardsBtn) {
+    shuffleFlashcardsBtn.addEventListener('click', () => {
+      if (!state.flashcards || state.flashcards.length <= 1) {
+        showToast('Need at least 2 flashcards to shuffle', true);
+        return;
+      }
+      state.flashcards = shuffle(state.flashcards);
+      saveData();
+      renderFlashcards();
+      showToast('Flashcards shuffled!');
+    });
+  }
+
+  const toggleDeleteCardBtn = document.getElementById('toggle-delete-card-btn');
+  if (toggleDeleteCardBtn) {
+    toggleDeleteCardBtn.addEventListener('click', () => {
+      flashcardMode = (flashcardMode === 'delete') ? null : 'delete';
+      updateFlashcardModeUI();
+    });
+  }
+
+  const addFlashBtnEl = document.getElementById('addFlashBtn');
+  if (addFlashBtnEl) {
+    addFlashBtnEl.addEventListener('click', () => {
+      const frontEl = document.getElementById('flashFront');
+      const backEl = document.getElementById('flashBack');
+      const front = frontEl ? frontEl.value.trim() : '';
+      const back = backEl ? backEl.value.trim() : '';
+      if (!front || !back) {
+        showToast('Please provide both question and answer', true);
+        return;
+      }
+      state.flashcards.push({ id: Date.now(), front, back, category: (flashCategorySel && flashCategorySel.value) ? flashCategorySel.value : 'General' });
+      if (frontEl) frontEl.value = '';
+      if (backEl) backEl.value = '';
+      renderFlashCategoryOptions();
+      syncAllSubjectSelects();
+      renderFlashcards();
+      saveData();
+
+      if (flashWrap && toggleFlashBtn) {
+        flashWrap.style.display = 'none';
+        toggleFlashBtn.classList.remove('active');
+        toggleFlashBtn.classList.remove('active-open');
+      }
+      showToast('Flashcard created successfully!');
+    });
+  }
 
   // ===== Sync Flashcards directly from BCS MCQs =====
   function syncFlashcardsFromMCQs() {
@@ -3246,6 +3418,7 @@
 
     if (addedCount > 0) {
       renderFlashCategoryOptions();
+      syncAllSubjectSelects();
       renderFlashcards();
       saveData();
       showToast(`Added ${addedCount} flashcards directly from BCS & Govt MCQ Bank!`);
@@ -3259,7 +3432,9 @@
     syncFlashcardsBtn.addEventListener('click', syncFlashcardsFromMCQs);
   }
 
-  flashFilterSel.addEventListener('change', renderFlashcards);
+  if (flashFilterSel) {
+    flashFilterSel.addEventListener('change', renderFlashcards);
+  }
 
   // ===== Interactive Flashcard Exam Mode =====
   const examOverlay = document.getElementById('examOverlay');
@@ -3284,6 +3459,7 @@
     examState = { cards: shuffle(pool), idx: 0, correct: 0, wrong: 0, flipped: false, finished: false, userAnswer: '' };
     renderExam();
     examOverlay.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
   });
 
   function renderExam() {
@@ -3443,6 +3619,7 @@
     examOverlay.style.display = 'none';
     examOverlay.innerHTML = '';
     examState = null;
+    document.body.style.overflow = '';
   }
 
   // ===== Auto Backup File Connect Listener =====
@@ -6047,7 +6224,7 @@
         autoNextPill.innerHTML = `${ICON.zap} Auto-Next: ${mcqAutoAdvanceEnabled ? 'ON' : 'OFF'}`;
       }
 
-      const rememberedAnswer = sessionAnswered[qKey] || userMCQProgress.answers[qKey];
+      const rememberedAnswer = sessionAnswered[qKey];
       const prevStat = userMCQProgress.answers[qKey] || { timesCorrect: 0 };
       const timesCorrect = prevStat.timesCorrect || 0;
 
@@ -6398,7 +6575,7 @@
   function checkSessionCompletion() {
     const answeredCount = activeExamPool.filter(q => {
       const qKey = String(q.id !== undefined ? q.id : currentMCQIndex);
-      return sessionAnswered[qKey] || userMCQProgress.answers[qKey];
+      return Boolean(sessionAnswered[qKey]);
     }).length;
 
     if (answeredCount >= activeExamPool.length && activeExamPool.length > 0) {
@@ -6954,6 +7131,7 @@
       activeExamPool = allQuestions.filter(q => q.subject === selectedSubject).map(q => autoShuffleOptions(q));
     }
     currentMCQIndex = 0;
+    sessionAnswered = {};
     const quizCard = document.getElementById("quiz-card");
     const summaryCard = document.getElementById("summary-card");
     if (quizCard) quizCard.style.display = "block";

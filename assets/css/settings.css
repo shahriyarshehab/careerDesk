@@ -1,0 +1,391 @@
+/* ==========================================================================
+   CareerDesk — Settings Module: Subject Manager, Backup, Restore & Reset
+   ========================================================================== */
+
+  /* ===== Settings ===== */
+  .settings-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    padding: 12px 0;
+    border-top: 1px solid var(--border);
+  }
+
+  .settings-row:first-of-type {
+    border-top: none;
+    padding-top: 2px;
+  }
+
+  .settings-btn-group {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .settings-btn-group .pill.active-theme {
+    background: linear-gradient(135deg, var(--accent1), var(--accent2));
+    color: #fff;
+    border-color: transparent;
+  }
+
+  /* ===== Data Management & Auto-Backup Styling ===== */
+  .glass-sub {
+    background: var(--surface-strong);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 16px;
+    transition: background .3s ease, border-color .3s ease;
+  }
+
+  .auto-sync-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .auto-sync-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .sync-icon {
+    font-size: 22px;
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .auto-sync-status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 14px;
+    border-radius: 10px;
+    font-size: 12.5px;
+    font-weight: 600;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text-soft);
+    transition: all .3s ease;
+  }
+
+  .auto-sync-status-badge.active {
+    background: rgba(51, 224, 199, 0.12);
+    border-color: var(--accent2);
+    color: var(--text);
+  }
+
+  .status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #8890A5;
+    transition: background .3s ease, box-shadow .3s ease;
+  }
+
+  .status-dot.active {
+    background: var(--accent2);
+    box-shadow: 0 0 10px var(--accent2);
+    animation: statusPulse 2s ease-in-out infinite;
+  }
+
+  @keyframes statusPulse {
+
+    0%,
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    50% {
+      opacity: 0.5;
+      transform: scale(1.2);
+    }
+  }
+
+  /* Themed action buttons (Import & Export) */
+  label.pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-sans);
+    font-weight: 600;
+    font-size: 14px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    padding: 10px 18px;
+    border-radius: 12px;
+    cursor: pointer;
+    user-select: none;
+    transition: transform .15s ease, background .15s ease, border-color .15s ease, box-shadow .15s ease;
+  }
+
+  .theme-action-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 20px !important;
+    margin: 0;
+    line-height: 1.4;
+    transition: all .25s ease !important;
+  }
+
+  .theme-action-btn .btn-icon {
+    font-size: 15px;
+  }
+
+  .theme-action-btn:hover,
+  label.pill:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
+  }
+
+  .export-pill {
+    background: linear-gradient(135deg, rgba(139, 124, 255, 0.12), rgba(51, 224, 199, 0.12)) !important;
+    border-color: var(--accent1) !important;
+    color: var(--text) !important;
+  }
+
+  .export-pill:hover {
+    background: linear-gradient(135deg, rgba(139, 124, 255, 0.22), rgba(51, 224, 199, 0.22)) !important;
+    box-shadow: 0 6px 20px rgba(139, 124, 255, 0.25) !important;
+  }
+
+  .import-pill {
+    background: linear-gradient(135deg, rgba(51, 224, 199, 0.12), rgba(245, 194, 77, 0.12)) !important;
+    border-color: var(--accent2) !important;
+    color: var(--text) !important;
+  }
+
+  .import-pill:hover {
+    background: linear-gradient(135deg, rgba(51, 224, 199, 0.22), rgba(245, 194, 77, 0.22)) !important;
+    box-shadow: 0 6px 20px rgba(51, 224, 199, 0.25) !important;
+  }
+
+  .primary-glow {
+    background: linear-gradient(135deg, var(--accent1), var(--accent2)) !important;
+    color: #fff !important;
+    border-color: transparent !important;
+    box-shadow: 0 4px 16px rgba(139, 124, 255, 0.3) !important;
+  }
+
+  .primary-glow:hover {
+    box-shadow: 0 8px 24px rgba(139, 124, 255, 0.45) !important;
+  }
+
+  /* Toast Notification */
+  .toast-notification {
+    position: fixed;
+    bottom: 28px;
+    right: 28px;
+    z-index: 9999;
+    padding: 12px 22px;
+    border-radius: 14px;
+    background: var(--surface-strong);
+    border: 1px solid var(--accent2);
+    color: var(--text);
+    font-family: var(--font-sans);
+    font-weight: 600;
+    font-size: 14px;
+    backdrop-filter: blur(16px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transform: translateY(80px);
+    opacity: 0;
+    transition: all .35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    pointer-events: none;
+  }
+
+  .toast-notification.show {
+    transform: translateY(0);
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .toast-notification.error {
+    border-color: var(--accent3);
+  }
+
+
+  /* ===== Subject Manager (Settings) ===== */
+  .subject-count-badge {
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 12px;
+    background: var(--surface-strong);
+    border: 1px solid var(--border);
+    color: var(--accent1);
+    font-weight: 600;
+  }
+
+  .subject-manager-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .subject-manager-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 9px 14px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    transition: all 0.18s ease;
+  }
+
+  .subject-manager-row:hover {
+    border-color: rgba(103, 232, 249, 0.3);
+    background: rgba(255, 255, 255, 0.03);
+  }
+
+  .subject-info {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .subject-manager-name {
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--text);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .subject-stats-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+  }
+
+  .subj-stat-pill {
+    font-size: 10.5px;
+    padding: 1.5px 6px;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    font-weight: 500;
+    white-space: nowrap;
+  }
+
+  .subj-stat-pill.subtle {
+    opacity: 0.65;
+  }
+
+  .subject-row-actions {
+    flex-shrink: 0;
+  }
+
+  .subject-manager-row.subject-deleted {
+    opacity: 0.6;
+    background: rgba(244, 63, 94, 0.06);
+    border-color: rgba(244, 63, 94, 0.25);
+  }
+
+  .subject-manager-row.subject-deleted .subject-manager-name {
+    text-decoration: line-through;
+    color: var(--text-soft);
+  }
+
+  .subject-restore-btn {
+    font-size: 11.5px !important;
+    padding: 6px 10px !important;
+    color: var(--accent1) !important;
+    border-color: var(--accent1) !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 0 !important;
+    border-radius: 8px !important;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    cursor: pointer;
+  }
+
+  .subject-restore-btn svg {
+    width: 13px;
+    height: 13px;
+    flex-shrink: 0;
+  }
+
+  .subject-restore-btn span {
+    max-width: 0;
+    opacity: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    display: inline-block;
+    vertical-align: middle;
+    margin-left: 0;
+    transition: max-width 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+                opacity 0.2s ease,
+                margin-left 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  .subject-restore-btn:hover {
+    background: rgba(103, 232, 249, 0.15) !important;
+    border-color: var(--accent1) !important;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(103, 232, 249, 0.22);
+  }
+
+  .subject-restore-btn:hover span {
+    max-width: 75px;
+    opacity: 1;
+    margin-left: 6px;
+  }
+
+  .routine-hero {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    margin-bottom: 16px;
+    padding: 22px 24px;
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    background: linear-gradient(115deg, var(--surface-strong), rgba(6, 182, 212, 0.08));
+    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.14), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(16px);
+  }
+
+  .routine-hero-copy {
+    min-width: 0;
+  }
+
+  .routine-eyebrow {
+    display: block;
+    margin-bottom: 6px;
+    color: var(--accent2);
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 1.4px;
+  }
+
+  .routine-lead {
+    margin: 5px 0 0;
+    color: var(--text-soft);
+    font-size: 12px;
+  }
+

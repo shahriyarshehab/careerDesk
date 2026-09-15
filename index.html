@@ -12,7 +12,19 @@
   <link
     href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
     rel="stylesheet">
-  <link rel="stylesheet" href="assets/css/style.css">
+  <!-- Modular Design System Stylesheets -->
+  <link rel="stylesheet" href="assets/css/base.css">
+  <link rel="stylesheet" href="assets/css/components.css">
+  <link rel="stylesheet" href="assets/css/routine.css">
+  <link rel="stylesheet" href="assets/css/quotes.css">
+  <link rel="stylesheet" href="assets/css/notes.css">
+  <link rel="stylesheet" href="assets/css/tracker.css">
+  <link rel="stylesheet" href="assets/css/countdown.css">
+  <link rel="stylesheet" href="assets/css/syllabus.css">
+  <link rel="stylesheet" href="assets/css/flashcards.css">
+  <link rel="stylesheet" href="assets/css/mcq.css">
+  <link rel="stylesheet" href="assets/css/settings.css">
+  <link rel="stylesheet" href="assets/css/modals.css">
   <script src="assets/js/lucide.min.js"></script>
 </head>
 
@@ -434,16 +446,27 @@
             <span class="flash-count-chip" id="flashCountBadge"><i data-lucide="layers"></i> 0 Cards</span>
           </div>
           <div class="flash-toolbar-right">
-            <button class="pill" id="syncFlashcardsBtn"
-              title="Generate active recall flashcards directly from BCS & Govt Job MCQs">
-              <i data-lucide="zap"></i> Sync from MCQs
-            </button>
-            <button class="pill toggle-form-btn" id="toggleFlashFormBtn">
-              <i data-lucide="plus"></i> Create Card
-            </button>
-            <button class="pill solid btn-exam-mode" id="startExamBtn" title="Launch Interactive Flashcard Exam">
-              <i data-lucide="target"></i> Start Exam Mode
-            </button>
+            <div class="btn-group category-action-group flashcard-action-group" id="flashcard-btn-group">
+              <button type="button" class="cat-group-btn cat-add-btn flash-add-btn" id="add-flashcard-btn" title="Add Flashcard" aria-label="Add Flashcard">
+                <i data-lucide="plus"></i> <span>Add Card</span>
+              </button>
+              <button type="button" class="cat-group-btn" id="syncFlashcardsBtn"
+                title="Generate active recall flashcards directly from BCS & Govt Job MCQs" aria-label="Sync MCQs">
+                <i data-lucide="zap"></i> <span>Sync MCQs</span>
+              </button>
+              <button type="button" class="cat-group-btn cat-edit-btn flash-edit-btn" id="toggle-edit-card-btn" title="Edit Flashcards" aria-label="Edit Flashcards">
+                <i data-lucide="edit-2"></i> <span>Edit Card</span>
+              </button>
+              <button type="button" class="cat-group-btn cat-shuffle-btn flash-shuffle-btn" id="shuffle-flashcards-btn" title="Shuffle Flashcards" aria-label="Shuffle Flashcards">
+                <i data-lucide="shuffle"></i> <span>Shuffle</span>
+              </button>
+              <button type="button" class="cat-group-btn cat-del-trigger flash-del-btn" id="toggle-delete-card-btn" title="Delete Flashcards" aria-label="Delete Flashcards">
+                <i data-lucide="trash-2"></i> <span>Delete Card</span>
+              </button>
+              <button type="button" class="cat-group-btn btn-exam-mode" id="startExamBtn" title="Launch Interactive Flashcard Exam" aria-label="Launch Flashcard Exam">
+                <i data-lucide="target"></i> <span>Exam Mode</span>
+              </button>
+            </div>
           </div>
         </div>
 
@@ -468,6 +491,7 @@
           </div>
         </div>
 
+        <div id="flashModeBanner" style="display:none;"></div>
         <div class="flash-grid" id="flashGrid"></div>
       </div>
 
@@ -498,14 +522,13 @@
                 title="Practice with instant feedback and explanations"><i data-lucide="book-open"></i>
                 Practice</button>
               <button class="pill btn-mode-switch btn-exam20" id="start-exam-20-btn"
-                title="Start 20-question timed model test"><i data-lucide="clipboard-check"></i> 20-Q Exam
-                (15m)</button>
+                title="Start 20-question timed model test"><i data-lucide="clipboard-check"></i> Exam
+              </button>
             </div>
             <div class="mcq-quick-tools">
-              <button class="icon-btn" id="mcqSoundToggleBtn" title="Toggle Sound Feedback"><i
-                  data-lucide="volume-2"></i></button>
+              <button class="icon-btn" id="mcqSoundToggleBtn" title="Toggle Sound Feedback"><i data-lucide="volume-2"></i></button>
               <button class="pill subtle" id="mcqAutoAdvanceToggle" title="Auto-advance when answered correctly"><i
-                  data-lucide="zap"></i> Auto: <b>ON</b></button>
+                  data-lucide="zap"></i> Auto Change: <b>ON</b></button>
               <button class="pill subtle" id="open-add-modal" title="Add / Import custom questions"><i
                   data-lucide="file-up"></i> Custom Qs</button>
               <button class="pill subtle" id="reset-btn" title="Restart question pool"><i data-lucide="rotate-ccw"></i>
@@ -689,12 +712,12 @@
           <div class="progress-fill" id="syllabusOverallFill" style="width:0%"></div>
         </div>
       </div>
-      <div class="entry-form">
-        <div class="entry-form-grid">
-          <input type="text" id="newCategoryInput" list="appSubjectDatalist" placeholder="Category / Subject Name (Choose or type)">
-          <input type="text" id="newTopicInput" placeholder="First Topic (Optional)">
+      <div class="entry-form syllabus-entry-form">
+        <div class="syllabus-form-row">
+          <input type="text" id="newCategoryInput" list="appSubjectDatalist" placeholder="Category / Subject Name (Choose or type)" class="syllabus-subject-input">
+          <input type="text" id="newTopicInput" placeholder="First Topic (Optional)" class="syllabus-topic-input">
+          <button class="pill solid" id="addCategoryBtn" type="button"><i data-lucide="plus"></i> <span>Add Category</span></button>
         </div>
-        <button class="pill solid" id="addCategoryBtn">Add Category & Topic</button>
       </div>
       <div id="categoryList"></div>
     </section>
@@ -1056,6 +1079,44 @@
     </div>
   </div>
 
+  <!-- Edit Flashcard Modal -->
+  <div class="modal-overlay" id="editFlashModal" style="display:none;">
+    <div class="glass modal-card" style="max-width:520px; width:92%; padding:24px; position:relative;">
+      <div class="modal-header"
+        style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+        <h3 class="modal-title"
+          style="margin:0; font-family:var(--font-display); font-size:17px; color:var(--text); display:flex; align-items:center; gap:8px;">
+          <i data-lucide="edit-3" style="width:18px; height:18px; color:var(--accent1);"></i> Edit Flashcard
+        </h3>
+        <button class="modal-close" id="closeEditFlashModal" type="button" aria-label="Close modal"
+          style="background:none; border:none; color:var(--text-soft); cursor:pointer; display:flex; align-items:center; justify-content:center; padding:4px;">
+          <i data-lucide="x"></i>
+        </button>
+      </div>
+      <input type="hidden" id="editFlashId">
+      <div class="form-group" style="margin-bottom:12px;">
+        <label style="display:block; font-size:13px; font-weight:600; margin-bottom:6px; color:var(--text-soft);">Front Side (Question / Concept):</label>
+        <textarea id="editFlashFront" rows="3" required
+          style="width:100%; padding:10px 12px; border-radius:10px; border:1px solid var(--border); background:var(--surface); color:var(--text); font-family:inherit; font-size:13px; resize:vertical;"></textarea>
+      </div>
+      <div class="form-group" style="margin-bottom:12px;">
+        <label style="display:block; font-size:13px; font-weight:600; margin-bottom:6px; color:var(--text-soft);">Back Side (Answer / Explanation):</label>
+        <textarea id="editFlashBack" rows="3" required
+          style="width:100%; padding:10px 12px; border-radius:10px; border:1px solid var(--border); background:var(--surface); color:var(--text); font-family:inherit; font-size:13px; resize:vertical;"></textarea>
+      </div>
+      <div class="form-group" style="margin-bottom:18px;">
+        <label style="display:block; font-size:13px; font-weight:600; margin-bottom:6px; color:var(--text-soft);">Category / Subject:</label>
+        <select id="editFlashCategory" class="pill" style="width:100%; max-width:100%; padding:9px 12px; border-radius:10px; border:1px solid var(--border); background:var(--surface); color:var(--text); font-family:inherit; font-size:13px;">
+          <option value="">No Category</option>
+        </select>
+      </div>
+      <div class="btn-group" style="justify-content:flex-end;">
+        <button class="pill" id="cancelEditFlashBtn" type="button">Cancel</button>
+        <button class="pill solid" id="saveEditFlashBtn" type="button"><i data-lucide="check"></i> <span>Save Changes</span></button>
+      </div>
+    </div>
+  </div>
+
   <!-- Exam Submission Confirmation Modal -->
   <div class="modal-overlay" id="examSubmitModal">
     <div class="modal-card glass" style="max-width:440px; text-align:center; padding:28px 24px;">
@@ -1152,14 +1213,28 @@
     </div>
   </div>
 
-  <div id="examOverlay" style="display:none;"></div>
+  <div id="examOverlay" class="exam-overlay" style="display:none;"></div>
 
-  <script src="assets/js/script.js"></script>
+  <!-- Modular Application Engine Scripts -->
+  <script src="assets/js/core.js"></script>
+  <script src="assets/js/routine.js"></script>
+  <script src="assets/js/quotes.js"></script>
+  <script src="assets/js/notes.js"></script>
+  <script src="assets/js/tracker.js"></script>
+  <script src="assets/js/countdown.js"></script>
+  <script src="assets/js/syllabus.js"></script>
+  <script src="assets/js/flashcards.js"></script>
+  <script src="assets/js/questions-data.js"></script>
+  <script src="assets/js/mcq.js"></script>
+  <script src="assets/js/settings.js"></script>
+  <script src="assets/js/app.js"></script>
   <script>
     window.addEventListener('load', function () {
       if (window.lucide) lucide.createIcons();
     });
   </script>
+
+  
 </body>
 
 </html>
