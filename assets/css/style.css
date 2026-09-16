@@ -4,6 +4,7 @@
 
 @import url('base.css');
 @import url('components.css');
+@import url('home.css');
 @import url('routine.css');
 @import url('quotes.css');
 @import url('notes.css');
@@ -13,4 +14,6 @@
 @import url('flashcards.css');
 @import url('mcq.css');
 @import url('settings.css');
+@import url('profile.css');
+@import url('security.css');
 @import url('modals.css');

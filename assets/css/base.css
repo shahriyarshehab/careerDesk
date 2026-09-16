@@ -488,6 +488,15 @@
   }
 
   /* --- Futuristic Per-Tab Neon Hologram Accents on Hover --- */
+  /* 0. Home: Radiant Cyber Aurora / Bright Aqua Hologram */
+  .tab-btn[data-tab="home"]:hover:not(.active) i[data-lucide],
+  .tab-btn[data-tab="home"]:hover:not(.active) svg,
+  .tab-btn[data-tab="home"]:hover:not(.active) .lucide {
+    color: #22d3ee !important;
+    stroke: #22d3ee !important;
+    filter: drop-shadow(0 0 6px rgba(34, 211, 238, 0.8));
+  }
+
   /* 1. Routine: Electric Cyber Cyan */
   .tab-btn[data-tab="routine"]:hover:not(.active) i[data-lucide],
   .tab-btn[data-tab="routine"]:hover:not(.active) svg,
@@ -542,14 +551,16 @@
     filter: drop-shadow(0 0 6px rgba(129, 140, 248, 0.8));
   }
 
-  /* 7. Settings: Prism Cyan / Rotating Titanium Gears */
+  /* 7. Profile & Settings: Holographic Cyber Lavender / Prism Violet */
+  .tab-btn[data-tab="profile"]:hover:not(.active) i[data-lucide],
+  .tab-btn[data-tab="profile"]:hover:not(.active) svg,
+  .tab-btn[data-tab="profile"]:hover:not(.active) .lucide,
   .tab-btn[data-tab="settings"]:hover:not(.active) i[data-lucide],
   .tab-btn[data-tab="settings"]:hover:not(.active) svg,
   .tab-btn[data-tab="settings"]:hover:not(.active) .lucide {
-    color: #67e8f9 !important;
-    stroke: #67e8f9 !important;
-    transform: scale(1.18) rotate(45deg);
-    filter: drop-shadow(0 0 6px rgba(103, 232, 249, 0.8));
+    color: #a78bfa !important;
+    stroke: #a78bfa !important;
+    filter: drop-shadow(0 0 6px rgba(167, 139, 250, 0.8));
   }
 
   /* Light Theme Specific Hover States */
@@ -559,6 +570,14 @@
     background: linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, rgba(241, 245, 249, 0.9) 100%);
     border-color: rgba(99, 102, 241, 0.22);
     box-shadow: 0 4px 14px rgba(15, 23, 42, 0.08), inset 0 1px 0 rgba(255, 255, 255, 1);
+  }
+
+  html[data-theme="light"] .tab-btn[data-tab="home"]:hover:not(.active) i[data-lucide],
+  html[data-theme="light"] .tab-btn[data-tab="home"]:hover:not(.active) svg,
+  html[data-theme="light"] .tab-btn[data-tab="home"]:hover:not(.active) .lucide {
+    color: #0891b2 !important;
+    stroke: #0891b2 !important;
+    filter: drop-shadow(0 0 4px rgba(8, 145, 178, 0.5));
   }
 
   html[data-theme="light"] .tab-btn[data-tab="routine"]:hover:not(.active) i[data-lucide],
@@ -609,12 +628,15 @@
     filter: drop-shadow(0 0 4px rgba(79, 70, 229, 0.5));
   }
 
+  html[data-theme="light"] .tab-btn[data-tab="profile"]:hover:not(.active) i[data-lucide],
+  html[data-theme="light"] .tab-btn[data-tab="profile"]:hover:not(.active) svg,
+  html[data-theme="light"] .tab-btn[data-tab="profile"]:hover:not(.active) .lucide,
   html[data-theme="light"] .tab-btn[data-tab="settings"]:hover:not(.active) i[data-lucide],
   html[data-theme="light"] .tab-btn[data-tab="settings"]:hover:not(.active) svg,
   html[data-theme="light"] .tab-btn[data-tab="settings"]:hover:not(.active) .lucide {
-    color: #0891b2 !important;
-    stroke: #0891b2 !important;
-    filter: drop-shadow(0 0 4px rgba(8, 145, 178, 0.5));
+    color: #7c3aed !important;
+    stroke: #7c3aed !important;
+    filter: drop-shadow(0 0 4px rgba(124, 58, 237, 0.5));
   }
 
   .tab-btn.active,

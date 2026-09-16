@@ -4,6 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
   <title>CareerDesk — Career Preparation Workspace</title>
   <link rel="icon" type="image/svg+xml"
     href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20100%20100%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22g%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%236366F1%22/%3E%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%2306B6D4%22/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20width%3D%22100%22%20height%3D%22100%22%20rx%3D%2224%22%20fill%3D%22%230B0F19%22/%3E%3Crect%20x%3D%2212%22%20y%3D%2212%22%20width%3D%2276%22%20height%3D%2276%22%20rx%3D%2218%22%20fill%3D%22url%28%23g%29%22/%3E%3Ctext%20x%3D%2250%22%20y%3D%2263%22%20font-family%3D%22system-ui%2C%20sans-serif%22%20font-size%3D%2236%22%20font-weight%3D%22800%22%20text-anchor%3D%22middle%22%20fill%3D%22%23FFFFFF%22%3ECD%3C/text%3E%3C/svg%3E">
@@ -15,6 +16,7 @@
   <!-- Modular Design System Stylesheets -->
   <link rel="stylesheet" href="assets/css/base.css">
   <link rel="stylesheet" href="assets/css/components.css">
+  <link rel="stylesheet" href="assets/css/home.css">
   <link rel="stylesheet" href="assets/css/routine.css">
   <link rel="stylesheet" href="assets/css/quotes.css">
   <link rel="stylesheet" href="assets/css/notes.css">
@@ -24,7 +26,15 @@
   <link rel="stylesheet" href="assets/css/flashcards.css">
   <link rel="stylesheet" href="assets/css/mcq.css">
   <link rel="stylesheet" href="assets/css/settings.css">
+  <link rel="stylesheet" href="assets/css/profile.css">
+  <link rel="stylesheet" href="assets/css/security.css">
   <link rel="stylesheet" href="assets/css/modals.css">
+
+  <!-- Firebase SDK (Compat) for Native Web Authentication & Cloud Sync -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+
   <script src="assets/js/lucide.min.js"></script>
 </head>
 
@@ -58,7 +68,9 @@
 
     <!-- Nav Menu Pills -->
     <nav class="tabs nav-menu" role="tablist" aria-label="Primary Navigation">
-      <button class="tab-btn nav-link active" data-tab="routine" role="tab" aria-selected="true" title="Study Routine"
+      <button class="tab-btn nav-link active" data-tab="home" role="tab" aria-selected="true" title="Mission Control Home"
+        aria-label="Dashboard Home"><i data-lucide="layout-dashboard"></i><span>Home</span></button>
+      <button class="tab-btn nav-link" data-tab="routine" role="tab" aria-selected="false" title="Study Routine"
         aria-label="Study Routine"><i data-lucide="calendar-days"></i><span>Routine</span></button>
       <button class="tab-btn nav-link" data-tab="notes" role="tab" aria-selected="false" title="Smart Notes"
         aria-label="Smart Notes"><i data-lucide="notebook-pen"></i><span>Notes</span></button>
@@ -70,8 +82,8 @@
         aria-label="Exam Targets"><i data-lucide="calendar-clock"></i><span>Exams</span></button>
       <button class="tab-btn nav-link" data-tab="syllabus" role="tab" aria-selected="false" title="Syllabus"
         aria-label="Syllabus"><i data-lucide="list-checks"></i><span>Syllabus</span></button>
-      <button class="tab-btn nav-link" data-tab="settings" role="tab" aria-selected="false" title="Settings"
-        aria-label="Settings"><i data-lucide="settings"></i><span>Settings</span></button>
+      <button class="tab-btn nav-link" data-tab="profile" role="tab" aria-selected="false" title="User Profile &amp; Settings"
+        aria-label="User Profile"><i data-lucide="user"></i><span>Profile</span></button>
     </nav>
 
     <!-- Header Actions & Mini Floating Timer Widget -->
@@ -93,8 +105,11 @@
   <main>
     <datalist id="appSubjectDatalist"></datalist>
 
+    <!-- ===== HOME MISSION CONTROL DASHBOARD ===== -->
+    <section class="panel active" id="panel-home"></section>
+
     <!-- ===== ROUTINE ===== -->
-    <section class="panel active" id="panel-routine">
+    <section class="panel" id="panel-routine">
       <div style="height: 12px;"></div>
 
       <div class="quote-ticker glass" id="quoteTicker">
@@ -705,9 +720,15 @@
       <div id="categoryList"></div>
     </section>
 
-    <!-- ===== SETTINGS ===== -->
-    <section class="panel" id="panel-settings">
-      <h2 class="section-title">Settings & Data Management</h2>
+    <!-- ===== USER PROFILE & SETTINGS ===== -->
+    <section class="panel" id="panel-profile">
+      <!-- User Profile, Firebase Auth & Cloud Sync Hub -->
+      <div class="glass user-profile-card" id="userProfileCard"></div>
+
+      <!-- Privacy & Security Anti-Hacking Vault -->
+      <div class="glass security-vault-card" id="securityVaultCard"></div>
+
+      <h2 class="section-title">Settings &amp; Dashboard Customization</h2>
 
       <div class="glass" style="padding:20px; margin-bottom:18px;">
         <h2 class="section-title" style="font-size:16px;">Theme & Display</h2>
@@ -852,6 +873,27 @@
       <div class="glass data-management-card" style="padding:22px; border-color:var(--border);">
         <h2 class="section-title" style="font-size:17px; margin-bottom:16px;">Data Storage & Backup</h2>
 
+        <!-- Online Cloud Sync (Firebase) Sub-Section -->
+        <div class="settings-row" style="margin-bottom:16px; padding-bottom:14px; border-bottom:1px solid var(--border); border-top:none;">
+          <div>
+            <strong style="font-size:15px; display:flex; align-items:center; gap:7px; color:var(--text); margin-bottom:2px;">
+              <i data-lucide="cloud" style="color:var(--accent2); width:18px; height:18px;"></i>
+              Online Cloud Backup (Firebase)
+            </strong>
+            <span style="font-size:12.5px; color:var(--text-soft);" id="cloudBackupCardSubtext">
+              Synchronize and convert all your local data to your secure online cloud account
+            </span>
+          </div>
+          <div class="settings-btn-group data-action-buttons btn-group">
+            <button class="pill theme-action-btn" id="btnUploadCloudFromDataCard" type="button">
+              <i data-lucide="upload-cloud"></i> <span>Upload to Cloud</span>
+            </button>
+            <button class="pill theme-action-btn" id="btnRestoreCloudFromDataCard" type="button">
+              <i data-lucide="download-cloud"></i> <span>Restore Cloud</span>
+            </button>
+          </div>
+        </div>
+
         <!-- Auto Sync Sub-Section -->
         <div class="auto-sync-box glass-sub">
           <div class="auto-sync-header">
@@ -887,9 +929,9 @@
               <i data-lucide="download"></i> <span>Export (JSON)</span>
             </button>
             <label class="pill theme-action-btn import-pill" for="importDataInput">
-              <i data-lucide="upload"></i> <span>Import (JSON)</span>
+              <i data-lucide="upload"></i> <span>Import (JSON / Vault)</span>
             </label>
-            <input type="file" id="importDataInput" accept="application/json" style="display:none;">
+            <input type="file" id="importDataInput" accept=".json,.vault,application/json" style="display:none;">
           </div>
         </div>
 
@@ -1204,7 +1246,11 @@
   <script src="assets/js/flashcards.js"></script>
   <script src="assets/js/questions-data.js"></script>
   <script src="assets/js/mcq.js"></script>
+  <script src="assets/js/security.js"></script>
+  <script src="assets/js/firebase-config.js"></script>
+  <script src="assets/js/firebase-sync.js"></script>
   <script src="assets/js/settings.js"></script>
+  <script src="assets/js/home.js"></script>
   <script src="assets/js/app.js"></script>
   <script>
     window.addEventListener('load', function () {

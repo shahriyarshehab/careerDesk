@@ -93,15 +93,17 @@ document.addEventListener('click', (e) => {
 // ===== Tabs =====
 
 function normalizeTabName(tabName) {
-  if (!tabName) return 'routine';
+  if (!tabName) return 'home';
+  if (tabName === 'dashboard') return 'home';
   if (tabName === 'quiz') return 'flashcards';
   if (tabName === 'exams') return 'countdown';
+  if (tabName === 'settings') return 'profile';
   return tabName;
 }
 
 function activateTab(rawTabName, persist = false) {
   const tabName = normalizeTabName(rawTabName);
-  const targetPanel = document.getElementById('panel-' + tabName);
+  const targetPanel = document.getElementById('panel-' + tabName) || (tabName === 'profile' ? document.getElementById('panel-settings') : null);
   if (!targetPanel) return;
 
   document.querySelectorAll('.tab-btn').forEach(b => {
@@ -111,7 +113,8 @@ function activateTab(rawTabName, persist = false) {
     b.setAttribute('aria-selected', String(isActive));
   });
   document.querySelectorAll('.panel').forEach(p => {
-    p.classList.toggle('active', p.id === 'panel-' + tabName);
+    const isTarget = p === targetPanel;
+    p.classList.toggle('active', isTarget);
   });
 
   if (persist) {
@@ -119,7 +122,19 @@ function activateTab(rawTabName, persist = false) {
     try { if (window.location.hash !== '#' + tabName) history.replaceState(null, '', '#' + tabName); } catch (e) { }
   }
 
-  if (tabName === 'settings') {
+  if (tabName === 'home') {
+    if (typeof renderHomeDashboard === 'function') {
+      renderHomeDashboard();
+    }
+  }
+
+  if (tabName === 'profile' || tabName === 'settings') {
+    if (typeof renderUserProfileUI === 'function') {
+      renderUserProfileUI();
+    }
+    if (typeof renderSecurityVaultUI === 'function') {
+      renderSecurityVaultUI();
+    }
     renderSubjectManager();
     renderQuoteManager();
     syncQuoteSettings();
@@ -141,12 +156,12 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
 try {
   const hashTab = window.location.hash ? window.location.hash.replace('#', '') : null;
   const savedTab = localStorage.getItem(ACTIVE_TAB_KEY);
-  const initialTab = normalizeTabName(hashTab || savedTab || 'routine');
+  const initialTab = normalizeTabName(hashTab || savedTab || 'home');
   if (initialTab) activateTab(initialTab, false);
 } catch (e) { }
 
 window.addEventListener('hashchange', () => {
-  const rawTab = window.location.hash ? window.location.hash.replace('#', '') : 'routine';
+  const rawTab = window.location.hash ? window.location.hash.replace('#', '') : 'home';
   activateTab(normalizeTabName(rawTab), false);
 });
 
@@ -164,13 +179,14 @@ function initCommandPalette() {
   let currentItems = [];
 
   const staticCommands = [
+    { id: 'tab-home', category: 'Navigation', icon: 'layout-dashboard', title: 'Go to Home Dashboard', subtitle: 'Mission Control & daily briefing', action: () => activateTab('home', true) },
     { id: 'tab-routine', category: 'Navigation', icon: 'calendar-days', title: 'Go to Routine', subtitle: 'View daily study schedule', action: () => activateTab('routine', true) },
     { id: 'tab-notes', category: 'Navigation', icon: 'notebook-pen', title: 'Go to Smart Notes', subtitle: 'Study notes, formulas & tags', action: () => activateTab('notes', true) },
     { id: 'tab-tracker', category: 'Navigation', icon: 'timer', title: 'Go to Tracker & Focus', subtitle: 'Pomodoro timer & activity stats', action: () => activateTab('tracker', true) },
     { id: 'tab-quiz', category: 'Navigation', icon: 'brain', title: 'Go to Quiz & Cards', subtitle: 'Practice flashcards & MCQs', action: () => activateTab('flashcards', true) },
     { id: 'tab-countdown', category: 'Navigation', icon: 'calendar-clock', title: 'Go to Exam Targets', subtitle: 'Exam countdowns & milestones', action: () => activateTab('countdown', true) },
     { id: 'tab-syllabus', category: 'Navigation', icon: 'list-checks', title: 'Go to Syllabus', subtitle: 'BCS syllabus & topic progress', action: () => activateTab('syllabus', true) },
-    { id: 'tab-settings', category: 'Navigation', icon: 'settings', title: 'Go to Settings', subtitle: 'Theme, backups & options', action: () => activateTab('settings', true) },
+    { id: 'tab-profile', category: 'Navigation', icon: 'user', title: 'Go to User Profile', subtitle: 'Cloud backup, sync & settings', action: () => activateTab('profile', true) },
     {
       id: 'act-pomodoro', category: 'Actions', icon: 'zap', title: 'Start 25m Pomodoro Focus', subtitle: 'Start 25-min deep focus session',
       action: () => {
@@ -433,6 +449,18 @@ function initCommandPalette() {
   syncMiniTimerWidget();
 
   tickInterval = setInterval(() => { tickTimer(); }, 1000);
+
+  if (typeof renderHomeDashboard === 'function') {
+    renderHomeDashboard();
+  }
+
+  if (typeof renderUserProfileUI === 'function') {
+    renderUserProfileUI();
+  }
+
+  if (typeof renderSecurityVaultUI === 'function') {
+    renderSecurityVaultUI();
+  }
 
   checkFirstTimeUser();
 

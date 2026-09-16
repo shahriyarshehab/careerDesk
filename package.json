@@ -1,0 +1,17 @@
+{
+  "name": "careerdesk",
+  "version": "2.0.0",
+  "description": "CareerDesk — High-performance career preparation workspace",
+  "main": "serve.js",
+  "scripts": {
+    "start": "node serve.js"
+  },
+  "keywords": [
+    "careerdesk",
+    "bcs",
+    "jobprep",
+    "study-tracker"
+  ],
+  "author": "CareerDesk",
+  "license": "MIT"
+}
