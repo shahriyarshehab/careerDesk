@@ -1743,8 +1743,8 @@ function renderAuthPageUI() {
     <div class="auth-card">
       <!-- Hero Header -->
       <div class="auth-card-hero">
-        <div class="auth-hero-icon-wrap">
-          <i data-lucide="sparkles" style="width:28px; height:28px;"></i>
+        <div class="auth-hero-icon-wrap" style="background:transparent; box-shadow:none; padding:0; width:54px; height:54px; margin:0 auto 16px;">
+          <img src="assets/icons/favicon.svg" alt="CareerDesk logo" style="width:54px; height:54px; border-radius:15px; box-shadow:0 8px 24px rgba(99,102,241,0.35);">
         </div>
         <h2 class="auth-card-title">Welcome to CareerDesk</h2>
         <p class="auth-card-subtitle">Sign in or create your account to synchronize your study routines, notes, syllabus checklist, and mistake bank across all your devices.</p>
