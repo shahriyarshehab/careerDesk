@@ -913,15 +913,60 @@
         <!-- Firestore Real-Time Cloud Sync Sub-Section -->
         <div class="settings-row" style="border-top:none; padding-top:0; padding-bottom:14px; border-bottom:1px solid var(--border);">
           <div>
-            <strong style="font-size:14.5px; display:block; color:var(--text); margin-bottom:2px;">Individual Cloud Storage</strong>
+            <div style="display:flex; align-items:center; gap:8px; margin-bottom:4px; flex-wrap:wrap;">
+              <strong style="font-size:14.5px; color:var(--text);">Individual Cloud Storage</strong>
+              <span class="pill subtle" id="cloudSyncLiveBadge" style="font-size:11px; padding:2px 8px; color:#10b981; border-color:rgba(16,185,129,0.3); background:rgba(16,185,129,0.08);">
+                <i data-lucide="check-circle" style="width:12px; height:12px;"></i> Auto-Sync Active
+              </span>
+            </div>
             <span style="font-size:12.5px; color:var(--text-soft);" id="cloudSyncStatusDesc">
-              Your routines, notes, syllabus progress, and mistake bank automatically sync with your personal Firestore account.
+              Your routines, notes, syllabus progress, and mistake bank automatically sync with your personal Firestore account with offline resilience.
             </span>
           </div>
           <div class="settings-btn-group data-action-buttons btn-group">
             <button class="pill theme-action-btn" id="btnSyncFirestoreNow" type="button" title="Sync data to Firestore now">
               <i data-lucide="refresh-cw"></i> <span>Sync Now</span>
             </button>
+            <button class="pill theme-action-btn" id="btnCreateSnapshotNow" type="button" title="Create a point-in-time cloud backup snapshot">
+              <i data-lucide="camera"></i> <span>Create Snapshot</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Versioned Snapshots History Sub-Section -->
+        <div class="settings-row" style="margin-top:14px; padding-top:14px; border-top:none; border-bottom:1px solid var(--border); padding-bottom:14px;">
+          <div style="flex:1; width:100%;">
+            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px; flex-wrap:wrap; gap:8px;">
+              <div>
+                <strong style="font-size:14.5px; display:block; color:var(--text); margin-bottom:2px;">Point-in-Time Cloud Snapshots</strong>
+                <span style="font-size:12.5px; color:var(--text-soft);">Restore routines, notes, or syllabus from any previous automated snapshot.</span>
+              </div>
+              <button class="pill subtle" id="btnToggleSnapshotsList" type="button" style="font-size:12px; padding:4px 10px;">
+                <i data-lucide="history"></i> <span id="snapshotToggleText">View Snapshots (0)</span>
+              </button>
+            </div>
+            <div id="cloudSnapshotsContainer" style="display:none; margin-top:12px; background:rgba(255,255,255,0.02); border:1px solid var(--border); border-radius:12px; padding:12px; max-height:260px; overflow-y:auto;">
+              <div id="cloudSnapshotsList" style="display:flex; flex-direction:column; gap:8px;">
+                <div style="text-align:center; color:var(--text-soft); font-size:12.5px; padding:12px;">Loading snapshots...</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 1-Click JSON File Backup & Import Sub-Section -->
+        <div class="settings-row" style="margin-top:14px; padding-top:14px; border-top:none; border-bottom:1px solid var(--border); padding-bottom:14px;">
+          <div>
+            <strong style="font-size:14.5px; display:block; color:var(--text); margin-bottom:2px;">JSON Cloud File Backup</strong>
+            <span style="font-size:12.5px; color:var(--text-soft);">Download your complete cloud data package or restore from a previously saved JSON file.</span>
+          </div>
+          <div class="settings-btn-group data-action-buttons btn-group">
+            <button class="pill theme-action-btn" id="btnExportCloudJSON" type="button" title="Download entire cloud backup as JSON">
+              <i data-lucide="download"></i> <span>Export JSON</span>
+            </button>
+            <label class="pill theme-action-btn" for="cloudJSONFileInput" style="cursor:pointer; margin:0;" title="Restore data from JSON file">
+              <i data-lucide="upload"></i> <span>Restore from JSON</span>
+            </label>
+            <input type="file" id="cloudJSONFileInput" accept=".json" style="display:none;" />
           </div>
         </div>
 

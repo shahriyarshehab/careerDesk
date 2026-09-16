@@ -407,6 +407,9 @@ function saveData() {
       await storageAdapter.set(STORAGE_KEY, JSON.stringify(state));
       if (note) { note.textContent = 'Changes saved ✓'; setTimeout(() => { note.textContent = 'Changes are saved automatically.'; }, 1600); }
       await writeToAutoBackupFile();
+      if (typeof window.scheduleFirestoreSync === 'function') {
+        window.scheduleFirestoreSync();
+      }
     } catch (e) {
       if (note) { note.textContent = 'Failed to save changes, please try again.'; }
     }

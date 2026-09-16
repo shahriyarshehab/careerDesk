@@ -222,6 +222,19 @@ function getStoredFirebaseConfig() {
 /**
  * Initializes the Firebase SDK if available in the browser window
  */
+function enableFirestoreOfflinePersistence() {
+  if (typeof firebase === 'undefined' || !firebase.firestore) return;
+  try {
+    firebase.firestore().enablePersistence({ synchronizeTabs: true }).catch((err) => {
+      if (err.code === 'failed-precondition') {
+        console.warn('[CareerDesk] Firestore persistence limited to single active tab.');
+      } else if (err.code === 'unimplemented') {
+        console.warn('[CareerDesk] Browser does not support Firestore offline persistence.');
+      }
+    });
+  } catch (e) { }
+}
+
 function initFirebaseApp() {
   if (typeof firebase === 'undefined') {
     console.warn('[CareerDesk Firebase] Firebase SDK scripts not loaded yet.');
@@ -230,6 +243,7 @@ function initFirebaseApp() {
 
   if (firebase.apps && firebase.apps.length > 0) {
     firebaseApp = firebase.apps[0];
+    enableFirestoreOfflinePersistence();
     setupAuthStateListener();
     return true;
   }
@@ -238,6 +252,7 @@ function initFirebaseApp() {
   if (config && config.apiKey) {
     try {
       firebaseApp = firebase.initializeApp(config);
+      enableFirestoreOfflinePersistence();
       setupAuthStateListener();
       console.log('[CareerDesk Firebase] Initialized with custom project:', config.projectId);
       return true;
@@ -923,8 +938,25 @@ async function syncUserDataToFirestore(user = null, silent = true) {
     const sub = document.getElementById('userCloudStatusSub');
     if (sub) sub.textContent = 'Just now';
 
+    const liveBadge = document.getElementById('cloudSyncLiveBadge');
+    if (liveBadge) {
+      liveBadge.innerHTML = `<i data-lucide="check-circle" style="width:12px; height:12px;"></i> Auto-Sync Active`;
+      if (window.lucide && typeof window.lucide.createIcons === 'function') window.lucide.createIcons();
+    }
+
+    // Auto-create snapshot periodically if > 30 minutes since last snapshot or on manual sync
+    try {
+      const lastSnapKey = 'careerdesk_last_snap_' + user.uid;
+      const lastSnapTs = parseInt(localStorage.getItem(lastSnapKey) || '0', 10);
+      const nowMs = Date.now();
+      if (!silent || (nowMs - lastSnapTs > 30 * 60 * 1000)) {
+        createCloudSnapshot(silent ? 'Auto Snapshot' : 'Manual Sync Snapshot', user, true);
+        localStorage.setItem(lastSnapKey, String(nowMs));
+      }
+    } catch (e) { }
+
     if (!silent) {
-      showToast('Cloud data synced successfully!');
+      showToast('Cloud data synced successfully! ✓');
     }
   } catch (err) {
     console.error('[CareerDesk] Firestore Sync Error:', err);
@@ -1051,14 +1083,33 @@ async function collectUserDataFromFirestore(user = null) {
 let _firestoreSyncTimer = null;
 function scheduleFirestoreSync() {
   if (_firestoreSyncTimer) clearTimeout(_firestoreSyncTimer);
-  _firestoreSyncTimer = setTimeout(() => {
+  const liveBadge = document.getElementById('cloudSyncLiveBadge');
+  if (liveBadge) {
+    liveBadge.innerHTML = `<span style="display:inline-block; width:7px; height:7px; border-radius:50%; background:var(--accent2); margin-right:5px; animation:spin 1s linear infinite;"></span> Saving...`;
+  }
+  _firestoreSyncTimer = setTimeout(async () => {
     const user = getCachedAuthUser();
     if (user) {
-      syncUserDataToFirestore(user, true);
+      await syncUserDataToFirestore(user, true);
     }
-  }, 1200);
+  }, 2400);
 }
 window.scheduleFirestoreSync = scheduleFirestoreSync;
+
+if (typeof window !== 'undefined') {
+  window.addEventListener('beforeunload', () => {
+    if (_firestoreSyncTimer) {
+      clearTimeout(_firestoreSyncTimer);
+      const user = getCachedAuthUser();
+      if (user) {
+        try {
+          const bundle = buildCloudDataBundle();
+          localStorage.setItem('careerdesk_user_data_' + user.uid, JSON.stringify(bundle));
+        } catch (e) { }
+      }
+    }
+  });
+}
 
 /**
  * Refreshes all dashboard panels across the application
@@ -3245,3 +3296,428 @@ document.addEventListener('click', (e) => {
     closeAuthModal();
   }
 });
+
+/* ==========================================================================
+   POINT-IN-TIME CLOUD SNAPSHOTS & JSON BACKUP SUBSYSTEM
+   ========================================================================== */
+
+/**
+ * Creates a point-in-time backup snapshot in Firestore
+ * Stored at: /users/{uid}/backups/{snapshotId}
+ */
+async function createCloudSnapshot(label = null, user = null, isBackground = false) {
+  if (!user) user = getCachedAuthUser();
+  if (!user || user.isDemo || user.isLocalSession) {
+    if (!isBackground) showToast('Please sign in to create cloud snapshots', true);
+    return null;
+  }
+
+  const isFirebaseOnline = (typeof firebase !== 'undefined' && firebase.firestore && firebase.apps && firebase.apps.length > 0);
+  const bundle = buildCloudDataBundle();
+  const snapshotId = 'snap_' + Date.now();
+  const now = new Date();
+
+  const notesCount = (bundle.state && Array.isArray(bundle.state.notes)) ? bundle.state.notes.length : 0;
+  const routineCount = (bundle.state && Array.isArray(bundle.state.routine)) ? bundle.state.routine.length : 0;
+  const syllabusCount = (bundle.state && Array.isArray(bundle.state.syllabus))
+    ? bundle.state.syllabus.reduce((acc, cat) => acc + (cat.topics ? cat.topics.filter(t => t.done).length : 0), 0)
+    : 0;
+  const masteredCount = (bundle.mcqProgress && Array.isArray(bundle.mcqProgress.masteredIds))
+    ? bundle.mcqProgress.masteredIds.length
+    : 0;
+
+  const snapshotMeta = {
+    id: snapshotId,
+    label: label || `Snapshot (${now.toLocaleDateString([], { month: 'short', day: 'numeric' })} ${now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })})`,
+    timestamp: Date.now(),
+    isoDate: now.toISOString(),
+    stats: {
+      notes: notesCount,
+      routine: routineCount,
+      topicsDone: syllabusCount,
+      masteredMCQs: masteredCount
+    }
+  };
+
+  // Cache locally for instant offline access
+  const cacheKey = 'careerdesk_snapshots_cache_' + user.uid;
+  let cached = [];
+  try {
+    const raw = localStorage.getItem(cacheKey);
+    if (raw) cached = JSON.parse(raw);
+  } catch (e) { }
+  cached = cached.filter(s => s.id !== snapshotId);
+  cached.unshift(snapshotMeta);
+  if (cached.length > 10) cached = cached.slice(0, 10);
+  try {
+    localStorage.setItem(cacheKey, JSON.stringify(cached));
+  } catch (e) { }
+
+  if (isFirebaseOnline) {
+    try {
+      const db = firebase.firestore();
+      const backupRef = db.collection('users').doc(user.uid).collection('backups').doc(snapshotId);
+      await backupRef.set({
+        ...snapshotMeta,
+        data: bundle
+      });
+
+      // Prune snapshots older than 10 to conserve Firestore quota
+      const allSnapsQuery = await db.collection('users').doc(user.uid).collection('backups').orderBy('timestamp', 'desc').get();
+      if (allSnapsQuery.docs.length > 10) {
+        const toDelete = allSnapsQuery.docs.slice(10);
+        for (const doc of toDelete) {
+          try { await doc.ref.delete(); } catch (delErr) { }
+        }
+      }
+    } catch (snapErr) {
+      console.warn('[CareerDesk] Firestore snapshot save warning:', snapErr);
+    }
+  }
+
+  if (!isBackground) {
+    showToast('Point-in-time cloud snapshot created! ✓');
+    renderCloudSnapshotsList();
+  }
+  return snapshotMeta;
+}
+
+/**
+ * Lists available cloud backup snapshots
+ */
+async function listCloudSnapshots(user = null) {
+  if (!user) user = getCachedAuthUser();
+  if (!user) return [];
+
+  const cacheKey = 'careerdesk_snapshots_cache_' + user.uid;
+  let cached = [];
+  try {
+    const raw = localStorage.getItem(cacheKey);
+    if (raw) cached = JSON.parse(raw);
+  } catch (e) { }
+
+  const isFirebaseOnline = (typeof firebase !== 'undefined' && firebase.firestore && firebase.apps && firebase.apps.length > 0 && !user.isDemo);
+  if (isFirebaseOnline) {
+    try {
+      const db = firebase.firestore();
+      const snapshotQuery = await db.collection('users').doc(user.uid).collection('backups').orderBy('timestamp', 'desc').limit(10).get();
+      const list = [];
+      snapshotQuery.forEach(doc => {
+        const d = doc.data();
+        list.push({
+          id: d.id || doc.id,
+          label: d.label || 'Snapshot',
+          timestamp: d.timestamp || 0,
+          isoDate: d.isoDate || '',
+          stats: d.stats || { notes: 0, routine: 0, topicsDone: 0, masteredMCQs: 0 }
+        });
+      });
+      if (list.length > 0) {
+        cached = list;
+        try { localStorage.setItem(cacheKey, JSON.stringify(cached)); } catch (e) { }
+      }
+    } catch (fetchErr) {
+      console.warn('[CareerDesk] Remote snapshots fetch failed, using local cache:', fetchErr);
+    }
+  }
+
+  return cached;
+}
+
+/**
+ * Renders the snapshot list in the Settings Data Management Card
+ */
+async function renderCloudSnapshotsList() {
+  const container = document.getElementById('cloudSnapshotsList');
+  const toggleText = document.getElementById('snapshotToggleText');
+  if (!container) return;
+
+  const user = getCachedAuthUser();
+  if (!user) {
+    container.innerHTML = '<div style="text-align:center; color:var(--text-soft); font-size:12.5px; padding:12px;">Sign in to view and restore cloud snapshots.</div>';
+    if (toggleText) toggleText.textContent = 'View Snapshots (0)';
+    return;
+  }
+
+  const snapshots = await listCloudSnapshots(user);
+  if (toggleText) toggleText.textContent = `View Snapshots (${snapshots.length})`;
+
+  if (!snapshots || snapshots.length === 0) {
+    container.innerHTML = '<div style="text-align:center; color:var(--text-soft); font-size:12.5px; padding:12px;">No snapshots created yet. Click "Create Snapshot" above to save your first restore point.</div>';
+    return;
+  }
+
+  let html = '';
+  snapshots.forEach(snap => {
+    const dateFormatted = snap.isoDate ? new Date(snap.isoDate).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' }) : 'Unknown date';
+    const s = snap.stats || { notes: 0, routine: 0, topicsDone: 0, masteredMCQs: 0 };
+
+    html += `
+      <div class="glass" style="padding:10px 14px; border-radius:10px; border:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px;">
+        <div>
+          <div style="font-weight:700; font-size:13.5px; color:var(--text);">${escapeHtml(snap.label)}</div>
+          <div style="font-size:11.5px; color:var(--text-soft); margin-top:2px;">
+            ${dateFormatted} &bull; <span style="color:var(--accent1);">${s.notes} Notes</span> &bull; <span>${s.routine} Tasks</span> &bull; <span>${s.topicsDone} Topics</span> &bull; <span style="color:#10b981;">${s.masteredMCQs} Mastered</span>
+          </div>
+        </div>
+        <div style="display:flex; align-items:center; gap:6px;">
+          <button class="pill subtle btn-restore-snap" data-snap-id="${escapeAttr(snap.id)}" type="button" style="font-size:11.5px; padding:3px 10px; color:#10b981;">
+            Restore
+          </button>
+          <button class="micro-btn danger btn-delete-snap" data-snap-id="${escapeAttr(snap.id)}" type="button" title="Delete Snapshot">
+            ${typeof ICON !== 'undefined' && ICON.trash ? ICON.trash : '&times;'}
+          </button>
+        </div>
+      </div>
+    `;
+  });
+
+  container.innerHTML = html;
+
+  // Bind restore buttons
+  container.querySelectorAll('.btn-restore-snap').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const snapId = btn.getAttribute('data-snap-id');
+      if (snapId) restoreCloudSnapshot(snapId);
+    });
+  });
+
+  // Bind delete buttons
+  container.querySelectorAll('.btn-delete-snap').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const snapId = btn.getAttribute('data-snap-id');
+      if (snapId) deleteCloudSnapshot(snapId);
+    });
+  });
+}
+
+/**
+ * Restores state from a specific cloud snapshot
+ */
+async function restoreCloudSnapshot(snapshotId, user = null) {
+  if (!user) user = getCachedAuthUser();
+  if (!user) {
+    showToast('Please sign in to restore snapshots', true);
+    return false;
+  }
+
+  const isFirebaseOnline = (typeof firebase !== 'undefined' && firebase.firestore && firebase.apps && firebase.apps.length > 0 && !user.isDemo);
+  let snapshotData = null;
+
+  if (isFirebaseOnline) {
+    try {
+      const doc = await firebase.firestore().collection('users').doc(user.uid).collection('backups').doc(snapshotId).get();
+      if (doc.exists) {
+        snapshotData = doc.data().data || doc.data();
+      }
+    } catch (e) {
+      console.error('[CareerDesk] Snapshot fetch failed:', e);
+    }
+  }
+
+  if (!snapshotData) {
+    showToast('Could not load snapshot data from cloud.', true);
+    return false;
+  }
+
+  const ok = window.confirm(`Restore this backup snapshot?\n\nThis will replace your current routines, notes, syllabus, and MCQ progress with the data from this snapshot.`);
+  if (!ok) return false;
+
+  try {
+    if (snapshotData.state) {
+      state = snapshotData.state;
+      await storageAdapter.set(STORAGE_KEY, JSON.stringify(state));
+    }
+    if (Array.isArray(snapshotData.exams)) {
+      exams = snapshotData.exams;
+      if (typeof saveExams === 'function') saveExams();
+    }
+    if (Array.isArray(snapshotData.mistakes)) {
+      mistakes = snapshotData.mistakes;
+      if (typeof saveMistakes === 'function') saveMistakes();
+    }
+    if (Array.isArray(snapshotData.customMCQQuestions) && typeof saveStoredQuestions === 'function') {
+      saveStoredQuestions(snapshotData.customMCQQuestions);
+    }
+    if (snapshotData.mcqProgress && typeof saveMCQProgress === 'function') {
+      userMCQProgress = snapshotData.mcqProgress;
+      saveMCQProgress();
+    }
+
+    refreshAllDashboardPanels();
+    await syncUserDataToFirestore(user, true);
+    showToast('Snapshot restored successfully! All data updated. ✓');
+    return true;
+  } catch (err) {
+    console.error('[CareerDesk] Restore snapshot error:', err);
+    showToast('Failed to apply snapshot: ' + err.message, true);
+    return false;
+  }
+}
+
+/**
+ * Deletes a specific snapshot
+ */
+async function deleteCloudSnapshot(snapshotId, user = null) {
+  if (!user) user = getCachedAuthUser();
+  if (!user) return;
+
+  const ok = window.confirm('Delete this backup snapshot from the cloud?');
+  if (!ok) return;
+
+  if (typeof firebase !== 'undefined' && firebase.firestore && !user.isDemo) {
+    try {
+      await firebase.firestore().collection('users').doc(user.uid).collection('backups').doc(snapshotId).delete();
+    } catch (e) { }
+  }
+
+  const cacheKey = 'careerdesk_snapshots_cache_' + user.uid;
+  try {
+    let cached = JSON.parse(localStorage.getItem(cacheKey) || '[]');
+    cached = cached.filter(s => s.id !== snapshotId);
+    localStorage.setItem(cacheKey, JSON.stringify(cached));
+  } catch (e) { }
+
+  showToast('Snapshot removed.');
+  renderCloudSnapshotsList();
+}
+
+/**
+ * Exports entire cloud data bundle as formatted JSON file
+ */
+function exportCloudBackupJSON() {
+  const bundle = buildCloudDataBundle();
+  const user = getCachedAuthUser();
+  const dateStr = new Date().toISOString().slice(0, 10);
+  const fileName = `careerdesk-cloud-backup-${user?.displayName ? normalizeUsername(user.displayName) + '-' : ''}${dateStr}.json`;
+
+  const blob = new Blob([JSON.stringify(bundle, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = fileName;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showToast('Cloud backup exported as JSON! ✓');
+}
+
+/**
+ * Imports cloud backup from a JSON file and syncs immediately to Firestore
+ */
+async function importCloudBackupJSON(file) {
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = async (e) => {
+    try {
+      const content = e.target.result;
+      const parsed = JSON.parse(content);
+
+      if (!parsed || (!parsed.state && !parsed.routine && !parsed.syllabus)) {
+        showToast('Invalid backup file format.', true);
+        return;
+      }
+
+      const ok = window.confirm('Restore and sync this JSON backup to your cloud account? Current data will be replaced.');
+      if (!ok) return;
+
+      if (parsed.state) {
+        state = parsed.state;
+      } else {
+        state = {
+          ...getDefaultState(),
+          ...parsed
+        };
+      }
+      await storageAdapter.set(STORAGE_KEY, JSON.stringify(state));
+
+      if (Array.isArray(parsed.exams)) {
+        exams = parsed.exams;
+        if (typeof saveExams === 'function') saveExams();
+      }
+      if (Array.isArray(parsed.mistakes)) {
+        mistakes = parsed.mistakes;
+        if (typeof saveMistakes === 'function') saveMistakes();
+      }
+      if (Array.isArray(parsed.customMCQQuestions) && typeof saveStoredQuestions === 'function') {
+        saveStoredQuestions(parsed.customMCQQuestions);
+      }
+      if (parsed.mcqProgress && typeof saveMCQProgress === 'function') {
+        userMCQProgress = parsed.mcqProgress;
+        saveMCQProgress();
+      }
+
+      refreshAllDashboardPanels();
+      const user = getCachedAuthUser();
+      if (user) {
+        await syncUserDataToFirestore(user, false);
+        await createCloudSnapshot('Imported JSON Backup', user, true);
+      }
+      showToast('JSON backup restored and synced to cloud! ✓');
+    } catch (err) {
+      console.error('[CareerDesk] JSON import error:', err);
+      showToast('Failed to parse backup JSON file: ' + err.message, true);
+    }
+  };
+  reader.readAsText(file);
+}
+
+/**
+ * Initialize Cloud Backup UI Controls & Event Handlers
+ */
+function initCloudBackupEvents() {
+  const createSnapBtn = document.getElementById('btnCreateSnapshotNow');
+  if (createSnapBtn) {
+    createSnapBtn.addEventListener('click', () => {
+      createCloudSnapshot(null, null, false);
+    });
+  }
+
+  const toggleSnapBtn = document.getElementById('btnToggleSnapshotsList');
+  const snapContainer = document.getElementById('cloudSnapshotsContainer');
+  if (toggleSnapBtn && snapContainer) {
+    toggleSnapBtn.addEventListener('click', () => {
+      const isVisible = snapContainer.style.display === 'block';
+      snapContainer.style.display = isVisible ? 'none' : 'block';
+      if (!isVisible) {
+        renderCloudSnapshotsList();
+      }
+    });
+  }
+
+  const exportJSONBtn = document.getElementById('btnExportCloudJSON');
+  if (exportJSONBtn) {
+    exportJSONBtn.addEventListener('click', () => {
+      exportCloudBackupJSON();
+    });
+  }
+
+  const fileInput = document.getElementById('cloudJSONFileInput');
+  if (fileInput) {
+    fileInput.addEventListener('change', (e) => {
+      if (e.target.files && e.target.files[0]) {
+        importCloudBackupJSON(e.target.files[0]);
+        e.target.value = '';
+      }
+    });
+  }
+
+  // Pre-load snapshot count badge
+  const user = getCachedAuthUser();
+  if (user) {
+    listCloudSnapshots(user).then(list => {
+      const toggleText = document.getElementById('snapshotToggleText');
+      if (toggleText) toggleText.textContent = `View Snapshots (${list.length})`;
+    }).catch(() => { });
+  }
+}
+
+// Auto-initialize cloud backup controls on DOM ready
+if (typeof document !== 'undefined') {
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initCloudBackupEvents);
+  } else {
+    initCloudBackupEvents();
+  }
+}
