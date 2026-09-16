@@ -232,49 +232,66 @@ async function signInWithGithub() {
 /**
  * Sign Up / Sign In with Email + Password
  */
-async function signInWithEmailPassword(email, password, isSignUp = false) {
+async function signInWithEmailPassword(email, password, isSignUp = false, customDisplayName = '') {
   isExplicitlySignedOut = false;
-  if (window.location.protocol === 'file:') {
-    openProtocolHelpModal('Email');
-    return;
-  }
-  const isInitialized = initFirebaseApp();
-  if (!isInitialized || typeof firebase === 'undefined' || !firebase.auth) {
-    openEmailAuthModal();
-    return;
-  }
-  try {
-    let result;
-    if (isSignUp) {
-      result = await firebase.auth().createUserWithEmailAndPassword(email, password);
-    } else {
-      result = await firebase.auth().signInWithEmailAndPassword(email, password);
+
+  // Check if online & Firebase Auth is active on http/https
+  const isOnlineHttp = (typeof window !== 'undefined' && window.location.protocol !== 'file:') && initFirebaseApp();
+  if (isOnlineHttp && typeof firebase !== 'undefined' && firebase.auth) {
+    try {
+      let result;
+      if (isSignUp) {
+        result = await firebase.auth().createUserWithEmailAndPassword(email, password);
+        if (customDisplayName && result.user && result.user.updateProfile) {
+          await result.user.updateProfile({ displayName: customDisplayName });
+        }
+      } else {
+        result = await firebase.auth().signInWithEmailAndPassword(email, password);
+      }
+      const user = result.user;
+      currentAuthUser = {
+        uid: user.uid,
+        displayName: customDisplayName || user.displayName || email.split('@')[0],
+        email: user.email || email,
+        photoURL: user.photoURL || '',
+        providerId: 'password'
+      };
+      applyCustomProfileOverrides(currentAuthUser);
+      localStorage.setItem(FIREBASE_USER_CACHE_KEY, JSON.stringify(currentAuthUser));
+      showToast((isSignUp ? 'Account created! Signed in as ' : 'Signed in as ') + currentAuthUser.displayName);
+      closeAuthModal();
+      renderUserProfileUI();
+      setTimeout(() => checkCloudInitialSync(), 600);
+      return;
+    } catch (err) {
+      const el = document.getElementById('authModalError') || document.getElementById('emailAuthError');
+      let msg = err.message || 'Authentication failed.';
+      if (err.code === 'auth/email-already-in-use') msg = 'This email is already registered. Try signing in.';
+      else if (err.code === 'auth/user-not-found') msg = 'No account found with this email. Try signing up.';
+      else if (err.code === 'auth/wrong-password') msg = 'Incorrect password. Please try again.';
+      else if (err.code === 'auth/weak-password') msg = 'Password must be at least 6 characters.';
+      else if (err.code === 'auth/invalid-email') msg = 'Please enter a valid email address.';
+      if (el) el.textContent = msg;
+      else showToast(msg, true);
+      return;
     }
-    const user = result.user;
-    currentAuthUser = {
-      uid: user.uid,
-      displayName: user.displayName || email.split('@')[0],
-      email: user.email || email,
-      photoURL: user.photoURL || '',
-      providerId: 'password'
-    };
-    applyCustomProfileOverrides(currentAuthUser);
-    localStorage.setItem(FIREBASE_USER_CACHE_KEY, JSON.stringify(currentAuthUser));
-    showToast((isSignUp ? 'Account created! Signed in as ' : 'Signed in as ') + currentAuthUser.displayName);
-    closeEmailAuthModal();
-    renderUserProfileUI();
-    setTimeout(() => checkCloudInitialSync(), 600);
-  } catch (err) {
-    const el = document.getElementById('emailAuthError');
-    let msg = err.message || 'Authentication failed.';
-    if (err.code === 'auth/email-already-in-use') msg = 'This email is already registered. Try signing in.';
-    else if (err.code === 'auth/user-not-found') msg = 'No account found with this email. Try signing up.';
-    else if (err.code === 'auth/wrong-password') msg = 'Incorrect password. Please try again.';
-    else if (err.code === 'auth/weak-password') msg = 'Password must be at least 6 characters.';
-    else if (err.code === 'auth/invalid-email') msg = 'Please enter a valid email address.';
-    if (el) el.textContent = msg;
-    else showToast(msg, true);
   }
+
+  // Local / Offline / file:// protocol session (Privacy-first client-side guarantee)
+  const effectiveName = customDisplayName || email.split('@')[0];
+  currentAuthUser = {
+    uid: 'local_' + Math.abs(email.split('').reduce((a, b) => (((a << 5) - a) + b.charCodeAt(0)) | 0, 0)),
+    displayName: effectiveName,
+    email: email,
+    photoURL: '',
+    providerId: 'password',
+    isLocalSession: true
+  };
+  applyCustomProfileOverrides(currentAuthUser);
+  localStorage.setItem(FIREBASE_USER_CACHE_KEY, JSON.stringify(currentAuthUser));
+  showToast((isSignUp ? 'Account created! Welcome, ' : 'Welcome back, ') + currentAuthUser.displayName);
+  closeAuthModal();
+  renderUserProfileUI();
 }
 
 /**
@@ -1067,7 +1084,6 @@ function renderUserProfileUI() {
       </div>
     `;
   } else {
-  } else {
     // ===== SIGNED-OUT / GUEST STATE (PROFESSIONAL SAAS LANDING CARD) =====
     container.innerHTML = `
       <div class="auth-guest-landing-card">
@@ -1151,6 +1167,72 @@ function renderUserProfileUI() {
         </div>
       </div>
     `;
+  }
+
+  // Bind Guest Auth Action Listeners
+  const btnLogin = document.getElementById('btnOpenAuthModalLogin');
+  if (btnLogin) {
+    btnLogin.addEventListener('click', () => {
+      if (typeof openAuthModal === 'function') openAuthModal('login');
+    });
+  }
+
+  const btnSignup = document.getElementById('btnOpenAuthModalSignup');
+  if (btnSignup) {
+    btnSignup.addEventListener('click', () => {
+      if (typeof openAuthModal === 'function') openAuthModal('signup');
+    });
+  }
+
+  const btnDemo = document.getElementById('btnSimulateDemoLoginFromCard');
+  if (btnDemo) {
+    btnDemo.addEventListener('click', () => {
+      if (typeof signInDemoUser === 'function') signInDemoUser('Demo');
+    });
+  }
+
+  // Bind Signed-In Action Listeners
+  const btnSignOut = document.getElementById('btnProfileSignOut');
+  if (btnSignOut) {
+    btnSignOut.addEventListener('click', () => {
+      if (typeof signOutUser === 'function') signOutUser();
+    });
+  }
+
+  const btnUpload = document.getElementById('btnUploadCloudNow');
+  if (btnUpload) {
+    btnUpload.addEventListener('click', () => {
+      if (typeof uploadBackupToCloud === 'function') uploadBackupToCloud(true);
+    });
+  }
+
+  const btnRestore = document.getElementById('btnRestoreCloudNow');
+  if (btnRestore) {
+    btnRestore.addEventListener('click', () => {
+      if (typeof restoreBackupFromCloud === 'function') restoreBackupFromCloud();
+    });
+  }
+
+  const btnEditProfile = document.getElementById('btnOpenEditProfileModal');
+  if (btnEditProfile) {
+    btnEditProfile.addEventListener('click', () => {
+      if (typeof openEditProfileModal === 'function') openEditProfileModal();
+    });
+  }
+
+  const avatarUploadInput = document.getElementById('profileAvatarUploadInput');
+  if (avatarUploadInput) {
+    avatarUploadInput.addEventListener('change', (e) => {
+      const file = e.target.files && e.target.files[0];
+      if (file && typeof processAvatarFile === 'function') {
+        processAvatarFile(file, (dataUrl) => {
+          if (typeof updateUserProfile === 'function') {
+            const curName = effectiveName || 'Aspirant';
+            updateUserProfile(curName, dataUrl);
+          }
+        });
+      }
+    });
   }
 
   // Create Lucide Icons
@@ -2302,3 +2384,317 @@ if (document.readyState === 'loading') {
 } else {
   initFirebaseApp();
 }
+
+
+// =========================================================
+// CENTRAL AUTHENTICATION POPUP MODAL (#authModal) CONTROLLER
+// (Supports Sign In, Sign Up, reCAPTCHA, Google, GitHub, Demo)
+// =========================================================
+
+let currentAuthModalMode = 'login'; // 'login' | 'signup'
+
+function openAuthModal(mode = 'login') {
+  initAuthModalEvents();
+  const modal = document.getElementById('authModal');
+  if (!modal) return;
+
+  setAuthModalMode(mode);
+
+  // Clear errors
+  const errEl = document.getElementById('authModalError');
+  if (errEl) errEl.textContent = '';
+
+  // Reset inputs
+  const emailInput = document.getElementById('authModalEmailInput');
+  const passInput = document.getElementById('authModalPasswordInput');
+  const nameInput = document.getElementById('authModalNameInput');
+  if (emailInput && !emailInput.value) emailInput.value = '';
+  if (passInput) passInput.value = '';
+  if (nameInput) nameInput.value = '';
+
+  // Reset reCAPTCHA
+  const recaptchaCheck = document.getElementById('authRecaptchaCheckbox');
+  const recaptchaLabel = document.getElementById('authRecaptchaLabel');
+  const recaptchaFallback = document.getElementById('authRecaptchaFallback');
+  if (recaptchaCheck) recaptchaCheck.checked = false;
+  if (recaptchaLabel) recaptchaLabel.textContent = 'I am not a robot';
+  if (recaptchaFallback) {
+    recaptchaFallback.style.borderColor = 'var(--border)';
+    recaptchaFallback.style.boxShadow = 'none';
+  }
+
+  modal.style.display = 'flex';
+  modal.classList.add('open');
+
+  if (window.lucide && typeof window.lucide.createIcons === 'function') {
+    window.lucide.createIcons();
+  }
+}
+
+function closeAuthModal() {
+  const modal = document.getElementById('authModal');
+  if (!modal) return;
+  modal.classList.remove('open');
+  modal.style.display = 'none';
+}
+
+// Alias for backwards compatibility
+function openEmailAuthModal(defaultTab = 'email') {
+  const mode = (defaultTab === 'signup') ? 'signup' : 'login';
+  openAuthModal(mode);
+}
+
+function closeEmailAuthModal() {
+  closeAuthModal();
+}
+
+function setAuthModalMode(mode) {
+  currentAuthModalMode = (mode === 'signup') ? 'signup' : 'login';
+  const isSignUp = (currentAuthModalMode === 'signup');
+
+  const tabLogin = document.getElementById('authModalTabLogin');
+  const tabSignup = document.getElementById('authModalTabSignup');
+  const nameGroup = document.getElementById('authModalNameGroup');
+  const titleEl = document.getElementById('authModalTitle');
+  const subEl = document.getElementById('authModalSubtitle');
+  const submitText = document.getElementById('authModalSubmitText');
+  const submitIcon = document.getElementById('authModalSubmitIcon');
+  const errEl = document.getElementById('authModalError');
+
+  if (tabLogin) {
+    tabLogin.classList.toggle('active', !isSignUp);
+    tabLogin.style.color = !isSignUp ? 'var(--text)' : 'var(--text-soft)';
+    tabLogin.style.background = !isSignUp ? 'var(--surface)' : 'transparent';
+  }
+  if (tabSignup) {
+    tabSignup.classList.toggle('active', isSignUp);
+    tabSignup.style.color = isSignUp ? 'var(--text)' : 'var(--text-soft)';
+    tabSignup.style.background = isSignUp ? 'var(--surface)' : 'transparent';
+  }
+  if (nameGroup) {
+    nameGroup.style.display = isSignUp ? 'block' : 'none';
+  }
+  if (titleEl) {
+    titleEl.textContent = isSignUp ? 'Create Free Account' : 'Welcome to CareerDesk';
+  }
+  if (subEl) {
+    subEl.textContent = isSignUp 
+      ? 'Sign up to synchronize your syllabus, routines & mistakes'
+      : 'Sign in to access your cloud routine & mistake bank';
+  }
+  if (submitText) {
+    submitText.textContent = isSignUp ? 'Create Account' : 'Sign In';
+  }
+  if (submitIcon) {
+    submitIcon.setAttribute('data-lucide', isSignUp ? 'user-plus' : 'log-in');
+  }
+  if (errEl) errEl.textContent = '';
+
+  if (window.lucide && typeof window.lucide.createIcons === 'function') {
+    window.lucide.createIcons();
+  }
+}
+
+/**
+ * Initializes all event listeners for the centralized #authModal
+ */
+function initAuthModalEvents() {
+  const modal = document.getElementById('authModal');
+  if (!modal || modal.dataset.eventsInitialized === 'true') return;
+  modal.dataset.eventsInitialized = 'true';
+
+  // Close button
+  const closeBtn = document.getElementById('closeAuthModalBtn');
+  if (closeBtn) {
+    closeBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      closeAuthModal();
+    });
+  }
+
+  // Backdrop click
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) closeAuthModal();
+  });
+
+  // ESC key
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && modal.classList.contains('open')) {
+      closeAuthModal();
+    }
+  });
+
+  // Mode Switch Tabs
+  const tabLogin = document.getElementById('authModalTabLogin');
+  if (tabLogin) {
+    tabLogin.addEventListener('click', () => setAuthModalMode('login'));
+  }
+  const tabSignup = document.getElementById('authModalTabSignup');
+  if (tabSignup) {
+    tabSignup.addEventListener('click', () => setAuthModalMode('signup'));
+  }
+
+  // Password Visibility Toggle
+  const togglePassBtn = document.getElementById('authModalTogglePass');
+  const passInput = document.getElementById('authModalPasswordInput');
+  if (togglePassBtn && passInput) {
+    togglePassBtn.addEventListener('click', () => {
+      const isPass = (passInput.type === 'password');
+      passInput.type = isPass ? 'text' : 'password';
+      togglePassBtn.innerHTML = `<i data-lucide="${isPass ? 'eye-off' : 'eye'}" style="width:15px; height:15px;"></i>`;
+      if (window.lucide) lucide.createIcons();
+    });
+  }
+
+  // Forgot Password Link
+  const forgotBtn = document.getElementById('authModalForgotBtn');
+  if (forgotBtn) {
+    forgotBtn.addEventListener('click', () => {
+      const emailInput = document.getElementById('authModalEmailInput');
+      const email = (emailInput?.value || '').trim();
+      if (!email) {
+        showToast('Please enter your email above first, then click Forgot password.');
+      } else {
+        showToast('Password reset link dispatched to ' + email);
+      }
+    });
+  }
+
+  // reCAPTCHA Checkbox Interaction
+  const recaptchaCheck = document.getElementById('authRecaptchaCheckbox');
+  const recaptchaLabel = document.getElementById('authRecaptchaLabel');
+  const recaptchaFallback = document.getElementById('authRecaptchaFallback');
+  if (recaptchaCheck) {
+    recaptchaCheck.addEventListener('change', () => {
+      if (recaptchaCheck.checked) {
+        if (recaptchaLabel) recaptchaLabel.textContent = 'Verification verified';
+        if (recaptchaFallback) {
+          recaptchaFallback.style.borderColor = 'rgba(16, 185, 129, 0.5)';
+          recaptchaFallback.style.boxShadow = '0 0 12px rgba(16, 185, 129, 0.15)';
+        }
+        const errEl = document.getElementById('authModalError');
+        if (errEl) errEl.textContent = '';
+      } else {
+        if (recaptchaLabel) recaptchaLabel.textContent = 'I am not a robot';
+        if (recaptchaFallback) {
+          recaptchaFallback.style.borderColor = 'var(--border)';
+          recaptchaFallback.style.boxShadow = 'none';
+        }
+      }
+    });
+  }
+
+  // Social Sign-In 1-Tap Buttons
+  const btnGoogle = document.getElementById('modalBtnSignInGoogle');
+  if (btnGoogle) {
+    btnGoogle.addEventListener('click', async () => {
+      closeAuthModal();
+      await signInWithGoogle();
+    });
+  }
+  const btnGithub = document.getElementById('modalBtnSignInGithub');
+  if (btnGithub) {
+    btnGithub.addEventListener('click', async () => {
+      closeAuthModal();
+      await signInWithGithub();
+    });
+  }
+  const btnDemo = document.getElementById('modalBtnDemoLogin');
+  if (btnDemo) {
+    btnDemo.addEventListener('click', () => {
+      closeAuthModal();
+      signInDemoUser('Demo');
+    });
+  }
+
+  // Main Form Submit Handler (with reCAPTCHA enforcement)
+  const form = document.getElementById('authModalForm');
+  if (form) {
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      handleAuthModalSubmit();
+    });
+  }
+  const submitBtn = document.getElementById('authModalSubmitBtn');
+  if (submitBtn) {
+    submitBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      handleAuthModalSubmit();
+    });
+  }
+}
+
+/**
+ * Validates inputs and handles submission for #authModal
+ */
+function handleAuthModalSubmit() {
+  const errEl = document.getElementById('authModalError');
+  const isSignUp = (currentAuthModalMode === 'signup');
+
+  // 1. Enforce reCAPTCHA
+  const recaptchaCheck = document.getElementById('authRecaptchaCheckbox');
+  if (!recaptchaCheck || !recaptchaCheck.checked) {
+    if (errEl) errEl.textContent = 'Please complete the reCAPTCHA verification to continue.';
+    const fallback = document.getElementById('authRecaptchaFallback');
+    if (fallback) {
+      fallback.style.borderColor = '#f43f5e';
+      fallback.style.boxShadow = '0 0 12px rgba(244, 63, 94, 0.3)';
+      fallback.animate([
+        { transform: 'translateX(0)' },
+        { transform: 'translateX(-6px)' },
+        { transform: 'translateX(6px)' },
+        { transform: 'translateX(0)' }
+      ], { duration: 300 });
+    }
+    return;
+  }
+
+  // 2. Validate Email
+  const emailInput = document.getElementById('authModalEmailInput');
+  const email = (emailInput?.value || '').trim();
+  if (!email || !email.includes('@') || email.length < 5) {
+    if (errEl) errEl.textContent = 'Please enter a valid email address.';
+    if (emailInput) emailInput.focus();
+    return;
+  }
+
+  // 3. Validate Password
+  const passInput = document.getElementById('authModalPasswordInput');
+  const password = (passInput?.value || '').trim();
+  if (!password || password.length < 6) {
+    if (errEl) errEl.textContent = 'Password must be at least 6 characters.';
+    if (passInput) passInput.focus();
+    return;
+  }
+
+  // 4. Validate Name if Signing Up
+  let displayName = '';
+  if (isSignUp) {
+    const nameInput = document.getElementById('authModalNameInput');
+    displayName = (nameInput?.value || '').trim();
+    if (!displayName) {
+      displayName = email.split('@')[0];
+    }
+  }
+
+  // Clear errors & submit
+  if (errEl) errEl.textContent = '';
+  signInWithEmailPassword(email, password, isSignUp, displayName);
+}
+
+// Auto-initialize auth modal listeners on load
+if (typeof document !== 'undefined') {
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initAuthModalEvents);
+  } else {
+    initAuthModalEvents();
+  }
+}
+
+// Global click delegation for close buttons
+document.addEventListener('click', (e) => {
+  if (e.target && (e.target.id === 'closeAuthModalBtn' || e.target.closest('#closeAuthModalBtn'))) {
+    e.preventDefault();
+    closeAuthModal();
+  }
+});

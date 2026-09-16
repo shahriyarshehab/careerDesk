@@ -204,7 +204,7 @@ if (prevDateBtn) prevDateBtn.addEventListener('click', () => shiftRoutineDate(-1
 const nextDateBtn = document.getElementById('dateNextBtn');
 if (nextDateBtn) nextDateBtn.addEventListener('click', () => shiftRoutineDate(1));
 
-const ROUTINE_HEAD = '<thead><tr><th style="width:16%">Start</th><th style="width:16%">End</th><th style="width:26%">Subject</th><th>Topic / Task</th><th style="width:40px"></th></tr></thead>';
+const ROUTINE_HEAD = '<thead><tr><th style="width:16%">Start</th><th style="width:16%">End</th><th style="width:24%">Subject</th><th>Topic / Task</th><th style="width:78px; text-align:right;"><button type="button" class="routine-table-reset-btn" id="resetRoutineBtn" title="Reset to recommended daily routine"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle; margin-right:3px;"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path></svg><span>Reset</span></button></th></tr></thead>';
 
 function routineRowHtml(row) {
   return `
@@ -308,8 +308,40 @@ function renderRoutine() {
     return timeA.localeCompare(timeB) || a.id - b.id;
   });
 
-  const hoverBtnHtml = '\n<tr class="add-block-hover-row">\n  <td colspan="4" style="padding:0; border:none; height:24px; position:relative;">\n    <button type="button" class="floating-add-btn" id="inlineAddRowBtn" title="Add another study block">\n      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>\n    </button>\n  </td>\n</tr>';
-    wrap.innerHTML = `<table class="routine">${ROUTINE_HEAD}<tbody>${rows.map(routineRowHtml).join('')}${hoverBtnHtml}</tbody></table>`;
+      wrap.innerHTML = `
+      <div class="routine-table-container">
+        <table class="routine">
+          ${ROUTINE_HEAD}
+          <tbody>${rows.map(routineRowHtml).join('')}</tbody>
+        </table>
+        <div class="routine-floating-add-dock" id="routineFloatingAddDock">
+          <button type="button" class="routine-floating-add-circle" id="inlineAddRowBtn" title="Add another study block" aria-label="Add study block">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+          </button>
+        </div>
+      </div>
+    `;
+
+    // Connect hover for the floating add block button on the last item
+    const lastTr = wrap.querySelector('tbody tr:last-child');
+    const addBtn = wrap.querySelector('#inlineAddRowBtn');
+    const dock = wrap.querySelector('#routineFloatingAddDock');
+    if (lastTr && addBtn && dock) {
+      const showBtn = () => addBtn.classList.add('hover-active');
+      const hideBtn = (e) => {
+        if (e && e.relatedTarget && (lastTr.contains(e.relatedTarget) || dock.contains(e.relatedTarget))) {
+          return;
+        }
+        addBtn.classList.remove('hover-active');
+      };
+      lastTr.addEventListener('mouseenter', showBtn);
+      lastTr.addEventListener('mouseleave', hideBtn);
+      dock.addEventListener('mouseenter', showBtn);
+      dock.addEventListener('mouseleave', hideBtn);
+    }
   renderTrackerRoutinePreview();
 }
 
