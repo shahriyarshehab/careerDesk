@@ -1128,6 +1128,7 @@ function refreshAllDashboardPanels() {
   if (typeof renderFlashCategoryOptions === 'function') renderFlashCategoryOptions();
   if (typeof renderMistakes === 'function') renderMistakes();
   if (typeof renderHomeDashboard === 'function') renderHomeDashboard();
+  if (typeof renderProfileAspirantHub === 'function') renderProfileAspirantHub();
   if (typeof renderSubjectManager === 'function') renderSubjectManager();
   if (typeof renderQuote === 'function') renderQuote();
   if (typeof renderQuoteManager === 'function') renderQuoteManager();
@@ -1727,6 +1728,10 @@ function renderUserProfileUI() {
         });
       }
     });
+  }
+
+  if (typeof renderProfileAspirantHub === 'function') {
+    renderProfileAspirantHub();
   }
 
   // Create Lucide Icons

@@ -93,16 +93,10 @@
   <main>
     <datalist id="appSubjectDatalist"></datalist>
 
-    <!-- ===== HOME MISSION CONTROL DASHBOARD & DAILY ROUTINE ===== -->
+    <!-- ===== HOME: DAILY STUDY ROUTINE ONLY ===== -->
     <section class="panel active" id="panel-home">
       <div class="home-container">
-        <!-- 1. Hero Mission Briefing & Motivation Ticker (Populated by JS) -->
-        <div id="homeHeroWrap"></div>
-
-        <!-- 2. Cockpit Container (Reserved/Hidden) -->
-        <div id="homeCockpitWrap" style="display:none;"></div>
-
-        <!-- 3. Unified Full-Width Daily Study Routine Card -->
+        <!-- Unified Full-Width Daily Study Routine Card -->
         <section class="home-routine-card glass" id="homeRoutineSection">
           <div class="routine-card-header">
             <div class="routine-hero-copy routine-title-box">
@@ -174,9 +168,6 @@
           <!-- Hidden anchor for JS compatibility -->
           <span id="routineSaveNote" style="display:none;"></span>
         </section>
-
-        <!-- 4. Preparation Pillars & Radar Hub (Populated by JS) -->
-        <div id="homeColumnsWrap"></div>
       </div>
     </section>
 
@@ -761,6 +752,9 @@
     <section class="panel" id="panel-profile">
       <!-- User Profile & Cloud Hub Card -->
       <div class="glass user-profile-card" id="userProfileCard"></div>
+
+      <!-- Aspirant Overview, Targets, Core Pillars & Radar Hub -->
+      <div id="profileAspirantHub" style="margin-bottom: 22px;"></div>
 
       <div class="glass data-management-card" id="dataManagementCard" style="padding:22px; border-color:var(--border);">
         <h2 class="section-title" style="font-size:17px; margin-bottom:14px; display:flex; align-items:center; gap:8px;">
