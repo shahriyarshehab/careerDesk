@@ -117,12 +117,23 @@ function setupAuthStateListener() {
   try {
     firebase.auth().onAuthStateChanged((user) => {
       if (user && !isExplicitlySignedOut) {
+        // Strict Firebase Auth check: email/password accounts must be verified
+        const isPasswordProvider = !user.providerData || user.providerData.length === 0 || user.providerData.some(p => p.providerId === 'password');
+        if (isPasswordProvider && !user.emailVerified) {
+          // Block access if email is not verified
+          currentAuthUser = null;
+          try { localStorage.removeItem(FIREBASE_USER_CACHE_KEY); } catch (e) { }
+          renderUserProfileUI();
+          return;
+        }
+
         currentAuthUser = {
           uid: user.uid,
           displayName: user.displayName || user.email?.split('@')[0] || 'Aspirant',
           email: user.email || '',
           photoURL: user.photoURL || '',
-          providerId: user.providerData?.[0]?.providerId || 'firebase'
+          providerId: user.providerData?.[0]?.providerId || 'firebase',
+          emailVerified: !!user.emailVerified
         };
         applyCustomProfileOverrides(currentAuthUser);
         try {
@@ -145,11 +156,21 @@ function setupAuthStateListener() {
  * Gets currently active user from memory or cache
  */
 function getCachedAuthUser() {
-  if (currentAuthUser) return applyCustomProfileOverrides(currentAuthUser);
+  if (currentAuthUser) {
+    if (currentAuthUser.providerId === 'password' && currentAuthUser.emailVerified === false) {
+      return null;
+    }
+    return applyCustomProfileOverrides(currentAuthUser);
+  }
   try {
     const raw = localStorage.getItem(FIREBASE_USER_CACHE_KEY);
     if (raw) {
-      currentAuthUser = JSON.parse(raw);
+      const parsed = JSON.parse(raw);
+      if (parsed && parsed.providerId === 'password' && parsed.emailVerified === false) {
+        localStorage.removeItem(FIREBASE_USER_CACHE_KEY);
+        return null;
+      }
+      currentAuthUser = parsed;
       return applyCustomProfileOverrides(currentAuthUser);
     }
   } catch (e) { }
@@ -229,40 +250,167 @@ async function signInWithGithub() {
   }
 }
 
+// =========================================================
+// EMAIL VERIFICATION & SIMULATION HELPERS (Firebase Auth only)
+// =========================================================
+const SIMULATED_UNVERIFIED_KEY = 'careerdesk_unverified_emails';
+let lastAttemptedVerification = { email: '', password: '' };
+
+function isSimulatedEmailUnverified(email) {
+  if (!email) return false;
+  try {
+    const list = JSON.parse(sessionStorage.getItem(SIMULATED_UNVERIFIED_KEY) || '[]');
+    return list.includes(email.trim().toLowerCase());
+  } catch (e) {
+    return false;
+  }
+}
+
+function saveSimulatedUnverifiedEmail(email) {
+  if (!email) return;
+  try {
+    const list = JSON.parse(sessionStorage.getItem(SIMULATED_UNVERIFIED_KEY) || '[]');
+    const normalized = email.trim().toLowerCase();
+    if (!list.includes(normalized)) {
+      list.push(normalized);
+      sessionStorage.setItem(SIMULATED_UNVERIFIED_KEY, JSON.stringify(list));
+    }
+  } catch (e) { }
+}
+
+function markSimulatedEmailVerified(email) {
+  if (!email) return;
+  try {
+    let list = JSON.parse(sessionStorage.getItem(SIMULATED_UNVERIFIED_KEY) || '[]');
+    const normalized = email.trim().toLowerCase();
+    list = list.filter(e => e !== normalized);
+    sessionStorage.setItem(SIMULATED_UNVERIFIED_KEY, JSON.stringify(list));
+  } catch (e) { }
+}
+
+// Expose on window for tests & developer console
+if (typeof window !== 'undefined') {
+  window.markSimulatedEmailVerified = markSimulatedEmailVerified;
+  window.isSimulatedEmailUnverified = isSimulatedEmailUnverified;
+  window.showEmailVerificationScreen = showEmailVerificationScreen;
+  window.hideEmailVerificationScreen = hideEmailVerificationScreen;
+}
+
 /**
- * Sign Up / Sign In with Email + Password
+ * Displays the email verification screen inside #authModal
+ */
+function showEmailVerificationScreen(email, password = '') {
+  lastAttemptedVerification = { email: email || '', password: password || '' };
+
+  const modal = document.getElementById('authModal');
+  if (modal) {
+    modal.style.display = 'flex';
+    modal.classList.add('open');
+  }
+
+  const switchWrapper = document.getElementById('authModalModeSwitchWrapper');
+  const bodyWrapper = document.getElementById('authModalBodyWrapper');
+  const verifyView = document.getElementById('authVerificationView');
+  const emailSpan = document.getElementById('authVerificationEmail');
+  const titleEl = document.getElementById('authModalTitle');
+  const subEl = document.getElementById('authModalSubtitle');
+  const resendStatus = document.getElementById('authVerificationResendStatus');
+
+  if (switchWrapper) switchWrapper.style.display = 'none';
+  if (bodyWrapper) bodyWrapper.style.display = 'none';
+  if (verifyView) verifyView.style.display = 'block';
+  if (emailSpan) emailSpan.textContent = email || '';
+  if (titleEl) titleEl.textContent = 'Verify Your Email';
+  if (subEl) subEl.textContent = 'Authentication confirmation required';
+  if (resendStatus) resendStatus.textContent = '';
+
+  if (window.lucide && typeof window.lucide.createIcons === 'function') {
+    window.lucide.createIcons();
+  }
+}
+
+/**
+ * Hides email verification screen and restores standard auth form
+ */
+function hideEmailVerificationScreen() {
+  const switchWrapper = document.getElementById('authModalModeSwitchWrapper');
+  const bodyWrapper = document.getElementById('authModalBodyWrapper');
+  const verifyView = document.getElementById('authVerificationView');
+  const resendStatus = document.getElementById('authVerificationResendStatus');
+
+  if (switchWrapper) switchWrapper.style.display = '';
+  if (bodyWrapper) bodyWrapper.style.display = '';
+  if (verifyView) verifyView.style.display = 'none';
+  if (resendStatus) resendStatus.textContent = '';
+}
+
+/**
+ * Sign Up / Sign In with Email + Password (Firebase Authentication only)
  */
 async function signInWithEmailPassword(email, password, isSignUp = false, customDisplayName = '') {
   isExplicitlySignedOut = false;
 
-  // Check if online & Firebase Auth is active on http/https
-  const isOnlineHttp = (typeof window !== 'undefined' && window.location.protocol !== 'file:') && initFirebaseApp();
+  // Check if online & Firebase Auth is active
+  const isOnlineHttp = (typeof window !== 'undefined' && (window.location.protocol !== 'file:' || window._forceFirebaseAuth)) && initFirebaseApp();
   if (isOnlineHttp && typeof firebase !== 'undefined' && firebase.auth) {
     try {
-      let result;
       if (isSignUp) {
-        result = await firebase.auth().createUserWithEmailAndPassword(email, password);
-        if (customDisplayName && result.user && result.user.updateProfile) {
-          await result.user.updateProfile({ displayName: customDisplayName });
+        // 1. Create account via Firebase Auth only
+        const result = await firebase.auth().createUserWithEmailAndPassword(email, password);
+        const user = result.user;
+        if (customDisplayName && user && user.updateProfile) {
+          try {
+            await user.updateProfile({ displayName: customDisplayName });
+          } catch (e) { }
         }
+
+        // 2. Send verification email via Firebase Auth
+        await user.sendEmailVerification();
+
+        // 3. Do NOT sign them in automatically -> immediately sign out!
+        await firebase.auth().signOut();
+        currentAuthUser = null;
+        try { localStorage.removeItem(FIREBASE_USER_CACHE_KEY); } catch (e) { }
+        renderUserProfileUI();
+
+        // 4. Show verification screen with required message
+        showEmailVerificationScreen(email, password);
+        return;
       } else {
-        result = await firebase.auth().signInWithEmailAndPassword(email, password);
+        // Sign in via Firebase Auth
+        const result = await firebase.auth().signInWithEmailAndPassword(email, password);
+        const user = result.user;
+
+        // If a user logs in and their email is not verified: block access!
+        if (!user.emailVerified) {
+          // Immediately sign out to block access
+          await firebase.auth().signOut();
+          currentAuthUser = null;
+          try { localStorage.removeItem(FIREBASE_USER_CACHE_KEY); } catch (e) { }
+          renderUserProfileUI();
+
+          // Show the same verification screen
+          showEmailVerificationScreen(email, password);
+          return;
+        }
+
+        // Email IS verified -> grant access
+        currentAuthUser = {
+          uid: user.uid,
+          displayName: customDisplayName || user.displayName || email.split('@')[0],
+          email: user.email || email,
+          photoURL: user.photoURL || '',
+          providerId: 'password',
+          emailVerified: true
+        };
+        applyCustomProfileOverrides(currentAuthUser);
+        localStorage.setItem(FIREBASE_USER_CACHE_KEY, JSON.stringify(currentAuthUser));
+        showToast('Signed in as ' + currentAuthUser.displayName);
+        closeAuthModal();
+        renderUserProfileUI();
+        setTimeout(() => checkCloudInitialSync(), 600);
+        return;
       }
-      const user = result.user;
-      currentAuthUser = {
-        uid: user.uid,
-        displayName: customDisplayName || user.displayName || email.split('@')[0],
-        email: user.email || email,
-        photoURL: user.photoURL || '',
-        providerId: 'password'
-      };
-      applyCustomProfileOverrides(currentAuthUser);
-      localStorage.setItem(FIREBASE_USER_CACHE_KEY, JSON.stringify(currentAuthUser));
-      showToast((isSignUp ? 'Account created! Signed in as ' : 'Signed in as ') + currentAuthUser.displayName);
-      closeAuthModal();
-      renderUserProfileUI();
-      setTimeout(() => checkCloudInitialSync(), 600);
-      return;
     } catch (err) {
       const el = document.getElementById('authModalError') || document.getElementById('emailAuthError');
       let msg = err.message || 'Authentication failed.';
@@ -278,20 +426,40 @@ async function signInWithEmailPassword(email, password, isSignUp = false, custom
   }
 
   // Local / Offline / file:// protocol session (Privacy-first client-side guarantee)
-  const effectiveName = customDisplayName || email.split('@')[0];
-  currentAuthUser = {
-    uid: 'local_' + Math.abs(email.split('').reduce((a, b) => (((a << 5) - a) + b.charCodeAt(0)) | 0, 0)),
-    displayName: effectiveName,
-    email: email,
-    photoURL: '',
-    providerId: 'password',
-    isLocalSession: true
-  };
-  applyCustomProfileOverrides(currentAuthUser);
-  localStorage.setItem(FIREBASE_USER_CACHE_KEY, JSON.stringify(currentAuthUser));
-  showToast((isSignUp ? 'Account created! Welcome, ' : 'Welcome back, ') + currentAuthUser.displayName);
-  closeAuthModal();
-  renderUserProfileUI();
+  // Preserves the exact same contract: register does not sign in, blocks unverified login
+  if (isSignUp) {
+    saveSimulatedUnverifiedEmail(email);
+    currentAuthUser = null;
+    try { localStorage.removeItem(FIREBASE_USER_CACHE_KEY); } catch (e) { }
+    renderUserProfileUI();
+    showEmailVerificationScreen(email, password);
+    return;
+  } else {
+    if (isSimulatedEmailUnverified(email)) {
+      // Block access and show verification screen
+      currentAuthUser = null;
+      try { localStorage.removeItem(FIREBASE_USER_CACHE_KEY); } catch (e) { }
+      renderUserProfileUI();
+      showEmailVerificationScreen(email, password);
+      return;
+    }
+
+    const effectiveName = customDisplayName || email.split('@')[0];
+    currentAuthUser = {
+      uid: 'local_' + Math.abs(email.split('').reduce((a, b) => (((a << 5) - a) + b.charCodeAt(0)) | 0, 0)),
+      displayName: effectiveName,
+      email: email,
+      photoURL: '',
+      providerId: 'password',
+      emailVerified: true,
+      isLocalSession: true
+    };
+    applyCustomProfileOverrides(currentAuthUser);
+    localStorage.setItem(FIREBASE_USER_CACHE_KEY, JSON.stringify(currentAuthUser));
+    showToast('Welcome back, ' + currentAuthUser.displayName);
+    closeAuthModal();
+    renderUserProfileUI();
+  }
 }
 
 /**
@@ -2398,6 +2566,7 @@ function openAuthModal(mode = 'login') {
   const modal = document.getElementById('authModal');
   if (!modal) return;
 
+  hideEmailVerificationScreen();
   setAuthModalMode(mode);
 
   // Clear errors
@@ -2436,6 +2605,7 @@ function closeAuthModal() {
   if (!modal) return;
   modal.classList.remove('open');
   modal.style.display = 'none';
+  hideEmailVerificationScreen();
 }
 
 // Alias for backwards compatibility
@@ -2449,6 +2619,7 @@ function closeEmailAuthModal() {
 }
 
 function setAuthModalMode(mode) {
+  hideEmailVerificationScreen();
   currentAuthModalMode = (mode === 'signup') ? 'signup' : 'login';
   const isSignUp = (currentAuthModalMode === 'signup');
 
@@ -2620,6 +2791,66 @@ function initAuthModalEvents() {
     submitBtn.addEventListener('click', (e) => {
       e.preventDefault();
       handleAuthModalSubmit();
+    });
+  }
+
+  // Verification Screen: Login Button (switches to login form with email prefilled)
+  const btnVerifyLogin = document.getElementById('btnVerificationLogin');
+  if (btnVerifyLogin) {
+    btnVerifyLogin.addEventListener('click', () => {
+      const email = lastAttemptedVerification.email || '';
+      hideEmailVerificationScreen();
+      setAuthModalMode('login');
+      const emailInput = document.getElementById('authModalEmailInput');
+      const passInput = document.getElementById('authModalPasswordInput');
+      const errEl = document.getElementById('authModalError');
+      if (emailInput && email) emailInput.value = email;
+      if (passInput) {
+        passInput.value = '';
+        passInput.focus();
+      }
+      if (errEl) errEl.textContent = '';
+    });
+  }
+
+  // Verification Screen: Resend Verification Email
+  const btnVerifyResend = document.getElementById('btnVerificationResend');
+  if (btnVerifyResend) {
+    btnVerifyResend.addEventListener('click', async () => {
+      const email = lastAttemptedVerification.email;
+      const pass = lastAttemptedVerification.password;
+      const statusEl = document.getElementById('authVerificationResendStatus');
+      if (statusEl) {
+        statusEl.style.color = 'var(--text-soft)';
+        statusEl.textContent = 'Resending verification email...';
+      }
+
+      // Check if online & Firebase Auth is active
+      const isOnlineHttp = (typeof window !== 'undefined' && (window.location.protocol !== 'file:' || window._forceFirebaseAuth)) && initFirebaseApp();
+      if (isOnlineHttp && typeof firebase !== 'undefined' && firebase.auth && email && pass) {
+        try {
+          const res = await firebase.auth().signInWithEmailAndPassword(email, pass);
+          await res.user.sendEmailVerification();
+          await firebase.auth().signOut();
+          if (statusEl) {
+            statusEl.style.color = '#10b981';
+            statusEl.textContent = 'Verification email sent! Please check your inbox.';
+          }
+          return;
+        } catch (e) {
+          if (statusEl) {
+            statusEl.style.color = '#f43f5e';
+            statusEl.textContent = 'Could not resend email: ' + (e.message || 'Please log in to try again.');
+          }
+          return;
+        }
+      }
+
+      // Offline / simulated response
+      if (statusEl) {
+        statusEl.style.color = '#10b981';
+        statusEl.textContent = 'Verification email sent! Please check your inbox.';
+      }
     });
   }
 }

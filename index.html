@@ -1317,7 +1317,7 @@
       </div>
 
       <!-- Segmented Mode Switch: Sign In vs Sign Up -->
-      <div style="padding:16px 24px 0;">
+      <div id="authModalModeSwitchWrapper" style="padding:16px 24px 0;">
         <div class="auth-segmented-switch segmented-toggle-group" style="display:flex; background:var(--surface-strong); padding:4px; border-radius:12px; border:1px solid var(--border);">
           <button type="button" class="auth-switch-btn active" id="authModalTabLogin" data-mode="login" style="flex:1; padding:9px 12px; border:none; border-radius:9px; background:transparent; color:var(--text); font-family:var(--font-sans); font-size:13px; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px; transition:all 0.2s;">
             <i data-lucide="log-in" style="width:14px; height:14px;"></i> <span>Sign In</span>
@@ -1329,7 +1329,7 @@
       </div>
 
       <!-- Body Content -->
-      <div style="padding:16px 24px 24px;">
+      <div id="authModalBodyWrapper" style="padding:16px 24px 24px;">
         <!-- Social 1-Tap Buttons -->
         <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; margin-bottom:14px;">
           <button type="button" class="btn-social-auth" id="modalBtnSignInGoogle" title="Sign in with Google" style="display:flex; align-items:center; justify-content:center; gap:7px; padding:9px 8px; border-radius:10px; border:1px solid var(--border); background:var(--surface); color:var(--text); font-size:12.5px; font-weight:600; cursor:pointer; transition:all 0.2s;">
@@ -1434,6 +1434,26 @@
         <p style="font-size:11.5px; color:var(--text-muted); text-align:center; margin:14px 0 0; line-height:1.4;">
           Your study routines, notes &amp; mistake bank sync safely with cloud encryption.
         </p>
+      </div>
+
+      <!-- Verification Screen (Firebase Authentication Email Verification) -->
+      <div id="authVerificationView" style="display:none; padding:32px 24px; text-align:center;">
+        <div style="width:68px; height:68px; border-radius:50%; background:rgba(99, 102, 241, 0.12); border:1px solid rgba(99, 102, 241, 0.35); color:var(--accent1); display:flex; align-items:center; justify-content:center; margin:0 auto 20px; box-shadow:0 0 28px rgba(99, 102, 241, 0.25);">
+          <i data-lucide="mail-check" style="width:34px; height:34px;"></i>
+        </div>
+        <h3 style="margin:0 0 10px; font-family:var(--font-display); font-size:19px; font-weight:700; color:var(--text); line-height:1.3;">Verify Your Email</h3>
+        <p id="authVerificationMessage" style="margin:0 auto 24px; font-size:14px; line-height:1.6; color:var(--text-soft); max-width:380px;">
+          We have sent you a verification email to <strong id="authVerificationEmail" style="color:var(--text); font-weight:700; word-break:break-all;"></strong>. Please verify it and log in.
+        </p>
+        <button type="button" class="pill solid" id="btnVerificationLogin" style="width:100%; justify-content:center; padding:12px; font-size:14px; font-weight:700; border-radius:12px; margin-bottom:14px;">
+          <i data-lucide="log-in" style="width:16px; height:16px;"></i>
+          <span>Login</span>
+        </button>
+        <div style="display:flex; justify-content:center; align-items:center; gap:6px; font-size:12.5px; color:var(--text-muted);">
+          <span>Didn't receive the email?</span>
+          <button type="button" id="btnVerificationResend" style="background:none; border:none; color:var(--accent1); font-weight:600; cursor:pointer; padding:0; text-decoration:underline;">Resend verification</button>
+        </div>
+        <p id="authVerificationResendStatus" style="font-size:12px; font-weight:600; margin:8px 0 0; min-height:16px; color:#10b981;"></p>
       </div>
     </div>
   </div>
