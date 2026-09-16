@@ -282,10 +282,56 @@ html[data-theme="light"] .btn-edit-profile {
   transform: translateY(-1px);
 }
 
-.btn-edit-profile svg,
-.btn-edit-profile .lucide {
-  width: 12px;
-  height: 12px;
+.btn-edit-profile-main {
+  background: linear-gradient(135deg, var(--accent1), var(--accent2)) !important;
+  color: #ffffff !important;
+  font-weight: 600 !important;
+  box-shadow: 0 4px 14px rgba(99, 102, 241, 0.3);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btn-edit-profile-main:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(99, 102, 241, 0.45);
+}
+
+.btn-connect-phone {
+  background: rgba(6, 182, 212, 0.12) !important;
+  color: var(--accent2) !important;
+  border: 1px solid rgba(6, 182, 212, 0.3) !important;
+  border-radius: 8px !important;
+  font-weight: 600 !important;
+  transition: all 0.16s ease;
+}
+
+.btn-connect-phone:hover {
+  background: rgba(6, 182, 212, 0.22) !important;
+  border-color: var(--accent2) !important;
+  transform: translateY(-1px);
+}
+
+.track-header-controls {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn-toggle-track,
+.btn-track-edit-toggle {
+  transition: all 0.2s ease;
+}
+
+.btn-toggle-track:hover,
+.btn-track-edit-toggle:hover {
+  border-color: var(--accent1);
+  color: var(--text);
+}
+
+.btn-track-edit-toggle.active.solid {
+  background: linear-gradient(135deg, var(--accent1), var(--accent2)) !important;
+  color: #ffffff !important;
+  font-weight: 700;
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
 }
 
 /* ==============================================

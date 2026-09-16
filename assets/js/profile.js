@@ -457,37 +457,65 @@ if (restoreCloudDataCardBtn) {
 // ===== Delete Cloud Data by User with Confirmation Modal =====
 async function deleteUserCloudData() {
   const user = (typeof getCachedAuthUser === 'function') ? getCachedAuthUser() : null;
-  if (!user) {
-    if (typeof openAuthModal === 'function') openAuthModal('login');
-    if (typeof showToast === 'function') showToast('Please sign in to delete cloud data.', true);
-    return;
-  }
   try {
-    if (typeof initFirebaseApp === 'function') initFirebaseApp();
-    if (typeof firebase !== 'undefined' && firebase.firestore) {
+    // 1. Delete from Firestore if signed in
+    if (user && typeof firebase !== 'undefined' && firebase.firestore && !user.isDemo) {
+      if (typeof initFirebaseApp === 'function') initFirebaseApp();
       const db = firebase.firestore();
-      // 1. Delete all backups in subcollection
       try {
         const snaps = await db.collection('users').doc(user.uid).collection('backups').get();
         for (const snapDoc of snaps.docs) {
           try { await snapDoc.ref.delete(); } catch(e) {}
         }
       } catch(e) {}
-      // 2. Delete user doc in Firestore
       try {
         await db.collection('users').doc(user.uid).delete();
       } catch(e) {}
     }
+
+    // 2. Clear cloud sync metadata & user caches
     try {
       localStorage.removeItem(FIREBASE_LAST_SYNC_KEY);
       localStorage.removeItem('careerdesk_cloud_snapshots_cache');
+      if (user) {
+        localStorage.removeItem('careerdesk_user_data_' + user.uid);
+      }
     } catch(e) {}
-    if (typeof showToast === 'function') showToast('Cloud data deleted permanently from servers.');
+
+    // 3. Complete wipe of all personal study data
+    const keepTheme = (state && state.theme) ? state.theme : 'dark';
+    state = getDefaultState();
+    state.theme = keepTheme;
+    await storageAdapter.set(STORAGE_KEY, JSON.stringify(state));
+
+    try {
+      localStorage.removeItem('jobprep-exams-list');
+      localStorage.removeItem('jobprep_exams_list');
+      localStorage.removeItem('jobprep_mistakes_bank_v2');
+      localStorage.removeItem('jobprep_mistakes_bank');
+      localStorage.removeItem('jobprep_break_minutes_today');
+      localStorage.removeItem('custom_bcs_questions_v3');
+      localStorage.removeItem('jobprep_custom_quiz_questions');
+      localStorage.removeItem('careerdesk_track_v1');
+      localStorage.removeItem('careerdesk_custom_profile_v1');
+    } catch(e) {}
+
+    if (typeof exams !== 'undefined') exams = [];
+    if (typeof mistakes !== 'undefined') mistakes = [];
+    if (typeof userMCQProgress !== 'undefined') userMCQProgress = null;
+
+    // 4. Refresh all dashboard interfaces
+    if (typeof refreshAllDashboardPanels === 'function') refreshAllDashboardPanels();
+    if (typeof syncAllSubjectSelects === 'function') syncAllSubjectSelects();
     if (typeof renderUserProfileUI === 'function') renderUserProfileUI();
+    if (typeof renderProfileTrackCard === 'function') renderProfileTrackCard();
+    if (typeof renderProfileAspirantHub === 'function') renderProfileAspirantHub();
     if (typeof renderCloudSnapshotsList === 'function') renderCloudSnapshotsList();
+
+    showToast('All study data and cloud records deleted successfully. ✓');
   } catch (err) {
     console.error('Error deleting cloud data:', err);
-    if (typeof showToast === 'function') showToast('Error deleting cloud data: ' + (err.message || 'Error'), true);
+    showToast('Error deleting data: ' + (err.message || 'Error'), true);
   }
 }
 
@@ -498,12 +526,6 @@ const cancelDeleteCloudModalBtn = document.getElementById('cancelDeleteCloudModa
 const confirmDeleteCloudBtn = document.getElementById('confirmDeleteCloudBtn');
 
 function openDeleteCloudModal() {
-  const user = (typeof getCachedAuthUser === 'function') ? getCachedAuthUser() : null;
-  if (!user) {
-    if (typeof openAuthModal === 'function') openAuthModal('login');
-    if (typeof showToast === 'function') showToast('Please sign in to manage cloud data.', true);
-    return;
-  }
   if (deleteCloudModal) deleteCloudModal.style.display = 'flex';
 }
 function closeDeleteCloudModal() {
@@ -600,6 +622,9 @@ if (addSubjectBtn && newSubjectInput) {
 // Academic & Career Track / Bangladesh Curriculum & Subject Management Hub
 // ==========================================================================
 
+// Track card edit mode state
+let isTrackEditMode = false;
+
 function renderProfileTrackCard() {
   const container = document.getElementById('profileTrackCard');
   if (!container) return;
@@ -609,6 +634,7 @@ function renderProfileTrackCard() {
   const isJobSeeker = !isStudent;
   const currentClassId = track.studentClass || 'ssc_science';
   const currentJobType = track.jobType || 'govt';
+  const isCollapsed = localStorage.getItem('careerdesk_track_card_collapsed') === 'true';
 
   const activeSubjects = typeof masterSubjectList === 'function' ? masterSubjectList(false) : [];
   const activeSet = new Set(activeSubjects.map(s => canonicalSubjectName(s).toLowerCase()));
@@ -623,47 +649,53 @@ function renderProfileTrackCard() {
   const primaryJobSubs = (typeof BANGLADESH_CURRICULUM_DATA !== 'undefined' && BANGLADESH_CURRICULUM_DATA.jobSeeker)
     ? BANGLADESH_CURRICULUM_DATA.jobSeeker.primarySubjects
     : [
-        { name: 'Bangla', bn: 'বাংলা (সাহিত্য ও ব্যাকরণ)', desc: 'সাহিত্য, ব্যাকরণ ও ভাষা প্রয়োগ' },
-        { name: 'English', bn: 'English Language & Literature', desc: 'Grammar, High-yield Vocabulary & Literature' },
-        { name: 'Mathematics', bn: 'গণিত ও গাণিতিক যুক্তি', desc: 'পাটিগণিত, বীজগণিত, জ্যামিতি ও বিশ্লেষণ' },
-        { name: 'General Knowledge', bn: 'সাধারণ জ্ঞান (বাংলাদেশ ও আন্তর্জাতিক)', desc: 'বাংলাদেশ বিষয়াবলী, আন্তর্জাতিক ঘটনাবলি ও সাম্প্রতিক' }
+        { name: 'Bangla', desc: 'Language, grammar, comprehension & literature' },
+        { name: 'English', desc: 'Grammar, vocabulary, composition & literature' },
+        { name: 'Mathematics', desc: 'Arithmetic, algebra, geometry & analytical reasoning' },
+        { name: 'General Knowledge', desc: 'Bangladesh affairs, international relations & current events' }
       ];
+
+  const primaryEnglishDescs = {
+    'Bangla': 'Language, grammar, comprehension & literature',
+    'English': 'Grammar, vocabulary, composition & literature',
+    'Mathematics': 'Arithmetic, algebra, geometry & analytical reasoning',
+    'General Knowledge': 'Bangladesh affairs, international relations & current events'
+  };
 
   const optionalJobSubs = (typeof BANGLADESH_CURRICULUM_DATA !== 'undefined' && BANGLADESH_CURRICULUM_DATA.jobSeeker)
     ? BANGLADESH_CURRICULUM_DATA.jobSeeker.optionalSubjects
     : [
-        { name: 'Computer & ICT', bn: 'কম্পিউটার ও তথ্যপ্রযুক্তি', desc: 'কম্পিউটার সংগঠন, সাইবার নিরাপত্তা ও ইন্টারনেট' },
-        { name: 'General Science', bn: 'সাধারণ বিজ্ঞান', desc: 'দৈনন্দিন বিজ্ঞান, পদার্থ, রসায়ন ও জীববিদ্যা' },
-        { name: 'Mental Ability', bn: 'মানসিক দক্ষতা', desc: 'যুক্তি ও বিশ্লেষণমূলক সমস্যা সমাধান' },
-        { name: 'Geography & Environment', bn: 'ভূগোল ও দুর্যোগ ব্যবস্থাপনা', desc: 'বাংলাদেশ ও বৈশ্বিক প্রাকৃতিক ভূগোল' },
-        { name: 'Ethics & Good Governance', bn: 'নৈতিকতা, মূল্যবোধ ও সুশাসন', desc: 'রাষ্ট্রনীতি, সুশাসন ও মূল্যবোধ' }
+        { name: 'Computer & ICT' },
+        { name: 'General Science' },
+        { name: 'Mental Ability' },
+        { name: 'Geography & Environment' },
+        { name: 'Ethics & Good Governance' }
       ];
 
   let contentHtml = '';
 
   if (isStudent) {
-    // Student View: Class Selector & Bangladesh Curriculum Subjects
+    // Student View: Class Selector & Curriculum Subjects (English only, no emojis)
     contentHtml = `
       <div class="track-selection-box">
         <div class="track-row-header">
           <div>
-            <strong class="track-section-label">Select Education Level / Class (Bangladesh Curriculum)</strong>
-            <p class="track-section-desc">Class subjects automatically calibrate your routine, syllabus checklist, and revision decks.</p>
+            <strong class="track-section-label">Education Level / Class</strong>
           </div>
-          <span class="track-class-badge">${escapeHtml(classObj.badge || 'NCTB Curriculum')}</span>
+          <span class="track-class-badge">${escapeHtml(classObj.badge || 'Curriculum Track')}</span>
         </div>
 
         <div class="track-class-controls">
-          <select id="profileClassSelect" class="track-custom-select" aria-label="Select Bangladesh Curriculum Class">
-            ${((typeof BANGLADESH_CURRICULUM_DATA !== 'undefined' && BANGLADESH_CURRICULUM_DATA.classes) || []).map(c => `
-              <option value="${c.id}" ${c.id === currentClassId ? 'selected' : ''}>
-                ${escapeHtml(c.name)}
-              </option>
-            `).join('')}
+          <select id="profileClassSelect" class="track-custom-select" aria-label="Select Class Level">
+            ${((typeof BANGLADESH_CURRICULUM_DATA !== 'undefined' && BANGLADESH_CURRICULUM_DATA.classes) || []).map(c => {
+              const cleanName = (c.name || '').replace(/\s*\([^)]*[\u0980-\u09FF]+[^)]*\)/g, '').replace(/—/g, '-').trim();
+              return `
+                <option value="${c.id}" ${c.id === currentClassId ? 'selected' : ''}>
+                  ${escapeHtml(cleanName)}
+                </option>
+              `;
+            }).join('')}
           </select>
-          <button type="button" class="pill theme-action-btn" id="btnActivateAllClassSubjects" title="Activate all standard subjects for this class">
-            <i data-lucide="check-check"></i> <span>Activate All Class Subjects</span>
-          </button>
         </div>
       </div>
 
@@ -671,7 +703,7 @@ function renderProfileTrackCard() {
         <div class="track-sub-header">
           <h4 class="track-sub-title">
             <i data-lucide="book-open" style="color:var(--accent1); width:16px; height:16px;"></i>
-            <span>Class Subjects (${escapeHtml(classObj.short)}): Manage Active Subjects</span>
+            <span>Class Subjects (${escapeHtml(classObj.short)})</span>
           </h4>
           <span class="track-active-count">${classSubjects.filter(s => activeSet.has(canonicalSubjectName(s).toLowerCase())).length} of ${classSubjects.length} Active</span>
         </div>
@@ -679,41 +711,46 @@ function renderProfileTrackCard() {
         <div class="track-subjects-grid">
           ${classSubjects.map(subName => {
             const canon = canonicalSubjectName(subName);
-            const meta = typeof getSubjectMeta === 'function' ? getSubjectMeta(canon) : { bn: canon, color: '#6366f1' };
+            const meta = typeof getSubjectMeta === 'function' ? getSubjectMeta(canon) : { color: '#6366f1' };
             const isActive = activeSet.has(canon.toLowerCase());
             return `
-              <label class="track-subject-chip ${isActive ? 'active' : ''}">
-                <input type="checkbox" class="track-subject-checkbox" data-subject="${escapeAttr(canon)}" ${isActive ? 'checked' : ''}>
-                <span class="track-chip-indicator" style="--subj-dot-color: ${meta.color};"></span>
-                <div class="track-chip-text">
-                  <strong class="track-chip-en">${escapeHtml(canon)}</strong>
-                  <span class="track-chip-bn">${escapeHtml(meta.bn)}</span>
-                </div>
-                <span class="track-chip-status">${isActive ? 'Active' : 'Off'}</span>
-              </label>
+              <div class="track-subject-chip ${isActive ? 'active' : ''}">
+                <label style="display:flex; align-items:center; gap:10px; flex:1; cursor:pointer; min-width:0;">
+                  <input type="checkbox" class="track-subject-checkbox" data-subject="${escapeAttr(canon)}" ${isActive ? 'checked' : ''}>
+                  <span class="track-chip-indicator" style="--subj-dot-color: ${meta.color};"></span>
+                  <div class="track-chip-text">
+                    <strong class="track-chip-en">${escapeHtml(canon)}</strong>
+                  </div>
+                  <span class="track-chip-status">${isActive ? 'Active' : 'Off'}</span>
+                </label>
+                ${isTrackEditMode ? `
+                  <button type="button" class="micro-btn edit btn-track-subj-rename" data-subject="${escapeAttr(canon)}" title="Rename ${escapeAttr(canon)}" style="margin-left:4px;">
+                    <i data-lucide="edit-2" style="width:12px; height:12px;"></i>
+                  </button>
+                ` : ''}
+              </div>
             `;
           }).join('')}
         </div>
       </div>
     `;
   } else {
-    // Job Seeker View: Govt vs Non-Govt & Exactly 4 Primary Core Subjects
+    // Job Seeker View: Govt vs Non-Govt & 4 Primary Core Subjects (English only, no emojis)
     contentHtml = `
       <div class="track-selection-box">
         <div class="track-row-header">
           <div>
             <strong class="track-section-label">Target Job Sector</strong>
-            <p class="track-section-desc">Choose between competitive Government cadre/non-cadre jobs or corporate and private positions.</p>
           </div>
-          <span class="track-class-badge">${currentJobType === 'govt' ? '🏛️ Public Sector / BCS' : '🏢 Private / MNC'}</span>
+          <span class="track-class-badge">${currentJobType === 'govt' ? 'Public Sector / BCS' : 'Private & Corporate'}</span>
         </div>
 
         <div class="track-sector-toggle-row segmented-group" style="display:inline-flex; width:100%; max-width:480px; margin-top:6px;">
           <button type="button" class="pill track-sector-btn ${currentJobType === 'govt' ? 'active solid' : ''}" data-job-type="govt" style="flex:1; justify-content:center;">
-            <i data-lucide="landmark"></i> <span>Govt. Jobs (BCS / Bank / Primary)</span>
+            <i data-lucide="landmark"></i> <span>Govt. Jobs (BCS / Bank / PSC)</span>
           </button>
           <button type="button" class="pill track-sector-btn ${currentJobType === 'non_govt' ? 'active solid' : ''}" data-job-type="non_govt" style="flex:1; justify-content:center;">
-            <i data-lucide="briefcase"></i> <span>Non-Govt. (Private / IT / MNC)</span>
+            <i data-lucide="briefcase"></i> <span>Non-Govt. (Private / Corporate)</span>
           </button>
         </div>
       </div>
@@ -722,36 +759,37 @@ function renderProfileTrackCard() {
       <div class="track-primary-section">
         <div class="track-primary-header">
           <div style="display:flex; align-items:center; gap:8px;">
-            <span class="track-gold-star">★</span>
             <h4 class="track-sub-title" style="margin:0;">The 4 Primary Core Subjects</h4>
           </div>
           <span class="track-primary-badge">Universal Foundation</span>
         </div>
-        <p class="track-primary-desc">
-          For all competitive job examinations in Bangladesh, these 4 foundational pillars carry the vast majority of marks and evaluation weightage.
-        </p>
 
-        <div class="track-primary-grid">
+        <div class="track-primary-grid" style="margin-top:12px;">
           ${primaryJobSubs.map((p, idx) => {
             const canon = canonicalSubjectName(p.name);
-            const meta = typeof getSubjectMeta === 'function' ? getSubjectMeta(canon) : { bn: canon, color: '#f59e0b' };
+            const meta = typeof getSubjectMeta === 'function' ? getSubjectMeta(canon) : { color: '#f59e0b' };
             const isActive = activeSet.has(canon.toLowerCase());
+            const desc = primaryEnglishDescs[canon] || p.desc || 'Core foundational subject';
             return `
               <div class="track-primary-card ${isActive ? 'active' : ''}" style="--pillar-accent:${meta.color};">
                 <div class="track-primary-card-top">
                   <div class="track-primary-num">${idx + 1}</div>
                   <div class="track-primary-titles">
                     <strong class="track-primary-name">${escapeHtml(p.name)}</strong>
-                    <span class="track-primary-bn">${escapeHtml(p.bn)}</span>
                   </div>
                   <label class="track-switch-wrap" title="Toggle active status">
                     <input type="checkbox" class="track-subject-checkbox" data-subject="${escapeAttr(canon)}" ${isActive ? 'checked' : ''}>
                     <span class="track-switch-slider"></span>
                   </label>
                 </div>
-                <p class="track-primary-details">${escapeHtml(p.desc)}</p>
+                <p class="track-primary-details">${escapeHtml(desc)}</p>
                 <div class="track-primary-footer">
-                  <span class="track-primary-status-pill ${isActive ? 'pill-active' : 'pill-off'}">${isActive ? '✓ Included in Planner' : 'Inactive'}</span>
+                  <span class="track-primary-status-pill ${isActive ? 'pill-active' : 'pill-off'}">${isActive ? 'Included in Planner' : 'Inactive'}</span>
+                  ${isTrackEditMode ? `
+                    <button type="button" class="micro-btn edit btn-track-subj-rename" data-subject="${escapeAttr(canon)}" title="Rename ${escapeAttr(canon)}">
+                      <i data-lucide="edit-2" style="width:11px; height:11px;"></i>
+                    </button>
+                  ` : ''}
                 </div>
               </div>
             `;
@@ -772,18 +810,24 @@ function renderProfileTrackCard() {
         <div class="track-subjects-grid">
           ${optionalJobSubs.map(sub => {
             const canon = canonicalSubjectName(sub.name);
-            const meta = typeof getSubjectMeta === 'function' ? getSubjectMeta(canon) : { bn: canon, color: '#38bdf8' };
+            const meta = typeof getSubjectMeta === 'function' ? getSubjectMeta(canon) : { color: '#38bdf8' };
             const isActive = activeSet.has(canon.toLowerCase());
             return `
-              <label class="track-subject-chip ${isActive ? 'active' : ''}">
-                <input type="checkbox" class="track-subject-checkbox" data-subject="${escapeAttr(canon)}" ${isActive ? 'checked' : ''}>
-                <span class="track-chip-indicator" style="--subj-dot-color: ${meta.color};"></span>
-                <div class="track-chip-text">
-                  <strong class="track-chip-en">${escapeHtml(canon)}</strong>
-                  <span class="track-chip-bn">${escapeHtml(sub.bn)}</span>
-                </div>
-                <span class="track-chip-status">${isActive ? 'Active' : 'Off'}</span>
-              </label>
+              <div class="track-subject-chip ${isActive ? 'active' : ''}">
+                <label style="display:flex; align-items:center; gap:10px; flex:1; cursor:pointer; min-width:0;">
+                  <input type="checkbox" class="track-subject-checkbox" data-subject="${escapeAttr(canon)}" ${isActive ? 'checked' : ''}>
+                  <span class="track-chip-indicator" style="--subj-dot-color: ${meta.color};"></span>
+                  <div class="track-chip-text">
+                    <strong class="track-chip-en">${escapeHtml(canon)}</strong>
+                  </div>
+                  <span class="track-chip-status">${isActive ? 'Active' : 'Off'}</span>
+                </label>
+                ${isTrackEditMode ? `
+                  <button type="button" class="micro-btn edit btn-track-subj-rename" data-subject="${escapeAttr(canon)}" title="Rename ${escapeAttr(canon)}" style="margin-left:4px;">
+                    <i data-lucide="edit-2" style="width:12px; height:12px;"></i>
+                  </button>
+                ` : ''}
+              </div>
             `;
           }).join('')}
         </div>
@@ -800,34 +844,51 @@ function renderProfileTrackCard() {
         <div>
           <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
             <h3 class="track-main-title" style="margin:0;">Target Track &amp; Curriculum Manager</h3>
-            <button type="button" class="pill subtle btn-open-subject-manager" id="btnOpenSubjectManagerFromTrack" title="Open Unified Subject Manager" style="padding:4px 10px; font-size:11.5px; display:inline-flex; align-items:center; gap:5px; cursor:pointer;">
-              <i data-lucide="layers" style="width:13px; height:13px;"></i> <span>Subject Manager</span>
-            </button>
+            <div class="track-header-controls" style="display:inline-flex; align-items:center; gap:6px;">
+              <button type="button" class="pill subtle btn-toggle-track" id="btnToggleTrackCard" title="${isCollapsed ? 'Open Curriculum Manager' : 'Hide Curriculum Manager'}" style="padding:4px 10px; font-size:12px; display:inline-flex; align-items:center; gap:5px; cursor:pointer;">
+                <i data-lucide="${isCollapsed ? 'chevron-down' : 'chevron-up'}" style="width:13px; height:13px;"></i>
+                <span>${isCollapsed ? 'Open' : 'Hide'}</span>
+              </button>
+              <button type="button" class="pill subtle btn-track-edit-toggle ${isTrackEditMode ? 'active solid' : ''}" id="btnToggleTrackEditMode" title="${isTrackEditMode ? 'Done editing' : 'Edit track subjects'}" style="padding:4px 10px; font-size:12px; display:inline-flex; align-items:center; gap:5px; cursor:pointer;">
+                <i data-lucide="${isTrackEditMode ? 'check' : 'edit-2'}" style="width:13px; height:13px;"></i>
+                <span>${isTrackEditMode ? 'Done' : 'Edit Track'}</span>
+              </button>
+            </div>
           </div>
-          <p class="track-main-subtitle">Choose whether you are a Student or Job Seeker to manage your active subjects seamlessly.</p>
+          <p class="track-main-subtitle">Configure your academic level or job preparation track.</p>
         </div>
       </div>
 
       <div class="track-role-switch segmented-group">
         <button type="button" class="pill track-role-btn ${isStudent ? 'active solid' : ''}" data-role="student">
-          <i data-lucide="graduation-cap"></i> <span>Student (শিক্ষার্থী)</span>
+          <i data-lucide="graduation-cap"></i> <span>Student</span>
         </button>
         <button type="button" class="pill track-role-btn ${isJobSeeker ? 'active solid' : ''}" data-role="job_seeker">
-          <i data-lucide="briefcase"></i> <span>Job Seeker (চাকরি প্রার্থী)</span>
+          <i data-lucide="briefcase"></i> <span>Job Seeker</span>
         </button>
       </div>
     </div>
 
-    <div class="track-content-body">
+    <div class="track-content-body" style="${isCollapsed ? 'display:none;' : ''}">
+      ${isTrackEditMode ? `
+        <div class="track-edit-banner" style="background:rgba(99,102,241,0.08); border:1px solid rgba(99,102,241,0.25); border-radius:12px; padding:10px 16px; margin-bottom:16px; display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap;">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <i data-lucide="edit-3" style="width:16px; height:16px; color:var(--accent1);"></i>
+            <span style="font-size:12.5px; font-weight:600; color:var(--text);">Edit Mode Active: Toggle checkboxes to show/hide subjects or click the pencil to rename.</span>
+          </div>
+          <button type="button" class="pill solid" id="btnDoneTrackEditInline" style="font-size:12px; padding:4px 12px;">Done Editing</button>
+        </div>
+      ` : ''}
+
       ${contentHtml}
 
       <div class="track-custom-add-box">
         <div style="display:flex; align-items:center; gap:8px;">
           <i data-lucide="plus-circle" style="color:var(--accent1); width:16px; height:16px;"></i>
-          <span style="font-size:13px; font-weight:600; color:var(--text);">Add Any Custom Subject:</span>
+          <span style="font-size:13px; font-weight:600; color:var(--text);">Add Custom Subject:</span>
         </div>
         <div class="track-custom-input-group">
-          <input type="text" id="trackCustomSubjectInput" placeholder="e.g. Higher Math, Chemistry, Finance..." class="track-custom-input">
+          <input type="text" id="trackCustomSubjectInput" placeholder="e.g. Higher Math, Finance, Law..." class="track-custom-input">
           <button type="button" class="pill solid" id="btnTrackAddCustomSubject">
             <i data-lucide="plus"></i> <span>Add Subject</span>
           </button>
@@ -844,6 +905,51 @@ function renderProfileTrackCard() {
 }
 
 function attachTrackCardListeners(container, track) {
+  // Open / Hide Card Toggle
+  const toggleCardBtn = container.querySelector('#btnToggleTrackCard');
+  if (toggleCardBtn) {
+    toggleCardBtn.addEventListener('click', () => {
+      const isCurrentlyCollapsed = localStorage.getItem('careerdesk_track_card_collapsed') === 'true';
+      localStorage.setItem('careerdesk_track_card_collapsed', (!isCurrentlyCollapsed).toString());
+      renderProfileTrackCard();
+    });
+  }
+
+  // Edit Mode Toggles
+  const toggleEditBtn = container.querySelector('#btnToggleTrackEditMode');
+  if (toggleEditBtn) {
+    toggleEditBtn.addEventListener('click', () => {
+      isTrackEditMode = !isTrackEditMode;
+      renderProfileTrackCard();
+    });
+  }
+
+  const inlineDoneBtn = container.querySelector('#btnDoneTrackEditInline');
+  if (inlineDoneBtn) {
+    inlineDoneBtn.addEventListener('click', () => {
+      isTrackEditMode = false;
+      renderProfileTrackCard();
+    });
+  }
+
+  // Rename Subject buttons in edit mode
+  container.querySelectorAll('.btn-track-subj-rename').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const oldName = btn.getAttribute('data-subject');
+      if (!oldName) return;
+      const newName = window.prompt(`Rename subject "${oldName}":`, oldName);
+      if (newName && newName.trim() && newName.trim() !== oldName) {
+        if (typeof renameSubject === 'function') {
+          renameSubject(oldName, newName.trim());
+          renderProfileTrackCard();
+          if (typeof renderProfileAspirantHub === 'function') renderProfileAspirantHub();
+          if (typeof showToast === 'function') showToast(`Renamed "${oldName}" to "${newName.trim()}"`);
+        }
+      }
+    });
+  });
   container.querySelectorAll('.track-role-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       const role = btn.getAttribute('data-role');
@@ -881,20 +987,6 @@ function attachTrackCardListeners(container, track) {
     });
   }
 
-  const activateAllBtn = container.querySelector('#btnActivateAllClassSubjects');
-  if (activateAllBtn) {
-    activateAllBtn.addEventListener('click', () => {
-      const classObj = ((typeof BANGLADESH_CURRICULUM_DATA !== 'undefined' && BANGLADESH_CURRICULUM_DATA.classes) || []).find(c => c.id === track.studentClass);
-      if (classObj && Array.isArray(classObj.subjects)) {
-        classObj.subjects.forEach(s => addSubject(s));
-        if (typeof saveUserTrack === 'function') saveUserTrack(track);
-        if (typeof syncAllSubjectSelects === 'function') syncAllSubjectSelects();
-        renderProfileTrackCard();
-        if (typeof renderProfileAspirantHub === 'function') renderProfileAspirantHub();
-        if (typeof showToast === 'function') showToast(`All ${classObj.subjects.length} subjects activated!`);
-      }
-    });
-  }
 
   container.querySelectorAll('.track-sector-btn').forEach(btn => {
     btn.addEventListener('click', () => {

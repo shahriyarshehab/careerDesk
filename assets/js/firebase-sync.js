@@ -1212,7 +1212,7 @@ function processAvatarFile(file, callback) {
 /**
  * Updates user profile (name and/or picture)
  */
-async function updateUserProfile(newName, newPhotoUrl) {
+async function updateUserProfile(newName, newPhotoUrl, newUsername, newPhoneNumber) {
   const custom = getCustomProfile() || {};
   if (newName !== undefined && newName.trim()) {
     custom.displayName = newName.trim();
@@ -1220,12 +1220,19 @@ async function updateUserProfile(newName, newPhotoUrl) {
   if (newPhotoUrl !== undefined) {
     custom.photoURL = newPhotoUrl;
   }
+  if (newUsername !== undefined) {
+    custom.username = newUsername.trim().replace(/^@+/, '');
+  }
+  if (newPhoneNumber !== undefined) {
+    custom.phoneNumber = newPhoneNumber.trim();
+  }
   saveCustomProfile(custom);
 
   if (currentAuthUser) {
     if (custom.displayName) currentAuthUser.displayName = custom.displayName;
     if (typeof custom.photoURL === 'string') currentAuthUser.photoURL = custom.photoURL;
     if (custom.username) currentAuthUser.username = custom.username;
+    if (custom.phoneNumber) currentAuthUser.phoneNumber = custom.phoneNumber;
     try {
       localStorage.setItem(FIREBASE_USER_CACHE_KEY, JSON.stringify(currentAuthUser));
     } catch (e) { }
@@ -1241,7 +1248,8 @@ async function updateUserProfile(newName, newPhotoUrl) {
           await firebase.firestore().collection('users').doc(currentAuthUser.uid).set({
             displayName: currentAuthUser.displayName,
             photoURL: currentAuthUser.photoURL,
-            username: currentAuthUser.username || ''
+            username: currentAuthUser.username || '',
+            phoneNumber: currentAuthUser.phoneNumber || ''
           }, { merge: true });
         }
       } catch (err) {
@@ -1271,9 +1279,11 @@ function openEditProfileModal() {
   }
 
   const user = getCachedAuthUser();
-  const currentName = (user && user.displayName) ? user.displayName : (getCustomProfile()?.displayName || 'Aspirant');
-  const currentPhoto = (user && user.photoURL) ? user.photoURL : (getCustomProfile()?.photoURL || '');
-  const currentUsername = (user && user.username) ? user.username : (getCustomProfile()?.username || getEffectiveUsername(user));
+  const custom = getCustomProfile() || {};
+  const currentName = (user && user.displayName) ? user.displayName : (custom.displayName || 'Aspirant');
+  const currentPhoto = (user && user.photoURL) ? user.photoURL : (custom.photoURL || '');
+  const currentUsername = (user && user.username) ? user.username : (custom.username || getEffectiveUsername(user));
+  const currentPhone = (user && user.phoneNumber) ? user.phoneNumber : (custom.phoneNumber || '');
 
   const presets = [
     { label: 'Scholar', emoji: '🎓', bg: 'linear-gradient(135deg, #6366f1, #3b82f6)' },
@@ -1335,6 +1345,17 @@ function openEditProfileModal() {
           <input type="text" id="editProfileUsernameInput" value="${escapeAttr(currentUsername)}" placeholder="username"
             style="width:100%; padding:9px 12px 9px 32px; border-radius:10px; border:1px solid var(--border); background:var(--surface); color:var(--text); font-size:13.5px; box-sizing:border-box;">
         </div>
+      </div>
+
+      <!-- Mobile Number Input -->
+      <div class="form-group" style="margin-bottom:14px;">
+        <label style="font-size:12.5px; font-weight:700; color:var(--text); display:block; margin-bottom:6px;">Mobile Number:</label>
+        <div style="position:relative;">
+          <span style="position:absolute; left:12px; top:50%; transform:translateY(-50%); color:var(--accent2);"><i data-lucide="phone" style="width:14px;height:14px;"></i></span>
+          <input type="tel" id="editProfilePhoneInput" value="${escapeAttr(currentPhone)}" placeholder="+880 1XXX-XXXXXX"
+            style="width:100%; padding:9px 12px 9px 34px; border-radius:10px; border:1px solid var(--border); background:var(--surface); color:var(--text); font-size:13.5px; box-sizing:border-box;">
+        </div>
+        <span style="font-size:11px; color:var(--text-soft); display:block; margin-top:3px;">Connect your phone number for study alerts and identity verification.</span>
       </div>
 
       <!-- Avatar Preset Avatars -->
@@ -1432,13 +1453,15 @@ function openEditProfileModal() {
   document.getElementById('btnSaveEditProfile')?.addEventListener('click', async () => {
     const nameInput = document.getElementById('editProfileNameInput');
     const usernameInput = document.getElementById('editProfileUsernameInput');
+    const phoneInput = document.getElementById('editProfilePhoneInput');
     const newName = nameInput ? nameInput.value.trim() : '';
     const newUsername = usernameInput ? usernameInput.value.trim() : '';
+    const newPhone = phoneInput ? phoneInput.value.trim() : '';
     if (!newName) {
       showToast('Please enter a valid display name', true);
       return;
     }
-    const success = await updateUserProfile(newName, activeModalPhoto, newUsername);
+    const success = await updateUserProfile(newName, activeModalPhoto, newUsername, newPhone);
     if (success !== false) {
       closeEditProfileModal();
     }
@@ -1565,41 +1588,54 @@ function renderUserProfileUI() {
       providerIconHtml = '<i data-lucide="smartphone" style="width:12px;height:12px;"></i>';
     }
 
+    const effectivePhone = (user && user.phoneNumber) ? user.phoneNumber : (custom.phoneNumber || '');
+
     container.innerHTML = `
       <!-- HERO BANNER -->
       <div class="profile-hero-banner">
         <div class="profile-hero-content">
-          <!-- Avatar -->
+          <!-- Avatar (Clean, no individual edit badge) -->
           <div class="user-avatar-wrap">
             ${avatarHtml}
-            <label for="profileAvatarUploadInput" class="avatar-edit-badge" title="Change Profile Picture" aria-label="Change profile picture">
-              <i data-lucide="camera"></i>
-            </label>
-            <input type="file" id="profileAvatarUploadInput" accept="image/*" style="display:none;">
           </div>
 
-          <!-- Name / Email / Badge -->
+          <!-- Name / Email / Phone / Badge -->
           <div class="user-hero-text">
             <div class="user-name-row">
               <h3 class="user-display-name">${escapeHtml(effectiveName)}</h3>
-              <button type="button" class="btn-edit-profile" id="btnOpenEditProfileModal" title="Edit Profile Name, Username &amp; Picture" aria-label="Edit Profile">
-                <i data-lucide="edit-2"></i>
-              </button>
             </div>
             <div class="user-handle-row" style="margin:2px 0 6px;">
               <span class="user-handle-badge" style="display:inline-flex; align-items:center; gap:4px; font-family:var(--font-mono); font-size:12px; font-weight:700; color:var(--accent2); background:rgba(6,182,212,0.12); border:1px solid rgba(6,182,212,0.25); padding:2px 8px; border-radius:6px;">@${escapeHtml(effectiveUsername)}</span>
             </div>
-            <p class="user-email-text">
-              <i data-lucide="${isPhone ? 'smartphone' : 'mail'}" style="width:13px;height:13px;"></i>
-              ${escapeHtml(user.email || user.phoneNumber || 'Cloud Aspirant')}
-            </p>
+            <div class="user-details-list" style="display:flex; flex-direction:column; gap:4px; margin-bottom:6px;">
+              <span class="user-meta-detail" style="display:inline-flex; align-items:center; gap:6px; font-size:12.5px; color:var(--text-soft);">
+                <i data-lucide="mail" style="width:13px;height:13px;color:var(--accent1);"></i>
+                <span>${escapeHtml(user.email || 'Email: Not connected')}</span>
+              </span>
+              ${effectivePhone ? `
+                <span class="user-meta-detail user-meta-phone" style="display:inline-flex; align-items:center; gap:6px; font-size:12.5px; color:var(--text-soft);">
+                  <i data-lucide="phone" style="width:13px;height:13px;color:var(--accent2);"></i>
+                  <span style="font-family:var(--font-mono); font-weight:600;">${escapeHtml(effectivePhone)}</span>
+                </span>
+              ` : `
+                <div style="margin-top:2px;">
+                  <button type="button" class="pill subtle btn-connect-phone" id="btnConnectPhoneFromProfile" style="padding:3px 10px; font-size:11.5px; display:inline-flex; align-items:center; gap:5px; cursor:pointer;">
+                    <i data-lucide="phone-call" style="width:12px;height:12px;color:var(--accent2);"></i>
+                    <span>Connect Mobile Number</span>
+                  </button>
+                </div>
+              `}
+            </div>
             <span class="user-provider-badge ${providerClass}">
               ${providerIconHtml} ${escapeHtml(providerLabel)}
             </span>
           </div>
 
-          <!-- Hero Action: Subject Manager & Sign Out -->
+          <!-- Hero Action: Edit Profile, Subject Manager & Sign Out -->
           <div class="profile-hero-actions" style="display:flex; align-items:center; gap:10px; margin-left:auto; flex-wrap:wrap;">
+            <button type="button" class="pill solid btn-edit-profile-main" id="btnOpenEditProfileModal" title="Edit Profile Details" style="padding:7px 15px; font-size:13px; display:inline-flex; align-items:center; gap:6px; cursor:pointer;">
+              <i data-lucide="user-cog" style="width:15px;height:15px;"></i> <span>Edit Profile</span>
+            </button>
             <button type="button" class="pill subtle btn-open-subject-manager" id="btnOpenSubjectManagerFromHero" title="Unified Subject Manager" style="padding:7px 14px; font-size:13px; display:inline-flex; align-items:center; gap:6px; cursor:pointer;">
               <i data-lucide="layers" style="width:15px;height:15px;"></i> <span>Subject Manager</span>
             </button>
@@ -1662,6 +1698,10 @@ function renderUserProfileUI() {
               <i data-lucide="log-in" style="width:16px; height:16px;"></i>
               <span>Sign In</span>
             </button>
+            <button type="button" class="pill subtle" id="btnOpenEditProfileModalGuest" title="Edit Profile Details" style="padding:10px 18px; font-size:13.5px; font-weight:600; display:inline-flex; align-items:center; gap:8px; cursor:pointer;">
+              <i data-lucide="user-cog" style="width:16px; height:16px;"></i>
+              <span>Edit Profile</span>
+            </button>
             <button type="button" class="pill subtle btn-open-subject-manager" id="btnOpenSubjectManagerFromGuest" title="Open Subject Manager" style="padding:10px 18px; font-size:13.5px; font-weight:600; display:inline-flex; align-items:center; gap:8px; cursor:pointer;">
               <i data-lucide="layers" style="width:16px; height:16px;"></i>
               <span>Subject Manager</span>
@@ -1702,6 +1742,13 @@ function renderUserProfileUI() {
     });
   }
 
+  const btnEditGuest = document.getElementById('btnOpenEditProfileModalGuest');
+  if (btnEditGuest) {
+    btnEditGuest.addEventListener('click', () => {
+      if (typeof openEditProfileModal === 'function') openEditProfileModal();
+    });
+  }
+
   // Bind Signed-In Action Listeners
   const btnSignOut = document.getElementById('btnProfileSignOut');
   if (btnSignOut) {
@@ -1731,17 +1778,14 @@ function renderUserProfileUI() {
     });
   }
 
-  const avatarUploadInput = document.getElementById('profileAvatarUploadInput');
-  if (avatarUploadInput) {
-    avatarUploadInput.addEventListener('change', (e) => {
-      const file = e.target.files && e.target.files[0];
-      if (file && typeof processAvatarFile === 'function') {
-        processAvatarFile(file, (dataUrl) => {
-          if (typeof updateUserProfile === 'function') {
-            const curName = effectiveName || 'Aspirant';
-            updateUserProfile(curName, dataUrl);
-          }
-        });
+  const btnConnectPhone = document.getElementById('btnConnectPhoneFromProfile');
+  if (btnConnectPhone) {
+    btnConnectPhone.addEventListener('click', () => {
+      if (typeof openEditProfileModal === 'function') {
+        openEditProfileModal();
+        setTimeout(() => {
+          document.getElementById('editProfilePhoneInput')?.focus();
+        }, 150);
       }
     });
   }
