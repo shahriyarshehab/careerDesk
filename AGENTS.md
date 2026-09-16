@@ -39,7 +39,7 @@ CareerDesk/
 │   │   ├── mcq.css         # BCS MCQ engine, options, floating points, mistake bank
 │   │   ├── profile.css     # User profile card, academic track, subject manager & cloud sync
 │   │   ├── modals.css      # Command Palette (Ctrl+K), generic modals & dialogs
-│   │   └── style.css       # Master stylesheet index (only CSS linked by index.html)
+│   │   └── master.css      # Master stylesheet project manifest (only CSS linked by index.html)
 │   ├── js/
 │   │   ├── master.js       # Master JavaScript project file & loader (only script linked by index.html)
 │   │   ├── core.js         # Master subject control, data schema, localStorage adapter & utilities
@@ -67,8 +67,8 @@ CareerDesk/
 ```
 
 ### Key File Roles:
-- **`index.html`**: Semantic single-page layout. Links **only** `assets/css/style.css` in head and `assets/js/master.js` at body end.
-- **`assets/css/style.css`**: Master Stylesheet Project File. Uses `@import` to load all modular CSS stylesheets.
+- **`index.html`**: Semantic single-page layout. Links **only** `assets/css/master.css` in head and `assets/js/master.js` at body end.
+- **`assets/css/master.css`**: Master Stylesheet Project File. Uses `@import` to load all modular CSS stylesheets.
 - **`assets/js/master.js`**: Master JavaScript Project File. Central manifest that synchronously loads all modular JS engines.
 - **`assets/js/core.js`**: Central storage adapter, state initialization (`getDefaultState`), global utilities (`escapeHtml`, `escapeAttr`, `toBnDigits`, `dateKey`), and the Unified Subject Control System (`masterSubjectList`, `canonicalSubjectName`, `renameSubject`, `syncAllSubjectSelects`).
 - **`assets/js/routine.js`**: Manages day-by-day and monthly routine views, calendar sliders, task editing, and time blocks.
@@ -207,6 +207,6 @@ All subjects across **Routine**, **Tracker & Focus**, **Syllabus**, and **Quizze
 ## 🧪 6. Testing & Quality Verification
 
 Before committing changes:
-1. **Syntax Integrity**: Run `node --check assets/js/script.js` to ensure zero syntax or bundling errors.
+1. **Syntax Integrity**: Run `node --check assets/js/*.js` (e.g. `node --check assets/js/master.js`) to ensure zero syntax or bundling errors.
 2. **Headless Browser Verification**: For UI layout, mobile responsive behavior, or timer testing, execute automated CDP scripts using headless Chrome (located in `scratch/`) and verify screenshots.
 3. **Cross-Tab Consistency**: Verify that changing subjects or state in one tab propagates correctly to all dependent components.

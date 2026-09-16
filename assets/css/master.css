@@ -1,0 +1,21 @@
+/* ==========================================================================
+   CareerDesk — Master Stylesheet (Project File & Modular Manifest)
+   
+   Centrally manages and links all modular stylesheets.
+   Only this master file needs to be linked in index.html.
+   ========================================================================== */
+
+@import url('base.css');
+@import url('components.css');
+@import url('home.css');
+@import url('routine.css');
+@import url('quotes.css');
+@import url('notes.css');
+@import url('tracker.css');
+@import url('countdown.css');
+@import url('syllabus.css');
+@import url('flashcards.css');
+@import url('mcq.css');
+@import url('profile.css');
+@import url('security.css');
+@import url('modals.css');
