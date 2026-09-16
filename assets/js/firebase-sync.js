@@ -1507,8 +1507,17 @@ function renderUserProfileUI() {
   const chevronSvg = `<svg class="auth-btn-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>`;
 
   // Calculate live study stats
+  let totalStudyMinutes = 0;
+  if (state && Array.isArray(state.sessions)) {
+    state.sessions.forEach(s => {
+      totalStudyMinutes += (s.duration || 0);
+    });
+  }
+  const totalStudyHours = (totalStudyMinutes / 60).toFixed(1);
   const sessionCount = (state && Array.isArray(state.sessions)) ? state.sessions.length : 0;
   const routineCount = (state && Array.isArray(state.routine)) ? state.routine.length : 0;
+  const notesCount = (state && Array.isArray(state.notes)) ? state.notes.length : 0;
+
   let doneTopics = 0;
   let totalTopics = 0;
   if (state && Array.isArray(state.syllabus)) {
@@ -1520,7 +1529,9 @@ function renderUserProfileUI() {
     });
   }
   const syllabusPct = totalTopics > 0 ? Math.round((doneTopics / totalTopics) * 100) : 0;
-  const examCount = (typeof exams !== 'undefined' && Array.isArray(exams)) ? exams.length : 0;
+  const masteredMCQsCount = (typeof userMCQProgress !== 'undefined' && Array.isArray(userMCQProgress.masteredIds))
+    ? userMCQProgress.masteredIds.length
+    : 0;
 
   if (user) {
     const isGoogle = user.providerId?.includes('google');
@@ -1586,63 +1597,39 @@ function renderUserProfileUI() {
             </span>
           </div>
 
-          <!-- Cloud status pill -->
-          <div class="profile-hero-actions">
-            <div class="cloud-sync-status-card">
-              <span class="cloud-status-dot" id="userCloudStatusDot"></span>
-              <div>
-                <div class="cloud-status-text">Cloud Sync Active</div>
-                <span class="cloud-status-sub" id="userCloudStatusSub">${escapeHtml(lastSyncFormatted)}</span>
-              </div>
-            </div>
+          <!-- Hero Action: Sign Out -->
+          <div class="profile-hero-actions" style="display:flex; align-items:center; gap:10px; margin-left:auto;">
+            <button type="button" class="btn-signout-modern" id="btnProfileSignOut" title="Sign out from cloud account" style="padding:7px 16px; font-size:13px; display:inline-flex; align-items:center; gap:6px;">
+              <i data-lucide="log-out" style="width:15px;height:15px;"></i> <span>Sign Out</span>
+            </button>
           </div>
         </div>
       </div>
 
-      <!-- PROFILE BODY -->
-      <div class="profile-card-body">
-
-        <!-- Live Activity Stats Summary -->
-        <div class="profile-stats-bar">
-          <div class="profile-stat-card">
-            <span class="profile-stat-val">${sessionCount}</span>
-            <span class="profile-stat-lbl">Sessions</span>
+      <!-- LIFETIME STATS SUMMARY GRID -->
+      <div class="profile-card-body" style="padding:18px 22px 22px;">
+        <div style="margin-bottom:12px;">
+          <h4 style="font-size:14px; color:var(--text); margin:0 0 2px; font-weight:700;">Lifetime Preparation Metrics</h4>
+          <span style="font-size:12px; color:var(--text-soft);">Your cumulative study milestone achievements</span>
+        </div>
+        <div class="profile-stats-bar" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(135px, 1fr)); gap:12px; margin:0;">
+          <div class="profile-stat-card glass" style="padding:14px; text-align:center; border-radius:12px; border:1px solid var(--border);">
+            <span class="profile-stat-val" style="font-size:22px; font-weight:800; color:var(--accent1); font-family:var(--font-display);">${totalStudyHours}h</span>
+            <span class="profile-stat-lbl" style="font-size:12px; color:var(--text-soft); display:block; margin-top:2px;">Study Time (${sessionCount} sessions)</span>
           </div>
-          <div class="profile-stat-card">
-            <span class="profile-stat-val">${routineCount}</span>
-            <span class="profile-stat-lbl">Routines</span>
+          <div class="profile-stat-card glass" style="padding:14px; text-align:center; border-radius:12px; border:1px solid var(--border);">
+            <span class="profile-stat-val" style="font-size:22px; font-weight:800; color:var(--accent2); font-family:var(--font-display);">${syllabusPct}%</span>
+            <span class="profile-stat-lbl" style="font-size:12px; color:var(--text-soft); display:block; margin-top:2px;">Syllabus (${doneTopics}/${totalTopics})</span>
           </div>
-          <div class="profile-stat-card">
-            <span class="profile-stat-val">${syllabusPct}%</span>
-            <span class="profile-stat-lbl">Syllabus (${doneTopics}/${totalTopics})</span>
+          <div class="profile-stat-card glass" style="padding:14px; text-align:center; border-radius:12px; border:1px solid var(--border);">
+            <span class="profile-stat-val" style="font-size:22px; font-weight:800; color:#10b981; font-family:var(--font-display);">${masteredMCQsCount}</span>
+            <span class="profile-stat-lbl" style="font-size:12px; color:var(--text-soft); display:block; margin-top:2px;">Mastered MCQs (/1,000)</span>
           </div>
-          <div class="profile-stat-card">
-            <span class="profile-stat-val">${examCount}</span>
-            <span class="profile-stat-lbl">Target Exams</span>
+          <div class="profile-stat-card glass" style="padding:14px; text-align:center; border-radius:12px; border:1px solid var(--border);">
+            <span class="profile-stat-val" style="font-size:22px; font-weight:800; color:var(--text); font-family:var(--font-display);">${notesCount}</span>
+            <span class="profile-stat-lbl" style="font-size:12px; color:var(--text-soft); display:block; margin-top:2px;">Study Notes (${routineCount} tasks)</span>
           </div>
         </div>
-
-        <!-- Cloud Sync Info Bar -->
-        <div class="cloud-sync-info-bar" style="display:flex; align-items:center; justify-content:space-between; gap:12px; padding:14px 18px; border-radius:12px; background:rgba(99,102,241,0.06); border:1px solid rgba(99,102,241,0.15); margin-bottom:18px;">
-          <div style="display:flex; align-items:center; gap:10px; font-size:13px; color:var(--text-soft);">
-            <i data-lucide="check-circle-2" style="width:17px;height:17px;color:var(--accent2);flex-shrink:0;"></i>
-            <span>Your routines, notes, syllabus progress, and mistake bank automatically sync with your private cloud account.</span>
-          </div>
-          <button type="button" class="pill theme-action-btn" id="btnUploadCloudNow" title="Sync data to Firestore now" style="white-space:nowrap;">
-            <i data-lucide="refresh-cw"></i> <span>Sync Now</span>
-          </button>
-        </div>
-
-        <!-- Modern Sign Out Row -->
-        <div class="profile-signout-row">
-          <div class="profile-signout-row-info">
-            Signed in as <strong>${escapeHtml(user.email || user.phoneNumber || effectiveName)}</strong>
-          </div>
-          <button type="button" class="btn-signout-modern" id="btnProfileSignOut" title="Sign out from cloud account">
-            <i data-lucide="log-out" style="width:14px;height:14px;"></i> <span>Sign Out</span>
-          </button>
-        </div>
-
       </div>
     `;
   } else {
