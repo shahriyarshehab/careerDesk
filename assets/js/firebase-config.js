@@ -16,10 +16,10 @@
    ========================================================================== */
 
 window.FIREBASE_CONFIG = {
-  apiKey: "",
-  authDomain: "",
-  projectId: "",
-  storageBucket: "",
-  messagingSenderId: "",
-  appId: ""
+  apiKey: "AIzaSyCmdViXQGstXz_2fu0I0BSiH9u_jB8Rbn0",
+  authDomain: "careerdesk.firebaseapp.com",
+  projectId: "careerdesk",
+  storageBucket: "careerdesk.firebasestorage.app",
+  messagingSenderId: "189177714174",
+  appId: "1:189177714174:web:c79ef6afaa4e2d20849caf"
 };
