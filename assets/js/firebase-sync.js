@@ -2703,8 +2703,124 @@ if (document.readyState === 'loading') {
 
 
 // =========================================================
+// FIREBASE RECAPTCHA VERIFICATION SUBSYSTEM
+// (Provides official firebase.auth.RecaptchaVerifier with graceful fallback)
+// =========================================================
+
+let modalRecaptchaVerifier = null;
+let modalRecaptchaWidgetId = null;
+let modalRecaptchaSolved = false;
+
+/**
+ * Initializes and renders Firebase's official RecaptchaVerifier into container
+ */
+function setupFirebaseRecaptcha(target = 'modal') {
+  const containerId = 'authRecaptchaContainer';
+  const fallbackId = 'authRecaptchaFallback';
+  const container = document.getElementById(containerId);
+  const fallback = document.getElementById(fallbackId);
+  if (!container) return;
+
+  modalRecaptchaSolved = false;
+
+  // Initialize Firebase app if needed
+  initFirebaseApp();
+
+  // If Firebase Auth and RecaptchaVerifier are available
+  if (typeof firebase !== 'undefined' && firebase.auth && typeof firebase.auth.RecaptchaVerifier === 'function') {
+    try {
+      if (modalRecaptchaVerifier) {
+        try { modalRecaptchaVerifier.clear(); } catch (e) {}
+        modalRecaptchaVerifier = null;
+        modalRecaptchaWidgetId = null;
+      }
+
+      container.innerHTML = '';
+
+      modalRecaptchaVerifier = new firebase.auth.RecaptchaVerifier(containerId, {
+        'size': 'normal',
+        'theme': (document.documentElement.getAttribute('data-theme') === 'light') ? 'light' : 'dark',
+        'callback': (response) => {
+          modalRecaptchaSolved = true;
+          const errEl = document.getElementById('authModalError');
+          if (errEl) errEl.textContent = '';
+        },
+        'expired-callback': () => {
+          modalRecaptchaSolved = false;
+        }
+      });
+
+      modalRecaptchaVerifier.render().then((widgetId) => {
+        modalRecaptchaWidgetId = widgetId;
+        if (fallback) fallback.style.display = 'none';
+        container.style.display = 'flex';
+      }).catch((err) => {
+        console.warn('[Firebase RecaptchaVerifier] Render warning, using visual verification:', err);
+        if (fallback) fallback.style.display = 'flex';
+      });
+      return;
+    } catch (err) {
+      console.warn('[Firebase RecaptchaVerifier] Init warning, using visual verification:', err);
+    }
+  }
+
+  // Fallback for offline or local file mode
+  if (fallback) fallback.style.display = 'flex';
+}
+
+/**
+ * Resets Firebase RecaptchaVerifier and checkbox fallback
+ */
+function resetFirebaseRecaptcha() {
+  modalRecaptchaSolved = false;
+  if (modalRecaptchaVerifier && modalRecaptchaWidgetId !== null) {
+    try {
+      if (typeof grecaptcha !== 'undefined' && typeof grecaptcha.reset === 'function') {
+        grecaptcha.reset(modalRecaptchaWidgetId);
+      }
+    } catch (e) {}
+  }
+  const check = document.getElementById('authRecaptchaCheckbox');
+  if (check) check.checked = false;
+  const label = document.getElementById('authRecaptchaLabel');
+  if (label) label.textContent = 'I am not a robot';
+  const fallback = document.getElementById('authRecaptchaFallback');
+  if (fallback) {
+    fallback.style.borderColor = 'var(--border)';
+    fallback.style.boxShadow = 'none';
+  }
+}
+
+/**
+ * Validates whether reCAPTCHA is verified via Firebase RecaptchaVerifier or active fallback
+ */
+function isFirebaseRecaptchaVerified() {
+  if (modalRecaptchaVerifier) {
+    try {
+      const resp = modalRecaptchaVerifier.getResponse ? modalRecaptchaVerifier.getResponse() : null;
+      if ((resp && resp.length > 0) || modalRecaptchaSolved) {
+        return true;
+      }
+    } catch (e) {
+      if (modalRecaptchaSolved) return true;
+    }
+  }
+
+  // Check fallback if active
+  const fallback = document.getElementById('authRecaptchaFallback');
+  const check = document.getElementById('authRecaptchaCheckbox');
+  if (fallback && fallback.style.display !== 'none') {
+    if (check && check.checked) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+// =========================================================
 // CENTRAL AUTHENTICATION POPUP MODAL (#authModal) CONTROLLER
-// (Supports Sign In, Sign Up, reCAPTCHA, Google, GitHub, Demo)
+// (Supports Sign In, Sign Up, Firebase reCAPTCHA, Google, GitHub)
 // =========================================================
 
 let currentAuthModalMode = 'login'; // 'login' | 'signup'
@@ -2730,18 +2846,13 @@ function openAuthModal(mode = 'login') {
   if (nameInput) nameInput.value = '';
 
   // Reset reCAPTCHA
-  const recaptchaCheck = document.getElementById('authRecaptchaCheckbox');
-  const recaptchaLabel = document.getElementById('authRecaptchaLabel');
-  const recaptchaFallback = document.getElementById('authRecaptchaFallback');
-  if (recaptchaCheck) recaptchaCheck.checked = false;
-  if (recaptchaLabel) recaptchaLabel.textContent = 'I am not a robot';
-  if (recaptchaFallback) {
-    recaptchaFallback.style.borderColor = 'var(--border)';
-    recaptchaFallback.style.boxShadow = 'none';
-  }
+  resetFirebaseRecaptcha();
 
   modal.style.display = 'flex';
   modal.classList.add('open');
+
+  // Initialize and render Firebase RecaptchaVerifier
+  setupFirebaseRecaptcha('modal');
 
   if (window.lucide && typeof window.lucide.createIcons === 'function') {
     window.lucide.createIcons();
@@ -2754,6 +2865,7 @@ function closeAuthModal() {
   modal.classList.remove('open');
   modal.style.display = 'none';
   hideEmailVerificationScreen();
+  resetFirebaseRecaptcha();
 }
 
 // Alias for backwards compatibility
@@ -3015,15 +3127,18 @@ async function handleAuthModalSubmit() {
   const errEl = document.getElementById('authModalError');
   const isSignUp = (currentAuthModalMode === 'signup');
 
-  // 1. Enforce reCAPTCHA
-  const recaptchaCheck = document.getElementById('authRecaptchaCheckbox');
-  if (!recaptchaCheck || !recaptchaCheck.checked) {
+  // 1. Enforce Firebase reCAPTCHA
+  if (!isFirebaseRecaptchaVerified()) {
     if (errEl) errEl.textContent = 'Please complete the reCAPTCHA verification to continue.';
     const fallback = document.getElementById('authRecaptchaFallback');
-    if (fallback) {
-      fallback.style.borderColor = '#f43f5e';
-      fallback.style.boxShadow = '0 0 12px rgba(244, 63, 94, 0.3)';
-      fallback.animate([
+    const container = document.getElementById('authRecaptchaContainer');
+    const targetEl = (container && container.style.display !== 'none' && container.children.length > 0) ? container : fallback;
+    if (targetEl) {
+      if (fallback) {
+        fallback.style.borderColor = '#f43f5e';
+        fallback.style.boxShadow = '0 0 12px rgba(244, 63, 94, 0.3)';
+      }
+      targetEl.animate([
         { transform: 'translateX(0)' },
         { transform: 'translateX(-6px)' },
         { transform: 'translateX(6px)' },
