@@ -1598,8 +1598,11 @@ function renderUserProfileUI() {
             </span>
           </div>
 
-          <!-- Hero Action: Sign Out -->
-          <div class="profile-hero-actions" style="display:flex; align-items:center; gap:10px; margin-left:auto;">
+          <!-- Hero Action: Subject Manager & Sign Out -->
+          <div class="profile-hero-actions" style="display:flex; align-items:center; gap:10px; margin-left:auto; flex-wrap:wrap;">
+            <button type="button" class="pill subtle btn-open-subject-manager" id="btnOpenSubjectManagerFromHero" title="Unified Subject Manager" style="padding:7px 14px; font-size:13px; display:inline-flex; align-items:center; gap:6px; cursor:pointer;">
+              <i data-lucide="layers" style="width:15px;height:15px;"></i> <span>Subject Manager</span>
+            </button>
             <button type="button" class="btn-signout-modern" id="btnProfileSignOut" title="Sign out from cloud account" style="padding:7px 16px; font-size:13px; display:inline-flex; align-items:center; gap:6px;">
               <i data-lucide="log-out" style="width:15px;height:15px;"></i> <span>Sign Out</span>
             </button>
@@ -1645,12 +1648,12 @@ function renderUserProfileUI() {
             <span class="auth-guest-pill">CareerDesk Cloud</span>
           </div>
 
-          <h2 class="auth-guest-title">New here?</h2>
+          <h2 class="auth-guest-title">Personal Study Profile</h2>
           <p class="auth-guest-desc">
-            Create an account or sign in to save your personal study routines, notes, syllabus checklist, and mistake bank securely in the cloud across all your devices.
+            Sign in to sync routines, notes, syllabus progress, and mistake bank securely across all your devices, or manage your custom curriculum subjects below.
           </p>
 
-          <div class="auth-guest-cta-row">
+          <div class="auth-guest-cta-row" style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
             <button type="button" class="btn-profile-signup-cta" id="btnOpenAuthModalSignup" title="Create a new free account">
               <i data-lucide="user-plus" style="width:16px; height:16px;"></i>
               <span>Create Account</span>
@@ -1659,16 +1662,29 @@ function renderUserProfileUI() {
               <i data-lucide="log-in" style="width:16px; height:16px;"></i>
               <span>Sign In</span>
             </button>
+            <button type="button" class="pill subtle btn-open-subject-manager" id="btnOpenSubjectManagerFromGuest" title="Open Subject Manager" style="padding:10px 18px; font-size:13.5px; font-weight:600; display:inline-flex; align-items:center; gap:8px; cursor:pointer;">
+              <i data-lucide="layers" style="width:16px; height:16px;"></i>
+              <span>Subject Manager</span>
+            </button>
           </div>
         </div>
       </div>
     `;
   }
 
-  // Toggle storage management card visibility based on authentication state
+  // Update cloud sync status indicators on dataManagementCard
   const dataMgmtCard = document.getElementById('dataManagementCard');
   if (dataMgmtCard) {
-    dataMgmtCard.style.display = user ? '' : 'none';
+    dataMgmtCard.style.display = 'block';
+  }
+  const liveBadge = document.getElementById('cloudSyncLiveBadge');
+  const statusDesc = document.getElementById('cloudSyncStatusDesc');
+  if (user) {
+    if (liveBadge) liveBadge.innerHTML = `<i data-lucide="check-circle" style="width:12px; height:12px;"></i> Auto-Sync Active`;
+    if (statusDesc) statusDesc.textContent = 'Your routines, notes, syllabus progress, and mistake bank automatically sync with your personal Firestore account with offline resilience.';
+  } else {
+    if (liveBadge) liveBadge.innerHTML = `<i data-lucide="cloud-off" style="width:12px; height:12px;"></i> Offline / Local Storage`;
+    if (statusDesc) statusDesc.textContent = 'Data is stored locally on this device. Sign in or connect an account to enable real-time cloud sync, automatic snapshots, and multi-device access.';
   }
 
   // Bind Guest Auth Action Listeners

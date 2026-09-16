@@ -23,6 +23,29 @@ function getSubjectStats(s) {
   };
 }
 
+// ===== Subject Manager Modal Controllers =====
+function openSubjectManagerModal() {
+  const modal = document.getElementById('subjectManagerModal');
+  if (modal) {
+    modal.style.display = 'flex';
+    modal.classList.add('open');
+    renderSubjectManager();
+    if (window.lucide && typeof window.lucide.createIcons === 'function') {
+      window.lucide.createIcons();
+    }
+    const input = document.getElementById('newSubjectInput');
+    if (input) setTimeout(() => input.focus(), 80);
+  }
+}
+
+function closeSubjectManagerModal() {
+  const modal = document.getElementById('subjectManagerModal');
+  if (modal) {
+    modal.style.display = 'none';
+    modal.classList.remove('open');
+  }
+}
+
 function renderSubjectManager() {
   const container = document.getElementById('subjectManagerList');
   const deletedSection = document.getElementById('deletedSubjectSection');
@@ -40,7 +63,7 @@ function renderSubjectManager() {
   }
 
   if (!activeSubjects.length) {
-    container.innerHTML = '<p style="color:var(--text-soft); font-size:13px; margin:8px 0;">No active subjects found. Click "Reset Defaults" or add a new subject above.</p>';
+    container.innerHTML = '<p style="color:var(--text-soft); font-size:13px; margin:8px 0; text-align:center;">No active subjects found. Click "Reset Defaults" or add a new subject above.</p>';
   } else {
     container.innerHTML = activeSubjects.map(s => {
       const stats = getSubjectStats(s);
@@ -101,51 +124,117 @@ function renderSubjectManager() {
       deletedContainer.innerHTML = '';
     }
   }
+
+  if (window.lucide && typeof window.lucide.createIcons === 'function') {
+    window.lucide.createIcons();
+  }
 }
 
-
-// Quick link to manage subjects in settings
-const manageSubjLink = document.querySelector('.manage-subjects-link');
-if (manageSubjLink) {
-  manageSubjLink.addEventListener('click', (e) => {
+// Global click delegation for Subject Manager actions (Open, Close, Rename, Delete, Restore)
+document.addEventListener('click', (e) => {
+  // Open Subject Manager modal from any designated button
+  const openBtn = e.target.closest('.btn-open-subject-manager, #btnOpenSubjectManagerModal, #btnOpenSubjectManagerFromHero, #btnOpenSubjectManagerFromGuest, #btnOpenSubjectManagerFromTrack, .manage-subjects-link');
+  if (openBtn) {
     e.preventDefault();
-    activateTab('settings', true);
-    setTimeout(() => {
-      const el = document.getElementById('subjectManagerList');
-      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }, 120);
-  });
-}
+    openSubjectManagerModal();
+    return;
+  }
 
-// Subject Manager delegated click handlers (Rename, Delete)
-const subjManagerListEl = document.getElementById('subjectManagerList');
-if (subjManagerListEl) {
-  subjManagerListEl.addEventListener('click', (e) => {
-    const delBtn = e.target.closest('.subject-delete-btn');
-    if (delBtn) {
-      deleteSubject(delBtn.dataset.subject);
-      return;
+  // Close modal button
+  if (e.target.closest('#closeSubjectManagerModalBtn')) {
+    e.preventDefault();
+    closeSubjectManagerModal();
+    return;
+  }
+
+  // Backdrop click on Subject Manager modal
+  if (e.target && e.target.id === 'subjectManagerModal') {
+    closeSubjectManagerModal();
+    return;
+  }
+
+  // Delete subject
+  const delBtn = e.target.closest('.subject-delete-btn');
+  if (delBtn) {
+    e.preventDefault();
+    const subj = delBtn.dataset.subject;
+    if (subj) {
+      deleteSubject(subj);
+      renderSubjectManager();
     }
-    const renameBtn = e.target.closest('.subject-rename-btn');
-    if (renameBtn) {
-      const oldName = renameBtn.dataset.renameSubject;
+    return;
+  }
+
+  // Rename subject
+  const renameBtn = e.target.closest('.subject-rename-btn');
+  if (renameBtn) {
+    e.preventDefault();
+    const oldName = renameBtn.dataset.renameSubject;
+    if (oldName) {
       const newName = prompt(`Rename subject "${oldName}" across all routine, tracker, and syllabus data:`, oldName);
       if (newName && newName.trim() && newName.trim() !== oldName) {
         renameSubject(oldName, newName.trim());
+        renderSubjectManager();
       }
-      return;
+    }
+    return;
+  }
+
+  // Restore subject
+  const restoreBtn = e.target.closest('.subject-restore-btn');
+  if (restoreBtn) {
+    e.preventDefault();
+    const subj = restoreBtn.dataset.restoreSubject;
+    if (subj) {
+      restoreSubject(subj);
+      renderSubjectManager();
+    }
+    return;
+  }
+});
+
+// ESC key closes Subject Manager modal
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    const modal = document.getElementById('subjectManagerModal');
+    if (modal && (modal.style.display === 'flex' || modal.classList.contains('open'))) {
+      closeSubjectManagerModal();
+    }
+  }
+});
+
+// Add new subject button in modal
+const modalAddSubjBtn = document.getElementById('addSubjectBtn');
+const modalSubjInput = document.getElementById('newSubjectInput');
+if (modalAddSubjBtn && modalSubjInput) {
+  modalAddSubjBtn.addEventListener('click', () => {
+    const name = modalSubjInput.value.trim();
+    if (!name) { modalSubjInput.focus(); return; }
+    const added = (typeof addSubject === 'function' ? addSubject(name) : name) || name;
+    modalSubjInput.value = '';
+    renderSubjectManager();
+    showToast(`"${added}" added to active subjects.`);
+  });
+  modalSubjInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      modalAddSubjBtn.click();
     }
   });
 }
 
-// Deleted Subject List restore button
-const deletedListEl = document.getElementById('deletedSubjectList');
-if (deletedListEl) {
-  deletedListEl.addEventListener('click', (e) => {
-    const restoreBtn = e.target.closest('.subject-restore-btn');
-    if (restoreBtn) {
-      restoreSubject(restoreBtn.dataset.restoreSubject);
-    }
+// Reset default subjects button in modal
+const resetDefSubjBtn = document.getElementById('resetDefaultSubjectsBtn');
+if (resetDefSubjBtn) {
+  resetDefSubjBtn.addEventListener('click', () => {
+    const ok = confirm('Reset all custom and deleted subjects to standard defaults? Existing logged study sessions and routine blocks are preserved.');
+    if (!ok) return;
+    state.customSubjects = [];
+    state.deletedSubjects = [];
+    saveData();
+    syncAllSubjectSelects();
+    renderSubjectManager();
+    showToast('Subjects reset to defaults.');
   });
 }
 
@@ -277,6 +366,12 @@ if (exportSettingsBtn) {
 const btnSyncFirestoreNow = document.getElementById('btnSyncFirestoreNow');
 if (btnSyncFirestoreNow) {
   btnSyncFirestoreNow.addEventListener('click', async () => {
+    const user = (typeof getCachedAuthUser === 'function') ? getCachedAuthUser() : null;
+    if (!user) {
+      if (typeof openAuthModal === 'function') openAuthModal('login');
+      if (typeof showToast === 'function') showToast('Please sign in to sync your study data with cloud.', true);
+      return;
+    }
     if (typeof syncUserDataToFirestore === 'function') {
       await syncUserDataToFirestore(null, false);
     } else if (typeof uploadBackupToCloud === 'function') {
@@ -285,10 +380,55 @@ if (btnSyncFirestoreNow) {
   });
 }
 
+// Create Snapshot Button
+const btnCreateSnapshotNow = document.getElementById('btnCreateSnapshotNow');
+if (btnCreateSnapshotNow) {
+  btnCreateSnapshotNow.addEventListener('click', async () => {
+    const user = (typeof getCachedAuthUser === 'function') ? getCachedAuthUser() : null;
+    if (!user) {
+      if (typeof openAuthModal === 'function') openAuthModal('login');
+      if (typeof showToast === 'function') showToast('Please sign in to create cloud snapshots.', true);
+      return;
+    }
+    if (typeof createCloudSnapshot === 'function') {
+      createCloudSnapshot(null, null, false);
+    }
+  });
+}
+
+// JSON Cloud File Export Button
+const btnExportCloudJSON = document.getElementById('btnExportCloudJSON');
+if (btnExportCloudJSON) {
+  btnExportCloudJSON.addEventListener('click', () => {
+    if (typeof exportCloudBackupJSON === 'function') {
+      exportCloudBackupJSON();
+    }
+  });
+}
+
+// JSON Cloud File Import Listener
+const cloudJSONFileInput = document.getElementById('cloudJSONFileInput');
+if (cloudJSONFileInput) {
+  cloudJSONFileInput.addEventListener('change', (e) => {
+    if (e.target.files && e.target.files[0]) {
+      if (typeof importCloudBackupJSON === 'function') {
+        importCloudBackupJSON(e.target.files[0]);
+      }
+      e.target.value = '';
+    }
+  });
+}
+
 // Cloud Backup Shortcut Buttons (Settings Data Card - backwards compatibility)
 const uploadCloudDataCardBtn = document.getElementById('btnUploadCloudFromDataCard');
 if (uploadCloudDataCardBtn) {
   uploadCloudDataCardBtn.addEventListener('click', () => {
+    const user = (typeof getCachedAuthUser === 'function') ? getCachedAuthUser() : null;
+    if (!user) {
+      if (typeof openAuthModal === 'function') openAuthModal('login');
+      if (typeof showToast === 'function') showToast('Please sign in to sync with cloud.', true);
+      return;
+    }
     if (typeof syncUserDataToFirestore === 'function') {
       syncUserDataToFirestore(null, false);
     } else if (typeof uploadBackupToCloud === 'function') {
@@ -300,6 +440,12 @@ if (uploadCloudDataCardBtn) {
 const restoreCloudDataCardBtn = document.getElementById('btnRestoreCloudFromDataCard');
 if (restoreCloudDataCardBtn) {
   restoreCloudDataCardBtn.addEventListener('click', () => {
+    const user = (typeof getCachedAuthUser === 'function') ? getCachedAuthUser() : null;
+    if (!user) {
+      if (typeof openAuthModal === 'function') openAuthModal('login');
+      if (typeof showToast === 'function') showToast('Please sign in to restore from cloud.', true);
+      return;
+    }
     if (typeof collectUserDataFromFirestore === 'function') {
       collectUserDataFromFirestore();
     } else if (typeof restoreBackupFromCloud === 'function') {
@@ -312,6 +458,7 @@ if (restoreCloudDataCardBtn) {
 async function deleteUserCloudData() {
   const user = (typeof getCachedAuthUser === 'function') ? getCachedAuthUser() : null;
   if (!user) {
+    if (typeof openAuthModal === 'function') openAuthModal('login');
     if (typeof showToast === 'function') showToast('Please sign in to delete cloud data.', true);
     return;
   }
@@ -351,6 +498,12 @@ const cancelDeleteCloudModalBtn = document.getElementById('cancelDeleteCloudModa
 const confirmDeleteCloudBtn = document.getElementById('confirmDeleteCloudBtn');
 
 function openDeleteCloudModal() {
+  const user = (typeof getCachedAuthUser === 'function') ? getCachedAuthUser() : null;
+  if (!user) {
+    if (typeof openAuthModal === 'function') openAuthModal('login');
+    if (typeof showToast === 'function') showToast('Please sign in to manage cloud data.', true);
+    return;
+  }
   if (deleteCloudModal) deleteCloudModal.style.display = 'flex';
 }
 function closeDeleteCloudModal() {
@@ -645,7 +798,12 @@ function renderProfileTrackCard() {
           <i data-lucide="${isStudent ? 'graduation-cap' : 'briefcase'}"></i>
         </div>
         <div>
-          <h3 class="track-main-title">Target Track &amp; Curriculum Manager</h3>
+          <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+            <h3 class="track-main-title" style="margin:0;">Target Track &amp; Curriculum Manager</h3>
+            <button type="button" class="pill subtle btn-open-subject-manager" id="btnOpenSubjectManagerFromTrack" title="Open Unified Subject Manager" style="padding:4px 10px; font-size:11.5px; display:inline-flex; align-items:center; gap:5px; cursor:pointer;">
+              <i data-lucide="layers" style="width:13px; height:13px;"></i> <span>Subject Manager</span>
+            </button>
+          </div>
           <p class="track-main-subtitle">Choose whether you are a Student or Job Seeker to manage your active subjects seamlessly.</p>
         </div>
       </div>

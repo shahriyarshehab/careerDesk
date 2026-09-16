@@ -762,7 +762,7 @@
               Your routines, notes, syllabus progress, and mistake bank automatically sync with your personal Firestore account with offline resilience.
             </span>
           </div>
-          <div class="settings-btn-group data-action-buttons btn-group">
+          <div class="settings-btn-group data-action-buttons">
             <button class="pill theme-action-btn" id="btnSyncFirestoreNow" type="button" title="Sync data to Firestore now">
               <i data-lucide="refresh-cw"></i> <span>Sync Now</span>
             </button>
@@ -798,7 +798,7 @@
             <strong style="font-size:14.5px; display:block; color:var(--text); margin-bottom:2px;">JSON Cloud File Backup</strong>
             <span style="font-size:12.5px; color:var(--text-soft);">Download your complete cloud data package or restore from a previously saved JSON file.</span>
           </div>
-          <div class="settings-btn-group data-action-buttons btn-group">
+          <div class="settings-btn-group data-action-buttons">
             <button class="pill theme-action-btn" id="btnExportCloudJSON" type="button" title="Download entire cloud backup as JSON">
               <i data-lucide="download"></i> <span>Export JSON</span>
             </button>
@@ -850,6 +850,57 @@
           <button class="pill subtle" id="cancelDeleteCloudModalBtn" type="button" style="width:100%; justify-content:center; padding:10px 16px; font-size:13.5px;">
             Cancel
           </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Dedicated Subject Manager Modal -->
+  <div class="modal-overlay" id="subjectManagerModal" style="display:none;">
+    <div class="glass modal-card subject-manager-modal-card" style="max-width:580px; width:92%; padding:0; overflow:hidden; border-radius:20px; position:relative; box-shadow:0 24px 60px rgba(0,0,0,0.35);">
+      <!-- Modal Header -->
+      <div style="padding:20px 22px 16px; border-bottom:1px solid var(--border); background:var(--surface-strong); display:flex; align-items:center; gap:12px;">
+        <div style="width:38px; height:38px; border-radius:12px; background:linear-gradient(135deg, rgba(99,102,241,0.2), rgba(6,182,212,0.2)); border:1px solid var(--accent1); color:var(--accent2); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+          <i data-lucide="layers" style="width:20px; height:20px;"></i>
+        </div>
+        <div style="flex:1; min-width:0;">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <h3 style="margin:0; font-family:var(--font-display); font-size:17px; color:var(--text); font-weight:700;">Subject Manager</h3>
+            <span class="subject-count-badge" id="subjectCountBadge">0 Active</span>
+          </div>
+          <p style="margin:2px 0 0; font-size:12px; color:var(--text-soft);">Central control for Routine, Tracker, Syllabus, and Quizzes</p>
+        </div>
+        <button type="button" id="closeSubjectManagerModalBtn" style="background:none; border:none; cursor:pointer; color:var(--text-soft); padding:6px; display:flex; align-items:center; border-radius:8px; line-height:1;" title="Close" aria-label="Close Subject Manager">
+          <i data-lucide="x" style="width:18px; height:18px;"></i>
+        </button>
+      </div>
+
+      <!-- Modal Body -->
+      <div style="padding:20px 22px; max-height:75vh; overflow-y:auto;">
+        <!-- Add Subject Input Group & Reset Defaults -->
+        <div style="display:flex; gap:8px; align-items:center; margin-bottom:16px; flex-wrap:wrap;">
+          <div style="display:flex; flex:1; min-width:240px; gap:6px;">
+            <input type="text" id="newSubjectInput" placeholder="Add new subject (e.g. ICT, Higher Math)..."
+              style="flex:1; padding:9px 12px; border-radius:10px; border:1px solid var(--border); background:var(--surface); color:var(--text); font-size:13px; outline:none;">
+            <button class="pill solid" id="addSubjectBtn" type="button" style="padding:9px 14px; font-weight:600; white-space:nowrap;">
+              <i data-lucide="plus"></i> <span>Add</span>
+            </button>
+          </div>
+          <button class="pill subtle" id="resetDefaultSubjectsBtn" type="button" style="padding:8px 12px; font-size:12px; white-space:nowrap;" title="Reset standard subjects">
+            <i data-lucide="rotate-ccw"></i> <span>Reset Defaults</span>
+          </button>
+        </div>
+
+        <!-- Active Subject List -->
+        <div id="subjectManagerList" class="subject-manager-list" style="display:flex; flex-direction:column; gap:8px;"></div>
+
+        <!-- Inactive / Hidden Subjects Section -->
+        <div id="deletedSubjectSection" class="deleted-subject-section" style="margin-top:20px; display:none; border-top:1px dashed var(--border); padding-top:16px;">
+          <div style="display:flex; align-items:center; gap:6px; margin-bottom:10px;">
+            <i data-lucide="eye-off" style="width:14px; height:14px; color:var(--text-soft);"></i>
+            <h4 style="font-size:12px; color:var(--text-muted); margin:0; text-transform:uppercase; letter-spacing:0.04em;">Inactive / Hidden Subjects</h4>
+          </div>
+          <div id="deletedSubjectList" class="subject-manager-list" style="display:flex; flex-direction:column; gap:8px;"></div>
         </div>
       </div>
     </div>
