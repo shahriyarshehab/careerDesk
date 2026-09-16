@@ -161,6 +161,10 @@ function getCachedAuthUser() {
  */
 async function signInWithGoogle() {
   isExplicitlySignedOut = false;
+  if (window.location.protocol === 'file:') {
+    openProtocolHelpModal('Google');
+    return;
+  }
   const isInitialized = initFirebaseApp();
   if (isInitialized && typeof firebase !== 'undefined' && firebase.auth) {
     try {
@@ -182,9 +186,7 @@ async function signInWithGoogle() {
       setTimeout(() => checkCloudInitialSync(), 600);
       return;
     } catch (err) {
-      console.error('Google Sign-In Error:', err);
-      if (err.code === 'auth/popup-closed-by-user') return;
-      showToast('Google Sign-In: ' + (err.message || 'Error authenticating'), true);
+      handleAuthError(err, 'Google');
     }
   } else {
     openFirebaseConfigModal(true, 'Google');
@@ -196,6 +198,10 @@ async function signInWithGoogle() {
  */
 async function signInWithGithub() {
   isExplicitlySignedOut = false;
+  if (window.location.protocol === 'file:') {
+    openProtocolHelpModal('GitHub');
+    return;
+  }
   const isInitialized = initFirebaseApp();
   if (isInitialized && typeof firebase !== 'undefined' && firebase.auth) {
     try {
@@ -216,9 +222,7 @@ async function signInWithGithub() {
       setTimeout(() => checkCloudInitialSync(), 600);
       return;
     } catch (err) {
-      console.error('GitHub Sign-In Error:', err);
-      if (err.code === 'auth/popup-closed-by-user') return;
-      showToast('GitHub Sign-In: ' + (err.message || 'Error authenticating'), true);
+      handleAuthError(err, 'GitHub');
     }
   } else {
     openFirebaseConfigModal(true, 'GitHub');
@@ -1071,15 +1075,292 @@ function closeFirebaseConfigModal() {
   setTimeout(() => modal.style.display = 'none', 200);
 }
 
+// =========================================================
+// ERROR HANDLING & AUTHENTICATION GUIDANCE MODALS
+// =========================================================
+
+/**
+ * Handles Firebase Authentication errors gracefully with actionable guidance
+ */
+function handleAuthError(err, providerName = 'Google') {
+  console.error(`[CareerDesk Firebase] ${providerName} Sign-In Error:`, err);
+  if (!err) return;
+
+  const code = err.code || '';
+  if (code === 'auth/popup-closed-by-user') {
+    return; // User intentionally dismissed the popup
+  }
+
+  if (code === 'auth/operation-not-supported-in-this-environment' || window.location.protocol === 'file:') {
+    openProtocolHelpModal(providerName);
+    return;
+  }
+
+  if (code === 'auth/configuration-not-found' || code === 'auth/operation-not-allowed') {
+    openProviderDisabledModal(providerName);
+    return;
+  }
+
+  if (code === 'auth/unauthorized-domain') {
+    openUnauthorizedDomainModal();
+    return;
+  }
+
+  if (code === 'auth/popup-blocked') {
+    showToast('The sign-in popup was blocked by your browser. Please allow popups for CareerDesk and try again.', true);
+    return;
+  }
+
+  showToast(`${providerName} Sign-In: ${err.message || 'Error authenticating'}`, true);
+}
+
+/**
+ * Modal displayed when attempting OAuth sign-in on file:// protocol
+ */
+function openProtocolHelpModal(providerName = 'Google') {
+  let modal = document.getElementById('protocolHelpModal');
+  if (!modal) {
+    modal = document.createElement('div');
+    modal.className = 'modal-overlay';
+    modal.id = 'protocolHelpModal';
+    document.body.appendChild(modal);
+  }
+
+  modal.innerHTML = `
+    <div class="glass modal-card protocol-help-modal" style="max-width:540px; width:92%; padding:26px; border-radius:18px;">
+      <div class="modal-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+        <h3 class="modal-title" style="margin:0; font-family:var(--font-display); font-size:18px; color:var(--text); display:flex; align-items:center; gap:8px;">
+          <i data-lucide="shield-alert" style="color:#f59e0b; width:22px; height:22px;"></i>
+          Browser Security: Local File Mode
+        </h3>
+        <button class="modal-close" id="closeProtocolHelpModal" type="button" style="background:none; border:none; color:var(--text-soft); cursor:pointer; padding:4px;">
+          <i data-lucide="x"></i>
+        </button>
+      </div>
+
+      <p style="font-size:13px; color:var(--text); margin:0 0 14px; line-height:1.5;">
+        You opened CareerDesk directly from your filesystem (<code>file://</code>). Google and GitHub OAuth popups require an HTTP web server origin (like <code>http://localhost:3000</code>) because modern web browsers block cross-window authentication on local file paths.
+      </p>
+
+      <div style="background:rgba(99,102,241,0.08); border:1px solid rgba(99,102,241,0.25); border-radius:12px; padding:14px; margin-bottom:16px;">
+        <strong style="font-size:13px; color:var(--text); display:flex; align-items:center; gap:6px; margin-bottom:6px;">
+          <i data-lucide="terminal" style="width:16px; height:16px; color:var(--accent1);"></i>
+          Option 1: Run Local Web Server (Full OAuth)
+        </strong>
+        <p style="font-size:12px; color:var(--text-soft); margin:0 0 8px; line-height:1.45;">
+          Open your terminal in the <code>CareerDesk</code> folder and run:
+        </p>
+        <div style="display:flex; align-items:center; justify-content:space-between; background:rgba(0,0,0,0.3); padding:8px 12px; border-radius:8px; font-family:var(--font-mono); font-size:12.5px; color:#67e8f9;">
+          <code>npm start</code>
+          <span style="font-size:11px; color:var(--text-soft);">or <code>node serve.js</code></span>
+        </div>
+        <p style="font-size:11.5px; color:var(--text-soft); margin:8px 0 0;">
+          This automatically opens <strong>http://localhost:3000</strong> where real ${escapeHtml(providerName)} sign-in works natively.
+        </p>
+      </div>
+
+      <div style="background:rgba(6,182,212,0.08); border:1px solid rgba(6,182,212,0.25); border-radius:12px; padding:14px; margin-bottom:18px;">
+        <strong style="font-size:13px; color:var(--text); display:flex; align-items:center; gap:6px; margin-bottom:4px;">
+          <i data-lucide="zap" style="width:16px; height:16px; color:var(--accent2);"></i>
+          Option 2: Instant Demo Login (Works on file://)
+        </strong>
+        <p style="font-size:12px; color:var(--text-soft); margin:0; line-height:1.4;">
+          Test all user features right now in this tab without running a local server. Cloud sync, avatar upload, and profile editing will be fully active.
+        </p>
+      </div>
+
+      <div class="btn-group" style="justify-content:space-between; flex-wrap:wrap; gap:8px;">
+        <button type="button" class="pill solid" id="btnContinueWithDemo" style="background:linear-gradient(135deg, var(--accent1), var(--accent2)); color:#fff;">
+          <i data-lucide="play"></i> <span>Instant Demo Login (${escapeHtml(providerName)})</span>
+        </button>
+        <button type="button" class="pill" id="btnDismissProtocolHelp">Close</button>
+      </div>
+    </div>
+  `;
+
+  modal.style.display = 'flex';
+  setTimeout(() => modal.classList.add('open'), 20);
+
+  modal.onclick = (e) => { if (e.target === modal) closeProtocolHelpModal(); };
+  document.getElementById('closeProtocolHelpModal')?.addEventListener('click', closeProtocolHelpModal);
+  document.getElementById('btnDismissProtocolHelp')?.addEventListener('click', closeProtocolHelpModal);
+  document.getElementById('btnContinueWithDemo')?.addEventListener('click', () => {
+    closeProtocolHelpModal();
+    signInDemoUser(providerName);
+  });
+
+  if (window.lucide && typeof window.lucide.createIcons === 'function') {
+    window.lucide.createIcons();
+  }
+}
+
+function closeProtocolHelpModal() {
+  const modal = document.getElementById('protocolHelpModal');
+  if (!modal) return;
+  modal.classList.remove('open');
+  setTimeout(() => modal.style.display = 'none', 200);
+}
+
+/**
+ * Modal displayed when Google/GitHub provider is not enabled in Firebase console
+ */
+function openProviderDisabledModal(providerName = 'Google') {
+  let modal = document.getElementById('providerDisabledModal');
+  if (!modal) {
+    modal = document.createElement('div');
+    modal.className = 'modal-overlay';
+    modal.id = 'providerDisabledModal';
+    document.body.appendChild(modal);
+  }
+
+  const projectId = getStoredFirebaseConfig()?.projectId || 'careerdesk';
+  const consoleUrl = `https://console.firebase.google.com/project/${encodeURIComponent(projectId)}/authentication/providers`;
+
+  modal.innerHTML = `
+    <div class="glass modal-card provider-disabled-modal" style="max-width:520px; width:92%; padding:26px; border-radius:18px;">
+      <div class="modal-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+        <h3 class="modal-title" style="margin:0; font-family:var(--font-display); font-size:18px; color:var(--text); display:flex; align-items:center; gap:8px;">
+          <i data-lucide="alert-triangle" style="color:#f59e0b; width:22px; height:22px;"></i>
+          ${escapeHtml(providerName)} Sign-In Not Enabled
+        </h3>
+        <button class="modal-close" id="closeProviderDisabledModal" type="button" style="background:none; border:none; color:var(--text-soft); cursor:pointer; padding:4px;">
+          <i data-lucide="x"></i>
+        </button>
+      </div>
+
+      <p style="font-size:13px; color:var(--text); margin:0 0 14px; line-height:1.5;">
+        Firebase rejected the sign-in because <strong>${escapeHtml(providerName)}</strong> authentication is not enabled yet in your Firebase console.
+      </p>
+
+      <div style="background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:14px; margin-bottom:16px;">
+        <strong style="font-size:13px; color:var(--text); display:block; margin-bottom:6px;">Quick 1-Minute Fix:</strong>
+        <ol style="font-size:12.5px; color:var(--text-soft); margin:0; padding-left:18px; line-height:1.55;">
+          <li>Click the button below to open your Firebase Console.</li>
+          <li>Under <strong>Sign-in method</strong>, click <strong>${escapeHtml(providerName)}</strong>.</li>
+          <li>Toggle <strong>Enable</strong>, select your support email, and click <strong>Save</strong>.</li>
+        </ol>
+      </div>
+
+      <div class="btn-group" style="justify-content:space-between; flex-wrap:wrap; gap:8px;">
+        <a href="${consoleUrl}" target="_blank" rel="noopener noreferrer" class="pill solid" style="text-decoration:none; display:inline-flex; align-items:center; gap:6px;">
+          <i data-lucide="external-link"></i> <span>Open Firebase Console</span>
+        </a>
+        <div style="display:flex; gap:8px;">
+          <button type="button" class="pill" id="btnProviderDemoFallback" style="font-size:12px;">Demo Login</button>
+          <button type="button" class="pill" id="btnDismissProviderDisabled">Close</button>
+        </div>
+      </div>
+    </div>
+  `;
+
+  modal.style.display = 'flex';
+  setTimeout(() => modal.classList.add('open'), 20);
+
+  modal.onclick = (e) => { if (e.target === modal) closeProviderDisabledModal(); };
+  document.getElementById('closeProviderDisabledModal')?.addEventListener('click', closeProviderDisabledModal);
+  document.getElementById('btnDismissProviderDisabled')?.addEventListener('click', closeProviderDisabledModal);
+  document.getElementById('btnProviderDemoFallback')?.addEventListener('click', () => {
+    closeProviderDisabledModal();
+    signInDemoUser(providerName);
+  });
+
+  if (window.lucide && typeof window.lucide.createIcons === 'function') {
+    window.lucide.createIcons();
+  }
+}
+
+function closeProviderDisabledModal() {
+  const modal = document.getElementById('providerDisabledModal');
+  if (!modal) return;
+  modal.classList.remove('open');
+  setTimeout(() => modal.style.display = 'none', 200);
+}
+
+/**
+ * Modal displayed when domain is not authorized in Firebase Console
+ */
+function openUnauthorizedDomainModal() {
+  let modal = document.getElementById('unauthorizedDomainModal');
+  if (!modal) {
+    modal = document.createElement('div');
+    modal.className = 'modal-overlay';
+    modal.id = 'unauthorizedDomainModal';
+    document.body.appendChild(modal);
+  }
+
+  const projectId = getStoredFirebaseConfig()?.projectId || 'careerdesk';
+  const consoleUrl = `https://console.firebase.google.com/project/${encodeURIComponent(projectId)}/authentication/settings`;
+  const host = window.location.hostname || 'localhost';
+
+  modal.innerHTML = `
+    <div class="glass modal-card unauthorized-domain-modal" style="max-width:520px; width:92%; padding:26px; border-radius:18px;">
+      <div class="modal-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+        <h3 class="modal-title" style="margin:0; font-family:var(--font-display); font-size:18px; color:var(--text); display:flex; align-items:center; gap:8px;">
+          <i data-lucide="globe" style="color:#f59e0b; width:22px; height:22px;"></i>
+          Unauthorized Domain
+        </h3>
+        <button class="modal-close" id="closeUnauthorizedDomainModal" type="button" style="background:none; border:none; color:var(--text-soft); cursor:pointer; padding:4px;">
+          <i data-lucide="x"></i>
+        </button>
+      </div>
+
+      <p style="font-size:13px; color:var(--text); margin:0 0 14px; line-height:1.5;">
+        Firebase only accepts sign-ins from authorized domains. The current domain (<code>${escapeHtml(host)}</code>) is not yet on your authorized list.
+      </p>
+
+      <div style="background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:14px; margin-bottom:16px;">
+        <strong style="font-size:13px; color:var(--text); display:block; margin-bottom:6px;">How to add it:</strong>
+        <ol style="font-size:12.5px; color:var(--text-soft); margin:0; padding-left:18px; line-height:1.55;">
+          <li>Open your Firebase Console Authentication Settings.</li>
+          <li>Scroll to <strong>Authorized domains</strong>.</li>
+          <li>Click <strong>Add domain</strong> and enter <code>${escapeHtml(host)}</code>.</li>
+        </ol>
+      </div>
+
+      <div class="btn-group" style="justify-content:space-between; flex-wrap:wrap; gap:8px;">
+        <a href="${consoleUrl}" target="_blank" rel="noopener noreferrer" class="pill solid" style="text-decoration:none; display:inline-flex; align-items:center; gap:6px;">
+          <i data-lucide="external-link"></i> <span>Open Auth Settings</span>
+        </a>
+        <button type="button" class="pill" id="btnDismissUnauthorizedDomain">Close</button>
+      </div>
+    </div>
+  `;
+
+  modal.style.display = 'flex';
+  setTimeout(() => modal.classList.add('open'), 20);
+
+  modal.onclick = (e) => { if (e.target === modal) closeUnauthorizedDomainModal(); };
+  document.getElementById('closeUnauthorizedDomainModal')?.addEventListener('click', closeUnauthorizedDomainModal);
+  document.getElementById('btnDismissUnauthorizedDomain')?.addEventListener('click', closeUnauthorizedDomainModal);
+
+  if (window.lucide && typeof window.lucide.createIcons === 'function') {
+    window.lucide.createIcons();
+  }
+}
+
+function closeUnauthorizedDomainModal() {
+  const modal = document.getElementById('unauthorizedDomainModal');
+  if (!modal) return;
+  modal.classList.remove('open');
+  setTimeout(() => modal.style.display = 'none', 200);
+}
+
 // Global Escape Key Listener for Modals
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') {
     closeEditProfileModal();
     closeFirebaseConfigModal();
+    closeProtocolHelpModal();
+    closeProviderDisabledModal();
+    closeUnauthorizedDomainModal();
   }
 });
 
 // Auto-initialize on file load
-document.addEventListener('DOMContentLoaded', () => {
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', () => {
+    initFirebaseApp();
+  });
+} else {
   initFirebaseApp();
-});
+}
