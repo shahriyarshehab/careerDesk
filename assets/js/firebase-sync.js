@@ -719,13 +719,18 @@ function getOrCreateRecaptchaVerifier(containerId = 'phoneRecaptchaContainer') {
     container.id = containerId;
     document.body.appendChild(container);
   }
+  if (container.style.display === 'none') {
+    container.style.display = '';
+  }
+
+  // Clear previous verifier instance to ensure fresh verification token
   if (window.careerDeskRecaptchaVerifier) {
     try {
-      return window.careerDeskRecaptchaVerifier;
-    } catch (e) {
-      window.careerDeskRecaptchaVerifier = null;
-    }
+      window.careerDeskRecaptchaVerifier.clear();
+    } catch (e) { }
+    window.careerDeskRecaptchaVerifier = null;
   }
+
   try {
     window.careerDeskRecaptchaVerifier = new firebase.auth.RecaptchaVerifier(containerId, {
       size: 'invisible',
@@ -1579,71 +1584,98 @@ function openEditProfileModal(autoTriggerVerification = false) {
     const fullInternationalPhone = `+880${digits}`;
     if (targetPhoneEl) targetPhoneEl.textContent = formatDisplayPhone(fullInternationalPhone);
 
-    // Generate secure 6-digit OTP
-    const generatedOtp = Math.floor(100000 + Math.random() * 900000).toString();
-    activePhoneVerificationSession = {
-      phoneNumber: fullInternationalPhone,
-      code: generatedOtp,
-      timestamp: Date.now()
-    };
-
-    if (phoneVerificationSection) phoneVerificationSection.style.display = 'block';
-    if (otpInput) {
-      otpInput.value = '';
-      otpInput.focus();
-    }
-
-    // Try real Firebase Phone Auth if configured
-    let usedFirebase = false;
-    const isFirebaseConfigured = initFirebaseApp();
-    if (isFirebaseConfigured && typeof firebase !== 'undefined' && firebase.auth && window.location.protocol !== 'file:') {
-      try {
-        const appVerifier = getOrCreateRecaptchaVerifier('phoneRecaptchaContainer');
-        if (appVerifier) {
-          let confirmationResult;
-          const currentUser = firebase.auth().currentUser;
-          if (currentUser && !currentAuthUser?.isDemo) {
-            try {
-              // Firebase Auth standard: link phone number to existing authenticated user
-              confirmationResult = await currentUser.linkWithPhoneNumber(fullInternationalPhone, appVerifier);
-            } catch (linkErr) {
-              if (linkErr.code === 'auth/credential-already-in-use' || linkErr.code === 'auth/provider-already-linked') {
-                confirmationResult = await firebase.auth().signInWithPhoneNumber(fullInternationalPhone, appVerifier);
-              } else {
-                throw linkErr;
-              }
-            }
-          } else {
-            // Firebase Auth standard: Authenticate with Firebase with a Phone Number
-            confirmationResult = await firebase.auth().signInWithPhoneNumber(fullInternationalPhone, appVerifier);
-          }
-          activePhoneVerificationSession.confirmationResult = confirmationResult;
-          usedFirebase = true;
-          showToast('SMS verification code sent to ' + formatDisplayPhone(fullInternationalPhone));
-          if (otpNotice) otpNotice.innerHTML = `SMS verification code dispatched to <strong>${escapeHtml(formatDisplayPhone(fullInternationalPhone))}</strong>. Enter the 6-digit code.`;
-        }
-      } catch (fbErr) {
-        console.warn('[CareerDesk Phone Auth] Firebase SMS error / fallback:', fbErr);
-        let fbErrMsg = fbErr.message || '';
-        if (fbErr.code === 'auth/invalid-phone-number') {
-          showToast('Invalid phone number format. Expected +8801XXXXXXXXX', true);
-        } else if (fbErr.code === 'auth/quota-exceeded') {
-          showToast('Firebase SMS daily quota exceeded. Using local verification.', true);
-        } else if (fbErr.code === 'auth/too-many-requests') {
-          showToast('Too many SMS requests. Please wait a moment.', true);
-        }
-      }
-    }
-
-    if (!usedFirebase) {
-      // Offline/Local/Direct code notification for immediate verification
-      showToast(`CareerDesk Code: ${generatedOtp} (Valid for 5 mins)`, false, 9000);
+    if (window.location.protocol === 'file:') {
+      const msg = 'Real Firebase SMS requires running from a web server (e.g. https://careerdesk.web.app or http://localhost). Browser security blocks SMS from file:// URLs.';
+      showToast(msg, true, 8000);
+      if (phoneVerificationSection) phoneVerificationSection.style.display = 'block';
       if (otpNotice) {
-        otpNotice.innerHTML = `Verification Code: <strong style="color:var(--accent1); font-family:var(--font-mono); font-size:12px;">${generatedOtp}</strong> (Auto-generated)`;
+        otpNotice.innerHTML = `<span style="color:#f43f5e; font-size:11.5px;">${msg}</span>`;
       }
+      if (typeof openProtocolHelpModal === 'function') openProtocolHelpModal('Phone');
+      return;
     }
 
+    const isFirebaseConfigured = initFirebaseApp();
+    if (!isFirebaseConfigured || typeof firebase === 'undefined' || !firebase.auth) {
+      const msg = 'Firebase Auth is required to send real SMS codes. Please configure Firebase first.';
+      showToast(msg, true, 6000);
+      if (phoneVerificationSection) phoneVerificationSection.style.display = 'block';
+      if (otpNotice) {
+        otpNotice.innerHTML = `<span style="color:#f43f5e; font-size:11.5px;">${msg}</span>`;
+      }
+      return;
+    }
+
+    const prevBtnContent = verifyBtn.innerHTML;
+    verifyBtn.disabled = true;
+    verifyBtn.innerHTML = `<i data-lucide="loader" style="width:13px;height:13px;animation:spin 1s linear infinite;"></i> <span>Sending SMS...</span>`;
     if (window.lucide) lucide.createIcons();
+
+    try {
+      const appVerifier = getOrCreateRecaptchaVerifier('phoneRecaptchaContainer');
+      if (!appVerifier) throw new Error('Could not initialize reCAPTCHA verifier. Please refresh the page and try again.');
+
+      let confirmationResult;
+      const currentUser = firebase.auth().currentUser;
+      if (currentUser && !currentAuthUser?.isDemo) {
+        try {
+          // Standard Firebase Phone Auth: link phone number to existing authenticated user
+          confirmationResult = await currentUser.linkWithPhoneNumber(fullInternationalPhone, appVerifier);
+        } catch (linkErr) {
+          if (linkErr.code === 'auth/credential-already-in-use' || linkErr.code === 'auth/provider-already-linked') {
+            const retryVerifier = getOrCreateRecaptchaVerifier('phoneRecaptchaContainer');
+            confirmationResult = await firebase.auth().signInWithPhoneNumber(fullInternationalPhone, retryVerifier);
+          } else {
+            throw linkErr;
+          }
+        }
+      } else {
+        // Standard Firebase Phone Auth: sign in / verify with phone number
+        confirmationResult = await firebase.auth().signInWithPhoneNumber(fullInternationalPhone, appVerifier);
+      }
+
+      activePhoneVerificationSession = {
+        phoneNumber: fullInternationalPhone,
+        confirmationResult: confirmationResult,
+        timestamp: Date.now()
+      };
+
+      if (phoneVerificationSection) phoneVerificationSection.style.display = 'block';
+      if (otpInput) {
+        otpInput.value = '';
+        otpInput.focus();
+      }
+
+      showToast('SMS verification code sent to ' + formatDisplayPhone(fullInternationalPhone));
+      if (otpNotice) {
+        otpNotice.innerHTML = `SMS verification code dispatched via carrier to <strong>${escapeHtml(formatDisplayPhone(fullInternationalPhone))}</strong>. Enter the 6-digit code received on your mobile phone.`;
+      }
+    } catch (fbErr) {
+      console.error('[CareerDesk Phone Auth] Real SMS sending failed:', fbErr);
+      let errorMsg = fbErr.message || 'Failed to dispatch SMS verification code.';
+      if (fbErr.code === 'auth/invalid-phone-number') {
+        errorMsg = 'Invalid phone number format. Expected Bangladesh format (+8801XXXXXXXXX).';
+      } else if (fbErr.code === 'auth/quota-exceeded') {
+        errorMsg = 'Firebase SMS daily quota exceeded for this project.';
+      } else if (fbErr.code === 'auth/too-many-requests') {
+        errorMsg = 'Too many SMS requests sent. Please wait a few moments before trying again.';
+      } else if (fbErr.code === 'auth/operation-not-allowed') {
+        errorMsg = 'Phone Authentication is not enabled in your Firebase project (Firebase Console -> Authentication -> Sign-in method -> Phone).';
+      } else if (fbErr.code === 'auth/unauthorized-domain') {
+        errorMsg = 'This domain is not authorized. Add it in Firebase Console -> Authentication -> Settings -> Authorized domains.';
+      } else if (fbErr.code === 'auth/captcha-check-failed') {
+        errorMsg = 'reCAPTCHA check failed. Please refresh the page and try again.';
+      }
+      showToast(errorMsg, true, 8000);
+      if (phoneVerificationSection) phoneVerificationSection.style.display = 'block';
+      if (otpNotice) {
+        otpNotice.innerHTML = `<span style="color:#f43f5e; font-size:11.5px; font-weight:600;">SMS Error: ${escapeHtml(errorMsg)}</span>`;
+      }
+    } finally {
+      verifyBtn.disabled = false;
+      verifyBtn.innerHTML = prevBtnContent;
+      if (window.lucide) lucide.createIcons();
+    }
   };
 
   // Wire Verify button
@@ -1654,59 +1686,52 @@ function openEditProfileModal(autoTriggerVerification = false) {
   document.getElementById('btnModalConfirmPhoneOtp')?.addEventListener('click', async () => {
     const entered = otpInput ? otpInput.value.trim() : '';
     if (!entered || entered.length !== 6) {
-      showToast('Please enter the complete 6-digit code.', true);
+      showToast('Please enter the 6-digit code from the SMS.', true);
       otpInput?.focus();
       return;
     }
 
-    let isMatch = (entered === activePhoneVerificationSession.code);
-
-    if (activePhoneVerificationSession.confirmationResult) {
-      try {
-        const userCredential = await activePhoneVerificationSession.confirmationResult.confirm(entered);
-        const fbUser = userCredential.user;
-        isMatch = true;
-        if (fbUser) {
-          if (currentAuthUser) {
-            currentAuthUser.phoneNumber = fbUser.phoneNumber || activePhoneVerificationSession.phoneNumber;
-            currentAuthUser.phoneVerified = true;
-            try { localStorage.setItem(FIREBASE_USER_CACHE_KEY, JSON.stringify(currentAuthUser)); } catch (e) {}
-          }
-          if (typeof firebase !== 'undefined' && firebase.firestore && fbUser.uid) {
-            try {
-              await firebase.firestore().collection('users').doc(fbUser.uid).set({
-                phoneNumber: fbUser.phoneNumber || activePhoneVerificationSession.phoneNumber,
-                phoneVerified: true,
-                phoneVerifiedAt: new Date().toISOString()
-              }, { merge: true });
-            } catch (fsErr) {
-              console.warn('[CareerDesk Phone Auth] Firestore update warning:', fsErr);
-            }
-          }
-        }
-      } catch (err) {
-        console.warn('[CareerDesk Phone Auth] Firebase confirmation failed:', err);
-        let msg = 'Invalid SMS verification code. Please check and try again.';
-        if (err.code === 'auth/invalid-verification-code') {
-          msg = 'The verification code entered is incorrect.';
-        } else if (err.code === 'auth/code-expired') {
-          msg = 'The verification code has expired. Please request a new code.';
-        }
-        showToast(msg, true);
-      }
+    if (!activePhoneVerificationSession.confirmationResult) {
+      showToast('Please request an SMS verification code first.', true);
+      return;
     }
 
-    if (isMatch) {
+    const confirmBtn = document.getElementById('btnModalConfirmPhoneOtp');
+    const prevConfirmHtml = confirmBtn ? confirmBtn.innerHTML : '';
+    if (confirmBtn) {
+      confirmBtn.disabled = true;
+      confirmBtn.innerHTML = `<i data-lucide="loader" style="width:13px;height:13px;animation:spin 1s linear infinite;"></i> <span>Verifying...</span>`;
+      if (window.lucide) lucide.createIcons();
+    }
+
+    try {
+      const userCredential = await activePhoneVerificationSession.confirmationResult.confirm(entered);
+      const fbUser = userCredential.user;
+
       isPhoneVerifiedState = true;
       const verifiedFullPhone = activePhoneVerificationSession.phoneNumber || (`+880` + phoneLocalInput.value.trim());
       custom.phoneNumber = verifiedFullPhone;
       custom.phoneVerified = true;
       saveCustomProfile(custom);
+
       if (currentAuthUser) {
         currentAuthUser.phoneNumber = verifiedFullPhone;
         currentAuthUser.phoneVerified = true;
         try { localStorage.setItem(FIREBASE_USER_CACHE_KEY, JSON.stringify(currentAuthUser)); } catch (e) {}
       }
+
+      if (typeof firebase !== 'undefined' && firebase.firestore && fbUser && fbUser.uid) {
+        try {
+          await firebase.firestore().collection('users').doc(fbUser.uid).set({
+            phoneNumber: verifiedFullPhone,
+            phoneVerified: true,
+            phoneVerifiedAt: new Date().toISOString()
+          }, { merge: true });
+        } catch (fsErr) {
+          console.warn('[CareerDesk Phone Auth] Firestore update warning:', fsErr);
+        }
+      }
+
       if (phoneVerificationSection) phoneVerificationSection.style.display = 'none';
 
       if (phoneStatusBadge) {
@@ -1722,8 +1747,24 @@ function openEditProfileModal(autoTriggerVerification = false) {
 
       showToast(`Phone number ${formatDisplayPhone(verifiedFullPhone)} verified! ✓`);
       if (window.lucide) lucide.createIcons();
-    } else if (!activePhoneVerificationSession.confirmationResult) {
-      showToast('Invalid verification code. Please check and try again.', true);
+    } catch (err) {
+      console.error('[CareerDesk Phone Auth] Firebase confirmation failed:', err);
+      let msg = 'Invalid SMS verification code. Please check your SMS and try again.';
+      if (err.code === 'auth/invalid-verification-code') {
+        msg = 'The verification code entered is incorrect. Please re-check your SMS.';
+      } else if (err.code === 'auth/code-expired') {
+        msg = 'The SMS verification code has expired. Please click "Resend Code" to get a new code.';
+      }
+      showToast(msg, true, 6000);
+      if (otpNotice) {
+        otpNotice.innerHTML = `<span style="color:#f43f5e; font-size:11.5px; font-weight:600;">${escapeHtml(msg)}</span>`;
+      }
+    } finally {
+      if (confirmBtn) {
+        confirmBtn.disabled = false;
+        confirmBtn.innerHTML = prevConfirmHtml;
+        if (window.lucide) lucide.createIcons();
+      }
     }
   });
 
