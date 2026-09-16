@@ -30,6 +30,9 @@ function loadMCQProgress() {
 function saveMCQProgress() {
   try {
     localStorage.setItem(MCQ_PROGRESS_KEY, JSON.stringify(userMCQProgress));
+    if (typeof window.scheduleFirestoreSync === 'function') {
+      window.scheduleFirestoreSync();
+    }
   } catch (e) { }
 }
 
@@ -45,6 +48,9 @@ function getStoredQuestions() {
 function saveStoredQuestions(qList) {
   try {
     localStorage.setItem(MCQ_CUSTOM_KEY, JSON.stringify(qList));
+    if (typeof window.scheduleFirestoreSync === 'function') {
+      window.scheduleFirestoreSync();
+    }
   } catch (e) { }
 }
 

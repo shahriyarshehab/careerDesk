@@ -281,11 +281,9 @@ function setupAuthStateListener() {
           localStorage.setItem(FIREBASE_USER_CACHE_KEY, JSON.stringify(currentAuthUser));
         } catch (e) { }
 
-        // If newly logged in or user changed, collect individual data from Firestore!
-        if (prevUid !== user.uid) {
-          if (typeof collectUserDataFromFirestore === 'function') {
-            collectUserDataFromFirestore(currentAuthUser);
-          }
+        // Always auto-load user data from Firestore on login or page load
+        if (typeof collectUserDataFromFirestore === 'function') {
+          collectUserDataFromFirestore(currentAuthUser);
         }
       } else {
         if (isExplicitlySignedOut) {
@@ -823,6 +821,13 @@ async function signOutUser() {
     localStorage.removeItem('custom_bcs_questions_v3');
     localStorage.removeItem('jobprep_break_minutes_today');
     localStorage.removeItem('user_mcq_progress_v2');
+    localStorage.removeItem('jobprep_custom_quiz_questions');
+    for (let i = localStorage.length - 1; i >= 0; i--) {
+      const k = localStorage.key(i);
+      if (k && (k.startsWith('careerdesk_user_data_') || k.startsWith('careerdesk_cloud_backup_'))) {
+        localStorage.removeItem(k);
+      }
+    }
   } catch (e) { }
 
   if (_firestoreSyncTimer) {
@@ -945,17 +950,21 @@ async function collectUserDataFromFirestore(user = null) {
     const isFirebaseOnline = (typeof firebase !== 'undefined' && firebase.firestore && firebase.apps && firebase.apps.length > 0 && !user.isDemo && !user.isLocalSession);
 
     if (isFirebaseOnline) {
-      const db = firebase.firestore();
-      // 1. Primary document: users/{uid}
-      const userDoc = await db.collection('users').doc(user.uid).get();
-      if (userDoc.exists && userDoc.data() && (userDoc.data().state || userDoc.data().routine || userDoc.data().syllabus)) {
-        cloudData = userDoc.data();
-      } else {
-        // 2. Check legacy backup subcollection: users/{uid}/careerdesk_backups/latest
-        const legacyDoc = await db.collection('users').doc(user.uid).collection('careerdesk_backups').doc('latest').get();
-        if (legacyDoc.exists && legacyDoc.data()) {
-          cloudData = legacyDoc.data();
+      try {
+        const db = firebase.firestore();
+        // 1. Primary document: users/{uid}
+        const userDoc = await db.collection('users').doc(user.uid).get();
+        if (userDoc.exists && userDoc.data() && (userDoc.data().state || userDoc.data().routine || userDoc.data().syllabus)) {
+          cloudData = userDoc.data();
+        } else {
+          // 2. Check legacy backup subcollection: users/{uid}/careerdesk_backups/latest
+          const legacyDoc = await db.collection('users').doc(user.uid).collection('careerdesk_backups').doc('latest').get();
+          if (legacyDoc.exists && legacyDoc.data()) {
+            cloudData = legacyDoc.data();
+          }
         }
+      } catch (cloudFetchErr) {
+        console.warn('[CareerDesk] Firestore fetch failed, falling back to local user cache:', cloudFetchErr);
       }
     }
 
@@ -984,9 +993,18 @@ async function collectUserDataFromFirestore(user = null) {
       // Restore user-specific state
       if (cloudData.state) {
         state = cloudData.state;
+        if (Array.isArray(state.flashcards) && typeof isMockFlashcard === 'function') {
+          state.flashcards = state.flashcards.filter(f => f && !isMockFlashcard(f));
+        }
+        if (Array.isArray(state.routine) && typeof isMockRoutineTask === 'function') {
+          state.routine = state.routine.filter(r => r && !isMockRoutineTask(r));
+        }
+        if (Array.isArray(state.syllabus) && typeof isMockSyllabusCategory === 'function') {
+          state.syllabus = state.syllabus.filter(c => c && !isMockSyllabusCategory(c));
+        }
       }
       if (Array.isArray(cloudData.exams)) {
-        exams = cloudData.exams;
+        exams = cloudData.exams.filter(e => e && e.name !== '47th BCS Preliminary Exam' && e.name !== 'Combined Bank Senior Officer');
         if (typeof saveExams === 'function') saveExams();
       }
       if (Array.isArray(cloudData.mistakes)) {
@@ -1009,7 +1027,7 @@ async function collectUserDataFromFirestore(user = null) {
       localStorage.setItem(FIREBASE_LAST_SYNC_KEY, new Date().toISOString());
       showToast(`Welcome back, ${user.displayName || 'Aspirant'}! Loaded your cloud data.`);
     } else {
-      // First time login for this user: initialize cloud data with default state
+      // First time login for this user: initialize cloud data with clean default state
       await syncUserDataToFirestore(user, true);
       showToast(`Welcome, ${user.displayName || 'Aspirant'}! Cloud account connected.`);
     }
@@ -1046,20 +1064,25 @@ window.scheduleFirestoreSync = scheduleFirestoreSync;
  */
 function refreshAllDashboardPanels() {
   if (typeof syncAllSubjectSelects === 'function') syncAllSubjectSelects();
-  if (typeof renderRoutineTable === 'function') renderRoutineTable();
-  if (typeof renderMonthlyCalendar === 'function') renderMonthlyCalendar();
-  if (typeof renderNotesList === 'function') renderNotesList();
-  if (typeof renderHeatmap === 'function') renderHeatmap();
-  if (typeof updateStats === 'function') updateStats();
-  if (typeof renderSyllabusCategories === 'function') renderSyllabusCategories();
+  if (typeof renderRoutine === 'function') renderRoutine();
+  if (typeof renderDateSlider === 'function') renderDateSlider();
+  if (typeof renderTrackerRoutinePreview === 'function') renderTrackerRoutinePreview();
+  if (typeof renderNotes === 'function') renderNotes();
+  if (typeof renderTrackerAll === 'function') renderTrackerAll();
+  if (typeof renderCategories === 'function') renderCategories();
+  if (typeof renderSyllabusOverall === 'function') renderSyllabusOverall();
   if (typeof renderExams === 'function') renderExams();
-  if (typeof renderFlashcardCategories === 'function') renderFlashcardCategories();
+  if (typeof renderFlashcards === 'function') renderFlashcards();
+  if (typeof renderFlashCategoryOptions === 'function') renderFlashCategoryOptions();
   if (typeof renderMistakes === 'function') renderMistakes();
   if (typeof renderHomeDashboard === 'function') renderHomeDashboard();
   if (typeof renderSubjectManager === 'function') renderSubjectManager();
-  if (typeof renderQuotesManager === 'function') renderQuotesManager();
+  if (typeof renderQuote === 'function') renderQuote();
+  if (typeof renderQuoteManager === 'function') renderQuoteManager();
   if (typeof renderMCQQuestion === 'function') renderMCQQuestion();
   if (typeof updateMCQStats === 'function') updateMCQStats();
+  if (typeof renderMCQPalette === 'function') renderMCQPalette();
+  if (typeof renderMCQFilterBar === 'function') renderMCQFilterBar();
   if (window.lucide && typeof window.lucide.createIcons === 'function') {
     window.lucide.createIcons();
   }

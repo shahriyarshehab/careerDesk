@@ -212,7 +212,7 @@ if (importDataInputEl) {
         if (!ok) { e.target.value = ''; return; }
 
         state = {
-          routine: Array.isArray(rawState.routine) && rawState.routine.length ? migrateRoutine(rawState.routine) : buildDefaultRoutine(dateKey(Date.now())),
+          routine: Array.isArray(rawState.routine) ? migrateRoutine(rawState.routine) : [],
           notes: Array.isArray(rawState.notes) ? rawState.notes : [],
           customQuotes: Array.isArray(rawState.customQuotes) ? rawState.customQuotes : [],
           quoteIdx: typeof rawState.quoteIdx === 'number' ? rawState.quoteIdx : 0,
@@ -314,7 +314,7 @@ document.getElementById('resetAllBtn').addEventListener('click', async () => {
   if (!ok) return;
   const keepTheme = state.theme;
   state = {
-    routine: buildDefaultRoutine(dateKey(Date.now())), notes: [], customQuotes: [], quoteIdx: 0, quoteSource: 'all', theme: keepTheme,
+    routine: [], notes: [], customQuotes: [], quoteIdx: 0, quoteSource: 'all', theme: keepTheme,
     sessions: [], activeSession: null, dailyTargetMinutes: 240,
     syllabus: [], flashcards: [],
     quoteCarouselEnabled: true, quoteCarouselInterval: 300,

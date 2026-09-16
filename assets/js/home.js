@@ -235,7 +235,7 @@ function renderHomeDashboard() {
             <div class="home-user-subrow">
               <span class="home-user-cloud-badge">
                 <span class="home-cloud-pulse-dot ${isGuest ? 'guest' : ''}"></span>
-                <span>${isGuest ? 'Guest Mode (Local Storage)' : 'Cloud Synced'}</span>
+                <span>${isGuest ? 'New here? Create account or sign in to sync data' : 'Cloud Synced'}</span>
               </span>
               <span style="color:var(--border); font-size:11px;">•</span>
               <span style="font-size:12px; color:var(--text-soft); font-family:var(--font-mono);">${escapeHtml(formattedDate)}</span>

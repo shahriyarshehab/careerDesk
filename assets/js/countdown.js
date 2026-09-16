@@ -11,16 +11,12 @@ function loadExams() {
   try {
     const data = localStorage.getItem(EXAMS_KEY);
     if (data) {
-      exams = JSON.parse(data);
+      const parsed = JSON.parse(data);
+      exams = Array.isArray(parsed)
+        ? parsed.filter(e => e && e.name !== '47th BCS Preliminary Exam' && e.name !== 'Combined Bank Senior Officer')
+        : [];
     } else {
-      const now = new Date();
-      const bcs47 = new Date(now.getFullYear(), now.getMonth() + 2, 15, 10, 0);
-      const bankExam = new Date(now.getFullYear(), now.getMonth() + 1, 5, 9, 30);
-      exams = [
-        { id: 1, name: '47th BCS Preliminary Exam', category: 'BCS', targetDate: bcs47.toISOString() },
-        { id: 2, name: 'Combined Bank Senior Officer', category: 'Banking', targetDate: bankExam.toISOString() }
-      ];
-      saveExams();
+      exams = [];
     }
   } catch (e) { exams = []; }
 }
