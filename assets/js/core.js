@@ -103,6 +103,33 @@ const storageAdapter = {
   }
 };
 
+const DEFAULT_USER_TRACK = {
+  role: 'job_seeker', // 'student' | 'job_seeker'
+  studentClass: 'ssc_science',
+  jobType: 'govt', // 'govt' | 'non_govt'
+  activeSubjectNames: ['Bangla', 'English', 'Mathematics', 'General Knowledge']
+};
+
+function getUserTrack() {
+  if (typeof state !== 'undefined' && state && state.userTrack && typeof state.userTrack === 'object') {
+    return state.userTrack;
+  }
+  try {
+    const raw = localStorage.getItem('careerdesk_user_track_v2');
+    if (raw) return JSON.parse(raw);
+  } catch (e) { }
+  return { ...DEFAULT_USER_TRACK };
+}
+
+function saveUserTrack(track) {
+  if (typeof state === 'undefined' || !state) return;
+  state.userTrack = { ...track };
+  try {
+    localStorage.setItem('careerdesk_user_track_v2', JSON.stringify(state.userTrack));
+  } catch (e) { }
+  saveData();
+}
+
 function getDefaultState() {
   return {
     routine: [],
@@ -120,7 +147,8 @@ function getDefaultState() {
     quoteCarouselInterval: 300,
     deletedSubjects: [],
     customSubjects: [],
-    deletedQuotes: []
+    deletedQuotes: [],
+    userTrack: { ...DEFAULT_USER_TRACK }
   };
 }
 
@@ -200,7 +228,8 @@ let state = {
   sessions: [], activeSession: null, dailyTargetMinutes: 240,
   syllabus: [], flashcards: [],
   quoteCarouselEnabled: true, quoteCarouselInterval: 300,
-  deletedSubjects: [], customSubjects: [], deletedQuotes: []
+  deletedSubjects: [], customSubjects: [], deletedQuotes: [],
+  userTrack: { ...DEFAULT_USER_TRACK }
 };
 let saveTimer = null;
 let tickInterval = null;
@@ -242,6 +271,7 @@ async function loadData() {
       state.deletedSubjects = Array.isArray(p.deletedSubjects) ? p.deletedSubjects : [];
       state.customSubjects = Array.isArray(p.customSubjects) ? p.customSubjects : [];
       state.deletedQuotes = Array.isArray(p.deletedQuotes) ? p.deletedQuotes : [];
+      state.userTrack = (p && typeof p.userTrack === 'object' && p.userTrack) ? p.userTrack : getUserTrack();
     } else {
       const def = getDefaultState();
       state = { ...state, ...def };
@@ -455,14 +485,58 @@ const SUBJECT_ALIASES = {
   'international affairs': 'General Knowledge',
   'আন্তর্জাতিক বিষয়াবলী': 'General Knowledge',
   'আন্তর্জাতিক বিষয়াবলী': 'General Knowledge',
-  'general science': 'General Knowledge',
-  'সাধারণ বিজ্ঞান': 'General Knowledge',
-  'computer & ict': 'General Knowledge',
-  'কম্পিউটার ও আইসিটি': 'General Knowledge',
-  'geography & environment': 'General Knowledge',
-  'ভূগোল ও পরিবেশ': 'General Knowledge',
-  'ethics & good governance': 'General Knowledge',
-  'নৈতিকতা ও সুশাসন': 'General Knowledge'
+
+  // Specialized & Academic Subjects (NCTB Bangladesh Curriculum)
+  'physics': 'Physics',
+  'পদার্থবিজ্ঞান': 'Physics',
+  'chemistry': 'Chemistry',
+  'রসায়ন': 'Chemistry',
+  'biology': 'Biology',
+  'জীববিজ্ঞান': 'Biology',
+  'higher math': 'Higher Mathematics',
+  'higher mathematics': 'Higher Mathematics',
+  'উচ্চতর গণিত': 'Higher Mathematics',
+  'ict': 'ICT',
+  'information and communication technology': 'ICT',
+  'তথ্য ও যোগাযোগ প্রযুক্তি': 'ICT',
+  'computer & ict': 'Computer & ICT',
+  'কম্পিউটার ও আইসিটি': 'Computer & ICT',
+  'general science': 'General Science',
+  'বিজ্ঞান': 'General Science',
+  'সাধারণ বিজ্ঞান': 'General Science',
+  'mental ability': 'Mental Ability',
+  'মানসিক দক্ষতা': 'Mental Ability',
+  'geography & environment': 'Geography & Environment',
+  'ভূগোল ও পরিবেশ': 'Geography & Environment',
+  'ethics & good governance': 'Ethics & Good Governance',
+  'নৈতিকতা ও সুশাসন': 'Ethics & Good Governance',
+  'accounting': 'Accounting',
+  'হিসাববিজ্ঞান': 'Accounting',
+  'finance & banking': 'Finance & Banking',
+  'ফিন্যান্স ও ব্যাংকিং': 'Finance & Banking',
+  'business entrepreneurship': 'Business Entrepreneurship',
+  'ব্যবসায় উদ্যোগ': 'Business Entrepreneurship',
+  'business organization': 'Business Organization',
+  'ব্যবসায় সংগঠন': 'Business Organization',
+  'economics': 'Economics',
+  'অর্থনীতি': 'Economics',
+  'history': 'History',
+  'ইতিহাস': 'History',
+  'geography': 'Geography',
+  'ভূগোল': 'Geography',
+  'civics': 'Civics',
+  'পৌরনীতি': 'Civics',
+  'পৌরনীতি ও সুশাসন': 'Civics',
+  'sociology': 'Sociology',
+  'সমাজবিজ্ঞান': 'Sociology',
+  'logic': 'Logic',
+  'যুক্তিবিদ্যা': 'Logic',
+  'bgs': 'BGS',
+  'বাংলাদেশ ও বিশ্বপরিচয়': 'BGS',
+  'agriculture': 'Agriculture',
+  'কৃষি শিক্ষা': 'Agriculture',
+  'religion': 'Religion',
+  'ধর্ম ও নৈতিক শিক্ষা': 'Religion'
 };
 
 function canonicalSubjectName(subject) {
@@ -486,6 +560,132 @@ const DEFAULT_SUBJECTS = [
   'Mathematics',
   'General Knowledge'
 ];
+
+const BANGLADESH_CURRICULUM_DATA = {
+  classes: [
+    {
+      id: 'class_6',
+      name: 'Class 6 (ষষ্ঠ শ্রেণি)',
+      short: 'Class 6',
+      badge: 'Junior Secondary',
+      subjects: ['Bangla', 'English', 'Mathematics', 'General Science', 'BGS', 'ICT', 'Religion', 'Agriculture']
+    },
+    {
+      id: 'class_7',
+      name: 'Class 7 (সপ্তম শ্রেণি)',
+      short: 'Class 7',
+      badge: 'Junior Secondary',
+      subjects: ['Bangla', 'English', 'Mathematics', 'General Science', 'BGS', 'ICT', 'Religion', 'Agriculture']
+    },
+    {
+      id: 'class_8',
+      name: 'Class 8 / JSC (অষ্টম শ্রেণি)',
+      short: 'Class 8',
+      badge: 'Junior School Cert.',
+      subjects: ['Bangla', 'English', 'Mathematics', 'General Science', 'BGS', 'ICT', 'Religion']
+    },
+    {
+      id: 'ssc_science',
+      name: 'SSC / Class 9-10 — Science (বিজ্ঞান)',
+      short: 'SSC Science',
+      badge: 'Secondary Science',
+      subjects: ['Bangla', 'English', 'Mathematics', 'Physics', 'Chemistry', 'Biology', 'Higher Mathematics', 'BGS', 'ICT', 'Religion']
+    },
+    {
+      id: 'ssc_business',
+      name: 'SSC / Class 9-10 — Business Studies (ব্যবসায় শিক্ষা)',
+      short: 'SSC Business',
+      badge: 'Secondary Commerce',
+      subjects: ['Bangla', 'English', 'Mathematics', 'Accounting', 'Business Entrepreneurship', 'Finance & Banking', 'General Science', 'ICT', 'Religion']
+    },
+    {
+      id: 'ssc_humanities',
+      name: 'SSC / Class 9-10 — Humanities (মানবিক)',
+      short: 'SSC Humanities',
+      badge: 'Secondary Arts',
+      subjects: ['Bangla', 'English', 'Mathematics', 'History', 'Geography', 'Civics', 'General Science', 'Economics', 'ICT', 'Religion']
+    },
+    {
+      id: 'hsc_science',
+      name: 'HSC / Class 11-12 — Science (বিজ্ঞান)',
+      short: 'HSC Science',
+      badge: 'Higher Secondary Science',
+      subjects: ['Bangla', 'English', 'ICT', 'Physics', 'Chemistry', 'Biology', 'Higher Mathematics']
+    },
+    {
+      id: 'hsc_business',
+      name: 'HSC / Class 11-12 — Business Studies (ব্যবসায় শিক্ষা)',
+      short: 'HSC Business',
+      badge: 'Higher Secondary Commerce',
+      subjects: ['Bangla', 'English', 'ICT', 'Accounting', 'Business Organization', 'Finance & Banking']
+    },
+    {
+      id: 'hsc_humanities',
+      name: 'HSC / Class 11-12 — Humanities (মানবিক)',
+      short: 'HSC Humanities',
+      badge: 'Higher Secondary Arts',
+      subjects: ['Bangla', 'English', 'ICT', 'Civics', 'Economics', 'Sociology', 'Logic', 'History']
+    },
+    {
+      id: 'university_admission',
+      name: 'University / Admission Test (ভর্তি পরীক্ষা)',
+      short: 'Admission',
+      badge: 'Higher Education',
+      subjects: ['Bangla', 'English', 'General Knowledge', 'Mathematics', 'Physics', 'Chemistry', 'Biology', 'Accounting', 'ICT']
+    }
+  ],
+  jobSeeker: {
+    // Exactly 4 primary core subjects as requested
+    primarySubjects: [
+      { name: 'Bangla', bn: 'বাংলা (সাহিত্য ও ব্যাকরণ)', desc: 'সাহিত্য, ব্যাকরণ, বাক্য গঠন ও প্রয়োগরীতি' },
+      { name: 'English', bn: 'English Language & Literature', desc: 'Grammar, High-yield Vocabulary, Reading & Literature' },
+      { name: 'Mathematics', bn: 'গণিত ও গাণিতিক যুক্তি', desc: 'পাটিগণিত, বীজগণিত, জ্যামিতি ও বিশ্লেষণ' },
+      { name: 'General Knowledge', bn: 'সাধারণ জ্ঞান (বাংলাদেশ ও আন্তর্জাতিক)', desc: 'বাংলাদেশ বিষয়াবলী, আন্তর্জাতিক ঘটনাবলি ও সাম্প্রতিক তথ্য' }
+    ],
+    optionalSubjects: [
+      { name: 'Computer & ICT', bn: 'কম্পিউটার ও তথ্যপ্রযুক্তি', desc: 'কম্পিউটার সংগঠন, সাইবার নিরাপত্তা ও ইন্টারনেট' },
+      { name: 'General Science', bn: 'সাধারণ বিজ্ঞান', desc: 'দৈনন্দিন বিজ্ঞান, পদার্থ, রসায়ন ও জীববিদ্যা' },
+      { name: 'Mental Ability', bn: 'মানসিক দক্ষতা', desc: 'যুক্তি ও বিশ্লেষণমূলক সমস্যা সমাধান' },
+      { name: 'Geography & Environment', bn: 'ভূগোল ও দুর্যোগ ব্যবস্থাপনা', desc: 'বাংলাদেশ ও বৈশ্বিক প্রাকৃতিক ভূগোল' },
+      { name: 'Ethics & Good Governance', bn: 'নৈতিকতা, মূল্যবোধ ও সুশাসন', desc: 'রাষ্ট্রনীতি, সুশাসন ও মূল্যবোধ' }
+    ]
+  }
+};
+
+const SUBJECT_METADATA = {
+  'Bangla': { bn: 'বাংলা', color: '#ec4899', icon: 'book' },
+  'English': { bn: 'ইংরেজি', color: '#06b6d4', icon: 'languages' },
+  'Mathematics': { bn: 'গণিত', color: '#10b981', icon: 'calculator' },
+  'General Knowledge': { bn: 'সাধারণ জ্ঞান', color: '#f59e0b', icon: 'globe' },
+  'Physics': { bn: 'পদার্থবিজ্ঞান', color: '#8b5cf6', icon: 'atom' },
+  'Chemistry': { bn: 'রসায়ন', color: '#14b8a6', icon: 'flask-conical' },
+  'Biology': { bn: 'জীববিজ্ঞান', color: '#22c55e', icon: 'dna' },
+  'Higher Mathematics': { bn: 'উচ্চতর গণিত', color: '#6366f1', icon: 'sigma' },
+  'General Science': { bn: 'সাধারণ বিজ্ঞান', color: '#3b82f6', icon: 'sparkles' },
+  'ICT': { bn: 'তথ্য ও যোগাযোগ প্রযুক্তি', color: '#38bdf8', icon: 'cpu' },
+  'Computer & ICT': { bn: 'কম্পিউটার ও আইসিটি', color: '#0ea5e9', icon: 'monitor' },
+  'BGS': { bn: 'বাংলাদেশ ও বিশ্বপরিচয়', color: '#f97316', icon: 'compass' },
+  'Religion': { bn: 'ধর্ম ও নৈতিক শিক্ষা', color: '#a855f7', icon: 'heart' },
+  'Agriculture': { bn: 'কৃষি শিক্ষা', color: '#84cc16', icon: 'sprout' },
+  'Accounting': { bn: 'হিসাববিজ্ঞান', color: '#059669', icon: 'file-text' },
+  'Finance & Banking': { bn: 'ফিন্যান্স ও ব্যাংকিং', color: '#0284c7', icon: 'coins' },
+  'Business Entrepreneurship': { bn: 'ব্যবসায় উদ্যোগ', color: '#d97706', icon: 'briefcase' },
+  'Business Organization': { bn: 'ব্যবসায় সংগঠন', color: '#ca8a04', icon: 'building' },
+  'History': { bn: 'ইতিহাস', color: '#e11d48', icon: 'landmark' },
+  'Geography': { bn: 'ভূগোল', color: '#10b981', icon: 'map' },
+  'Geography & Environment': { bn: 'ভূগোল ও পরিবেশ', color: '#10b981', icon: 'map-pin' },
+  'Civics': { bn: 'পৌরনীতি ও নাগরিকতা', color: '#64748b', icon: 'shield' },
+  'Economics': { bn: 'অর্থনীতি', color: '#eab308', icon: 'trending-up' },
+  'Sociology': { bn: 'সমাজবিজ্ঞান', color: '#06b6d4', icon: 'users' },
+  'Logic': { bn: 'যুক্তিবিদ্যা', color: '#a855f7', icon: 'lightbulb' },
+  'Mental Ability': { bn: 'মানসিক দক্ষতা', color: '#d946ef', icon: 'brain' },
+  'Ethics & Good Governance': { bn: 'নৈতিকতা ও সুশাসন', color: '#475569', icon: 'award' }
+};
+
+function getSubjectMeta(subj) {
+  const canon = canonicalSubjectName(subj);
+  return SUBJECT_METADATA[canon] || { bn: canon, color: '#6366f1', icon: 'book' };
+}
 
 function addSubject(name) {
   if (!name || typeof name !== 'string') return null;

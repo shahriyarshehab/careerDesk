@@ -410,3 +410,194 @@
     transform: translateY(0) scale(1);
   }
 
+  /* ==========================================================================
+     Theme-Decorated Universal Modal Buttons System
+     All popup dialogs and modal action buttons are decorated with unified
+     high-contrast theme accents, glassmorphism, and responsive feedback
+     ========================================================================== */
+  .modal-card .btn-group,
+  .modal-overlay .btn-group {
+    display: inline-flex !important;
+    gap: 10px !important;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    overflow: visible !important;
+    align-items: center;
+  }
+
+  .modal-card .btn-group > button,
+  .modal-card .btn-group > .pill,
+  .modal-overlay .btn-group > button,
+  .modal-overlay .btn-group > .pill,
+  .modal-card button.pill {
+    border-radius: 11px !important;
+    border: 1px solid var(--border) !important;
+    padding: 9px 18px !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    font-family: var(--font-sans) !important;
+    background: var(--surface) !important;
+    color: var(--text) !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 7px !important;
+    cursor: pointer !important;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08) !important;
+  }
+
+  .modal-card .btn-group > button:hover,
+  .modal-card .btn-group > .pill:hover,
+  .modal-overlay .btn-group > button:hover,
+  .modal-overlay .btn-group > .pill:hover,
+  .modal-card button.pill:hover {
+    background: var(--surface-hover, rgba(255, 255, 255, 0.08)) !important;
+    border-color: var(--accent1) !important;
+    color: var(--accent1) !important;
+    transform: translateY(-1.5px) !important;
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.22) !important;
+  }
+
+  /* Primary Accent Solid Buttons inside Modals */
+  .modal-card .pill.solid,
+  .modal-card button[type="submit"],
+  .modal-card #btnConfirmSubmitExam,
+  .modal-card #btnVerificationLogin,
+  .modal-overlay .pill.solid,
+  #confirmOnboardingSubjectsBtn {
+    background: linear-gradient(135deg, var(--accent1), var(--accent2)) !important;
+    color: #ffffff !important;
+    border: 1px solid transparent !important;
+    font-weight: 700 !important;
+    box-shadow: 0 4px 14px rgba(99, 102, 241, 0.35) !important;
+  }
+
+  .modal-card .pill.solid:hover,
+  .modal-card button[type="submit"]:hover,
+  .modal-card #btnConfirmSubmitExam:hover,
+  .modal-card #btnVerificationLogin:hover,
+  .modal-overlay .pill.solid:hover,
+  #confirmOnboardingSubjectsBtn:hover {
+    background: linear-gradient(135deg, #4f46e5, #0891b2) !important;
+    color: #ffffff !important;
+    border-color: transparent !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 6px 20px rgba(99, 102, 241, 0.45) !important;
+  }
+
+  /* Danger / Destructive Action Buttons inside Modals */
+  .modal-card .pill.danger,
+  .modal-overlay .pill.danger,
+  #confirmDeleteCloudBtn,
+  #confirmCancelSessionBtn {
+    background: rgba(244, 63, 94, 0.12) !important;
+    color: #f43f5e !important;
+    border: 1px solid rgba(244, 63, 94, 0.35) !important;
+    box-shadow: 0 2px 8px rgba(244, 63, 94, 0.15) !important;
+  }
+
+  .modal-card .pill.danger:hover,
+  .modal-overlay .pill.danger:hover,
+  #confirmDeleteCloudBtn:hover,
+  #confirmCancelSessionBtn:hover {
+    background: linear-gradient(135deg, #f43f5e, #e11d48) !important;
+    color: #ffffff !important;
+    border-color: transparent !important;
+    transform: translateY(-1.5px) !important;
+    box-shadow: 0 6px 18px rgba(244, 63, 94, 0.4) !important;
+  }
+
+  /* Secondary Cancel / Subtle Buttons inside Modals */
+  .modal-card .pill.subtle,
+  .modal-card #closeModalCancelBtn,
+  .modal-card #cancelEditQuoteBtn,
+  .modal-card #cancelEditFlashBtn,
+  .modal-card #btnCancelSubmitExam,
+  .modal-card #cancelEditExamBtn,
+  .modal-card #cancelDeleteCloudBtn,
+  .modal-card #confirmResumeSessionBtn {
+    background: var(--surface) !important;
+    color: var(--text-soft) !important;
+    border: 1px solid var(--border) !important;
+  }
+
+  .modal-card .pill.subtle:hover,
+  .modal-card #closeModalCancelBtn:hover,
+  .modal-card #cancelEditQuoteBtn:hover,
+  .modal-card #cancelEditFlashBtn:hover,
+  .modal-card #btnCancelSubmitExam:hover,
+  .modal-card #cancelEditExamBtn:hover,
+  .modal-card #cancelDeleteCloudBtn:hover,
+  .modal-card #confirmResumeSessionBtn:hover {
+    background: var(--surface-hover, rgba(255, 255, 255, 0.08)) !important;
+    color: var(--text) !important;
+    border-color: rgba(255, 255, 255, 0.25) !important;
+    transform: translateY(-1.5px) !important;
+  }
+
+  html[data-theme="light"] .modal-card .pill.subtle:hover,
+  html[data-theme="light"] .modal-card #closeModalCancelBtn:hover,
+  html[data-theme="light"] .modal-card #cancelEditQuoteBtn:hover,
+  html[data-theme="light"] .modal-card #cancelEditFlashBtn:hover,
+  html[data-theme="light"] .modal-card #btnCancelSubmitExam:hover,
+  html[data-theme="light"] .modal-card #cancelEditExamBtn:hover,
+  html[data-theme="light"] .modal-card #cancelDeleteCloudBtn:hover,
+  html[data-theme="light"] .modal-card #confirmResumeSessionBtn:hover {
+    background: #f1f5f9 !important;
+    color: #0f172a !important;
+    border-color: #cbd5e1 !important;
+  }
+
+  /* Social Auth Buttons */
+  .btn-social-auth {
+    border-radius: 12px !important;
+    border: 1px solid var(--border) !important;
+    background: var(--surface) !important;
+    color: var(--text) !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  }
+
+  .btn-social-auth:hover {
+    background: var(--surface-hover, rgba(255, 255, 255, 0.08)) !important;
+    border-color: var(--accent1) !important;
+    transform: translateY(-1.5px) !important;
+    box-shadow: 0 4px 14px rgba(99, 102, 241, 0.2) !important;
+  }
+
+  /* Unified Close Buttons across all Modals */
+  .modal-close,
+  .auth-modal-close-btn,
+  #closeShortcutsModal,
+  #closeEditExamModal,
+  #closeCancelModalBtn,
+  #closeDeleteCloudModalBtn {
+    width: 32px !important;
+    height: 32px !important;
+    border-radius: 10px !important;
+    border: 1px solid var(--border) !important;
+    background: var(--surface) !important;
+    color: var(--text-soft) !important;
+    cursor: pointer !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  }
+
+  .modal-close:hover,
+  .auth-modal-close-btn:hover,
+  #closeShortcutsModal:hover,
+  #closeEditExamModal:hover,
+  #closeCancelModalBtn:hover,
+  #closeDeleteCloudModalBtn:hover {
+    background: rgba(244, 63, 94, 0.15) !important;
+    border-color: rgba(244, 63, 94, 0.4) !important;
+    color: #f43f5e !important;
+    transform: scale(1.08) !important;
+    box-shadow: 0 2px 10px rgba(244, 63, 94, 0.25) !important;
+  }
+

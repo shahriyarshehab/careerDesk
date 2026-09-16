@@ -69,13 +69,32 @@ function renderProfileAspirantHub() {
     .sort((a, b) => new Date(a.targetDate).getTime() - new Date(b.targetDate).getTime());
   const nearestExam = upcomingExams[0] || null;
 
-  // 4. Four Core Subject Pillars Data
-  const primaryPillars = [
-    { name: 'Bangla', bn: 'বাংলা', color: '#ec4899', bg: 'rgba(236, 72, 153, 0.12)' },
-    { name: 'English', bn: 'ইংরেজি', color: '#06b6d4', bg: 'rgba(6, 182, 212, 0.12)' },
-    { name: 'Mathematics', bn: 'গণিত', color: '#10b981', bg: 'rgba(16, 185, 129, 0.12)' },
-    { name: 'General Knowledge', bn: 'সাধারণ জ্ঞান', color: '#f59e0b', bg: 'rgba(245, 158, 11, 0.12)' }
-  ];
+  // 4. Primary Core Subject Pillars Data (Adaptive to Student vs Job Seeker)
+  const track = typeof getUserTrack === 'function' ? getUserTrack() : { role: 'job_seeker' };
+  let primaryPillars = [];
+
+  if (track.role === 'student' && typeof BANGLADESH_CURRICULUM_DATA !== 'undefined' && BANGLADESH_CURRICULUM_DATA.classes) {
+    const classObj = BANGLADESH_CURRICULUM_DATA.classes.find(c => c.id === track.studentClass) || BANGLADESH_CURRICULUM_DATA.classes[3];
+    const topClassSubs = (classObj.subjects || []).slice(0, 4);
+    primaryPillars = topClassSubs.map(s => {
+      const canon = canonicalSubjectName(s);
+      const meta = typeof getSubjectMeta === 'function' ? getSubjectMeta(canon) : { bn: canon, color: '#6366f1' };
+      return {
+        name: canon,
+        bn: meta.bn,
+        color: meta.color,
+        bg: `${meta.color}1f`
+      };
+    });
+  } else {
+    // Exactly the 4 foundational core subjects for Job Seekers
+    primaryPillars = [
+      { name: 'Bangla', bn: 'বাংলা', color: '#ec4899', bg: 'rgba(236, 72, 153, 0.12)' },
+      { name: 'English', bn: 'ইংরেজি', color: '#06b6d4', bg: 'rgba(6, 182, 212, 0.12)' },
+      { name: 'Mathematics', bn: 'গণিত', color: '#10b981', bg: 'rgba(16, 185, 129, 0.12)' },
+      { name: 'General Knowledge', bn: 'সাধারণ জ্ঞান', color: '#f59e0b', bg: 'rgba(245, 158, 11, 0.12)' }
+    ];
+  }
 
   const pillarStats = primaryPillars.map(p => {
     const canonPillar = canonicalSubjectName(p.name).toLowerCase();

@@ -1730,3 +1730,539 @@ html[data-theme="light"] .auth-modal-card {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
+/* ==========================================================================
+   Academic & Career Track / Bangladesh Curriculum & Subject Management Card
+   ========================================================================== */
+.profile-track-card {
+  padding: 24px;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  margin-bottom: 22px;
+  background: var(--surface-strong);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+}
+
+.track-header-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 20px;
+}
+
+.track-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 260px;
+}
+
+.track-icon-badge {
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, var(--accent1), var(--accent2));
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 6px 18px rgba(99, 102, 241, 0.35);
+}
+
+.track-icon-badge svg,
+.track-icon-badge .lucide {
+  width: 22px;
+  height: 22px;
+}
+
+.track-main-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 17.5px;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.25;
+}
+
+.track-main-subtitle {
+  margin: 3px 0 0;
+  font-size: 12.5px;
+  color: var(--text-soft);
+  line-height: 1.4;
+}
+
+/* Role Switcher Pill */
+.track-role-switch {
+  display: inline-flex;
+  padding: 4px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+}
+
+.track-role-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 10px !important;
+  border: none !important;
+  background: transparent !important;
+  color: var(--text-soft);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.track-role-btn.active.solid {
+  background: linear-gradient(135deg, var(--accent1), var(--accent2)) !important;
+  color: #ffffff !important;
+  font-weight: 700;
+  box-shadow: 0 4px 14px rgba(99, 102, 241, 0.3);
+}
+
+.track-role-btn:hover:not(.active) {
+  color: var(--text);
+  background: var(--surface-hover, rgba(255, 255, 255, 0.05)) !important;
+}
+
+/* Track Selection Box (Class Dropdown or Job Sector) */
+.track-selection-box {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 16px 20px;
+  margin-bottom: 20px;
+}
+
+.track-row-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+.track-section-label {
+  display: block;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 2px;
+}
+
+.track-section-desc {
+  margin: 0;
+  font-size: 12px;
+  color: var(--text-soft);
+}
+
+.track-class-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  border-radius: 8px;
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--accent2);
+  background: rgba(6, 182, 212, 0.12);
+  border: 1px solid rgba(6, 182, 212, 0.25);
+  white-space: nowrap;
+}
+
+.track-class-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.track-custom-select {
+  flex: 1;
+  min-width: 240px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--surface-strong);
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-size: 13.5px;
+  font-weight: 600;
+  outline: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.track-custom-select:focus {
+  border-color: var(--accent1);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+}
+
+.track-sector-btn.active.solid {
+  background: linear-gradient(135deg, var(--accent1), var(--accent2)) !important;
+  color: #ffffff !important;
+  font-weight: 700;
+}
+
+/* THE 4 PRIMARY CORE SUBJECTS SECTION */
+.track-primary-section {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.05), rgba(99, 102, 241, 0.04));
+  border: 1px solid rgba(245, 158, 11, 0.28);
+  border-radius: 16px;
+  padding: 18px 20px;
+  margin-bottom: 20px;
+}
+
+.track-primary-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 4px;
+  flex-wrap: wrap;
+}
+
+.track-gold-star {
+  font-size: 17px;
+  color: #f59e0b;
+  line-height: 1;
+}
+
+.track-primary-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #f59e0b;
+  background: rgba(245, 158, 11, 0.12);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.track-primary-desc {
+  font-size: 12.5px;
+  color: var(--text-soft);
+  margin: 0 0 16px;
+  line-height: 1.4;
+}
+
+.track-primary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+}
+
+.track-primary-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.track-primary-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--pillar-accent, var(--accent1));
+  opacity: 0.8;
+}
+
+.track-primary-card.active {
+  border-color: rgba(99, 102, 241, 0.35);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+}
+
+.track-primary-card-top {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.track-primary-num {
+  width: 26px;
+  height: 26px;
+  border-radius: 8px;
+  background: var(--surface-strong);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-weight: 800;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.track-primary-titles {
+  flex: 1;
+  min-width: 0;
+}
+
+.track-primary-name {
+  display: block;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.track-primary-bn {
+  display: block;
+  font-size: 11.5px;
+  color: var(--text-soft);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.track-primary-details {
+  font-size: 11.5px;
+  color: var(--text-soft);
+  margin: 0 0 10px;
+  line-height: 1.35;
+}
+
+.track-primary-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 8px;
+  border-top: 1px dashed var(--border);
+}
+
+.track-primary-status-pill {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 6px;
+}
+
+.track-primary-status-pill.pill-active {
+  color: #10b981;
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+}
+
+.track-primary-status-pill.pill-off {
+  color: var(--text-soft);
+  background: var(--surface-strong);
+  border: 1px solid var(--border);
+}
+
+/* Interactive Toggle Slider */
+.track-switch-wrap {
+  position: relative;
+  display: inline-block;
+  width: 36px;
+  height: 20px;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+.track-switch-wrap input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.track-switch-slider {
+  position: absolute;
+  inset: 0;
+  background: var(--surface-strong);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  transition: all 0.25s ease;
+}
+
+.track-switch-slider::before {
+  position: absolute;
+  content: "";
+  height: 14px;
+  width: 14px;
+  left: 2px;
+  bottom: 2px;
+  background: #ffffff;
+  border-radius: 50%;
+  transition: transform 0.25s ease;
+}
+
+.track-switch-wrap input:checked + .track-switch-slider {
+  background: linear-gradient(135deg, var(--accent1), var(--accent2));
+  border-color: transparent;
+}
+
+.track-switch-wrap input:checked + .track-switch-slider::before {
+  transform: translateX(16px);
+}
+
+/* Subjects Section & Chips Grid */
+.track-subjects-section {
+  margin-bottom: 20px;
+}
+
+.track-sub-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+.track-sub-title {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.track-active-count {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--accent2);
+}
+
+.track-subjects-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 10px;
+}
+
+.track-subject-chip {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.track-subject-chip:hover {
+  border-color: var(--accent1);
+  background: var(--surface-hover, rgba(255, 255, 255, 0.06));
+  transform: translateY(-1px);
+}
+
+.track-subject-chip.active {
+  border-color: rgba(99, 102, 241, 0.4);
+  background: rgba(99, 102, 241, 0.08);
+}
+
+.track-subject-checkbox {
+  width: 17px;
+  height: 17px;
+  accent-color: var(--accent1);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.track-chip-indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--subj-dot-color, var(--accent1));
+  flex-shrink: 0;
+}
+
+.track-chip-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.track-chip-en {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.track-chip-bn {
+  display: block;
+  font-size: 11px;
+  color: var(--text-soft);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.track-chip-status {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-soft);
+  opacity: 0.8;
+}
+
+.track-subject-chip.active .track-chip-status {
+  color: #10b981;
+  opacity: 1;
+}
+
+/* Custom Subject Add Row */
+.track-custom-add-box {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 14px 18px;
+  border-radius: 14px;
+  background: var(--surface);
+  border: 1px dashed var(--border);
+  flex-wrap: wrap;
+}
+
+.track-custom-input-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 260px;
+  justify-content: flex-end;
+}
+
+.track-custom-input {
+  flex: 1;
+  max-width: 320px;
+  padding: 8px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--surface-strong);
+  color: var(--text);
+  font-size: 12.5px;
+  outline: none;
+}
+
+.track-custom-input:focus {
+  border-color: var(--accent1);
+}
+

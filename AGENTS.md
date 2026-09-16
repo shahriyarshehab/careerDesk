@@ -37,23 +37,26 @@ CareerDesk/
 │   │   ├── syllabus.css    # Curriculum categories, topic checklist, progress bars
 │   │   ├── flashcards.css  # Flashcards deck, flip card animation, fullscreen exam overlay
 │   │   ├── mcq.css         # BCS MCQ engine, options, floating points, mistake bank
-│   │   ├── settings.css    # Settings panel, Subject Manager, backup/restore
+│   │   ├── profile.css     # User profile card, academic track, subject manager & cloud sync
 │   │   ├── modals.css      # Command Palette (Ctrl+K), generic modals & dialogs
-│   │   └── style.css       # Master stylesheet index (@import aggregator & standalone backup)
+│   │   └── style.css       # Master stylesheet index (only CSS linked by index.html)
 │   ├── js/
+│   │   ├── master.js       # Master JavaScript project file & loader (only script linked by index.html)
 │   │   ├── core.js         # Master subject control, data schema, localStorage adapter & utilities
 │   │   ├── routine.js      # Routine schedules, date slider, day-by-day & monthly views
 │   │   ├── quotes.js       # Quote ticker, carousel, quotes manager & canvas wallpaper export
 │   │   ├── notes.js        # Quick notes, categorization tags, pinning & search
-│   │   ├── tracker.js      # Focus timer, 24h activity break tracker, heatmap & onboarding
+│   │   ├── tracker.js      # Focus timer, 24h activity break tracker, heatmap & goals
 │   │   ├── countdown.js    # Target exam countdown timers engine
 │   │   ├── syllabus.js     # Category & topic progress tracking, inline edit & delete mode
 │   │   ├── flashcards.js   # Flashcard deck review, flip animation & interactive exam mode
-│   │   ├── questions-data.js # BCS & Job prep curated question banks (1,400+ lines)
+│   │   ├── questions.js    # Curated question banks and BCS question pool
 │   │   ├── mcq.js          # MCQ practice engine, 20-Q exam mode, sound, mistake bank
-│   │   ├── settings.js     # Settings panel, subject manager UI, JSON backup/restore & reset
+│   │   ├── profile.js      # Profile track manager, Bangladesh class curriculum, subjects & cloud backups
+│   │   ├── home.js         # Routine and profile aspirant metrics hub
 │   │   ├── app.js          # Theme, fullscreen, modals, tabs router, command palette & init
-│   │   ├── script.js       # Monolithic script backup (preserved for standalone reference)
+│   │   ├── firebase-config.js # Client-side Firebase configuration
+│   │   ├── firebase-sync.js # Cloud authentication & Firestore real-time sync
 │   │   └── lucide.min.js   # Embedded Lucide icons library
 │   └── icons/              # Curated SVG icon assets and preview showcase gallery
 ├── AGENTS.md               # AI Agent architecture and conventions guide (this file)
@@ -64,19 +67,20 @@ CareerDesk/
 ```
 
 ### Key File Roles:
-- **`index.html`**: Contains semantic panels (`#panel-routine`, `#panel-notes`, `#panel-tracker`, `#panel-flashcards`, `#panel-countdown`, `#panel-syllabus`, `#panel-settings`). Loads the modular scripts in sequential order.
-- **`assets/css/style.css`**: Complete design system with CSS custom properties (`--bg`, `--surface`, `--accent1`, `--accent2`, `--border`, etc.). Handles responsive layout, floating pill navigation dock, and dark/light modes.
+- **`index.html`**: Semantic single-page layout. Links **only** `assets/css/style.css` in head and `assets/js/master.js` at body end.
+- **`assets/css/style.css`**: Master Stylesheet Project File. Uses `@import` to load all modular CSS stylesheets.
+- **`assets/js/master.js`**: Master JavaScript Project File. Central manifest that synchronously loads all modular JS engines.
 - **`assets/js/core.js`**: Central storage adapter, state initialization (`getDefaultState`), global utilities (`escapeHtml`, `escapeAttr`, `toBnDigits`, `dateKey`), and the Unified Subject Control System (`masterSubjectList`, `canonicalSubjectName`, `renameSubject`, `syncAllSubjectSelects`).
 - **`assets/js/routine.js`**: Manages day-by-day and monthly routine views, calendar sliders, task editing, and time blocks.
 - **`assets/js/quotes.js`**: Handles motivational quote rotations, the quote manager, interval carousels, and 1920x1080 canvas wallpaper generation.
 - **`assets/js/notes.js`**: Manages user study notes with tags, full-text search, and pinning.
-- **`assets/js/tracker.js`**: Real-time study timer, 24h break logs, activity heatmap, target hours, and first-time onboarding wizard.
+- **`assets/js/tracker.js`**: Real-time study timer, 24h break logs, activity heatmap, and target hours.
 - **`assets/js/countdown.js`**: Target exam countdown cards, date differentials, and exam target creation.
 - **`assets/js/syllabus.js`**: Interactive curriculum tracking, progress bars, topic completion toggles, and deletion modes.
 - **`assets/js/flashcards.js`**: Spaced flashcards deck, flip card animations, category filters, and full-screen distraction-free Exam Mode.
-- **`assets/js/questions-data.js`**: Dedicated static repository containing default questions, AI-curated pool, and extended BCS question pools.
+- **`assets/js/questions.js`**: Dedicated static repository containing default questions, AI-curated pool, and extended BCS question pools.
 - **`assets/js/mcq.js`**: Real-time MCQ quiz practice engine, 20-question timed exam mode, audio sound effects, mistake bank remediation, and JSON question import/export.
-- **`assets/js/settings.js`**: Subject management UI, activity statistics per subject, JSON backup and restore, and full data reset.
+- **`assets/js/profile.js`**: Profile track manager (Student vs Job Seeker), Bangladesh class-wise curriculum subjects, activity statistics per subject, and cloud backups.
 - **`assets/js/app.js`**: Application router (`activateTab`), modal controllers, fullscreen toggles, Command Palette (`Ctrl+K`), and bootstrap `init()`.
 - **`assets/js/lucide.min.js`**: Replaces `<i data-lucide="...">` with SVG icons on startup. In dynamically generated JS templates, use the inline `ICON` object from `core.js`.
 

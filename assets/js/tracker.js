@@ -203,12 +203,8 @@ if (resetDefaultsBtn) {
 
 function checkFirstTimeUser() {
   try {
-    const done = localStorage.getItem(ONBOARDING_KEY);
-    if (!done) {
-      setTimeout(() => {
-        openOnboardingModal(false);
-      }, 120);
-    }
+    // First-time popup disabled: mark onboarding as done so no interrupting popup appears
+    localStorage.setItem(ONBOARDING_KEY, 'true');
   } catch (e) { }
 }
 

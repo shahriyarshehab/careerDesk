@@ -142,6 +142,9 @@ function activateTab(rawTabName, persist = false) {
     if (typeof renderUserProfileUI === 'function') {
       renderUserProfileUI();
     }
+    if (typeof renderProfileTrackCard === 'function') {
+      renderProfileTrackCard();
+    }
     if (typeof renderProfileAspirantHub === 'function') {
       renderProfileAspirantHub();
     }

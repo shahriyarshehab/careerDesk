@@ -178,8 +178,9 @@ CareerDesk/
 │   │   ├── profile.css         # User profile card, lifetime metrics, auth views
 │   │   ├── settings.css        # Subject Manager, cloud sync buttons, data reset
 │   │   ├── modals.css          # Command Palette (Ctrl+K), generic dialogs
-│   │   └── style.css           # Master stylesheet index
+│   │   └── style.css           # Master stylesheet project file (only CSS linked in index.html)
 │   ├── js/
+│   │   ├── master.js           # Master JavaScript project file (only script linked in index.html)
 │   │   ├── core.js             # Unified subject system, state schema, storage adapter
 │   │   ├── routine.js          # Routine schedules, date slider, day/month views
 │   │   ├── quotes.js           # Motivation ticker, active quote management
@@ -188,11 +189,11 @@ CareerDesk/
 │   │   ├── countdown.js        # Target exam countdown timers engine
 │   │   ├── syllabus.js         # Category & topic progress, inline edit & delete mode
 │   │   ├── flashcards.js       # Spaced flashcards deck review & interactive exam mode
-│   │   ├── questions-data.js   # 1,000 BCS & competitive curated question pool
+│   │   ├── questions.js        # 1,000 BCS & competitive curated question pool
 │   │   ├── mcq.js              # 30-item sliding pool, unrevealed retry, exam mode
 │   │   ├── firebase-config.js  # Firebase project credentials
 │   │   ├── firebase-sync.js    # Auth, Firestore debounced auto-sync, snapshots
-│   │   ├── settings.js         # Subject Manager UI, cloud data delete, reset
+│   │   ├── profile.js          # Academic track (Student vs Job Seeker), curriculum subjects, cloud backup
 │   │   ├── home.js             # Routine isolation & Profile Aspirant Hub renderer
 │   │   ├── app.js              # Tab router, Command Palette, application bootstrap
 │   │   └── lucide.min.js       # Embedded Lucide icons library
