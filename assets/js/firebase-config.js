@@ -21,5 +21,6 @@ window.FIREBASE_CONFIG = {
   projectId: "careerdesk",
   storageBucket: "careerdesk.firebasestorage.app",
   messagingSenderId: "189177714174",
-  appId: "1:189177714174:web:c79ef6afaa4e2d20849caf"
+  appId: "1:189177714174:web:c79ef6afaa4e2d20849caf",
+  measurementId: "G-SXBKCRJ2ZN"
 };
