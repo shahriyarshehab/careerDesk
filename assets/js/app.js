@@ -132,6 +132,9 @@ function activateTab(rawTabName, persist = false) {
     if (typeof renderUserProfileUI === 'function') {
       renderUserProfileUI();
     }
+    if (typeof renderSecurityVaultUI === 'function') {
+      renderSecurityVaultUI();
+    }
     renderSubjectManager();
     renderQuoteManager();
     syncQuoteSettings();
@@ -453,6 +456,10 @@ function initCommandPalette() {
 
   if (typeof renderUserProfileUI === 'function') {
     renderUserProfileUI();
+  }
+
+  if (typeof renderSecurityVaultUI === 'function') {
+    renderSecurityVaultUI();
   }
 
   checkFirstTimeUser();

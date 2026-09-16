@@ -183,47 +183,75 @@ document.getElementById('importDataInput').addEventListener('change', (e) => {
   const reader = new FileReader();
   reader.onload = async (ev) => {
     try {
-      const imported = JSON.parse(ev.target.result);
+      let imported = JSON.parse(ev.target.result);
+
+      // Handle Zero-Knowledge Encrypted .vault files
+      if (imported && imported.__careerdesk_vault && typeof decryptVaultPayload === 'function') {
+        const pass = prompt('This backup is encrypted with Zero-Knowledge AES-GCM-256.\nEnter your secret passphrase:');
+        if (!pass) {
+          e.target.value = '';
+          return;
+        }
+        imported = await decryptVaultPayload(imported, pass);
+        sessionStorage.setItem('careerdesk_active_vault_pass', pass);
+      }
+
+      // Anti-Prototype Pollution scrubbing
+      if (typeof scrubPrototypePollution === 'function') {
+        imported = scrubPrototypePollution(imported);
+      }
+
+      const rawState = imported.state || imported;
+
       const ok = window.confirm('This will replace all current data with the backup file data. Proceed?');
       if (!ok) { e.target.value = ''; return; }
+
       state = {
-        routine: Array.isArray(imported.routine) && imported.routine.length ? migrateRoutine(imported.routine) : buildDefaultRoutine(dateKey(Date.now())),
-        notes: Array.isArray(imported.notes) ? imported.notes : [],
-        customQuotes: Array.isArray(imported.customQuotes) ? imported.customQuotes : [],
-        quoteIdx: typeof imported.quoteIdx === 'number' ? imported.quoteIdx : 0,
-        quoteSource: imported.quoteSource || 'all',
-        theme: imported.theme === 'light' ? 'light' : 'dark',
-        sessions: Array.isArray(imported.sessions) ? imported.sessions : [],
-        activeSession: imported.activeSession || null,
-        dailyTargetMinutes: typeof imported.dailyTargetMinutes === 'number' ? imported.dailyTargetMinutes : 240,
-        syllabus: Array.isArray(imported.syllabus) ? imported.syllabus : [],
-        flashcards: Array.isArray(imported.flashcards) ? imported.flashcards : [],
-        quoteCarouselEnabled: typeof imported.quoteCarouselEnabled === 'boolean' ? imported.quoteCarouselEnabled : true,
-        quoteCarouselInterval: typeof imported.quoteCarouselInterval === 'number' ? imported.quoteCarouselInterval : 300,
-        deletedSubjects: Array.isArray(imported.deletedSubjects) ? imported.deletedSubjects : [],
-        customSubjects: Array.isArray(imported.customSubjects) ? imported.customSubjects : [],
-        deletedQuotes: Array.isArray(imported.deletedQuotes) ? imported.deletedQuotes : []
+        routine: Array.isArray(rawState.routine) && rawState.routine.length ? migrateRoutine(rawState.routine) : buildDefaultRoutine(dateKey(Date.now())),
+        notes: Array.isArray(rawState.notes) ? rawState.notes : [],
+        customQuotes: Array.isArray(rawState.customQuotes) ? rawState.customQuotes : [],
+        quoteIdx: typeof rawState.quoteIdx === 'number' ? rawState.quoteIdx : 0,
+        quoteSource: rawState.quoteSource || 'all',
+        theme: rawState.theme === 'light' ? 'light' : 'dark',
+        sessions: Array.isArray(rawState.sessions) ? rawState.sessions : [],
+        activeSession: rawState.activeSession || null,
+        dailyTargetMinutes: typeof rawState.dailyTargetMinutes === 'number' ? rawState.dailyTargetMinutes : 240,
+        syllabus: Array.isArray(rawState.syllabus) ? rawState.syllabus : [],
+        flashcards: Array.isArray(rawState.flashcards) ? rawState.flashcards : [],
+        quoteCarouselEnabled: typeof rawState.quoteCarouselEnabled === 'boolean' ? rawState.quoteCarouselEnabled : true,
+        quoteCarouselInterval: typeof rawState.quoteCarouselInterval === 'number' ? rawState.quoteCarouselInterval : 300,
+        deletedSubjects: Array.isArray(rawState.deletedSubjects) ? rawState.deletedSubjects : [],
+        customSubjects: Array.isArray(rawState.customSubjects) ? rawState.customSubjects : [],
+        deletedQuotes: Array.isArray(rawState.deletedQuotes) ? rawState.deletedQuotes : []
       };
-      if (Array.isArray(imported.exams)) {
-        exams = imported.exams;
+
+      const examsList = Array.isArray(imported.exams) ? imported.exams : (Array.isArray(rawState.exams) ? rawState.exams : null);
+      if (examsList) {
+        exams = examsList;
         saveExams();
       }
-      if (Array.isArray(imported.customMCQQuestions) && typeof saveStoredQuestions === "function") {
+      if (Array.isArray(imported.mistakes)) {
+        mistakes = imported.mistakes;
+        if (typeof saveMistakes === 'function') saveMistakes();
+      }
+      if (Array.isArray(imported.customMCQQuestions) && typeof saveStoredQuestions === 'function') {
         saveStoredQuestions(imported.customMCQQuestions);
       }
-      if (imported.mcqProgress && typeof saveMCQProgress === "function") {
+      if (imported.mcqProgress && typeof saveMCQProgress === 'function') {
         userMCQProgress = imported.mcqProgress;
         saveMCQProgress();
       }
-      if (typeof imported.todayBreakMinutes === "number") {
+      if (typeof imported.todayBreakMinutes === 'number') {
         localStorage.setItem('jobprep_break_minutes_today', String(imported.todayBreakMinutes));
       }
+
       await storageAdapter.set(STORAGE_KEY, JSON.stringify(state));
       await writeToAutoBackupFile();
-      showToast('Backup restored successfully!');
+      showToast('🛡️ Backup restored successfully!');
       setTimeout(() => location.reload(), 800);
     } catch (err) {
-      showToast('Invalid JSON backup file', true);
+      console.error('Import Error:', err);
+      showToast(err.message || 'Invalid backup file', true);
     } finally {
       e.target.value = '';
     }

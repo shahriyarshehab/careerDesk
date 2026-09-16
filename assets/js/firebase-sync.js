@@ -308,8 +308,22 @@ async function uploadBackupToCloud(isConversion = false) {
   updateCloudSyncDot(true);
 
   try {
-    const bundle = buildCloudDataBundle();
+    let bundle = buildCloudDataBundle();
     const isFirebaseOnline = (typeof firebase !== 'undefined' && firebase.firestore && firebase.apps && firebase.apps.length > 0 && !user.isDemo);
+
+    const vaultCfg = typeof getVaultConfig === 'function' ? getVaultConfig() : null;
+    let isEncrypted = false;
+    if (vaultCfg && vaultCfg.enabled && typeof encryptVaultPayload === 'function') {
+      const pass = typeof promptVaultPassphrase === 'function' 
+        ? await promptVaultPassphrase('Cloud Vault Encryption Active')
+        : prompt('Enter vault passphrase to encrypt cloud snapshot:');
+      if (!pass) {
+        throw new Error('Encryption passphrase is required to upload encrypted vault.');
+      }
+      showToast('🔒 Encrypting cloud snapshot with AES-GCM-256...');
+      bundle = await encryptVaultPayload(bundle, pass);
+      isEncrypted = true;
+    }
 
     if (isFirebaseOnline) {
       const db = firebase.firestore();
@@ -318,6 +332,7 @@ async function uploadBackupToCloud(isConversion = false) {
         displayName: user.displayName,
         email: user.email,
         photoURL: user.photoURL,
+        isEncryptedVault: isEncrypted,
         lastCloudSync: firebase.firestore.FieldValue.serverTimestamp()
       }, { merge: true });
     } else {
@@ -333,6 +348,8 @@ async function uploadBackupToCloud(isConversion = false) {
 
     if (isConversion) {
       showToast('🚀 Local data successfully converted & synced to Online Cloud!');
+    } else if (isEncrypted) {
+      showToast('🔒 Military-grade encrypted cloud backup saved (AES-GCM-256)!');
     } else {
       showToast('☁️ Cloud backup updated successfully!');
     }
@@ -380,6 +397,22 @@ async function restoreBackupFromCloud() {
     }
 
     if (!imported) throw new Error('Invalid cloud backup data');
+
+    // Decrypt if client-side Zero-Knowledge AES-GCM-256 encrypted
+    if (imported.__careerdesk_vault && typeof decryptVaultPayload === 'function') {
+      const pass = prompt('This cloud backup is protected with Zero-Knowledge AES-GCM-256 encryption.\nEnter your secret passphrase:');
+      if (!pass) {
+        throw new Error('Vault passphrase is required to decrypt cloud backup.');
+      }
+      showToast('🔓 Decrypting cloud vault with AES-GCM-256...');
+      imported = await decryptVaultPayload(imported, pass);
+      sessionStorage.setItem('careerdesk_active_vault_pass', pass);
+    }
+
+    // Anti-Prototype Pollution protection
+    if (typeof scrubPrototypePollution === 'function') {
+      imported = scrubPrototypePollution(imported);
+    }
 
     if (imported.state) {
       state = imported.state;
