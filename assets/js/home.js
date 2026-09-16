@@ -135,16 +135,6 @@ function renderProfileAspirantHub() {
   }
   const pendingMistakes = mistakes || [];
 
-  // 6. Daily Motivation Quote
-  let activeQuote = {
-    text: "Small daily improvements over time lead to stunning results.",
-    author: "Robin Sharma"
-  };
-  if (state.customQuotes && state.customQuotes.length > 0) {
-    const idx = (state.quoteIdx || 0) % state.customQuotes.length;
-    activeQuote = state.customQuotes[idx] || activeQuote;
-  }
-
   // Generate Profile Aspirant Hub HTML
   container.innerHTML = `
     <!-- ASPIRANT HUB HEADER ROW -->
@@ -166,16 +156,7 @@ function renderProfileAspirantHub() {
       </div>
     </div>
 
-    <!-- 1. MOTIVATION STRIP (Prominent top placement, clean without wallpaper) -->
-    <div class="home-motivation-strip" id="profileQuoteTicker" style="margin-bottom: 20px;">
-      <div class="home-motivation-content">
-        <span class="home-motivation-dot"></span>
-        <span class="home-motivation-text" id="profileTickerText">"${escapeHtml(activeQuote.text || '')}"</span>
-        <span class="home-motivation-author">&mdash; ${escapeHtml(activeQuote.author || 'CareerDesk')}</span>
-      </div>
-    </div>
-
-    <!-- 2. DYNAMIC TODAY & TARGET METRICS CARDS -->
+    <!-- 1. DYNAMIC TODAY & TARGET METRICS CARDS -->
     <div class="home-hero-stats" style="margin-bottom: 20px;">
       <!-- Daily Goal Progress -->
       <div class="home-stat-card" id="profileGoalCard" style="cursor:pointer;" title="Click to view Tracker &amp; Focus">

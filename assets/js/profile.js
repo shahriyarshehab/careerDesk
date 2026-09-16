@@ -745,12 +745,12 @@ function renderProfileTrackCard() {
           <span class="track-class-badge">${currentJobType === 'govt' ? 'Public Sector / BCS' : 'Private & Corporate'}</span>
         </div>
 
-        <div class="track-sector-toggle-row segmented-group" style="display:inline-flex; width:100%; max-width:480px; margin-top:6px;">
-          <button type="button" class="pill track-sector-btn ${currentJobType === 'govt' ? 'active solid' : ''}" data-job-type="govt" style="flex:1; justify-content:center;">
-            <i data-lucide="landmark"></i> <span>Govt. Jobs (BCS / Bank / PSC)</span>
+        <div class="track-sector-toggle-row segmented-group track-sm-sector-group" style="display:inline-flex; width:auto; padding:3px; border-radius:10px; margin-top:6px;">
+          <button type="button" class="pill track-sector-btn ${currentJobType === 'govt' ? 'active solid' : ''}" data-job-type="govt" style="padding:5px 14px; font-size:12px; display:inline-flex; align-items:center; gap:5px;">
+            <i data-lucide="landmark" style="width:13px; height:13px;"></i> <span>Govt.</span>
           </button>
-          <button type="button" class="pill track-sector-btn ${currentJobType === 'non_govt' ? 'active solid' : ''}" data-job-type="non_govt" style="flex:1; justify-content:center;">
-            <i data-lucide="briefcase"></i> <span>Non-Govt. (Private / Corporate)</span>
+          <button type="button" class="pill track-sector-btn ${currentJobType === 'non_govt' ? 'active solid' : ''}" data-job-type="non_govt" style="padding:5px 14px; font-size:12px; display:inline-flex; align-items:center; gap:5px;">
+            <i data-lucide="briefcase" style="width:13px; height:13px;"></i> <span>Non-Govt.</span>
           </button>
         </div>
       </div>

@@ -191,6 +191,8 @@ function applyCustomProfileOverrides(user) {
     if (custom.displayName) user.displayName = custom.displayName;
     if (typeof custom.photoURL === 'string') user.photoURL = custom.photoURL;
     if (custom.username) user.username = normalizeUsername(custom.username);
+    if (custom.phoneNumber !== undefined) user.phoneNumber = custom.phoneNumber;
+    if (custom.occupation) user.occupation = custom.occupation;
   }
   if (!user.username) {
     user.username = getEffectiveUsername(user);
@@ -290,8 +292,7 @@ function setupAuthStateListener() {
           photoURL: user.photoURL || '',
           providerId: user.providerData?.[0]?.providerId || 'firebase',
           emailVerified: !!user.emailVerified,
-          phoneNumber: user.phoneNumber || '',
-          phoneVerified: !!user.phoneNumber
+          phoneNumber: user.phoneNumber || ''
         };
         applyCustomProfileOverrides(currentAuthUser);
         try {
@@ -1297,18 +1298,47 @@ function formatDisplayPhone(raw) {
   return `+880 ${local.slice(0, 4)}-${local.slice(4, 10)}`;
 }
 
-// Active verification session memory
-let activePhoneVerificationSession = {
-  phoneNumber: '',
-  code: '',
-  timestamp: 0,
-  confirmationResult: null
-};
+let isProfileInlineEditing = false;
 
 /**
- * Updates user profile (name, photo, username, phone, verification status)
+ * Gets effective occupation for user or default from state.userTrack
  */
-async function updateUserProfile(newName, newPhotoUrl, newUsername, newPhoneNumber, isVerified) {
+function getEffectiveOccupation(user = null) {
+  if (!user) user = getCachedAuthUser();
+  const custom = getCustomProfile() || {};
+  if (custom.occupation) return custom.occupation;
+  if (user && user.occupation) return user.occupation;
+  const track = typeof getUserTrack === 'function' ? getUserTrack() : null;
+  if (track) {
+    if (track.role === 'student') return 'student';
+    if (track.jobType === 'govt') return 'govt_aspirant';
+    if (track.jobType === 'non_govt') return 'professional';
+    return 'job_seeker';
+  }
+  return 'job_seeker';
+}
+
+/**
+ * Returns metadata (label, icon name, class) for an occupation key
+ */
+function getOccupationMeta(occupation) {
+  switch (occupation) {
+    case 'student':
+      return { label: 'Student', icon: 'graduation-cap', className: 'occ-badge-student' };
+    case 'govt_aspirant':
+      return { label: 'Govt. Job Aspirant', icon: 'landmark', className: 'occ-badge-govt' };
+    case 'professional':
+      return { label: 'Working Professional', icon: 'building', className: 'occ-badge-prof' };
+    case 'job_seeker':
+    default:
+      return { label: 'Job Seeker', icon: 'briefcase', className: 'occ-badge-job' };
+  }
+}
+
+/**
+ * Updates user profile (name, photo, username, phone, occupation)
+ */
+async function updateUserProfile(newName, newPhotoUrl, newUsername, newPhoneNumber, newOccupation) {
   const custom = getCustomProfile() || {};
   if (newName !== undefined && newName.trim()) {
     custom.displayName = newName.trim();
@@ -1320,29 +1350,25 @@ async function updateUserProfile(newName, newPhotoUrl, newUsername, newPhoneNumb
     custom.username = newUsername.trim().replace(/^@+/, '');
   }
   if (newPhoneNumber !== undefined) {
-    const formatted = normalizeBdPhone(newPhoneNumber);
-    if (formatted !== custom.phoneNumber) {
-      custom.phoneNumber = formatted;
-      custom.phoneVerified = (isVerified !== undefined) ? !!isVerified : false;
-    } else if (isVerified !== undefined) {
-      custom.phoneVerified = !!isVerified;
-    }
-  } else if (isVerified !== undefined) {
-    custom.phoneVerified = !!isVerified;
+    custom.phoneNumber = normalizeBdPhone(newPhoneNumber);
   }
+  if (newOccupation !== undefined) {
+    custom.occupation = newOccupation;
+  }
+  delete custom.phoneVerified;
   saveCustomProfile(custom);
 
   if (currentAuthUser) {
     if (custom.displayName) currentAuthUser.displayName = custom.displayName;
     if (typeof custom.photoURL === 'string') currentAuthUser.photoURL = custom.photoURL;
     if (custom.username) currentAuthUser.username = custom.username;
-    if (custom.phoneNumber) currentAuthUser.phoneNumber = custom.phoneNumber;
-    if (custom.phoneVerified !== undefined) currentAuthUser.phoneVerified = custom.phoneVerified;
+    if (custom.phoneNumber !== undefined) currentAuthUser.phoneNumber = custom.phoneNumber;
+    if (custom.occupation) currentAuthUser.occupation = custom.occupation;
+    delete currentAuthUser.phoneVerified;
     try {
       localStorage.setItem(FIREBASE_USER_CACHE_KEY, JSON.stringify(currentAuthUser));
     } catch (e) { }
 
-    // If real Firebase Auth user is present
     if (typeof firebase !== 'undefined' && firebase.apps && firebase.apps.length > 0 && typeof firebase.auth === 'function' && firebase.auth().currentUser && !currentAuthUser.isDemo) {
       try {
         await firebase.auth().currentUser.updateProfile({
@@ -1355,7 +1381,7 @@ async function updateUserProfile(newName, newPhotoUrl, newUsername, newPhoneNumb
             photoURL: currentAuthUser.photoURL,
             username: currentAuthUser.username || '',
             phoneNumber: currentAuthUser.phoneNumber || '',
-            phoneVerified: !!custom.phoneVerified
+            occupation: currentAuthUser.occupation || 'job_seeker'
           }, { merge: true });
         }
       } catch (err) {
@@ -1365,6 +1391,9 @@ async function updateUserProfile(newName, newPhotoUrl, newUsername, newPhoneNumb
   }
 
   renderUserProfileUI();
+  if (typeof renderProfileTrackCard === 'function') {
+    renderProfileTrackCard();
+  }
   if (typeof renderHomeDashboard === 'function') {
     renderHomeDashboard();
   }
@@ -1373,504 +1402,18 @@ async function updateUserProfile(newName, newPhotoUrl, newUsername, newPhoneNumb
 }
 
 /**
- * Opens Edit Profile Modal with auto-country code and OTP verification
+ * Toggles inline edit mode on Profile Card (replaces old popup modal)
  */
-function openEditProfileModal(autoTriggerVerification = false) {
-  let modal = document.getElementById('editProfileModal');
-  if (!modal) {
-    modal = document.createElement('div');
-    modal.className = 'modal-overlay';
-    modal.id = 'editProfileModal';
-    document.body.appendChild(modal);
-  }
-
-  const user = getCachedAuthUser();
-  const custom = getCustomProfile() || {};
-  const currentName = (user && user.displayName) ? user.displayName : (custom.displayName || 'Aspirant');
-  const currentPhoto = (user && user.photoURL) ? user.photoURL : (custom.photoURL || '');
-  const currentUsername = (user && user.username) ? user.username : (custom.username || getEffectiveUsername(user));
-  const rawCurrentPhone = (user && user.phoneNumber) ? user.phoneNumber : (custom.phoneNumber || '');
-  const localPhone = extractLocalBdPhone(rawCurrentPhone);
-  let isPhoneVerifiedState = !!((user && user.phoneVerified) || custom.phoneVerified);
-
-  const presets = [
-    { label: 'Scholar', emoji: '🎓', bg: 'linear-gradient(135deg, #6366f1, #3b82f6)' },
-    { label: 'Cyber Prodigy', emoji: '⚡', bg: 'linear-gradient(135deg, #06b6d4, #3b82f6)' },
-    { label: 'Focus Master', emoji: '🎯', bg: 'linear-gradient(135deg, #10b981, #059669)' },
-    { label: 'Night Owl', emoji: '🦉', bg: 'linear-gradient(135deg, #8b5cf6, #ec4899)' },
-    { label: 'Visionary', emoji: '🚀', bg: 'linear-gradient(135deg, #f59e0b, #ef4444)' },
-    { label: 'Memory Ace', emoji: '🧠', bg: 'linear-gradient(135deg, #06b6d4, #10b981)' }
-  ];
-
-  modal.innerHTML = `
-    <div class="glass modal-card edit-profile-modal">
-      <div class="modal-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
-        <h3 class="modal-title" style="margin:0; font-family:var(--font-display); font-size:18px; color:var(--text); display:flex; align-items:center; gap:8px;">
-          <i data-lucide="user-cog" style="color:var(--accent1); width:20px; height:20px;"></i>
-          Edit Profile
-        </h3>
-        <button class="modal-close" id="closeEditProfileModal" type="button" style="background:none; border:none; color:var(--text-soft); cursor:pointer; padding:4px;">
-          <i data-lucide="x"></i>
-        </button>
-      </div>
-
-      <!-- Avatar Preview & Upload -->
-      <div class="avatar-preview-box">
-        <div class="avatar-preview-img-wrap">
-          <img id="modalAvatarPreview" src="${escapeAttr(currentPhoto || '')}" alt="Avatar" class="avatar-preview-img" style="${currentPhoto ? '' : 'display:none;'}">
-          <div id="modalAvatarFallback" class="user-avatar-fallback" style="${currentPhoto ? 'display:none;' : ''}">
-            ${escapeHtml(currentName.charAt(0).toUpperCase())}
-          </div>
-        </div>
-        <div class="avatar-preview-actions">
-          <strong style="font-size:13.5px; color:var(--text);">Profile Picture</strong>
-          <div style="display:flex; gap:8px;">
-            <label for="modalAvatarFileInput" class="pill subtle" style="cursor:pointer; font-size:12px; padding:5px 12px;">
-              <i data-lucide="upload"></i> Upload Photo
-            </label>
-            <input type="file" id="modalAvatarFileInput" accept="image/*" style="display:none;">
-            ${currentPhoto ? `
-              <button type="button" class="pill danger" id="modalRemovePhotoBtn" style="font-size:11.5px; padding:5px 10px;">
-                Remove
-              </button>
-            ` : ''}
-          </div>
-        </div>
-      </div>
-
-      <!-- Display Name Input -->
-      <div class="form-group" style="margin-bottom:14px;">
-        <label style="font-size:12.5px; font-weight:700; color:var(--text); display:block; margin-bottom:6px;">Display Name:</label>
-        <input type="text" id="editProfileNameInput" value="${escapeAttr(currentName)}" placeholder="Your full name or callsign"
-          style="width:100%; padding:9px 12px; border-radius:10px; border:1px solid var(--border); background:var(--surface); color:var(--text); font-size:13.5px; box-sizing:border-box;">
-      </div>
-
-      <!-- Username Input -->
-      <div class="form-group" style="margin-bottom:14px;">
-        <label style="font-size:12.5px; font-weight:700; color:var(--text); display:block; margin-bottom:6px;">Username:</label>
-        <div style="position:relative;">
-          <span style="position:absolute; left:12px; top:50%; transform:translateY(-50%); font-weight:700; color:var(--accent1); font-size:14px;">@</span>
-          <input type="text" id="editProfileUsernameInput" value="${escapeAttr(currentUsername)}" placeholder="username"
-            style="width:100%; padding:9px 12px 9px 32px; border-radius:10px; border:1px solid var(--border); background:var(--surface); color:var(--text); font-size:13.5px; box-sizing:border-box;">
-        </div>
-      </div>
-
-      <!-- Mobile Number Input with Auto-Country Code & Verification -->
-      <div class="form-group" style="margin-bottom:14px;">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
-          <label style="font-size:12.5px; font-weight:700; color:var(--text); margin:0;">Mobile Number:</label>
-          <div id="modalPhoneStatusBadge">
-            ${isPhoneVerifiedState && localPhone ? `
-              <span class="phone-verified-chip" style="font-size:11px; padding:2px 8px; border-radius:6px; font-weight:700; color:#10b981; background:rgba(16,185,129,0.12); border:1px solid rgba(16,185,129,0.25); display:inline-flex; align-items:center; gap:4px;">
-                <i data-lucide="shield-check" style="width:12px;height:12px;"></i> Verified
-              </span>
-            ` : `
-              <span class="phone-unverified-chip" style="font-size:11px; padding:2px 8px; border-radius:6px; font-weight:700; color:#f59e0b; background:rgba(245,158,11,0.12); border:1px solid rgba(245,158,11,0.25); display:inline-flex; align-items:center; gap:4px;">
-                <i data-lucide="shield-alert" style="width:12px;height:12px;"></i> Unverified
-              </span>
-            `}
-          </div>
-        </div>
-
-        <div style="display:flex; gap:8px; align-items:center;">
-          <!-- Fixed Country Code Prefix (Auto-set) -->
-          <div class="phone-country-prefix" style="display:inline-flex; align-items:center; gap:5px; padding:9px 12px; border-radius:10px; border:1px solid var(--border); background:var(--surface-strong); color:var(--text); font-family:var(--font-mono); font-size:13px; font-weight:700; user-select:none; flex-shrink:0;">
-            <span style="font-size:14px;">🇧🇩</span>
-            <span>+880</span>
-          </div>
-
-          <!-- Local Subscriber Number (User enters without country code) -->
-          <div style="position:relative; flex:1;">
-            <input type="tel" id="editProfilePhoneLocalInput" value="${escapeAttr(localPhone)}" placeholder="1712345678" maxlength="11"
-              style="width:100%; padding:9px 12px; border-radius:10px; border:1px solid var(--border); background:var(--surface); color:var(--text); font-family:var(--font-mono); font-size:13.5px; font-weight:600; box-sizing:border-box;">
-          </div>
-
-          <!-- Verify Number Button -->
-          <button type="button" class="pill subtle" id="btnModalTriggerPhoneVerify" title="Send SMS verification code" style="padding:8px 12px; font-size:12px; flex-shrink:0; display:inline-flex; align-items:center; gap:5px; cursor:pointer;">
-            <i data-lucide="shield" style="width:13px;height:13px;color:var(--accent1);"></i>
-            <span>${isPhoneVerifiedState && localPhone ? 'Re-Verify' : 'Verify'}</span>
-          </button>
-        </div>
-        <span style="font-size:11px; color:var(--text-soft); display:block; margin-top:4px;">Country code (+880) is auto-set. Enter your 10-digit number (e.g. 1712345678).</span>
-
-        <!-- Inline Verification Step (OTP input) -->
-        <div id="modalPhoneVerificationSection" style="display:none; margin-top:10px; padding:12px; border-radius:12px; background:var(--surface-strong); border:1px dashed var(--accent1);">
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
-            <span style="font-size:12px; font-weight:600; color:var(--text);">Enter 6-Digit Verification Code:</span>
-            <span id="modalVerificationTargetPhone" style="font-family:var(--font-mono); font-size:11.5px; color:var(--accent2); font-weight:700;"></span>
-          </div>
-          <div style="display:flex; gap:8px; align-items:center;">
-            <input type="text" id="modalPhoneOtpInput" maxlength="6" placeholder="• • • • • •"
-              style="flex:1; padding:8px 12px; border-radius:8px; border:1px solid var(--border); background:var(--surface); color:var(--text); font-family:var(--font-mono); font-size:16px; letter-spacing:4px; text-align:center; font-weight:700; box-sizing:border-box;">
-            <button type="button" class="pill solid" id="btnModalConfirmPhoneOtp" style="padding:8px 14px; font-size:12.5px; flex-shrink:0;">
-              <i data-lucide="check-circle" style="width:13px;height:13px;"></i> <span>Confirm</span>
-            </button>
-          </div>
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px;">
-            <span id="modalOtpNotice" style="font-size:11px; color:var(--text-soft);">A verification code has been dispatched.</span>
-            <button type="button" id="btnModalResendPhoneOtp" style="background:none; border:none; color:var(--accent1); font-size:11px; font-weight:600; cursor:pointer; text-decoration:underline;">Resend Code</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Avatar Preset Avatars -->
-      <div class="form-group" style="margin-bottom:16px;">
-        <label style="font-size:12px; font-weight:700; color:var(--text-soft); display:block; margin-bottom:4px;">Or Choose an Avatar Preset:</label>
-        <div class="avatar-presets-grid">
-          ${presets.map((p, idx) => `
-            <button type="button" class="avatar-preset-btn" data-preset-idx="${idx}" title="${escapeAttr(p.label)}" style="background:${p.bg};">
-              <span>${p.emoji}</span>
-            </button>
-          `).join('')}
-        </div>
-      </div>
-
-      <div class="btn-group" style="justify-content:flex-end; gap:8px;">
-        <button type="button" class="pill" id="btnCancelEditProfile">Cancel</button>
-        <button type="button" class="pill solid" id="btnSaveEditProfile"><i data-lucide="check"></i> <span>Save Changes</span></button>
-      </div>
-    </div>
-  `;
-
-  modal.style.display = 'flex';
-  setTimeout(() => modal.classList.add('open'), 20);
-
-  let activeModalPhoto = currentPhoto;
-  const phoneLocalInput = document.getElementById('editProfilePhoneLocalInput');
-  const phoneStatusBadge = document.getElementById('modalPhoneStatusBadge');
-  const phoneVerificationSection = document.getElementById('modalPhoneVerificationSection');
-  const otpInput = document.getElementById('modalPhoneOtpInput');
-  const otpNotice = document.getElementById('modalOtpNotice');
-  const targetPhoneEl = document.getElementById('modalVerificationTargetPhone');
-  const verifyBtn = document.getElementById('btnModalTriggerPhoneVerify');
-
-  // Input sanitizer: auto-strips non-digits, strips 880 or leading 0 in real time!
-  if (phoneLocalInput) {
-    phoneLocalInput.addEventListener('input', () => {
-      let cleaned = phoneLocalInput.value.replace(/\D/g, '');
-      if (cleaned.startsWith('880')) cleaned = cleaned.slice(3);
-      if (cleaned.startsWith('0')) cleaned = cleaned.slice(1);
-      if (cleaned.length > 10) cleaned = cleaned.slice(0, 10);
-      phoneLocalInput.value = cleaned;
-
-      // If user altered digits from the originally verified number, revert verified state
-      if (cleaned !== localPhone || !custom.phoneVerified) {
-        isPhoneVerifiedState = false;
-        if (phoneStatusBadge) {
-          phoneStatusBadge.innerHTML = `
-            <span class="phone-unverified-chip" style="font-size:11px; padding:2px 8px; border-radius:6px; font-weight:700; color:#f59e0b; background:rgba(245,158,11,0.12); border:1px solid rgba(245,158,11,0.25); display:inline-flex; align-items:center; gap:4px;">
-              <i data-lucide="shield-alert" style="width:12px;height:12px;"></i> Unverified
-            </span>
-          `;
-        }
-        if (verifyBtn) {
-          verifyBtn.innerHTML = `<i data-lucide="shield" style="width:13px;height:13px;color:var(--accent1);"></i> <span>Verify</span>`;
-        }
-        if (window.lucide) lucide.createIcons();
-      }
-    });
-  }
-
-  // Verification Sender Function
-  const initiatePhoneVerification = async () => {
-    const rawVal = phoneLocalInput ? phoneLocalInput.value.trim() : '';
-    const digits = extractLocalBdPhone(rawVal);
-    if (!digits || digits.length < 10) {
-      showToast('Please enter a valid 10-digit mobile number (e.g. 1712345678).', true);
-      phoneLocalInput?.focus();
-      return;
-    }
-
-    const fullInternationalPhone = `+880${digits}`;
-    if (targetPhoneEl) targetPhoneEl.textContent = formatDisplayPhone(fullInternationalPhone);
-
-    if (window.location.protocol === 'file:') {
-      const msg = 'Real Firebase SMS requires running from a web server (e.g. https://careerdesk.web.app or http://localhost). Browser security blocks SMS from file:// URLs.';
-      showToast(msg, true, 8000);
-      if (phoneVerificationSection) phoneVerificationSection.style.display = 'block';
-      if (otpNotice) {
-        otpNotice.innerHTML = `<span style="color:#f43f5e; font-size:11.5px;">${msg}</span>`;
-      }
-      if (typeof openProtocolHelpModal === 'function') openProtocolHelpModal('Phone');
-      return;
-    }
-
-    const isFirebaseConfigured = initFirebaseApp();
-    if (!isFirebaseConfigured || typeof firebase === 'undefined' || !firebase.auth) {
-      const msg = 'Firebase Auth is required to send real SMS codes. Please configure Firebase first.';
-      showToast(msg, true, 6000);
-      if (phoneVerificationSection) phoneVerificationSection.style.display = 'block';
-      if (otpNotice) {
-        otpNotice.innerHTML = `<span style="color:#f43f5e; font-size:11.5px;">${msg}</span>`;
-      }
-      return;
-    }
-
-    const prevBtnContent = verifyBtn.innerHTML;
-    verifyBtn.disabled = true;
-    verifyBtn.innerHTML = `<i data-lucide="loader" style="width:13px;height:13px;animation:spin 1s linear infinite;"></i> <span>Sending SMS...</span>`;
-    if (window.lucide) lucide.createIcons();
-
-    try {
-      const appVerifier = getOrCreateRecaptchaVerifier('phoneRecaptchaContainer');
-      if (!appVerifier) throw new Error('Could not initialize reCAPTCHA verifier. Please refresh the page and try again.');
-
-      let confirmationResult;
-      const currentUser = firebase.auth().currentUser;
-      if (currentUser && !currentAuthUser?.isDemo) {
-        try {
-          // Standard Firebase Phone Auth: link phone number to existing authenticated user
-          confirmationResult = await currentUser.linkWithPhoneNumber(fullInternationalPhone, appVerifier);
-        } catch (linkErr) {
-          if (linkErr.code === 'auth/credential-already-in-use' || linkErr.code === 'auth/provider-already-linked') {
-            const retryVerifier = getOrCreateRecaptchaVerifier('phoneRecaptchaContainer');
-            confirmationResult = await firebase.auth().signInWithPhoneNumber(fullInternationalPhone, retryVerifier);
-          } else {
-            throw linkErr;
-          }
-        }
-      } else {
-        // Standard Firebase Phone Auth: sign in / verify with phone number
-        confirmationResult = await firebase.auth().signInWithPhoneNumber(fullInternationalPhone, appVerifier);
-      }
-
-      activePhoneVerificationSession = {
-        phoneNumber: fullInternationalPhone,
-        confirmationResult: confirmationResult,
-        timestamp: Date.now()
-      };
-
-      if (phoneVerificationSection) phoneVerificationSection.style.display = 'block';
-      if (otpInput) {
-        otpInput.value = '';
-        otpInput.focus();
-      }
-
-      showToast('SMS verification code sent to ' + formatDisplayPhone(fullInternationalPhone));
-      if (otpNotice) {
-        otpNotice.innerHTML = `SMS verification code dispatched via carrier to <strong>${escapeHtml(formatDisplayPhone(fullInternationalPhone))}</strong>. Enter the 6-digit code received on your mobile phone.`;
-      }
-    } catch (fbErr) {
-      console.error('[CareerDesk Phone Auth] Real SMS sending failed:', fbErr);
-      let errorMsg = fbErr.message || 'Failed to dispatch SMS verification code.';
-      if (fbErr.code === 'auth/invalid-phone-number') {
-        errorMsg = 'Invalid phone number format. Expected Bangladesh format (+8801XXXXXXXXX).';
-      } else if (fbErr.code === 'auth/quota-exceeded') {
-        errorMsg = 'Firebase SMS daily quota exceeded for this project.';
-      } else if (fbErr.code === 'auth/too-many-requests') {
-        errorMsg = 'Too many SMS requests sent. Please wait a few moments before trying again.';
-      } else if (fbErr.code === 'auth/operation-not-allowed') {
-        errorMsg = 'Phone Authentication is not enabled in your Firebase project (Firebase Console -> Authentication -> Sign-in method -> Phone).';
-      } else if (fbErr.code === 'auth/unauthorized-domain') {
-        errorMsg = 'This domain is not authorized. Add it in Firebase Console -> Authentication -> Settings -> Authorized domains.';
-      } else if (fbErr.code === 'auth/captcha-check-failed') {
-        errorMsg = 'reCAPTCHA check failed. Please refresh the page and try again.';
-      }
-      showToast(errorMsg, true, 8000);
-      if (phoneVerificationSection) phoneVerificationSection.style.display = 'block';
-      if (otpNotice) {
-        otpNotice.innerHTML = `<span style="color:#f43f5e; font-size:11.5px; font-weight:600;">SMS Error: ${escapeHtml(errorMsg)}</span>`;
-      }
-    } finally {
-      verifyBtn.disabled = false;
-      verifyBtn.innerHTML = prevBtnContent;
-      if (window.lucide) lucide.createIcons();
-    }
-  };
-
-  // Wire Verify button
-  verifyBtn?.addEventListener('click', initiatePhoneVerification);
-  document.getElementById('btnModalResendPhoneOtp')?.addEventListener('click', initiatePhoneVerification);
-
-  // Wire Confirm OTP button
-  document.getElementById('btnModalConfirmPhoneOtp')?.addEventListener('click', async () => {
-    const entered = otpInput ? otpInput.value.trim() : '';
-    if (!entered || entered.length !== 6) {
-      showToast('Please enter the 6-digit code from the SMS.', true);
-      otpInput?.focus();
-      return;
-    }
-
-    if (!activePhoneVerificationSession.confirmationResult) {
-      showToast('Please request an SMS verification code first.', true);
-      return;
-    }
-
-    const confirmBtn = document.getElementById('btnModalConfirmPhoneOtp');
-    const prevConfirmHtml = confirmBtn ? confirmBtn.innerHTML : '';
-    if (confirmBtn) {
-      confirmBtn.disabled = true;
-      confirmBtn.innerHTML = `<i data-lucide="loader" style="width:13px;height:13px;animation:spin 1s linear infinite;"></i> <span>Verifying...</span>`;
-      if (window.lucide) lucide.createIcons();
-    }
-
-    try {
-      const userCredential = await activePhoneVerificationSession.confirmationResult.confirm(entered);
-      const fbUser = userCredential.user;
-
-      isPhoneVerifiedState = true;
-      const verifiedFullPhone = activePhoneVerificationSession.phoneNumber || (`+880` + phoneLocalInput.value.trim());
-      custom.phoneNumber = verifiedFullPhone;
-      custom.phoneVerified = true;
-      saveCustomProfile(custom);
-
-      if (currentAuthUser) {
-        currentAuthUser.phoneNumber = verifiedFullPhone;
-        currentAuthUser.phoneVerified = true;
-        try { localStorage.setItem(FIREBASE_USER_CACHE_KEY, JSON.stringify(currentAuthUser)); } catch (e) {}
-      }
-
-      if (typeof firebase !== 'undefined' && firebase.firestore && fbUser && fbUser.uid) {
-        try {
-          await firebase.firestore().collection('users').doc(fbUser.uid).set({
-            phoneNumber: verifiedFullPhone,
-            phoneVerified: true,
-            phoneVerifiedAt: new Date().toISOString()
-          }, { merge: true });
-        } catch (fsErr) {
-          console.warn('[CareerDesk Phone Auth] Firestore update warning:', fsErr);
-        }
-      }
-
-      if (phoneVerificationSection) phoneVerificationSection.style.display = 'none';
-
-      if (phoneStatusBadge) {
-        phoneStatusBadge.innerHTML = `
-          <span class="phone-verified-chip" style="font-size:11px; padding:2px 8px; border-radius:6px; font-weight:700; color:#10b981; background:rgba(16,185,129,0.12); border:1px solid rgba(16,185,129,0.25); display:inline-flex; align-items:center; gap:4px;">
-            <i data-lucide="shield-check" style="width:12px;height:12px;"></i> Verified
-          </span>
-        `;
-      }
-      if (verifyBtn) {
-        verifyBtn.innerHTML = `<i data-lucide="shield-check" style="width:13px;height:13px;color:#10b981;"></i> <span>Verified</span>`;
-      }
-
-      showToast(`Phone number ${formatDisplayPhone(verifiedFullPhone)} verified! ✓`);
-      if (window.lucide) lucide.createIcons();
-    } catch (err) {
-      console.error('[CareerDesk Phone Auth] Firebase confirmation failed:', err);
-      let msg = 'Invalid SMS verification code. Please check your SMS and try again.';
-      if (err.code === 'auth/invalid-verification-code') {
-        msg = 'The verification code entered is incorrect. Please re-check your SMS.';
-      } else if (err.code === 'auth/code-expired') {
-        msg = 'The SMS verification code has expired. Please click "Resend Code" to get a new code.';
-      }
-      showToast(msg, true, 6000);
-      if (otpNotice) {
-        otpNotice.innerHTML = `<span style="color:#f43f5e; font-size:11.5px; font-weight:600;">${escapeHtml(msg)}</span>`;
-      }
-    } finally {
-      if (confirmBtn) {
-        confirmBtn.disabled = false;
-        confirmBtn.innerHTML = prevConfirmHtml;
-        if (window.lucide) lucide.createIcons();
-      }
-    }
-  });
-
-  // Auto-trigger verification if requested
-  if (autoTriggerVerification) {
-    setTimeout(() => {
-      initiatePhoneVerification();
-    }, 200);
-  }
-
-  // File upload inside modal
-  document.getElementById('modalAvatarFileInput')?.addEventListener('change', (e) => {
-    const file = e.target.files && e.target.files[0];
-    if (!file) return;
-    processAvatarFile(file, (dataUrl) => {
-      activeModalPhoto = dataUrl;
-      const prev = document.getElementById('modalAvatarPreview');
-      const fall = document.getElementById('modalAvatarFallback');
-      if (prev) {
-        prev.src = dataUrl;
-        prev.style.display = 'block';
-      }
-      if (fall) fall.style.display = 'none';
-    });
-  });
-
-  // Remove photo button inside modal
-  document.getElementById('modalRemovePhotoBtn')?.addEventListener('click', () => {
-    activeModalPhoto = '';
-    const prev = document.getElementById('modalAvatarPreview');
-    const fall = document.getElementById('modalAvatarFallback');
-    if (prev) prev.style.display = 'none';
-    if (fall) fall.style.display = 'flex';
-  });
-
-  // Preset button clicks inside modal
-  modal.querySelectorAll('.avatar-preset-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const idx = parseInt(btn.getAttribute('data-preset-idx'), 10);
-      const chosen = presets[idx];
-      if (!chosen) return;
-
-      const canvas = document.createElement('canvas');
-      canvas.width = 160;
-      canvas.height = 160;
-      const ctx = canvas.getContext('2d');
-
-      const grad = ctx.createLinearGradient(0, 0, 160, 160);
-      grad.addColorStop(0, '#6366f1');
-      grad.addColorStop(1, '#06b6d4');
-      ctx.fillStyle = grad;
-      ctx.fillRect(0, 0, 160, 160);
-
-      ctx.font = '80px sans-serif';
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.fillText(chosen.emoji, 80, 85);
-
-      activeModalPhoto = canvas.toDataURL('image/png');
-
-      const prev = document.getElementById('modalAvatarPreview');
-      const fall = document.getElementById('modalAvatarFallback');
-      if (prev) {
-        prev.src = activeModalPhoto;
-        prev.style.display = 'block';
-      }
-      if (fall) fall.style.display = 'none';
-    });
-  });
-
-  // Close & Cancel
-  document.getElementById('closeEditProfileModal')?.addEventListener('click', closeEditProfileModal);
-  document.getElementById('btnCancelEditProfile')?.addEventListener('click', closeEditProfileModal);
-  modal.onclick = (e) => {
-    if (e.target === modal) closeEditProfileModal();
-  };
-
-  // Save changes
-  document.getElementById('btnSaveEditProfile')?.addEventListener('click', async () => {
-    const nameInput = document.getElementById('editProfileNameInput');
-    const usernameInput = document.getElementById('editProfileUsernameInput');
-    const newName = nameInput ? nameInput.value.trim() : '';
-    const newUsername = usernameInput ? usernameInput.value.trim() : '';
-    const rawLocalPhone = phoneLocalInput ? phoneLocalInput.value.trim() : '';
-    const finalPhoneNumber = rawLocalPhone ? (`+880${rawLocalPhone}`) : '';
-
-    if (!newName) {
-      showToast('Please enter a valid display name', true);
-      return;
-    }
-    const success = await updateUserProfile(newName, activeModalPhoto, newUsername, finalPhoneNumber, isPhoneVerifiedState);
-    if (success !== false) {
-      closeEditProfileModal();
-    }
-  });
-
-  if (window.lucide && typeof window.lucide.createIcons === 'function') {
-    window.lucide.createIcons();
-  }
+function openEditProfileModal() {
+  isProfileInlineEditing = true;
+  renderUserProfileUI();
+  const card = document.getElementById('userProfileCard');
+  if (card) card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
 function closeEditProfileModal() {
-  const modal = document.getElementById('editProfileModal');
-  if (!modal) return;
-  modal.classList.remove('open');
-  setTimeout(() => modal.style.display = 'none', 200);
+  isProfileInlineEditing = false;
+  renderUserProfileUI();
 }
 
 // =========================================================
@@ -1889,32 +1432,312 @@ function renderUserProfileUI() {
   const effectiveName = (user && user.displayName) ? user.displayName : (custom.displayName || 'Guest Aspirant');
   const effectivePhoto = (user && user.photoURL) ? user.photoURL : (custom.photoURL || '');
   const effectiveUsername = (user && user.username) ? user.username : (custom.username || getEffectiveUsername(user));
+  const effectivePhone = (user && user.phoneNumber) ? user.phoneNumber : (custom.phoneNumber || '');
+  const currentOccupation = getEffectiveOccupation(user);
+  const occMeta = getOccupationMeta(currentOccupation);
 
-  const lastSyncIso = localStorage.getItem(FIREBASE_LAST_SYNC_KEY);
-  let lastSyncFormatted = 'Never synced';
-  if (lastSyncIso) {
-    try {
-      const d = new Date(lastSyncIso);
-      lastSyncFormatted = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) + ' at ' +
-        d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
-    } catch (e) { }
+  // =========================================================================
+  // 1. INLINE EDIT PROFILE MODE (Redesigned inline page, replaces modal popup)
+  // =========================================================================
+  if (isProfileInlineEditing) {
+    let activeInlinePhoto = effectivePhoto;
+    const localPhone = extractLocalBdPhone(effectivePhone);
+
+    const presets = [
+      { label: 'Scholar', emoji: '🎓', bg: 'linear-gradient(135deg, #6366f1, #3b82f6)' },
+      { label: 'Cyber Prodigy', emoji: '⚡', bg: 'linear-gradient(135deg, #06b6d4, #3b82f6)' },
+      { label: 'Focus Master', emoji: '🎯', bg: 'linear-gradient(135deg, #10b981, #059669)' },
+      { label: 'Night Owl', emoji: '🦉', bg: 'linear-gradient(135deg, #8b5cf6, #ec4899)' },
+      { label: 'Visionary', emoji: '🚀', bg: 'linear-gradient(135deg, #f59e0b, #ef4444)' },
+      { label: 'Memory Ace', emoji: '🧠', bg: 'linear-gradient(135deg, #06b6d4, #10b981)' }
+    ];
+
+    container.innerHTML = `
+      <div class="profile-inline-edit-card">
+        <div class="profile-inline-edit-header">
+          <div style="display:flex; align-items:center; gap:12px;">
+            <div class="profile-inline-edit-icon">
+              <i data-lucide="user-cog" style="width:20px;height:20px;"></i>
+            </div>
+            <div>
+              <h3 class="profile-inline-title">Edit Profile Information</h3>
+              <p class="profile-inline-subtitle">Update your personal profile, occupation track &amp; mobile contact.</p>
+            </div>
+          </div>
+          <button type="button" class="pill subtle btn-close-inline-edit" id="btnCancelInlineEditProfileTop" title="Cancel Editing">
+            <i data-lucide="x" style="width:14px;height:14px;"></i> <span>Cancel</span>
+          </button>
+        </div>
+
+        <div class="profile-inline-edit-body">
+          <!-- 1. AVATAR PICKER & PRESETS -->
+          <div class="inline-edit-section inline-edit-avatar-section">
+            <div class="inline-avatar-preview-wrap">
+              <img id="inlineAvatarPreview" src="${escapeAttr(effectivePhoto || '')}" class="user-avatar-img" style="${effectivePhoto ? '' : 'display:none;'}" alt="Avatar">
+              <div id="inlineAvatarFallback" class="user-avatar-fallback" style="${effectivePhoto ? 'display:none;' : ''}">
+                ${escapeHtml((effectiveName || 'A').charAt(0).toUpperCase())}
+              </div>
+            </div>
+            <div class="inline-avatar-controls">
+              <div class="inline-avatar-btn-row" style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+                <label for="inlineAvatarFileInput" class="pill subtle" style="cursor:pointer; font-size:12px; padding:6px 14px; display:inline-flex; align-items:center; gap:6px;">
+                  <i data-lucide="upload" style="width:14px;height:14px;"></i> <span>Upload Photo</span>
+                </label>
+                <input type="file" id="inlineAvatarFileInput" accept="image/*" style="display:none;">
+                <button type="button" class="pill danger" id="inlineRemovePhotoBtn" style="font-size:12px; padding:6px 12px; ${effectivePhoto ? 'display:inline-flex;' : 'display:none;'} align-items:center; gap:5px;">
+                  <i data-lucide="trash-2" style="width:13px;height:13px;"></i> <span>Remove</span>
+                </button>
+              </div>
+              <div style="margin-top:10px;">
+                <span style="font-size:11.5px; font-weight:600; color:var(--text-soft); display:block; margin-bottom:6px;">Or choose an avatar preset:</span>
+                <div class="avatar-presets-grid inline-presets-grid">
+                  ${presets.map((p, idx) => `
+                    <button type="button" class="avatar-preset-btn inline-preset-btn" data-preset-idx="${idx}" title="${escapeAttr(p.label)}" style="background:${p.bg};">
+                      <span>${p.emoji}</span>
+                    </button>
+                  `).join('')}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 2. NAME & USERNAME -->
+          <div class="inline-edit-form-grid">
+            <div class="form-group">
+              <label class="inline-field-label">Display Name</label>
+              <div class="inline-input-wrap">
+                <input type="text" id="inlineEditNameInput" value="${escapeAttr(effectiveName)}" placeholder="Your full name or callsign" class="inline-text-input">
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="inline-field-label">Username</label>
+              <div class="inline-input-wrap with-prefix">
+                <span class="inline-input-prefix">@</span>
+                <input type="text" id="inlineEditUsernameInput" value="${escapeAttr(effectiveUsername)}" placeholder="username" class="inline-text-input has-prefix">
+              </div>
+            </div>
+          </div>
+
+          <!-- 3. OCCUPATION & CAREER TRACK -->
+          <div class="form-group" style="margin-top:18px;">
+            <label class="inline-field-label">Occupation &amp; Academic Track</label>
+            <div class="inline-occupation-selector-grid">
+              <label class="occupation-option-card ${currentOccupation === 'student' ? 'selected' : ''}">
+                <input type="radio" name="inlineOccupation" value="student" ${currentOccupation === 'student' ? 'checked' : ''}>
+                <div class="occ-icon-box student">
+                  <i data-lucide="graduation-cap"></i>
+                </div>
+                <div class="occ-text-box">
+                  <strong class="occ-title">Student</strong>
+                  <span class="occ-desc">School, College or University Curriculum</span>
+                </div>
+              </label>
+
+              <label class="occupation-option-card ${currentOccupation === 'job_seeker' ? 'selected' : ''}">
+                <input type="radio" name="inlineOccupation" value="job_seeker" ${currentOccupation === 'job_seeker' ? 'checked' : ''}>
+                <div class="occ-icon-box job-seeker">
+                  <i data-lucide="briefcase"></i>
+                </div>
+                <div class="occ-text-box">
+                  <strong class="occ-title">Job Seeker</strong>
+                  <span class="occ-desc">Universal Career &amp; Core Subjects</span>
+                </div>
+              </label>
+
+              <label class="occupation-option-card ${currentOccupation === 'govt_aspirant' ? 'selected' : ''}">
+                <input type="radio" name="inlineOccupation" value="govt_aspirant" ${currentOccupation === 'govt_aspirant' ? 'checked' : ''}>
+                <div class="occ-icon-box govt-aspirant">
+                  <i data-lucide="landmark"></i>
+                </div>
+                <div class="occ-text-box">
+                  <strong class="occ-title">Govt. Job Aspirant</strong>
+                  <span class="occ-desc">BCS, Bank &amp; Public Sector (PSC)</span>
+                </div>
+              </label>
+
+              <label class="occupation-option-card ${currentOccupation === 'professional' ? 'selected' : ''}">
+                <input type="radio" name="inlineOccupation" value="professional" ${currentOccupation === 'professional' ? 'checked' : ''}>
+                <div class="occ-icon-box professional">
+                  <i data-lucide="building"></i>
+                </div>
+                <div class="occ-text-box">
+                  <strong class="occ-title">Working Professional</strong>
+                  <span class="occ-desc">Corporate, Tech &amp; Private Sector</span>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <!-- 4. MOBILE NUMBER (Clean, auto +880, NO verification/OTP) -->
+          <div class="form-group" style="margin-top:18px;">
+            <label class="inline-field-label">Mobile Number (Optional)</label>
+            <div class="inline-phone-group">
+              <div class="phone-country-prefix">
+                <span>🇧🇩</span>
+                <span>+880</span>
+              </div>
+              <input type="tel" id="inlineEditPhoneInput" value="${escapeAttr(localPhone)}" placeholder="1712345678" maxlength="10" class="inline-phone-input">
+            </div>
+            <span class="inline-field-hint">Country code (+880) is auto-set. Enter your 10-digit mobile number. No SMS verification needed.</span>
+          </div>
+
+          <!-- 5. ACTIONS -->
+          <div class="inline-edit-footer">
+            <button type="button" class="pill" id="btnCancelInlineEditProfileBottom">Cancel</button>
+            <button type="button" class="pill solid btn-save-inline-profile" id="btnSaveInlineEditProfile">
+              <i data-lucide="check"></i> <span>Save Changes</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
+
+    // Bind Inline Edit Listeners
+    const avatarFileInput = document.getElementById('inlineAvatarFileInput');
+    const previewImg = document.getElementById('inlineAvatarPreview');
+    const fallbackDiv = document.getElementById('inlineAvatarFallback');
+    const removePhotoBtn = document.getElementById('inlineRemovePhotoBtn');
+
+    if (avatarFileInput) {
+      avatarFileInput.addEventListener('change', (e) => {
+        const file = e.target.files && e.target.files[0];
+        if (!file) return;
+        processAvatarFile(file, (dataUrl) => {
+          activeInlinePhoto = dataUrl;
+          if (previewImg) {
+            previewImg.src = dataUrl;
+            previewImg.style.display = 'block';
+          }
+          if (fallbackDiv) fallbackDiv.style.display = 'none';
+          if (removePhotoBtn) removePhotoBtn.style.display = 'inline-flex';
+        });
+      });
+    }
+
+    if (removePhotoBtn) {
+      removePhotoBtn.addEventListener('click', () => {
+        activeInlinePhoto = '';
+        if (previewImg) previewImg.style.display = 'none';
+        if (fallbackDiv) fallbackDiv.style.display = 'flex';
+        removePhotoBtn.style.display = 'none';
+      });
+    }
+
+    // Presets
+    container.querySelectorAll('.inline-preset-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const idx = parseInt(btn.getAttribute('data-preset-idx'), 10);
+        const chosen = presets[idx];
+        if (!chosen) return;
+
+        const canvas = document.createElement('canvas');
+        canvas.width = 160;
+        canvas.height = 160;
+        const ctx = canvas.getContext('2d');
+
+        const grad = ctx.createLinearGradient(0, 0, 160, 160);
+        grad.addColorStop(0, '#6366f1');
+        grad.addColorStop(1, '#06b6d4');
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, 160, 160);
+
+        ctx.font = '80px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(chosen.emoji, 80, 85);
+
+        activeInlinePhoto = canvas.toDataURL('image/png');
+        if (previewImg) {
+          previewImg.src = activeInlinePhoto;
+          previewImg.style.display = 'block';
+        }
+        if (fallbackDiv) fallbackDiv.style.display = 'none';
+        if (removePhotoBtn) removePhotoBtn.style.display = 'inline-flex';
+      });
+    });
+
+    // Occupation radio selection style toggle
+    const occCards = container.querySelectorAll('.occupation-option-card');
+    occCards.forEach(card => {
+      card.addEventListener('click', () => {
+        occCards.forEach(c => c.classList.remove('selected'));
+        card.classList.add('selected');
+        const radio = card.querySelector('input[type="radio"]');
+        if (radio) radio.checked = true;
+      });
+    });
+
+    // Phone input cleaner: numbers only, strips leading 880 or 0
+    const phoneInput = document.getElementById('inlineEditPhoneInput');
+    if (phoneInput) {
+      phoneInput.addEventListener('input', () => {
+        let cleaned = phoneInput.value.replace(/\D/g, '');
+        if (cleaned.startsWith('880')) cleaned = cleaned.slice(3);
+        if (cleaned.startsWith('0')) cleaned = cleaned.slice(1);
+        if (cleaned.length > 10) cleaned = cleaned.slice(0, 10);
+        phoneInput.value = cleaned;
+      });
+    }
+
+    // Cancel buttons
+    const cancelTop = document.getElementById('btnCancelInlineEditProfileTop');
+    const cancelBottom = document.getElementById('btnCancelInlineEditProfileBottom');
+    [cancelTop, cancelBottom].forEach(btn => {
+      btn?.addEventListener('click', () => {
+        closeEditProfileModal();
+      });
+    });
+
+    // Save button
+    const saveBtn = document.getElementById('btnSaveInlineEditProfile');
+    if (saveBtn) {
+      saveBtn.addEventListener('click', async () => {
+        const nameInput = document.getElementById('inlineEditNameInput');
+        const usernameInput = document.getElementById('inlineEditUsernameInput');
+        const newName = nameInput ? nameInput.value.trim() : '';
+        const newUsername = usernameInput ? usernameInput.value.trim() : '';
+        const rawLocalPhone = phoneInput ? phoneInput.value.trim() : '';
+        const finalPhone = rawLocalPhone ? (`+880${rawLocalPhone}`) : '';
+        const selectedRadio = container.querySelector('input[name="inlineOccupation"]:checked');
+        const newOcc = selectedRadio ? selectedRadio.value : 'job_seeker';
+
+        if (!newName) {
+          showToast('Please enter a display name.', true);
+          nameInput?.focus();
+          return;
+        }
+
+        // Sync track
+        const track = typeof getUserTrack === 'function' ? getUserTrack() : { role: 'job_seeker', studentClass: 'ssc_science', jobType: 'govt' };
+        if (newOcc === 'student') {
+          track.role = 'student';
+        } else if (newOcc === 'govt_aspirant') {
+          track.role = 'job_seeker';
+          track.jobType = 'govt';
+        } else if (newOcc === 'professional') {
+          track.role = 'job_seeker';
+          track.jobType = 'non_govt';
+        } else {
+          track.role = 'job_seeker';
+        }
+        if (typeof saveUserTrack === 'function') {
+          saveUserTrack(track);
+        }
+
+        isProfileInlineEditing = false;
+        await updateUserProfile(newName, activeInlinePhoto, newUsername, finalPhone, newOcc);
+      });
+    }
+
+    if (window.lucide && typeof window.lucide.createIcons === 'function') {
+      window.lucide.createIcons();
+    }
+    return;
   }
 
-  const googleIconSvg = `
-    <svg class="auth-icon-svg" viewBox="0 0 24 24">
-      <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-      <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-      <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
-      <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
-    </svg>
-  `;
-
-  const githubIconSvg = `
-    <svg class="auth-icon-svg" viewBox="0 0 24 24" fill="currentColor">
-      <path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/>
-    </svg>
-  `;
-
+  // =========================================================================
+  // 2. VIEW MODE (Signed-In or Guest)
+  // =========================================================================
   const initials = (effectiveName || 'A').trim().split(/\s+/).map(n => n[0]).slice(0, 2).join('').toUpperCase();
 
   const avatarHtml = effectivePhoto
@@ -1922,9 +1745,7 @@ function renderUserProfileUI() {
        <div class="user-avatar-fallback" style="display:none;">${escapeHtml(initials)}</div>`
     : `<div class="user-avatar-fallback">${effectiveName && effectiveName !== 'Guest Aspirant' ? escapeHtml(initials) : '<i data-lucide="user" style="width:32px;height:32px;color:var(--text-soft);"></i>'}</div>`;
 
-  const chevronSvg = `<svg class="auth-btn-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>`;
-
-  // Get active motivational quote
+  // Motivational quote for top right
   let heroQuote = { q: 'Discipline is the bridge between goals and accomplishment.', a: 'CareerDesk' };
   try {
     if (typeof currentPool === 'function') {
@@ -1936,12 +1757,10 @@ function renderUserProfileUI() {
     }
   } catch (qErr) { }
 
-  // Calculate live study stats
+  // Lifetime study metrics
   let totalStudyMinutes = 0;
   if (state && Array.isArray(state.sessions)) {
-    state.sessions.forEach(s => {
-      totalStudyMinutes += (s.duration || 0);
-    });
+    state.sessions.forEach(s => { totalStudyMinutes += (s.duration || 0); });
   }
   const totalStudyHours = (totalStudyMinutes / 60).toFixed(1);
   const sessionCount = (state && Array.isArray(state.sessions)) ? state.sessions.length : 0;
@@ -1976,7 +1795,6 @@ function renderUserProfileUI() {
 
     if (isDemo) {
       providerLabel = 'Demo Account';
-      providerClass = '';
       providerIconHtml = '<i data-lucide="play-circle" style="width:12px;height:12px;color:#f59e0b;"></i>';
     } else if (isGoogle) {
       providerLabel = 'Google Account';
@@ -1994,88 +1812,75 @@ function renderUserProfileUI() {
       providerIconHtml = '<i data-lucide="smartphone" style="width:12px;height:12px;"></i>';
     }
 
-    const effectivePhone = (user && user.phoneNumber) ? user.phoneNumber : (custom.phoneNumber || '');
-    const isPhoneVerified = !!((user && user.phoneVerified) || custom.phoneVerified);
-
     container.innerHTML = `
       <!-- HERO BANNER -->
       <div class="profile-hero-banner">
-        <div class="profile-hero-content">
-          <!-- Avatar (Clean, no individual edit badge) -->
-          <div class="user-avatar-wrap">
-            ${avatarHtml}
-          </div>
+        <div class="profile-hero-grid">
+          <!-- Left: Avatar & Identity Details -->
+          <div class="profile-hero-left">
+            <div class="user-avatar-wrap">
+              ${avatarHtml}
+            </div>
 
-          <!-- Name / Email / Phone / Badge -->
-          <div class="user-hero-text">
-            <div class="user-name-row">
-              <h3 class="user-display-name">${escapeHtml(effectiveName)}</h3>
-            </div>
-            <div class="user-handle-row" style="margin:2px 0 6px;">
-              <span class="user-handle-badge" style="display:inline-flex; align-items:center; gap:4px; font-family:var(--font-mono); font-size:12px; font-weight:700; color:var(--accent2); background:rgba(6,182,212,0.12); border:1px solid rgba(6,182,212,0.25); padding:2px 8px; border-radius:6px;">@${escapeHtml(effectiveUsername)}</span>
-            </div>
-            <div class="user-details-list" style="display:flex; flex-direction:column; gap:4px; margin-bottom:6px;">
-              <span class="user-meta-detail" style="display:inline-flex; align-items:center; gap:6px; font-size:12.5px; color:var(--text-soft);">
-                <i data-lucide="mail" style="width:13px;height:13px;color:var(--accent1);"></i>
-                <span>${escapeHtml(user.email || 'Email: Not connected')}</span>
-              </span>
-              ${effectivePhone ? `
-                <span class="user-meta-detail user-meta-phone" style="display:inline-flex; align-items:center; gap:6px; font-size:12.5px; color:var(--text-soft); flex-wrap:wrap;">
-                  <i data-lucide="phone" style="width:13px;height:13px;color:var(--accent2);"></i>
-                  <span style="font-family:var(--font-mono); font-weight:600;">${escapeHtml(formatDisplayPhone(effectivePhone))}</span>
-                  ${isPhoneVerified ? `
-                    <span class="phone-verified-chip" style="font-size:10.5px; padding:2px 7px; border-radius:6px; font-weight:700; color:#10b981; background:rgba(16,185,129,0.12); border:1px solid rgba(16,185,129,0.25); display:inline-flex; align-items:center; gap:3px;">
-                      <i data-lucide="shield-check" style="width:11px;height:11px;"></i> Verified
-                    </span>
-                  ` : `
-                    <button type="button" class="pill subtle btn-verify-phone-badge" id="btnProfileVerifyPhoneBadge" title="Verify this mobile number" style="font-size:10.5px; padding:2px 8px; color:#f59e0b; border-color:rgba(245,158,11,0.3); background:rgba(245,158,11,0.1); cursor:pointer; display:inline-flex; align-items:center; gap:3px;">
-                      <i data-lucide="shield-alert" style="width:11px;height:11px;"></i> Verify Now
-                    </button>
-                  `}
+            <div class="user-hero-text">
+              <div class="user-name-row">
+                <h3 class="user-display-name">${escapeHtml(effectiveName)}</h3>
+              </div>
+              <div class="user-handle-row" style="margin:2px 0 6px; display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                <span class="user-handle-badge" style="display:inline-flex; align-items:center; gap:4px; font-family:var(--font-mono); font-size:12px; font-weight:700; color:var(--accent2); background:rgba(6,182,212,0.12); border:1px solid rgba(6,182,212,0.25); padding:2px 8px; border-radius:6px;">@${escapeHtml(effectiveUsername)}</span>
+                <span class="user-occupation-badge ${occMeta.className}">
+                  <i data-lucide="${occMeta.icon}" style="width:12px;height:12px;"></i>
+                  <span>${escapeHtml(occMeta.label)}</span>
                 </span>
-              ` : `
-                <div style="margin-top:2px;">
-                  <button type="button" class="pill subtle btn-connect-phone" id="btnConnectPhoneFromProfile" style="padding:3px 10px; font-size:11.5px; display:inline-flex; align-items:center; gap:5px; cursor:pointer;">
-                    <i data-lucide="phone-call" style="width:12px;height:12px;color:var(--accent2);"></i>
-                    <span>Connect Mobile Number</span>
-                  </button>
+              </div>
+              <div class="user-details-list" style="display:flex; flex-direction:column; gap:4px; margin-bottom:8px;">
+                <span class="user-meta-detail" style="display:inline-flex; align-items:center; gap:6px; font-size:12.5px; color:var(--text-soft);">
+                  <i data-lucide="mail" style="width:13px;height:13px;color:var(--accent1);"></i>
+                  <span>${escapeHtml(user.email || 'Email: Not connected')}</span>
+                </span>
+                ${effectivePhone ? `
+                  <span class="user-meta-detail user-meta-phone" style="display:inline-flex; align-items:center; gap:6px; font-size:12.5px; color:var(--text-soft);">
+                    <i data-lucide="phone" style="width:13px;height:13px;color:var(--accent2);"></i>
+                    <span style="font-family:var(--font-mono); font-weight:600;">${escapeHtml(formatDisplayPhone(effectivePhone))}</span>
+                  </span>
+                ` : ''}
+              </div>
+              <div class="user-provider-row">
+                <span class="user-provider-badge ${providerClass}">
+                  ${providerIconHtml} ${escapeHtml(providerLabel)}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right: Quote on Top Right, Edit & Sign Out Stacked Vertically -->
+          <div class="profile-hero-right">
+            <!-- Top Right Quote -->
+            <div class="profile-hero-top-quote">
+              <div class="profile-hero-quote-main">
+                <div class="profile-quote-mark-badge">
+                  <i data-lucide="quote"></i>
                 </div>
-              `}
+                <div class="profile-quote-text-wrap">
+                  <p class="profile-quote-line profile-hero-quote-text-el" id="profileHeroQuoteText">"${escapeHtml(heroQuote.q)}"</p>
+                  <span class="profile-quote-author profile-hero-quote-author-el" id="profileHeroQuoteAuthor">— ${escapeHtml(heroQuote.a || 'CareerDesk')}</span>
+                </div>
+              </div>
+              <button type="button" class="profile-quote-cycle-btn btn-cycle-profile-hero-quote" id="btnCycleProfileHeroQuote" title="Next motivational quote">
+                <i data-lucide="shuffle"></i>
+              </button>
             </div>
-            <span class="user-provider-badge ${providerClass}">
-              ${providerIconHtml} ${escapeHtml(providerLabel)}
-            </span>
-          </div>
 
-          <!-- Hero Action: Edit Profile, Subject Manager & Sign Out -->
-          <div class="profile-hero-actions" style="display:flex; align-items:center; gap:10px; margin-left:auto; flex-wrap:wrap;">
-            <button type="button" class="pill solid btn-edit-profile-main" id="btnOpenEditProfileModal" title="Edit Profile Details" style="padding:7px 15px; font-size:13px; display:inline-flex; align-items:center; gap:6px; cursor:pointer;">
-              <i data-lucide="user-cog" style="width:15px;height:15px;"></i> <span>Edit Profile</span>
-            </button>
-            <button type="button" class="pill subtle btn-open-subject-manager" id="btnOpenSubjectManagerFromHero" title="Unified Subject Manager" style="padding:7px 14px; font-size:13px; display:inline-flex; align-items:center; gap:6px; cursor:pointer;">
-              <i data-lucide="layers" style="width:15px;height:15px;"></i> <span>Subject Manager</span>
-            </button>
-            <button type="button" class="btn-signout-modern" id="btnProfileSignOut" title="Sign out from cloud account" style="padding:7px 16px; font-size:13px; display:inline-flex; align-items:center; gap:6px;">
-              <i data-lucide="log-out" style="width:15px;height:15px;"></i> <span>Sign Out</span>
-            </button>
-          </div>
-        </div>
-
-        <!-- MOTIVATIONAL QUOTE BAR IN PROFILE HERO -->
-        <div class="profile-hero-quote-bar">
-          <div class="profile-hero-quote-main">
-            <div class="profile-quote-mark-badge">
-              <i data-lucide="quote"></i>
-            </div>
-            <div class="profile-quote-text-wrap">
-              <p class="profile-quote-line profile-hero-quote-text-el" id="profileHeroQuoteText">"${escapeHtml(heroQuote.q)}"</p>
-              <span class="profile-quote-author profile-hero-quote-author-el" id="profileHeroQuoteAuthor">— ${escapeHtml(heroQuote.a || 'CareerDesk')}</span>
+            <!-- Vertical Action Buttons (Edit Profile & Sign Out) -->
+            <div class="profile-hero-vertical-actions">
+              <button type="button" class="pill solid btn-edit-profile-main" id="btnOpenEditProfileModal" title="Edit Profile Details">
+                <i data-lucide="user-cog" style="width:15px;height:15px;"></i> <span>Edit Profile</span>
+              </button>
+              <button type="button" class="btn-signout-modern" id="btnProfileSignOut" title="Sign out from cloud account">
+                <i data-lucide="log-out" style="width:15px;height:15px;"></i> <span>Sign Out</span>
+              </button>
             </div>
           </div>
-          <button type="button" class="profile-quote-cycle-btn btn-cycle-profile-hero-quote" id="btnCycleProfileHeroQuote" title="Next motivational quote">
-            <i data-lucide="shuffle"></i>
-            <span>New Quote</span>
-          </button>
         </div>
       </div>
 
@@ -2109,53 +1914,68 @@ function renderUserProfileUI() {
     // ===== SIGNED-OUT / GUEST STATE (CLEAN, READABLE TEXT) =====
     container.innerHTML = `
       <div class="auth-guest-landing-card clean-guest-card">
-        <div class="clean-guest-content">
-          <div class="auth-guest-badge-wrap">
-            <div class="auth-guest-badge-icon">
-              <i data-lucide="sparkles"></i>
+        <div class="profile-hero-grid guest-hero-grid">
+          <!-- Left: Guest Details -->
+          <div class="profile-hero-left">
+            <div class="user-avatar-wrap">
+              <div class="user-avatar-fallback"><i data-lucide="user" style="width:32px;height:32px;color:var(--text-soft);"></i></div>
             </div>
-            <span class="auth-guest-pill">CareerDesk Cloud</span>
-          </div>
-
-          <h2 class="auth-guest-title">Personal Study Profile</h2>
-          <p class="auth-guest-desc">
-            Sign in to sync routines, notes, syllabus progress, and mistake bank securely across all your devices, or manage your custom curriculum subjects below.
-          </p>
-
-          <div class="auth-guest-cta-row" style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
-            <button type="button" class="btn-profile-signup-cta" id="btnOpenAuthModalSignup" title="Create a new free account">
-              <i data-lucide="user-plus" style="width:16px; height:16px;"></i>
-              <span>Create Account</span>
-            </button>
-            <button type="button" class="btn-profile-login-cta" id="btnOpenAuthModalLogin" title="Sign in to your account">
-              <i data-lucide="log-in" style="width:16px; height:16px;"></i>
-              <span>Sign In</span>
-            </button>
-            <button type="button" class="pill subtle" id="btnOpenEditProfileModalGuest" title="Edit Profile Details" style="padding:10px 18px; font-size:13.5px; font-weight:600; display:inline-flex; align-items:center; gap:8px; cursor:pointer;">
-              <i data-lucide="user-cog" style="width:16px; height:16px;"></i>
-              <span>Edit Profile</span>
-            </button>
-            <button type="button" class="pill subtle btn-open-subject-manager" id="btnOpenSubjectManagerFromGuest" title="Open Subject Manager" style="padding:10px 18px; font-size:13.5px; font-weight:600; display:inline-flex; align-items:center; gap:8px; cursor:pointer;">
-              <i data-lucide="layers" style="width:16px; height:16px;"></i>
-              <span>Subject Manager</span>
-            </button>
-          </div>
-
-          <!-- MOTIVATIONAL QUOTE BAR IN GUEST PROFILE HERO -->
-          <div class="profile-hero-quote-bar" style="margin-top:20px;">
-            <div class="profile-hero-quote-main">
-              <div class="profile-quote-mark-badge">
-                <i data-lucide="quote"></i>
+            <div class="user-hero-text">
+              <div class="auth-guest-badge-wrap" style="margin-bottom:6px;">
+                <span class="auth-guest-pill" style="font-size:11px; padding:2px 8px; border-radius:20px; background:rgba(99,102,241,0.15); color:var(--accent1); font-weight:700;">CareerDesk Cloud</span>
               </div>
-              <div class="profile-quote-text-wrap">
-                <p class="profile-quote-line profile-hero-quote-text-el" id="profileHeroQuoteTextGuest">"${escapeHtml(heroQuote.q)}"</p>
-                <span class="profile-quote-author profile-hero-quote-author-el" id="profileHeroQuoteAuthorGuest">— ${escapeHtml(heroQuote.a || 'CareerDesk')}</span>
+              <h2 class="auth-guest-title" style="margin:0 0 4px; font-family:var(--font-display); font-size:22px; font-weight:800; color:var(--text);">Personal Study Profile</h2>
+              <div class="user-handle-row" style="margin:2px 0 6px; display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                <span class="user-handle-badge" style="display:inline-flex; align-items:center; gap:4px; font-family:var(--font-mono); font-size:12px; font-weight:700; color:var(--accent2); background:rgba(6,182,212,0.12); border:1px solid rgba(6,182,212,0.25); padding:2px 8px; border-radius:6px;">@${escapeHtml(effectiveUsername)}</span>
+                <span class="user-occupation-badge ${occMeta.className}">
+                  <i data-lucide="${occMeta.icon}" style="width:12px;height:12px;"></i>
+                  <span>${escapeHtml(occMeta.label)}</span>
+                </span>
+              </div>
+              <p class="auth-guest-desc" style="margin:4px 0 8px; font-size:13px; color:var(--text-soft); line-height:1.5;">
+                Sign in to sync routines, notes, syllabus progress, and mistake bank securely across all your devices, or manage your custom curriculum subjects below.
+              </p>
+              <div class="user-provider-row">
+                <span class="user-provider-badge">
+                  <i data-lucide="cloud-off" style="width:12px;height:12px;"></i> Offline / Local Storage
+                </span>
               </div>
             </div>
-            <button type="button" class="profile-quote-cycle-btn btn-cycle-profile-hero-quote" id="btnCycleProfileHeroQuoteGuest" title="Next motivational quote">
-              <i data-lucide="shuffle"></i>
-              <span>New Quote</span>
-            </button>
+          </div>
+
+          <!-- Right: Quote on Top Right, Guest Actions Stacked Vertically -->
+          <div class="profile-hero-right">
+            <!-- Top Right Quote -->
+            <div class="profile-hero-top-quote">
+              <div class="profile-hero-quote-main">
+                <div class="profile-quote-mark-badge">
+                  <i data-lucide="quote"></i>
+                </div>
+                <div class="profile-quote-text-wrap">
+                  <p class="profile-quote-line profile-hero-quote-text-el" id="profileHeroQuoteTextGuest">"${escapeHtml(heroQuote.q)}"</p>
+                  <span class="profile-quote-author profile-hero-quote-author-el" id="profileHeroQuoteAuthorGuest">— ${escapeHtml(heroQuote.a || 'CareerDesk')}</span>
+                </div>
+              </div>
+              <button type="button" class="profile-quote-cycle-btn btn-cycle-profile-hero-quote" id="btnCycleProfileHeroQuoteGuest" title="Next motivational quote">
+                <i data-lucide="shuffle"></i>
+              </button>
+            </div>
+
+            <!-- Vertical Action Buttons (NO duplicate Subject Manager) -->
+            <div class="profile-hero-vertical-actions">
+              <button type="button" class="btn-profile-signup-cta" id="btnOpenAuthModalSignup" title="Create a new free account">
+                <i data-lucide="user-plus" style="width:16px; height:16px;"></i>
+                <span>Create Account</span>
+              </button>
+              <button type="button" class="btn-profile-login-cta" id="btnOpenAuthModalLogin" title="Sign in to your account">
+                <i data-lucide="log-in" style="width:16px; height:16px;"></i>
+                <span>Sign In</span>
+              </button>
+              <button type="button" class="pill subtle" id="btnOpenEditProfileModalGuest" title="Edit Profile Details">
+                <i data-lucide="user-cog" style="width:16px; height:16px;"></i>
+                <span>Edit Profile</span>
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -2195,7 +2015,7 @@ function renderUserProfileUI() {
   const btnEditGuest = document.getElementById('btnOpenEditProfileModalGuest');
   if (btnEditGuest) {
     btnEditGuest.addEventListener('click', () => {
-      if (typeof openEditProfileModal === 'function') openEditProfileModal();
+      openEditProfileModal();
     });
   }
 
@@ -2224,28 +2044,7 @@ function renderUserProfileUI() {
   const btnEditProfile = document.getElementById('btnOpenEditProfileModal');
   if (btnEditProfile) {
     btnEditProfile.addEventListener('click', () => {
-      if (typeof openEditProfileModal === 'function') openEditProfileModal();
-    });
-  }
-
-  const btnConnectPhone = document.getElementById('btnConnectPhoneFromProfile');
-  if (btnConnectPhone) {
-    btnConnectPhone.addEventListener('click', () => {
-      if (typeof openEditProfileModal === 'function') {
-        openEditProfileModal();
-        setTimeout(() => {
-          document.getElementById('editProfilePhoneLocalInput')?.focus();
-        }, 150);
-      }
-    });
-  }
-
-  const btnVerifyPhoneBadge = document.getElementById('btnProfileVerifyPhoneBadge');
-  if (btnVerifyPhoneBadge) {
-    btnVerifyPhoneBadge.addEventListener('click', () => {
-      if (typeof openEditProfileModal === 'function') {
-        openEditProfileModal(true);
-      }
+      openEditProfileModal();
     });
   }
 
