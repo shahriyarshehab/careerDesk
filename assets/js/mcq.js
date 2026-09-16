@@ -122,7 +122,12 @@ function loadMistakes() {
 }
 
 function saveMistakes() {
-  try { localStorage.setItem(MISTAKES_KEY, JSON.stringify(mistakes)); } catch (e) { }
+  try {
+    localStorage.setItem(MISTAKES_KEY, JSON.stringify(mistakes));
+    if (typeof window.scheduleFirestoreSync === 'function') {
+      window.scheduleFirestoreSync();
+    }
+  } catch (e) { }
 }
 
 // Pure Web Audio API Synthesizer (No external sound files required)
@@ -1396,7 +1401,10 @@ function renderMCQFilterBar() {
   const filterBar = document.getElementById("filter-bar");
   if (!filterBar) return;
 
-  if (!userMCQProgress.removedSubjects) {
+  if (!userMCQProgress || typeof userMCQProgress !== 'object') {
+    userMCQProgress = { answers: {}, masteredIds: [], removedSubjects: [], addedExtendedIndex: 0 };
+  }
+  if (!Array.isArray(userMCQProgress.removedSubjects)) {
     userMCQProgress.removedSubjects = [];
   }
   const removedSet = new Set((userMCQProgress.removedSubjects || []).map(s => (typeof canonicalSubjectName === 'function' ? canonicalSubjectName(s) : s).toLowerCase()));

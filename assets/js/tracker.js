@@ -835,6 +835,8 @@ function closeCancelModal() {
 }
 
 if (resumeBtn) resumeBtn.addEventListener('click', closeCancelModal);
+const closeCancelModalBtn = document.getElementById('closeCancelModalBtn');
+if (closeCancelModalBtn) closeCancelModalBtn.addEventListener('click', closeCancelModal);
 if (confirmCancelBtn) {
   confirmCancelBtn.addEventListener('click', () => {
     closeCancelModal();

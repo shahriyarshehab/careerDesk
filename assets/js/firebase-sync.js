@@ -45,6 +45,142 @@ function saveCustomProfile(profile) {
   } catch (e) { }
 }
 
+// =========================================================
+// USERNAME MANAGEMENT & RESOLUTION SUBSYSTEM
+// =========================================================
+const CAREERDESK_USERNAMES_KEY = 'careerdesk_usernames_map_v1';
+
+function normalizeUsername(raw) {
+  if (!raw) return '';
+  return raw.toString().toLowerCase().trim().replace(/^@+/, '').replace(/[^a-z0-9_-]/g, '');
+}
+
+function isValidUsername(raw) {
+  if (!raw || typeof raw !== 'string') return false;
+  const trimmed = raw.trim().replace(/^@+/, '');
+  return /^[a-zA-Z0-9_-]{3,25}$/.test(trimmed);
+}
+
+function getLocalUsernameMap() {
+  try {
+    const raw = localStorage.getItem(CAREERDESK_USERNAMES_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch (e) { }
+  return {};
+}
+
+function saveLocalUsernameMapping(username, email, uid = '') {
+  const u = normalizeUsername(username);
+  if (!u || !email) return;
+  try {
+    const map = getLocalUsernameMap();
+    map[u] = { email: email.toLowerCase().trim(), uid: uid || '' };
+    localStorage.setItem(CAREERDESK_USERNAMES_KEY, JSON.stringify(map));
+  } catch (e) { }
+}
+
+async function isUsernameAvailable(username, excludeUid = '') {
+  const u = normalizeUsername(username);
+  if (!u || !isValidUsername(u)) return false;
+
+  // 1. Check local map
+  const map = getLocalUsernameMap();
+  if (map[u] && map[u].uid && map[u].uid !== excludeUid) {
+    return false;
+  }
+
+  // 2. Check Firestore
+  if (typeof firebase !== 'undefined' && firebase.apps && firebase.apps.length > 0 && firebase.firestore) {
+    try {
+      const doc = await firebase.firestore().collection('usernames').doc(u).get();
+      if (doc.exists) {
+        const data = doc.data();
+        if (data && data.uid && data.uid !== excludeUid) {
+          return false;
+        }
+      }
+    } catch (e) {
+      console.warn('[Username Check] Firestore check skipped:', e);
+    }
+  }
+  return true;
+}
+
+async function registerUsernameForUser(username, email, uid = '') {
+  const u = normalizeUsername(username);
+  if (!u || !email) return false;
+  saveLocalUsernameMapping(u, email, uid);
+
+  if (typeof firebase !== 'undefined' && firebase.apps && firebase.apps.length > 0 && firebase.firestore) {
+    try {
+      await firebase.firestore().collection('usernames').doc(u).set({
+        username: u,
+        email: email.toLowerCase().trim(),
+        uid: uid || '',
+        updatedAt: Date.now()
+      }, { merge: true });
+      if (uid) {
+        await firebase.firestore().collection('users').doc(uid).set({
+          username: u
+        }, { merge: true });
+      }
+    } catch (e) {
+      console.warn('[Register Username] Firestore mapping error:', e);
+    }
+  }
+  return true;
+}
+
+async function resolveUsernameOrEmail(identifier) {
+  const raw = (identifier || '').trim();
+  if (!raw) return '';
+  if (raw.includes('@') && raw.includes('.')) {
+    return raw.toLowerCase();
+  }
+  const u = normalizeUsername(raw);
+  if (!u) return '';
+
+  // Check local mapping
+  const map = getLocalUsernameMap();
+  if (map[u] && map[u].email) {
+    return map[u].email;
+  }
+
+  // Check Firestore usernames collection
+  if (typeof firebase !== 'undefined' && firebase.apps && firebase.apps.length > 0 && firebase.firestore) {
+    try {
+      const doc = await firebase.firestore().collection('usernames').doc(u).get();
+      if (doc.exists) {
+        const data = doc.data();
+        if (data && data.email) {
+          saveLocalUsernameMapping(u, data.email, data.uid || '');
+          return data.email;
+        }
+      }
+    } catch (e) {
+      console.warn('[Resolve Username] Firestore lookup warning:', e);
+    }
+  }
+  return null; // Not found
+}
+
+function getEffectiveUsername(user = null) {
+  if (!user) user = getCachedAuthUser();
+  const custom = getCustomProfile() || {};
+  if (custom.username) return normalizeUsername(custom.username);
+  if (user && user.username) return normalizeUsername(user.username);
+  if (user && user.email) {
+    const map = getLocalUsernameMap();
+    for (const [uname, info] of Object.entries(map)) {
+      if (info.email && info.email.toLowerCase() === user.email.toLowerCase()) {
+        return uname;
+      }
+    }
+    return normalizeUsername(user.email.split('@')[0]);
+  }
+  return 'aspirant';
+}
+
 /**
  * Applies custom profile name or photo over current user
  */
@@ -54,6 +190,10 @@ function applyCustomProfileOverrides(user) {
   if (custom) {
     if (custom.displayName) user.displayName = custom.displayName;
     if (typeof custom.photoURL === 'string') user.photoURL = custom.photoURL;
+    if (custom.username) user.username = normalizeUsername(custom.username);
+  }
+  if (!user.username) {
+    user.username = getEffectiveUsername(user);
   }
   return user;
 }
@@ -127,6 +267,7 @@ function setupAuthStateListener() {
           return;
         }
 
+        const prevUid = currentAuthUser?.uid;
         currentAuthUser = {
           uid: user.uid,
           displayName: user.displayName || user.email?.split('@')[0] || 'Aspirant',
@@ -139,6 +280,13 @@ function setupAuthStateListener() {
         try {
           localStorage.setItem(FIREBASE_USER_CACHE_KEY, JSON.stringify(currentAuthUser));
         } catch (e) { }
+
+        // If newly logged in or user changed, collect individual data from Firestore!
+        if (prevUid !== user.uid) {
+          if (typeof collectUserDataFromFirestore === 'function') {
+            collectUserDataFromFirestore(currentAuthUser);
+          }
+        }
       } else {
         if (isExplicitlySignedOut) {
           currentAuthUser = null;
@@ -156,6 +304,7 @@ function setupAuthStateListener() {
  * Gets currently active user from memory or cache
  */
 function getCachedAuthUser() {
+  if (isExplicitlySignedOut) return null;
   if (currentAuthUser) {
     if (currentAuthUser.providerId === 'password' && currentAuthUser.emailVerified === false) {
       return null;
@@ -346,15 +495,50 @@ function hideEmailVerificationScreen() {
 
 /**
  * Sign Up / Sign In with Email + Password (Firebase Authentication only)
+ * Supports sign in via Email OR @username, and sets customUsername on registration
  */
-async function signInWithEmailPassword(email, password, isSignUp = false, customDisplayName = '') {
+async function signInWithEmailPassword(emailOrUsername, password, isSignUp = false, customDisplayName = '', customUsername = '') {
   isExplicitlySignedOut = false;
+
+  let email = (emailOrUsername || '').trim();
+  const errEl = document.getElementById('authModalError') || document.getElementById('emailAuthError') || document.getElementById('authPageError');
+
+  // If login mode and entered value does not contain '@', resolve username to email
+  if (!isSignUp && (!email.includes('@') || !email.includes('.'))) {
+    const resolved = await resolveUsernameOrEmail(email);
+    if (!resolved) {
+      const u = normalizeUsername(email);
+      const msg = `No account found with username @${u}. Please sign in with your email or register.`;
+      if (errEl) errEl.textContent = msg;
+      else showToast(msg, true);
+      return;
+    }
+    email = resolved;
+  }
 
   // Check if online & Firebase Auth is active
   const isOnlineHttp = (typeof window !== 'undefined' && (window.location.protocol !== 'file:' || window._forceFirebaseAuth)) && initFirebaseApp();
   if (isOnlineHttp && typeof firebase !== 'undefined' && firebase.auth) {
     try {
       if (isSignUp) {
+        // Validate customUsername if provided
+        if (customUsername) {
+          const u = normalizeUsername(customUsername);
+          if (!isValidUsername(u)) {
+            const msg = 'Username must be 3-25 letters, numbers, or _';
+            if (errEl) errEl.textContent = msg;
+            else showToast(msg, true);
+            return;
+          }
+          const isAvail = await isUsernameAvailable(u);
+          if (!isAvail) {
+            const msg = `Username @${u} is already taken. Please choose another.`;
+            if (errEl) errEl.textContent = msg;
+            else showToast(msg, true);
+            return;
+          }
+        }
+
         // 1. Create account via Firebase Auth only
         const result = await firebase.auth().createUserWithEmailAndPassword(email, password);
         const user = result.user;
@@ -364,16 +548,24 @@ async function signInWithEmailPassword(email, password, isSignUp = false, custom
           } catch (e) { }
         }
 
-        // 2. Send verification email via Firebase Auth
+        // 2. Save username mapping
+        if (customUsername) {
+          await registerUsernameForUser(customUsername, email, user.uid);
+          const custom = getCustomProfile() || {};
+          custom.username = normalizeUsername(customUsername);
+          saveCustomProfile(custom);
+        }
+
+        // 3. Send verification email via Firebase Auth
         await user.sendEmailVerification();
 
-        // 3. Do NOT sign them in automatically -> immediately sign out!
+        // 4. Do NOT sign them in automatically -> immediately sign out!
         await firebase.auth().signOut();
         currentAuthUser = null;
         try { localStorage.removeItem(FIREBASE_USER_CACHE_KEY); } catch (e) { }
         renderUserProfileUI();
 
-        // 4. Show verification screen with required message
+        // 5. Show verification screen with required message
         showEmailVerificationScreen(email, password);
         return;
       } else {
@@ -394,11 +586,23 @@ async function signInWithEmailPassword(email, password, isSignUp = false, custom
           return;
         }
 
-        // Email IS verified -> grant access
+        // Email IS verified -> fetch username from Firestore
+        let savedUsername = '';
+        if (firebase.firestore) {
+          try {
+            const userDoc = await firebase.firestore().collection('users').doc(user.uid).get();
+            if (userDoc.exists && userDoc.data() && userDoc.data().username) {
+              savedUsername = userDoc.data().username;
+            }
+          } catch (e) { }
+        }
+
+        // Grant access
         currentAuthUser = {
           uid: user.uid,
           displayName: customDisplayName || user.displayName || email.split('@')[0],
           email: user.email || email,
+          username: savedUsername || '',
           photoURL: user.photoURL || '',
           providerId: 'password',
           emailVerified: true
@@ -408,18 +612,19 @@ async function signInWithEmailPassword(email, password, isSignUp = false, custom
         showToast('Signed in as ' + currentAuthUser.displayName);
         closeAuthModal();
         renderUserProfileUI();
-        setTimeout(() => checkCloudInitialSync(), 600);
+        if (typeof collectUserDataFromFirestore === 'function') {
+          await collectUserDataFromFirestore(currentAuthUser);
+        }
         return;
       }
     } catch (err) {
-      const el = document.getElementById('authModalError') || document.getElementById('emailAuthError');
       let msg = err.message || 'Authentication failed.';
       if (err.code === 'auth/email-already-in-use') msg = 'This email is already registered. Try signing in.';
       else if (err.code === 'auth/user-not-found') msg = 'No account found with this email. Try signing up.';
       else if (err.code === 'auth/wrong-password') msg = 'Incorrect password. Please try again.';
       else if (err.code === 'auth/weak-password') msg = 'Password must be at least 6 characters.';
       else if (err.code === 'auth/invalid-email') msg = 'Please enter a valid email address.';
-      if (el) el.textContent = msg;
+      if (errEl) errEl.textContent = msg;
       else showToast(msg, true);
       return;
     }
@@ -428,6 +633,27 @@ async function signInWithEmailPassword(email, password, isSignUp = false, custom
   // Local / Offline / file:// protocol session (Privacy-first client-side guarantee)
   // Preserves the exact same contract: register does not sign in, blocks unverified login
   if (isSignUp) {
+    if (customUsername) {
+      const u = normalizeUsername(customUsername);
+      if (!isValidUsername(u)) {
+        const msg = 'Username must be 3-25 letters, numbers, or _';
+        if (errEl) errEl.textContent = msg;
+        else showToast(msg, true);
+        return;
+      }
+      const isAvail = await isUsernameAvailable(u);
+      if (!isAvail) {
+        const msg = `Username @${u} is already taken. Please choose another.`;
+        if (errEl) errEl.textContent = msg;
+        else showToast(msg, true);
+        return;
+      }
+      saveLocalUsernameMapping(u, email, 'local_' + Math.abs(email.split('').reduce((a, b) => (((a << 5) - a) + b.charCodeAt(0)) | 0, 0)));
+      const custom = getCustomProfile() || {};
+      custom.username = u;
+      saveCustomProfile(custom);
+    }
+
     saveSimulatedUnverifiedEmail(email);
     currentAuthUser = null;
     try { localStorage.removeItem(FIREBASE_USER_CACHE_KEY); } catch (e) { }
@@ -445,10 +671,12 @@ async function signInWithEmailPassword(email, password, isSignUp = false, custom
     }
 
     const effectiveName = customDisplayName || email.split('@')[0];
+    const localUid = 'local_' + Math.abs(email.split('').reduce((a, b) => (((a << 5) - a) + b.charCodeAt(0)) | 0, 0));
     currentAuthUser = {
-      uid: 'local_' + Math.abs(email.split('').reduce((a, b) => (((a << 5) - a) + b.charCodeAt(0)) | 0, 0)),
+      uid: localUid,
       displayName: effectiveName,
       email: email,
+      username: '',
       photoURL: '',
       providerId: 'password',
       emailVerified: true,
@@ -459,6 +687,9 @@ async function signInWithEmailPassword(email, password, isSignUp = false, custom
     showToast('Welcome back, ' + currentAuthUser.displayName);
     closeAuthModal();
     renderUserProfileUI();
+    if (typeof collectUserDataFromFirestore === 'function') {
+      await collectUserDataFromFirestore(currentAuthUser);
+    }
   }
 }
 
@@ -556,10 +787,18 @@ function signInDemoUser(providerName = 'Google') {
 }
 
 /**
- * Sign Out User
+ * Sign Out User - Cleans active user study data and resets to fresh state
  */
 async function signOutUser() {
   isExplicitlySignedOut = true;
+
+  // Cache outgoing user's data before cleaning if available
+  if (currentAuthUser && currentAuthUser.uid) {
+    try {
+      localStorage.setItem('careerdesk_user_data_' + currentAuthUser.uid, JSON.stringify(buildCloudDataBundle()));
+    } catch (e) { }
+  }
+
   try {
     if (typeof firebase !== 'undefined' && firebase.apps && firebase.apps.length > 0 && typeof firebase.auth === 'function') {
       await firebase.auth().signOut();
@@ -568,17 +807,51 @@ async function signOutUser() {
     console.warn('[CareerDesk Firebase] Signout warning:', err);
   }
 
+  // Clear auth cache keys
   currentAuthUser = null;
   try {
     localStorage.removeItem(FIREBASE_USER_CACHE_KEY);
     localStorage.removeItem(CAREERDESK_CUSTOM_PROFILE_KEY);
+    localStorage.removeItem(FIREBASE_LAST_SYNC_KEY);
   } catch (e) { }
 
-  renderUserProfileUI();
-  if (typeof renderHomeDashboard === 'function') {
-    renderHomeDashboard();
+  // Clean active workspace data completely
+  try {
+    localStorage.removeItem(STORAGE_KEY);
+    localStorage.removeItem('jobprep_exams_list');
+    localStorage.removeItem('jobprep_mistakes_bank_v2');
+    localStorage.removeItem('custom_bcs_questions_v3');
+    localStorage.removeItem('jobprep_break_minutes_today');
+    localStorage.removeItem('user_mcq_progress_v2');
+  } catch (e) { }
+
+  if (_firestoreSyncTimer) {
+    clearTimeout(_firestoreSyncTimer);
+    _firestoreSyncTimer = null;
   }
-  showToast('Signed out successfully.');
+
+  // Reset in-memory state to clean default
+  if (typeof getDefaultState === 'function') {
+    state = getDefaultState();
+  }
+  exams = [];
+  mistakes = [];
+  if (typeof userMCQProgress !== 'undefined') {
+    userMCQProgress = { answers: {}, masteredIds: [], removedSubjects: [], addedExtendedIndex: 0 };
+  }
+
+  try {
+    await storageAdapter.set(STORAGE_KEY, JSON.stringify(state));
+  } catch (e) { }
+
+  try {
+    refreshAllDashboardPanels();
+  } catch (panelErr) {
+    console.warn('[CareerDesk] Error refreshing panels on logout:', panelErr);
+  }
+
+  renderUserProfileUI();
+  showToast('Signed out. Personal study data cleaned from this browser.');
 }
 
 /**
@@ -598,12 +871,12 @@ function buildCloudDataBundle() {
 }
 
 /**
- * Uploads local data bundle to the cloud
+ * Uploads/Syncs current active user data to Firestore
  */
-async function uploadBackupToCloud(isConversion = false) {
-  const user = getCachedAuthUser();
+async function syncUserDataToFirestore(user = null, silent = true) {
+  if (!user) user = getCachedAuthUser();
   if (!user) {
-    showToast('Please sign in to upload backup to cloud', true);
+    if (!silent) showToast('Please sign in to sync with cloud', true);
     return;
   }
 
@@ -611,156 +884,200 @@ async function uploadBackupToCloud(isConversion = false) {
   updateCloudSyncDot(true);
 
   try {
-    let bundle = buildCloudDataBundle();
-    const isFirebaseOnline = (typeof firebase !== 'undefined' && firebase.firestore && firebase.apps && firebase.apps.length > 0 && !user.isDemo);
+    const bundle = buildCloudDataBundle();
+    const isFirebaseOnline = (typeof firebase !== 'undefined' && firebase.firestore && firebase.apps && firebase.apps.length > 0 && !user.isDemo && !user.isLocalSession);
 
-    const vaultCfg = typeof getVaultConfig === 'function' ? getVaultConfig() : null;
-    let isEncrypted = false;
-    if (vaultCfg && vaultCfg.enabled && typeof encryptVaultPayload === 'function') {
-      const pass = typeof promptVaultPassphrase === 'function' 
-        ? await promptVaultPassphrase('Cloud Vault Encryption Active')
-        : prompt('Enter vault passphrase to encrypt cloud snapshot:');
-      if (!pass) {
-        throw new Error('Encryption passphrase is required to upload encrypted vault.');
-      }
-      showToast('🔒 Encrypting cloud snapshot with AES-GCM-256...');
-      bundle = await encryptVaultPayload(bundle, pass);
-      isEncrypted = true;
-    }
+    // Always update isolated local cache for this user
+    try {
+      localStorage.setItem('careerdesk_user_data_' + user.uid, JSON.stringify(bundle));
+    } catch (e) { }
 
     if (isFirebaseOnline) {
       const db = firebase.firestore();
-      await db.collection('users').doc(user.uid).collection('careerdesk_backups').doc('latest').set(bundle, { merge: true });
+      const nowIso = new Date().toISOString();
       await db.collection('users').doc(user.uid).set({
-        displayName: user.displayName,
-        email: user.email,
-        photoURL: user.photoURL,
-        isEncryptedVault: isEncrypted,
-        lastCloudSync: firebase.firestore.FieldValue.serverTimestamp()
+        ...bundle,
+        uid: user.uid,
+        email: user.email || '',
+        displayName: user.displayName || '',
+        lastCloudSync: (firebase.firestore.FieldValue && typeof firebase.firestore.FieldValue.serverTimestamp === 'function')
+          ? firebase.firestore.FieldValue.serverTimestamp()
+          : nowIso
       }, { merge: true });
-    } else {
-      localStorage.setItem('careerdesk_cloud_backup_' + user.uid, JSON.stringify(bundle));
-      await new Promise(r => setTimeout(r, 400));
     }
 
     const nowIso = new Date().toISOString();
-    localStorage.setItem(FIREBASE_LAST_SYNC_KEY, nowIso);
+    try {
+      localStorage.setItem(FIREBASE_LAST_SYNC_KEY, nowIso);
+    } catch (e) { }
+
     isCloudSyncing = false;
     updateCloudSyncDot(false);
-    renderUserProfileUI();
 
-    if (isConversion) {
-      showToast('🚀 Local data successfully converted & synced to Online Cloud!');
-    } else if (isEncrypted) {
-      showToast('🔒 Military-grade encrypted cloud backup saved (AES-GCM-256)!');
-    } else {
-      showToast('☁️ Cloud backup updated successfully!');
+    const sub = document.getElementById('userCloudStatusSub');
+    if (sub) sub.textContent = 'Just now';
+
+    if (!silent) {
+      showToast('Cloud data synced successfully!');
     }
   } catch (err) {
-    console.error('Cloud Upload Error:', err);
+    console.error('[CareerDesk] Firestore Sync Error:', err);
     isCloudSyncing = false;
     updateCloudSyncDot(false);
-    showToast('Failed to sync to cloud: ' + (err.message || 'Unknown error'), true);
+    if (!silent) {
+      showToast('Sync failed: ' + (err.message || 'Check network'), true);
+    }
   }
 }
 
 /**
- * Restores data from the user's online cloud backup into local storage
+ * Collects/Restores individual data from Firestore when a user logs in
  */
-async function restoreBackupFromCloud() {
-  const user = getCachedAuthUser();
-  if (!user) {
-    showToast('Please sign in to restore from cloud', true);
-    return;
-  }
-
-  const ok = window.confirm('Restore your cloud backup? This will replace current local data with your latest cloud snapshot.');
-  if (!ok) return;
+async function collectUserDataFromFirestore(user = null) {
+  if (!user) user = getCachedAuthUser();
+  if (!user) return;
 
   isCloudSyncing = true;
   updateCloudSyncDot(true);
 
   try {
-    let imported = null;
-    const isFirebaseOnline = (typeof firebase !== 'undefined' && firebase.firestore && firebase.apps && firebase.apps.length > 0 && !user.isDemo);
+    let cloudData = null;
+    const isFirebaseOnline = (typeof firebase !== 'undefined' && firebase.firestore && firebase.apps && firebase.apps.length > 0 && !user.isDemo && !user.isLocalSession);
 
     if (isFirebaseOnline) {
       const db = firebase.firestore();
-      const doc = await db.collection('users').doc(user.uid).collection('careerdesk_backups').doc('latest').get();
-      if (!doc.exists) {
-        throw new Error('No cloud backup found for this account.');
+      // 1. Primary document: users/{uid}
+      const userDoc = await db.collection('users').doc(user.uid).get();
+      if (userDoc.exists && userDoc.data() && (userDoc.data().state || userDoc.data().routine || userDoc.data().syllabus)) {
+        cloudData = userDoc.data();
+      } else {
+        // 2. Check legacy backup subcollection: users/{uid}/careerdesk_backups/latest
+        const legacyDoc = await db.collection('users').doc(user.uid).collection('careerdesk_backups').doc('latest').get();
+        if (legacyDoc.exists && legacyDoc.data()) {
+          cloudData = legacyDoc.data();
+        }
       }
-      imported = doc.data();
+    }
+
+    // 3. Fallback to local isolated user cache
+    if (!cloudData) {
+      const raw = localStorage.getItem('careerdesk_user_data_' + user.uid) || localStorage.getItem('careerdesk_cloud_backup_' + user.uid);
+      if (raw) {
+        try { cloudData = JSON.parse(raw); } catch (e) { }
+      }
+    }
+
+    if (cloudData) {
+      // Decrypt if client-side Zero-Knowledge AES-GCM-256 encrypted
+      if (cloudData.__careerdesk_vault && typeof decryptVaultPayload === 'function') {
+        const pass = prompt('This cloud data is protected with AES-GCM-256 encryption.\nEnter your secret passphrase:');
+        if (pass) {
+          cloudData = await decryptVaultPayload(cloudData, pass);
+          sessionStorage.setItem('careerdesk_active_vault_pass', pass);
+        }
+      }
+
+      if (typeof scrubPrototypePollution === 'function') {
+        cloudData = scrubPrototypePollution(cloudData);
+      }
+
+      // Restore user-specific state
+      if (cloudData.state) {
+        state = cloudData.state;
+      }
+      if (Array.isArray(cloudData.exams)) {
+        exams = cloudData.exams;
+        if (typeof saveExams === 'function') saveExams();
+      }
+      if (Array.isArray(cloudData.mistakes)) {
+        mistakes = cloudData.mistakes;
+        if (typeof saveMistakes === 'function') saveMistakes();
+      }
+      if (Array.isArray(cloudData.customMCQQuestions) && typeof saveStoredQuestions === 'function') {
+        saveStoredQuestions(cloudData.customMCQQuestions);
+      }
+      if (cloudData.mcqProgress && typeof saveMCQProgress === 'function') {
+        userMCQProgress = cloudData.mcqProgress;
+        saveMCQProgress();
+      }
+      if (typeof cloudData.todayBreakMinutes === 'number') {
+        localStorage.setItem('jobprep_break_minutes_today', String(cloudData.todayBreakMinutes));
+      }
+
+      await storageAdapter.set(STORAGE_KEY, JSON.stringify(state));
+      localStorage.setItem('careerdesk_user_data_' + user.uid, JSON.stringify(cloudData));
+      localStorage.setItem(FIREBASE_LAST_SYNC_KEY, new Date().toISOString());
+      showToast(`Welcome back, ${user.displayName || 'Aspirant'}! Loaded your cloud data.`);
     } else {
-      const raw = localStorage.getItem('careerdesk_cloud_backup_' + user.uid);
-      if (!raw) {
-        throw new Error('No cloud backup found yet. Click "Convert Local Data to Cloud" first.');
-      }
-      imported = JSON.parse(raw);
+      // First time login for this user: initialize cloud data with default state
+      await syncUserDataToFirestore(user, true);
+      showToast(`Welcome, ${user.displayName || 'Aspirant'}! Cloud account connected.`);
     }
 
-    if (!imported) throw new Error('Invalid cloud backup data');
-
-    // Decrypt if client-side Zero-Knowledge AES-GCM-256 encrypted
-    if (imported.__careerdesk_vault && typeof decryptVaultPayload === 'function') {
-      const pass = prompt('This cloud backup is protected with Zero-Knowledge AES-GCM-256 encryption.\nEnter your secret passphrase:');
-      if (!pass) {
-        throw new Error('Vault passphrase is required to decrypt cloud backup.');
-      }
-      showToast('🔓 Decrypting cloud vault with AES-GCM-256...');
-      imported = await decryptVaultPayload(imported, pass);
-      sessionStorage.setItem('careerdesk_active_vault_pass', pass);
-    }
-
-    // Anti-Prototype Pollution protection
-    if (typeof scrubPrototypePollution === 'function') {
-      imported = scrubPrototypePollution(imported);
-    }
-
-    if (imported.state) {
-      state = imported.state;
-    }
-    if (Array.isArray(imported.exams)) {
-      exams = imported.exams;
-      if (typeof saveExams === 'function') saveExams();
-    }
-    if (Array.isArray(imported.mistakes)) {
-      mistakes = imported.mistakes;
-      if (typeof saveMistakes === 'function') saveMistakes();
-    }
-    if (Array.isArray(imported.customMCQQuestions) && typeof saveStoredQuestions === 'function') {
-      saveStoredQuestions(imported.customMCQQuestions);
-    }
-    if (imported.mcqProgress && typeof saveMCQProgress === 'function') {
-      userMCQProgress = imported.mcqProgress;
-      saveMCQProgress();
-    }
-    if (typeof imported.todayBreakMinutes === 'number') {
-      localStorage.setItem('jobprep_break_minutes_today', String(imported.todayBreakMinutes));
-    }
-
-    await storageAdapter.set(STORAGE_KEY, JSON.stringify(state));
-    if (typeof writeToAutoBackupFile === 'function') await writeToAutoBackupFile();
-
-    isCloudSyncing = false;
-    showToast('📥 Cloud backup restored successfully! Refreshing dashboard...');
-    setTimeout(() => location.reload(), 800);
-  } catch (err) {
-    console.error('Cloud Restore Error:', err);
     isCloudSyncing = false;
     updateCloudSyncDot(false);
-    showToast(err.message || 'Could not restore cloud backup', true);
+    refreshAllDashboardPanels();
+    renderUserProfileUI();
+  } catch (err) {
+    console.error('[CareerDesk] Collect User Data Error:', err);
+    isCloudSyncing = false;
+    updateCloudSyncDot(false);
+    showToast('Failed to load cloud data: ' + (err.message || 'Check connection'), true);
   }
 }
 
 /**
- * Checks if a user has cloud data on login
+ * Debounced Firestore Sync scheduler
  */
-function checkCloudInitialSync() {
-  const lastSync = localStorage.getItem(FIREBASE_LAST_SYNC_KEY);
-  if (!lastSync) {
-    uploadBackupToCloud(true);
+let _firestoreSyncTimer = null;
+function scheduleFirestoreSync() {
+  if (_firestoreSyncTimer) clearTimeout(_firestoreSyncTimer);
+  _firestoreSyncTimer = setTimeout(() => {
+    const user = getCachedAuthUser();
+    if (user) {
+      syncUserDataToFirestore(user, true);
+    }
+  }, 1200);
+}
+window.scheduleFirestoreSync = scheduleFirestoreSync;
+
+/**
+ * Refreshes all dashboard panels across the application
+ */
+function refreshAllDashboardPanels() {
+  if (typeof syncAllSubjectSelects === 'function') syncAllSubjectSelects();
+  if (typeof renderRoutineTable === 'function') renderRoutineTable();
+  if (typeof renderMonthlyCalendar === 'function') renderMonthlyCalendar();
+  if (typeof renderNotesList === 'function') renderNotesList();
+  if (typeof renderHeatmap === 'function') renderHeatmap();
+  if (typeof updateStats === 'function') updateStats();
+  if (typeof renderSyllabusCategories === 'function') renderSyllabusCategories();
+  if (typeof renderExams === 'function') renderExams();
+  if (typeof renderFlashcardCategories === 'function') renderFlashcardCategories();
+  if (typeof renderMistakes === 'function') renderMistakes();
+  if (typeof renderHomeDashboard === 'function') renderHomeDashboard();
+  if (typeof renderSubjectManager === 'function') renderSubjectManager();
+  if (typeof renderQuotesManager === 'function') renderQuotesManager();
+  if (typeof renderMCQQuestion === 'function') renderMCQQuestion();
+  if (typeof updateMCQStats === 'function') updateMCQStats();
+  if (window.lucide && typeof window.lucide.createIcons === 'function') {
+    window.lucide.createIcons();
   }
+}
+
+/**
+ * Backward compatibility wrappers
+ */
+async function uploadBackupToCloud(isConversion = false) {
+  await syncUserDataToFirestore(null, !isConversion);
+}
+
+async function restoreBackupFromCloud() {
+  await collectUserDataFromFirestore(null);
+}
+
+function checkCloudInitialSync() {
+  collectUserDataFromFirestore();
 }
 
 /**
@@ -832,6 +1149,7 @@ async function updateUserProfile(newName, newPhotoUrl) {
   if (currentAuthUser) {
     if (custom.displayName) currentAuthUser.displayName = custom.displayName;
     if (typeof custom.photoURL === 'string') currentAuthUser.photoURL = custom.photoURL;
+    if (custom.username) currentAuthUser.username = custom.username;
     try {
       localStorage.setItem(FIREBASE_USER_CACHE_KEY, JSON.stringify(currentAuthUser));
     } catch (e) { }
@@ -846,7 +1164,8 @@ async function updateUserProfile(newName, newPhotoUrl) {
         if (firebase.firestore) {
           await firebase.firestore().collection('users').doc(currentAuthUser.uid).set({
             displayName: currentAuthUser.displayName,
-            photoURL: currentAuthUser.photoURL
+            photoURL: currentAuthUser.photoURL,
+            username: currentAuthUser.username || ''
           }, { merge: true });
         }
       } catch (err) {
@@ -860,6 +1179,7 @@ async function updateUserProfile(newName, newPhotoUrl) {
     renderHomeDashboard();
   }
   showToast('Profile updated successfully!');
+  return true;
 }
 
 /**
@@ -877,6 +1197,7 @@ function openEditProfileModal() {
   const user = getCachedAuthUser();
   const currentName = (user && user.displayName) ? user.displayName : (getCustomProfile()?.displayName || 'Aspirant');
   const currentPhoto = (user && user.photoURL) ? user.photoURL : (getCustomProfile()?.photoURL || '');
+  const currentUsername = (user && user.username) ? user.username : (getCustomProfile()?.username || getEffectiveUsername(user));
 
   const presets = [
     { label: 'Scholar', emoji: '🎓', bg: 'linear-gradient(135deg, #6366f1, #3b82f6)' },
@@ -927,7 +1248,17 @@ function openEditProfileModal() {
       <div class="form-group" style="margin-bottom:14px;">
         <label style="font-size:12.5px; font-weight:700; color:var(--text); display:block; margin-bottom:6px;">Display Name:</label>
         <input type="text" id="editProfileNameInput" value="${escapeAttr(currentName)}" placeholder="Your full name or callsign"
-          style="width:100%; padding:9px 12px; border-radius:10px; border:1px solid var(--border); background:var(--surface); color:var(--text); font-size:13.5px;">
+          style="width:100%; padding:9px 12px; border-radius:10px; border:1px solid var(--border); background:var(--surface); color:var(--text); font-size:13.5px; box-sizing:border-box;">
+      </div>
+
+      <!-- Username Input -->
+      <div class="form-group" style="margin-bottom:14px;">
+        <label style="font-size:12.5px; font-weight:700; color:var(--text); display:block; margin-bottom:6px;">Username:</label>
+        <div style="position:relative;">
+          <span style="position:absolute; left:12px; top:50%; transform:translateY(-50%); font-weight:700; color:var(--accent1); font-size:14px;">@</span>
+          <input type="text" id="editProfileUsernameInput" value="${escapeAttr(currentUsername)}" placeholder="username"
+            style="width:100%; padding:9px 12px 9px 32px; border-radius:10px; border:1px solid var(--border); background:var(--surface); color:var(--text); font-size:13.5px; box-sizing:border-box;">
+        </div>
       </div>
 
       <!-- Avatar Preset Avatars -->
@@ -986,20 +1317,17 @@ function openEditProfileModal() {
       const chosen = presets[idx];
       if (!chosen) return;
 
-      // Render preset SVG icon into canvas to create a custom photo data URL
       const canvas = document.createElement('canvas');
       canvas.width = 160;
       canvas.height = 160;
       const ctx = canvas.getContext('2d');
 
-      // Gradient background
       const grad = ctx.createLinearGradient(0, 0, 160, 160);
       grad.addColorStop(0, '#6366f1');
       grad.addColorStop(1, '#06b6d4');
       ctx.fillStyle = grad;
       ctx.fillRect(0, 0, 160, 160);
 
-      // Emoji text
       ctx.font = '80px sans-serif';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
@@ -1027,28 +1355,22 @@ function openEditProfileModal() {
   // Save changes
   document.getElementById('btnSaveEditProfile')?.addEventListener('click', async () => {
     const nameInput = document.getElementById('editProfileNameInput');
+    const usernameInput = document.getElementById('editProfileUsernameInput');
     const newName = nameInput ? nameInput.value.trim() : '';
+    const newUsername = usernameInput ? usernameInput.value.trim() : '';
     if (!newName) {
       showToast('Please enter a valid display name', true);
       return;
     }
-    await updateUserProfile(newName, activeModalPhoto);
-    closeEditProfileModal();
+    const success = await updateUserProfile(newName, activeModalPhoto, newUsername);
+    if (success !== false) {
+      closeEditProfileModal();
+    }
   });
 
   if (window.lucide && typeof window.lucide.createIcons === 'function') {
     window.lucide.createIcons();
   }
-
-  const btnLogin = document.getElementById('btnOpenAuthModalLogin');
-  if (btnLogin) btnLogin.addEventListener('click', () => { if (typeof openEmailAuthModal === 'function') openEmailAuthModal('email'); });
-
-  const btnSignup = document.getElementById('btnOpenAuthModalSignup');
-  if (btnSignup) btnSignup.addEventListener('click', () => { if (typeof openEmailAuthModal === 'function') openEmailAuthModal('email'); });
-
-  const btnDemo = document.getElementById('btnSimulateDemoLoginFromCard');
-  if (btnDemo) btnDemo.addEventListener('click', () => { if (typeof signInDemoUser === 'function') signInDemoUser('Demo'); });
-
 }
 
 function closeEditProfileModal() {
@@ -1073,6 +1395,7 @@ function renderUserProfileUI() {
   const custom = getCustomProfile() || {};
   const effectiveName = (user && user.displayName) ? user.displayName : (custom.displayName || 'Guest Aspirant');
   const effectivePhoto = (user && user.photoURL) ? user.photoURL : (custom.photoURL || '');
+  const effectiveUsername = (user && user.username) ? user.username : (custom.username || getEffectiveUsername(user));
 
   const lastSyncIso = localStorage.getItem(FIREBASE_LAST_SYNC_KEY);
   let lastSyncFormatted = 'Never synced';
@@ -1172,9 +1495,12 @@ function renderUserProfileUI() {
           <div class="user-hero-text">
             <div class="user-name-row">
               <h3 class="user-display-name">${escapeHtml(effectiveName)}</h3>
-              <button type="button" class="btn-edit-profile" id="btnOpenEditProfileModal" title="Edit Profile Name &amp; Picture" aria-label="Edit Profile">
+              <button type="button" class="btn-edit-profile" id="btnOpenEditProfileModal" title="Edit Profile Name, Username &amp; Picture" aria-label="Edit Profile">
                 <i data-lucide="edit-2"></i>
               </button>
+            </div>
+            <div class="user-handle-row" style="margin:2px 0 6px;">
+              <span class="user-handle-badge" style="display:inline-flex; align-items:center; gap:4px; font-family:var(--font-mono); font-size:12px; font-weight:700; color:var(--accent2); background:rgba(6,182,212,0.12); border:1px solid rgba(6,182,212,0.25); padding:2px 8px; border-radius:6px;">@${escapeHtml(effectiveUsername)}</span>
             </div>
             <p class="user-email-text">
               <i data-lucide="${isPhone ? 'smartphone' : 'mail'}" style="width:13px;height:13px;"></i>
@@ -1221,21 +1547,14 @@ function renderUserProfileUI() {
           </div>
         </div>
 
-        <!-- Cloud Action Cards -->
-        <div class="cloud-actions-row">
-          <button type="button" class="cloud-action-card upload-card" id="btnUploadCloudNow" title="Upload and convert all local data into your cloud account">
-            <div class="cloud-action-icon">
-              <i data-lucide="upload-cloud" style="width:18px;height:18px;"></i>
-            </div>
-            <div class="cloud-action-label">Convert / Upload to Cloud</div>
-            <div class="cloud-action-desc">Save today's local progress to cloud storage</div>
-          </button>
-          <button type="button" class="cloud-action-card restore-card" id="btnRestoreCloudNow" title="Restore previous cloud backup into this device">
-            <div class="cloud-action-icon">
-              <i data-lucide="download-cloud" style="width:18px;height:18px;"></i>
-            </div>
-            <div class="cloud-action-label">Restore from Cloud</div>
-            <div class="cloud-action-desc">Pull latest online backup to this browser</div>
+        <!-- Cloud Sync Info Bar -->
+        <div class="cloud-sync-info-bar" style="display:flex; align-items:center; justify-content:space-between; gap:12px; padding:14px 18px; border-radius:12px; background:rgba(99,102,241,0.06); border:1px solid rgba(99,102,241,0.15); margin-bottom:18px;">
+          <div style="display:flex; align-items:center; gap:10px; font-size:13px; color:var(--text-soft);">
+            <i data-lucide="check-circle-2" style="width:17px;height:17px;color:var(--accent2);flex-shrink:0;"></i>
+            <span>Your routines, notes, syllabus progress, and mistake bank automatically sync with your private cloud account.</span>
+          </div>
+          <button type="button" class="pill theme-action-btn" id="btnUploadCloudNow" title="Sync data to Firestore now" style="white-space:nowrap;">
+            <i data-lucide="refresh-cw"></i> <span>Sync Now</span>
           </button>
         </div>
 
@@ -1252,89 +1571,41 @@ function renderUserProfileUI() {
       </div>
     `;
   } else {
-    // ===== SIGNED-OUT / GUEST STATE (PROFESSIONAL SAAS LANDING CARD) =====
+    // ===== SIGNED-OUT / GUEST STATE (CLEAN, READABLE TEXT) =====
     container.innerHTML = `
-      <div class="auth-guest-landing-card">
-        <!-- Hero Header -->
-        <div class="auth-guest-hero">
+      <div class="auth-guest-landing-card clean-guest-card">
+        <div class="clean-guest-content">
           <div class="auth-guest-badge-wrap">
             <div class="auth-guest-badge-icon">
               <i data-lucide="sparkles"></i>
             </div>
-            <span class="auth-guest-pill">CareerDesk Cloud Portal</span>
+            <span class="auth-guest-pill">CareerDesk Cloud</span>
           </div>
 
-          <h2 class="auth-guest-title">Sign In to Your CareerDesk Account</h2>
+          <h2 class="auth-guest-title">New here?</h2>
           <p class="auth-guest-desc">
-            Synchronize your study routines, smart notes, BCS syllabus progress, and mistake bank across all your computers, phones, and tablets with seamless cloud backup.
+            Create an account or sign in to save your personal study routines, notes, syllabus checklist, and mistake bank securely in the cloud across all your devices.
           </p>
 
-          <!-- Primary Call to Action Buttons -->
           <div class="auth-guest-cta-row">
-            <button type="button" class="btn-profile-login-cta" id="btnOpenAuthModalLogin" title="Open Sign In popup">
-              <i data-lucide="log-in" style="width:17px; height:17px;"></i>
-              <span>Sign In / Sign Up</span>
-            </button>
             <button type="button" class="btn-profile-signup-cta" id="btnOpenAuthModalSignup" title="Create a new free account">
-              <i data-lucide="user-plus" style="width:17px; height:17px;"></i>
-              <span>Create Free Account</span>
+              <i data-lucide="user-plus" style="width:16px; height:16px;"></i>
+              <span>Create Account</span>
             </button>
-            <button type="button" class="btn-demo-auth" id="btnSimulateDemoLoginFromCard" title="Test cloud sync instantly with a demo account">
-              <i data-lucide="zap" style="width:14px; height:14px;"></i>
-              <span>Instant Demo Login</span>
+            <button type="button" class="btn-profile-login-cta" id="btnOpenAuthModalLogin" title="Sign in to your account">
+              <i data-lucide="log-in" style="width:16px; height:16px;"></i>
+              <span>Sign In</span>
             </button>
-          </div>
-        </div>
-
-        <!-- Key Cloud Features Grid -->
-        <div class="auth-guest-features-grid">
-          <div class="auth-feature-card">
-            <div class="auth-feature-icon" style="background:rgba(99,102,241,0.12); color:var(--accent1);">
-              <i data-lucide="refresh-cw"></i>
-            </div>
-            <div class="auth-feature-info">
-              <h4>Multi-Device Cloud Sync</h4>
-              <p>Work seamlessly on desktop, continue revision on phone without missing data.</p>
-            </div>
-          </div>
-          <div class="auth-feature-card">
-            <div class="auth-feature-icon" style="background:rgba(6,182,212,0.12); color:var(--accent2);">
-              <i data-lucide="shield-check"></i>
-            </div>
-            <div class="auth-feature-info">
-              <h4>Encrypted Automated Backup</h4>
-              <p>Your study notes, formulas, and target exams are securely protected.</p>
-            </div>
-          </div>
-          <div class="auth-feature-card">
-            <div class="auth-feature-icon" style="background:rgba(245,158,11,0.12); color:#f59e0b;">
-              <i data-lucide="brain"></i>
-            </div>
-            <div class="auth-feature-info">
-              <h4>Smart Mistake Bank</h4>
-              <p>Missed questions automatically saved to your cloud bank for targeted mastery.</p>
-            </div>
-          </div>
-          <div class="auth-feature-card">
-            <div class="auth-feature-icon" style="background:rgba(16,185,129,0.12); color:#10b981;">
-              <i data-lucide="target"></i>
-            </div>
-            <div class="auth-feature-info">
-              <h4>Exam Target &amp; Syllabus Progress</h4>
-              <p>Live countdowns and chapter checklists organized for BCS &amp; Job Prep.</p>
-            </div>
-          </div>
-        </div>
-
-        <!-- Local Data Security Guarantee Footer -->
-        <div class="auth-guest-footer-bar">
-          <div class="auth-footer-trust-item">
-            <i data-lucide="lock" style="width:14px; height:14px; color:var(--accent1);"></i>
-            <span>Offline-First Guarantee: Local browser data is safe and will automatically merge upon sign in.</span>
           </div>
         </div>
       </div>
     `;
+  }
+
+  // Toggle storage management card visibility based on authentication state
+  const dataMgmtCard = document.getElementById('dataManagementCard');
+  if (dataMgmtCard) {
+    dataMgmtCard.style.display = user ? '' : 'none';
   }
 
   // Bind Guest Auth Action Listeners
@@ -1349,13 +1620,6 @@ function renderUserProfileUI() {
   if (btnSignup) {
     btnSignup.addEventListener('click', () => {
       if (typeof openAuthModal === 'function') openAuthModal('signup');
-    });
-  }
-
-  const btnDemo = document.getElementById('btnSimulateDemoLoginFromCard');
-  if (btnDemo) {
-    btnDemo.addEventListener('click', () => {
-      if (typeof signInDemoUser === 'function') signInDemoUser('Demo');
     });
   }
 
@@ -1523,12 +1787,21 @@ function renderAuthPageUI() {
             </div>
           </div>
 
-          <!-- Email Address -->
+          <!-- Username (Visible in Sign Up mode) -->
+          <div id="authPageUsernameWrap" style="display:${authPageIsSignUpMode ? 'block' : 'none'};">
+            <label class="auth-input-label">Username</label>
+            <div class="auth-input-control">
+              <span class="auth-input-icon" style="font-weight:700; color:var(--accent1); font-size:14px;">@</span>
+              <input type="text" id="authPageUsernameInput" placeholder="username (letters, numbers, _)" autocomplete="username" class="auth-text-input">
+            </div>
+          </div>
+
+          <!-- Email / Username Field -->
           <div>
-            <label class="auth-input-label">Email Address</label>
+            <label class="auth-input-label" id="authPageEmailLabel">${authPageIsSignUpMode ? 'Email Address' : 'Email or Username'}</label>
             <div class="auth-input-control">
               <span class="auth-input-icon"><i data-lucide="mail" style="width:15px;height:15px;"></i></span>
-              <input type="email" id="authPageEmailInput" placeholder="you@example.com" autocomplete="email" required class="auth-text-input">
+              <input type="text" id="authPageEmailInput" placeholder="${authPageIsSignUpMode ? 'you@example.com' : 'Username or email address'}" autocomplete="username" required class="auth-text-input">
             </div>
           </div>
 
@@ -1593,12 +1866,8 @@ function renderAuthPageUI() {
           </div>
         </div>
 
-        <!-- Quick Tools & Demo Actions -->
-        <div class="auth-footer-actions" style="margin-top:6px;">
-          <button type="button" class="btn-demo-auth" id="btnAuthPageDemo" title="Test cloud sync instantly without Firebase keys">
-            <i data-lucide="zap" style="width:14px;height:14px;"></i>
-            <span>Instant Demo Aspirant Login</span>
-          </button>
+        <!-- Quick Tools & Settings Actions -->
+        <div class="auth-footer-actions" style="margin-top:6px; display:flex; justify-content:center;">
           <button type="button" class="btn-firebase-cfg" id="btnOpenFirebaseCfg" title="Connect custom Firebase project credentials">
             <i data-lucide="settings-2" style="width:13px;height:13px;"></i>
             <span>Firebase Credentials</span>
@@ -1623,6 +1892,9 @@ function renderAuthPageUI() {
   const tabSignIn = document.getElementById('authPageTabSignIn');
   const tabSignUp = document.getElementById('authPageTabSignUp');
   const nameWrap = document.getElementById('authPageNameWrap');
+  const usernameWrap = document.getElementById('authPageUsernameWrap');
+  const emailLabel = document.getElementById('authPageEmailLabel');
+  const emailInput = document.getElementById('authPageEmailInput');
   const submitLabel = document.getElementById('authPageSubmitLabel');
 
   if (tabSignIn && tabSignUp) {
@@ -1631,6 +1903,9 @@ function renderAuthPageUI() {
       tabSignIn.classList.add('active');
       tabSignUp.classList.remove('active');
       if (nameWrap) nameWrap.style.display = 'none';
+      if (usernameWrap) usernameWrap.style.display = 'none';
+      if (emailLabel) emailLabel.textContent = 'Email or Username';
+      if (emailInput) emailInput.placeholder = 'Username or email address';
       if (submitLabel) submitLabel.textContent = 'Sign In';
       const forgot = document.getElementById('authPageForgotLink');
       if (forgot) forgot.style.display = 'inline-block';
@@ -1641,6 +1916,9 @@ function renderAuthPageUI() {
       tabSignUp.classList.add('active');
       tabSignIn.classList.remove('active');
       if (nameWrap) nameWrap.style.display = 'block';
+      if (usernameWrap) usernameWrap.style.display = 'block';
+      if (emailLabel) emailLabel.textContent = 'Email Address';
+      if (emailInput) emailInput.placeholder = 'you@example.com';
       if (submitLabel) submitLabel.textContent = 'Create Account & Sync';
       const forgot = document.getElementById('authPageForgotLink');
       if (forgot) forgot.style.display = 'none';
@@ -1704,24 +1982,21 @@ function renderAuthPageUI() {
   const submitBtn = document.getElementById('btnAuthPageSubmit');
   if (submitBtn) {
     submitBtn.addEventListener('click', async () => {
-      const email = document.getElementById('authPageEmailInput')?.value.trim();
+      const emailOrUser = document.getElementById('authPageEmailInput')?.value.trim();
       const password = document.getElementById('authPagePasswordInput')?.value;
       const displayName = document.getElementById('authPageNameInput')?.value.trim();
+      const username = document.getElementById('authPageUsernameInput')?.value.trim();
       const errEl = document.getElementById('authPageError');
 
-      if (!email || !password) {
-        if (errEl) { errEl.style.color = '#f43f5e'; errEl.textContent = 'Please fill in both email and password.'; }
+      if (!emailOrUser || !password) {
+        if (errEl) { errEl.style.color = '#f43f5e'; errEl.textContent = 'Please fill in both identifier and password.'; }
         return;
       }
       submitBtn.disabled = true;
       submitBtn.innerHTML = `<i data-lucide="loader" style="width:16px;height:16px;animation:spin 1s linear infinite;"></i> <span>${authPageIsSignUpMode ? 'Creating Account...' : 'Signing In...'}</span>`;
       if (window.lucide) lucide.createIcons();
 
-      await signInWithEmailPassword(email, password, authPageIsSignUpMode);
-
-      if (authPageIsSignUpMode && displayName && currentAuthUser) {
-        await updateUserProfile(displayName);
-      }
+      await signInWithEmailPassword(emailOrUser, password, authPageIsSignUpMode, displayName, username);
 
       submitBtn.disabled = false;
       submitBtn.innerHTML = `<i data-lucide="${authPageIsSignUpMode ? 'user-plus' : 'log-in'}" style="width:16px;height:16px;"></i> <span>${authPageIsSignUpMode ? 'Create Account &amp; Sync' : 'Sign In'}</span>`;
@@ -1766,11 +2041,9 @@ function renderAuthPageUI() {
 
   const resendOTPBtn = document.getElementById('btnAuthPageResendOTP');
   if (resendOTPBtn) {
-    resendOTPBtn.addEventListener('click', () => {
-      document.getElementById('authPhoneOtpStep').style.display = 'none';
-      document.getElementById('authPhoneSendStep').style.display = 'block';
-      window.phoneConfirmationResult = null;
-      if (window.recaptchaVerifier) { try { window.recaptchaVerifier.clear(); } catch(e) {} window.recaptchaVerifier = null; }
+    resendOTPBtn.addEventListener('click', async () => {
+      const phone = document.getElementById('authPagePhoneInput')?.value.trim();
+      if (phone) await sendPhoneOTP(phone);
     });
   }
 }
@@ -1792,8 +2065,8 @@ document.addEventListener('click', async (e) => {
   }
 
   // Navigate to Dedicated Auth Page (from Profile CTA or anywhere)
-  const btnGoToAuth = e.target.closest('#btnGoToAuthPage') || e.target.closest('#navAuthBtn');
-  if (btnGoToAuth) {
+  const btnAuth = e.target.closest('#btnGoToAuthPage');
+  if (btnAuth) {
     e.preventDefault();
     activateTab('auth', true);
     return;
@@ -1812,15 +2085,6 @@ document.addEventListener('click', async (e) => {
   if (btnBackHome) {
     e.preventDefault();
     activateTab('home', true);
-    return;
-  }
-
-  // Instant Demo Aspirant Login
-  const btnDemo = e.target.closest('#btnSimulateDemoLoginFromCard') || e.target.closest('#btnAuthPageDemo');
-  if (btnDemo) {
-    e.preventDefault();
-    await signInDemoUser('Demo');
-    activateTab('profile', true);
     return;
   }
 
@@ -1916,7 +2180,7 @@ function openFirebaseConfigModal(isLoginPrompt = false, attemptedProvider = 'Goo
       </div>
 
       <p style="font-size:13px; color:var(--text-soft); margin:0 0 12px; line-height:1.45;">
-        ${isLoginPrompt ? `To authenticate via <strong>${attemptedProvider}</strong> and sync backups online, connect your Firebase project credentials below, or click <em>Instant Demo Login</em> to test immediately.` : `Paste your Firebase web application configuration JSON object below to enable real-time Google/GitHub login and Firestore online backups.`}
+        ${isLoginPrompt ? `To authenticate via <strong>${attemptedProvider}</strong> and sync backups online, connect your Firebase project credentials below.` : `Paste your Firebase web application configuration JSON object below to enable real-time Google/GitHub login and Firestore online backups.`}
       </p>
 
       <div class="form-group" style="margin-bottom:10px;">
@@ -1929,14 +2193,9 @@ function openFirebaseConfigModal(isLoginPrompt = false, attemptedProvider = 'Goo
         In Firebase Console &rarr; Project Settings &rarr; Your Apps &rarr; Web App &rarr; copy the <code>firebaseConfig</code> object and paste it above. Enable <em>Google</em> or <em>GitHub</em> in Authentication &rarr; Sign-in method.
       </div>
 
-      <div class="btn-group" style="margin-top:18px; justify-content:space-between; flex-wrap:wrap; gap:8px;">
-        <button type="button" class="pill" id="btnSimulateDemoLogin" style="font-size:12px; background:rgba(99,102,241,0.15); color:var(--accent1); border-color:rgba(99,102,241,0.3);">
-          <i data-lucide="play"></i> <span>Instant Demo Login (${escapeHtml(attemptedProvider)})</span>
-        </button>
-        <div style="display:flex; gap:8px;">
-          <button type="button" class="pill" id="btnCancelFirebaseCfg">Cancel</button>
-          <button type="button" class="pill solid" id="btnSaveFirebaseCfg"><i data-lucide="check"></i> <span>Save &amp; Connect</span></button>
-        </div>
+      <div class="btn-group" style="margin-top:18px; justify-content:flex-end; gap:8px;">
+        <button type="button" class="pill" id="btnCancelFirebaseCfg">Cancel</button>
+        <button type="button" class="pill solid" id="btnSaveFirebaseCfg"><i data-lucide="check"></i> <span>Save &amp; Connect</span></button>
       </div>
     </div>
   `;
@@ -1949,10 +2208,6 @@ function openFirebaseConfigModal(isLoginPrompt = false, attemptedProvider = 'Goo
   modal.onclick = (e) => {
     if (e.target === modal) closeFirebaseConfigModal();
   };
-  
-  document.getElementById('btnSimulateDemoLogin')?.addEventListener('click', () => {
-    signInDemoUser(attemptedProvider);
-  });
 
   document.getElementById('btnSaveFirebaseCfg')?.addEventListener('click', () => {
     const val = document.getElementById('firebaseConfigTextarea')?.value.trim();
@@ -2064,13 +2319,7 @@ function openEmailAuthModal(defaultTab = 'email') {
           <button type="button" id="btnEmailAuthSubmit" class="pill solid" style="width:100%; margin-top:12px; justify-content:center; padding:11px; font-size:14px; font-weight:700;">
             <i data-lucide="log-in" style="width:15px; height:15px;"></i> <span id="emailAuthSubmitLabel">Sign In</span>
           </button>
-          <div style="margin-top:14px; padding-top:12px; border-top:1px dashed var(--border); text-align:center;">
-            <button type="button" class="btn-demo-auth" id="btnModalDemoLogin" style="width:100%; justify-content:center; font-size:12.5px;">
-              <i data-lucide="zap" style="width:14px;height:14px;"></i>
-              <span>Instant Demo Aspirant Login</span>
-            </button>
-          </div>
-          <p style="font-size:11.5px; color:var(--text-muted); text-align:center; margin:10px 0 0;">
+          <p style="font-size:11.5px; color:var(--text-muted); text-align:center; margin:12px 0 0;">
             Study data synchronizes securely with Firebase Cloud Storage.
           </p>
         </div>
@@ -2239,15 +2488,6 @@ function openEmailAuthModal(defaultTab = 'email') {
     });
   }
 
-  // Instant Demo Login from inside Auth Modal
-  const modalDemoBtn = document.getElementById('btnModalDemoLogin');
-  if (modalDemoBtn) {
-    modalDemoBtn.addEventListener('click', () => {
-      closeEmailAuthModal();
-      signInDemoUser('Demo');
-    });
-  }
-
   // Close
   const closeBtn = document.getElementById('closeEmailAuthModalBtn');
   if (closeBtn) closeBtn.addEventListener('click', closeEmailAuthModal);
@@ -2333,7 +2573,7 @@ function openProtocolHelpModal(providerName = 'Google') {
       <div style="background:rgba(99,102,241,0.08); border:1px solid rgba(99,102,241,0.25); border-radius:12px; padding:14px; margin-bottom:16px;">
         <strong style="font-size:13px; color:var(--text); display:flex; align-items:center; gap:6px; margin-bottom:6px;">
           <i data-lucide="terminal" style="width:16px; height:16px; color:var(--accent1);"></i>
-          Option 1: Run Local Web Server (Full OAuth)
+          Run Local Web Server (Full OAuth)
         </strong>
         <p style="font-size:12px; color:var(--text-soft); margin:0 0 8px; line-height:1.45;">
           Open your terminal in the <code>CareerDesk</code> folder and run:
@@ -2343,24 +2583,11 @@ function openProtocolHelpModal(providerName = 'Google') {
           <span style="font-size:11px; color:var(--text-soft);">or <code>node serve.js</code></span>
         </div>
         <p style="font-size:11.5px; color:var(--text-soft); margin:8px 0 0;">
-          This automatically opens <strong>http://localhost:3000</strong> where real ${escapeHtml(providerName)} sign-in works natively.
+          This automatically opens <strong>http://localhost:3000</strong> where Google and GitHub sign-in work natively.
         </p>
       </div>
 
-      <div style="background:rgba(6,182,212,0.08); border:1px solid rgba(6,182,212,0.25); border-radius:12px; padding:14px; margin-bottom:18px;">
-        <strong style="font-size:13px; color:var(--text); display:flex; align-items:center; gap:6px; margin-bottom:4px;">
-          <i data-lucide="zap" style="width:16px; height:16px; color:var(--accent2);"></i>
-          Option 2: Instant Demo Login (Works on file://)
-        </strong>
-        <p style="font-size:12px; color:var(--text-soft); margin:0; line-height:1.4;">
-          Test all user features right now in this tab without running a local server. Cloud sync, avatar upload, and profile editing will be fully active.
-        </p>
-      </div>
-
-      <div class="btn-group" style="justify-content:space-between; flex-wrap:wrap; gap:8px;">
-        <button type="button" class="pill solid" id="btnContinueWithDemo" style="background:linear-gradient(135deg, var(--accent1), var(--accent2)); color:#fff;">
-          <i data-lucide="play"></i> <span>Instant Demo Login (${escapeHtml(providerName)})</span>
-        </button>
+      <div class="btn-group" style="justify-content:flex-end; gap:8px;">
         <button type="button" class="pill" id="btnDismissProtocolHelp">Close</button>
       </div>
     </div>
@@ -2372,10 +2599,6 @@ function openProtocolHelpModal(providerName = 'Google') {
   modal.onclick = (e) => { if (e.target === modal) closeProtocolHelpModal(); };
   document.getElementById('closeProtocolHelpModal')?.addEventListener('click', closeProtocolHelpModal);
   document.getElementById('btnDismissProtocolHelp')?.addEventListener('click', closeProtocolHelpModal);
-  document.getElementById('btnContinueWithDemo')?.addEventListener('click', () => {
-    closeProtocolHelpModal();
-    signInDemoUser(providerName);
-  });
 
   if (window.lucide && typeof window.lucide.createIcons === 'function') {
     window.lucide.createIcons();
@@ -2384,81 +2607,6 @@ function openProtocolHelpModal(providerName = 'Google') {
 
 function closeProtocolHelpModal() {
   const modal = document.getElementById('protocolHelpModal');
-  if (!modal) return;
-  modal.classList.remove('open');
-  setTimeout(() => modal.style.display = 'none', 200);
-}
-
-/**
- * Modal displayed when Google/GitHub provider is not enabled in Firebase console
- */
-function openProviderDisabledModal(providerName = 'Google') {
-  let modal = document.getElementById('providerDisabledModal');
-  if (!modal) {
-    modal = document.createElement('div');
-    modal.className = 'modal-overlay';
-    modal.id = 'providerDisabledModal';
-    document.body.appendChild(modal);
-  }
-
-  const projectId = getStoredFirebaseConfig()?.projectId || 'careerdesk';
-  const consoleUrl = `https://console.firebase.google.com/project/${encodeURIComponent(projectId)}/authentication/providers`;
-
-  modal.innerHTML = `
-    <div class="glass modal-card provider-disabled-modal" style="max-width:520px; width:92%; padding:26px; border-radius:18px;">
-      <div class="modal-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
-        <h3 class="modal-title" style="margin:0; font-family:var(--font-display); font-size:18px; color:var(--text); display:flex; align-items:center; gap:8px;">
-          <i data-lucide="alert-triangle" style="color:#f59e0b; width:22px; height:22px;"></i>
-          ${escapeHtml(providerName)} Sign-In Not Enabled
-        </h3>
-        <button class="modal-close" id="closeProviderDisabledModal" type="button" style="background:none; border:none; color:var(--text-soft); cursor:pointer; padding:4px;">
-          <i data-lucide="x"></i>
-        </button>
-      </div>
-
-      <p style="font-size:13px; color:var(--text); margin:0 0 14px; line-height:1.5;">
-        Firebase rejected the sign-in because <strong>${escapeHtml(providerName)}</strong> authentication is not enabled yet in your Firebase console.
-      </p>
-
-      <div style="background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:14px; margin-bottom:16px;">
-        <strong style="font-size:13px; color:var(--text); display:block; margin-bottom:6px;">Quick 1-Minute Fix:</strong>
-        <ol style="font-size:12.5px; color:var(--text-soft); margin:0; padding-left:18px; line-height:1.55;">
-          <li>Click the button below to open your Firebase Console.</li>
-          <li>Under <strong>Sign-in method</strong>, click <strong>${escapeHtml(providerName)}</strong>.</li>
-          <li>Toggle <strong>Enable</strong>, select your support email, and click <strong>Save</strong>.</li>
-        </ol>
-      </div>
-
-      <div class="btn-group" style="justify-content:space-between; flex-wrap:wrap; gap:8px;">
-        <a href="${consoleUrl}" target="_blank" rel="noopener noreferrer" class="pill solid" style="text-decoration:none; display:inline-flex; align-items:center; gap:6px;">
-          <i data-lucide="external-link"></i> <span>Open Firebase Console</span>
-        </a>
-        <div style="display:flex; gap:8px;">
-          <button type="button" class="pill" id="btnProviderDemoFallback" style="font-size:12px;">Demo Login</button>
-          <button type="button" class="pill" id="btnDismissProviderDisabled">Close</button>
-        </div>
-      </div>
-    </div>
-  `;
-
-  modal.style.display = 'flex';
-  setTimeout(() => modal.classList.add('open'), 20);
-
-  modal.onclick = (e) => { if (e.target === modal) closeProviderDisabledModal(); };
-  document.getElementById('closeProviderDisabledModal')?.addEventListener('click', closeProviderDisabledModal);
-  document.getElementById('btnDismissProviderDisabled')?.addEventListener('click', closeProviderDisabledModal);
-  document.getElementById('btnProviderDemoFallback')?.addEventListener('click', () => {
-    closeProviderDisabledModal();
-    signInDemoUser(providerName);
-  });
-
-  if (window.lucide && typeof window.lucide.createIcons === 'function') {
-    window.lucide.createIcons();
-  }
-}
-
-function closeProviderDisabledModal() {
-  const modal = document.getElementById('providerDisabledModal');
   if (!modal) return;
   modal.classList.remove('open');
   setTimeout(() => modal.style.display = 'none', 200);
@@ -2626,6 +2774,9 @@ function setAuthModalMode(mode) {
   const tabLogin = document.getElementById('authModalTabLogin');
   const tabSignup = document.getElementById('authModalTabSignup');
   const nameGroup = document.getElementById('authModalNameGroup');
+  const usernameGroup = document.getElementById('authModalUsernameGroup');
+  const emailLabel = document.getElementById('authModalEmailLabel');
+  const emailInput = document.getElementById('authModalEmailInput');
   const titleEl = document.getElementById('authModalTitle');
   const subEl = document.getElementById('authModalSubtitle');
   const submitText = document.getElementById('authModalSubmitText');
@@ -2644,6 +2795,15 @@ function setAuthModalMode(mode) {
   }
   if (nameGroup) {
     nameGroup.style.display = isSignUp ? 'block' : 'none';
+  }
+  if (usernameGroup) {
+    usernameGroup.style.display = isSignUp ? 'block' : 'none';
+  }
+  if (emailLabel) {
+    emailLabel.textContent = isSignUp ? 'Email Address' : 'Email or Username';
+  }
+  if (emailInput) {
+    emailInput.placeholder = isSignUp ? 'you@example.com' : 'Username or email address';
   }
   if (titleEl) {
     titleEl.textContent = isSignUp ? 'Create Free Account' : 'Welcome to CareerDesk';
@@ -2770,13 +2930,6 @@ function initAuthModalEvents() {
       await signInWithGithub();
     });
   }
-  const btnDemo = document.getElementById('modalBtnDemoLogin');
-  if (btnDemo) {
-    btnDemo.addEventListener('click', () => {
-      closeAuthModal();
-      signInDemoUser('Demo');
-    });
-  }
 
   // Main Form Submit Handler (with reCAPTCHA enforcement)
   const form = document.getElementById('authModalForm');
@@ -2858,7 +3011,7 @@ function initAuthModalEvents() {
 /**
  * Validates inputs and handles submission for #authModal
  */
-function handleAuthModalSubmit() {
+async function handleAuthModalSubmit() {
   const errEl = document.getElementById('authModalError');
   const isSignUp = (currentAuthModalMode === 'signup');
 
@@ -2880,10 +3033,16 @@ function handleAuthModalSubmit() {
     return;
   }
 
-  // 2. Validate Email
+  // 2. Validate Email / Identifier
   const emailInput = document.getElementById('authModalEmailInput');
-  const email = (emailInput?.value || '').trim();
-  if (!email || !email.includes('@') || email.length < 5) {
+  const emailOrUser = (emailInput?.value || '').trim();
+  if (!emailOrUser) {
+    if (errEl) errEl.textContent = isSignUp ? 'Please enter a valid email address.' : 'Please enter your username or email address.';
+    if (emailInput) emailInput.focus();
+    return;
+  }
+
+  if (isSignUp && (!emailOrUser.includes('@') || emailOrUser.length < 5)) {
     if (errEl) errEl.textContent = 'Please enter a valid email address.';
     if (emailInput) emailInput.focus();
     return;
@@ -2898,19 +3057,37 @@ function handleAuthModalSubmit() {
     return;
   }
 
-  // 4. Validate Name if Signing Up
+  // 4. Validate Sign Up specifics: Name & Username
   let displayName = '';
+  let username = '';
   if (isSignUp) {
     const nameInput = document.getElementById('authModalNameInput');
     displayName = (nameInput?.value || '').trim();
     if (!displayName) {
-      displayName = email.split('@')[0];
+      displayName = emailOrUser.split('@')[0];
+    }
+
+    const usernameInput = document.getElementById('authModalUsernameInput');
+    username = normalizeUsername(usernameInput?.value || '');
+    if (!username) {
+      username = normalizeUsername(emailOrUser.split('@')[0]);
+    }
+    if (!isValidUsername(username)) {
+      if (errEl) errEl.textContent = 'Username must be 3-25 characters (letters, numbers, _).';
+      if (usernameInput) usernameInput.focus();
+      return;
+    }
+    const isAvail = await isUsernameAvailable(username);
+    if (!isAvail) {
+      if (errEl) errEl.textContent = `Username @${username} is already taken. Please choose another.`;
+      if (usernameInput) usernameInput.focus();
+      return;
     }
   }
 
   // Clear errors & submit
   if (errEl) errEl.textContent = '';
-  signInWithEmailPassword(email, password, isSignUp, displayName);
+  await signInWithEmailPassword(emailOrUser, password, isSignUp, displayName, username);
 }
 
 // Auto-initialize auth modal listeners on load

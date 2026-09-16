@@ -6,8 +6,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <title>CareerDesk — Career Preparation Workspace</title>
-  <link rel="icon" type="image/svg+xml"
-    href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20100%20100%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22g%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%236366F1%22/%3E%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%2306B6D4%22/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20width%3D%22100%22%20height%3D%22100%22%20rx%3D%2224%22%20fill%3D%22%230B0F19%22/%3E%3Crect%20x%3D%2212%22%20y%3D%2212%22%20width%3D%2276%22%20height%3D%2276%22%20rx%3D%2218%22%20fill%3D%22url%28%23g%29%22/%3E%3Ctext%20x%3D%2250%22%20y%3D%2263%22%20font-family%3D%22system-ui%2C%20sans-serif%22%20font-size%3D%2236%22%20font-weight%3D%22800%22%20text-anchor%3D%22middle%22%20fill%3D%22%23FFFFFF%22%3ECD%3C/text%3E%3C/svg%3E">
+  <link rel="icon" type="image/svg+xml" href="assets/icons/favicon.svg">
+  <link rel="apple-touch-icon" href="assets/icons/favicon.svg">
+  <meta name="theme-color" content="#0b0f19">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
@@ -917,77 +918,32 @@
         </div>
       </div>
 
-      <div class="glass data-management-card" style="padding:22px; border-color:var(--border);">
-        <h2 class="section-title" style="font-size:17px; margin-bottom:16px;">Data Storage & Backup</h2>
+      <div class="glass data-management-card" id="dataManagementCard" style="padding:22px; border-color:var(--border);">
+        <h2 class="section-title" style="font-size:17px; margin-bottom:14px; display:flex; align-items:center; gap:8px;">
+          <i data-lucide="cloud" style="color:var(--accent2); width:19px; height:19px;"></i>
+          <span>Cloud Sync &amp; Storage</span>
+        </h2>
 
-        <!-- Online Cloud Sync (Firebase) Sub-Section -->
-        <div class="settings-row" style="margin-bottom:16px; padding-bottom:14px; border-bottom:1px solid var(--border); border-top:none;">
+        <!-- Firestore Real-Time Cloud Sync Sub-Section -->
+        <div class="settings-row" style="border-top:none; padding-top:0; padding-bottom:14px; border-bottom:1px solid var(--border);">
           <div>
-            <strong style="font-size:15px; display:flex; align-items:center; gap:7px; color:var(--text); margin-bottom:2px;">
-              <i data-lucide="cloud" style="color:var(--accent2); width:18px; height:18px;"></i>
-              Online Cloud Backup (Firebase)
-            </strong>
-            <span style="font-size:12.5px; color:var(--text-soft);" id="cloudBackupCardSubtext">
-              Synchronize and convert all your local data to your secure online cloud account
+            <strong style="font-size:14.5px; display:block; color:var(--text); margin-bottom:2px;">Individual Cloud Storage</strong>
+            <span style="font-size:12.5px; color:var(--text-soft);" id="cloudSyncStatusDesc">
+              Your routines, notes, syllabus progress, and mistake bank automatically sync with your personal Firestore account.
             </span>
           </div>
           <div class="settings-btn-group data-action-buttons btn-group">
-            <button class="pill theme-action-btn" id="btnUploadCloudFromDataCard" type="button">
-              <i data-lucide="upload-cloud"></i> <span>Upload to Cloud</span>
+            <button class="pill theme-action-btn" id="btnSyncFirestoreNow" type="button" title="Sync data to Firestore now">
+              <i data-lucide="refresh-cw"></i> <span>Sync Now</span>
             </button>
-            <button class="pill theme-action-btn" id="btnRestoreCloudFromDataCard" type="button">
-              <i data-lucide="download-cloud"></i> <span>Restore Cloud</span>
-            </button>
-          </div>
-        </div>
-
-        <!-- Auto Sync Sub-Section -->
-        <div class="auto-sync-box glass-sub">
-          <div class="auto-sync-header">
-            <div class="auto-sync-title">
-              <div>
-                <strong style="font-size:15px; display:block; color:var(--text);">Auto-Sync to Local File</strong>
-                <span style="font-size:12.5px; color:var(--text-soft);">Data changes will automatically sync to your
-                  project's root backup file on disk</span>
-              </div>
-            </div>
-            <div class="auto-sync-status-badge" id="autoSyncStatusBadge">
-              <span class="status-dot" id="autoSyncDot"></span>
-              <span id="autoSyncStatusText">Not Connected</span>
-            </div>
-          </div>
-          <div class="auto-sync-actions" style="margin-top:14px;">
-            <button class="pill theme-action-btn primary-glow" id="connectAutoSyncBtn">
-              Link Local Backup File
-            </button>
-          </div>
-        </div>
-
-        <!-- Manual Import / Export Section -->
-        <div class="settings-row" style="margin-top:18px; padding-top:16px; border-top:1px solid var(--border);">
-          <div>
-            <strong style="font-size:15px; display:block; color:var(--text); margin-bottom:2px;">Manual Backup &
-              Restore</strong>
-            <span style="font-size:12.5px; color:var(--text-soft);">Export all dashboard data to JSON or restore from a
-              previously saved file</span>
-          </div>
-          <div class="settings-btn-group data-action-buttons btn-group">
-            <button class="pill theme-action-btn export-pill" id="exportDataBtn">
-              <i data-lucide="download"></i> <span>Export (JSON)</span>
-            </button>
-            <label class="pill theme-action-btn import-pill" for="importDataInput">
-              <i data-lucide="upload"></i> <span>Import (JSON / Vault)</span>
-            </label>
-            <input type="file" id="importDataInput" accept=".json,.vault,application/json" style="display:none;">
           </div>
         </div>
 
         <!-- Reset Data Section -->
-        <div class="settings-row" style="margin-top:14px; padding-top:16px; border-top:1px solid var(--border);">
+        <div class="settings-row" style="margin-top:14px; padding-top:16px; border-top:none;">
           <div>
             <strong style="font-size:14.5px; display:block; color:var(--accent3);">Reset All Data</strong>
-            <span style="font-size:12.5px; color:var(--text-soft);">Clear routines, notes, syllabus, flashcards, and
-              tracker sessions (theme is preserved)</span>
+            <span style="font-size:12.5px; color:var(--text-soft);">Clear current study routines, notes, syllabus, and mistake bank</span>
           </div>
           <button class="pill danger" id="resetAllBtn" style="white-space:nowrap;">Reset All Data</button>
         </div>
@@ -1331,8 +1287,8 @@
       <!-- Body Content -->
       <div id="authModalBodyWrapper" style="padding:16px 24px 24px;">
         <!-- Social 1-Tap Buttons -->
-        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; margin-bottom:14px;">
-          <button type="button" class="btn-social-auth" id="modalBtnSignInGoogle" title="Sign in with Google" style="display:flex; align-items:center; justify-content:center; gap:7px; padding:9px 8px; border-radius:10px; border:1px solid var(--border); background:var(--surface); color:var(--text); font-size:12.5px; font-weight:600; cursor:pointer; transition:all 0.2s;">
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:14px;">
+          <button type="button" class="btn-social-auth" id="modalBtnSignInGoogle" title="Sign in with Google" style="display:flex; align-items:center; justify-content:center; gap:8px; padding:10px 12px; border-radius:10px; border:1px solid var(--border); background:var(--surface); color:var(--text); font-size:13px; font-weight:600; cursor:pointer; transition:all 0.2s;">
             <svg viewBox="0 0 24 24" width="16" height="16" style="flex-shrink:0;">
               <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
               <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
@@ -1341,21 +1297,17 @@
             </svg>
             <span>Google</span>
           </button>
-          <button type="button" class="btn-social-auth" id="modalBtnSignInGithub" title="Sign in with GitHub" style="display:flex; align-items:center; justify-content:center; gap:7px; padding:9px 8px; border-radius:10px; border:1px solid var(--border); background:var(--surface); color:var(--text); font-size:12.5px; font-weight:600; cursor:pointer; transition:all 0.2s;">
+          <button type="button" class="btn-social-auth" id="modalBtnSignInGithub" title="Sign in with GitHub" style="display:flex; align-items:center; justify-content:center; gap:8px; padding:10px 12px; border-radius:10px; border:1px solid var(--border); background:var(--surface); color:var(--text); font-size:13px; font-weight:600; cursor:pointer; transition:all 0.2s;">
             <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" style="flex-shrink:0;">
               <path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/>
             </svg>
             <span>GitHub</span>
           </button>
-          <button type="button" class="btn-social-auth" id="modalBtnDemoLogin" title="One-click demo aspirant login" style="display:flex; align-items:center; justify-content:center; gap:6px; padding:9px 8px; border-radius:10px; border:1px solid rgba(245,158,11,0.3); background:rgba(245,158,11,0.08); color:#f59e0b; font-size:12.5px; font-weight:700; cursor:pointer; transition:all 0.2s;">
-            <i data-lucide="zap" style="width:14px; height:14px;"></i>
-            <span>Demo</span>
-          </button>
         </div>
 
         <div style="display:flex; align-items:center; gap:12px; margin:14px 0;">
           <div style="flex:1; height:1px; background:var(--border);"></div>
-          <span style="font-size:11.5px; color:var(--text-muted); font-weight:600; text-transform:uppercase; letter-spacing:0.04em;">or with email</span>
+          <span style="font-size:11.5px; color:var(--text-muted); font-weight:600; text-transform:uppercase; letter-spacing:0.04em;">or with credentials</span>
           <div style="flex:1; height:1px; background:var(--border);"></div>
         </div>
 
@@ -1372,14 +1324,23 @@
             </div>
           </div>
 
-          <!-- Email Field -->
+          <!-- Username Field (for Sign Up) -->
+          <div id="authModalUsernameGroup" style="display:none;">
+            <label class="auth-input-label" for="authModalUsernameInput" style="display:block; font-size:12px; font-weight:600; color:var(--text-soft); margin-bottom:5px;">Username</label>
+            <div style="position:relative;">
+              <span style="position:absolute; left:12px; top:50%; transform:translateY(-50%); color:var(--accent1); font-weight:700; font-size:14px; display:flex;">@</span>
+              <input type="text" id="authModalUsernameInput" placeholder="e.g. shehab (letters, numbers, _)" autocomplete="username" style="width:100%; padding:10px 12px 10px 36px; border-radius:10px; border:1px solid var(--border); background:var(--surface); color:var(--text); font-size:13px; box-sizing:border-box;">
+            </div>
+          </div>
+
+          <!-- Email / Username Field -->
           <div>
-            <label class="auth-input-label" for="authModalEmailInput" style="display:block; font-size:12px; font-weight:600; color:var(--text-soft); margin-bottom:5px;">Email Address</label>
+            <label class="auth-input-label" id="authModalEmailLabel" for="authModalEmailInput" style="display:block; font-size:12px; font-weight:600; color:var(--text-soft); margin-bottom:5px;">Email or Username</label>
             <div style="position:relative;">
               <span style="position:absolute; left:12px; top:50%; transform:translateY(-50%); color:var(--text-muted); display:flex;">
                 <i data-lucide="mail" style="width:15px; height:15px;"></i>
               </span>
-              <input type="email" id="authModalEmailInput" placeholder="you@example.com" autocomplete="email" required style="width:100%; padding:10px 12px 10px 36px; border-radius:10px; border:1px solid var(--border); background:var(--surface); color:var(--text); font-size:13px; box-sizing:border-box;">
+              <input type="text" id="authModalEmailInput" placeholder="Username or email address" autocomplete="username" required style="width:100%; padding:10px 12px 10px 36px; border-radius:10px; border:1px solid var(--border); background:var(--surface); color:var(--text); font-size:13px; box-sizing:border-box;">
             </div>
           </div>
 

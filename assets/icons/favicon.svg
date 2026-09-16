@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
+  <defs>
+    <linearGradient id="cdLogoGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#4f46e5"/>
+      <stop offset="100%" stop-color="#06b6d4"/>
+    </linearGradient>
+  </defs>
+  <!-- Background Rounded Shield -->
+  <rect width="48" height="48" rx="14" fill="url(#cdLogoGrad)"/>
+  <rect x="2" y="2" width="44" height="44" rx="12" fill="none" stroke="#ffffff" stroke-opacity="0.28" stroke-width="1.5"/>
+  <!-- Open Book Left Page -->
+  <path d="M12.5 15.5c4.5-2 8.5-1.2 11.5 1.5v18c-3-2.7-7-3.5-11.5-1.5z" fill="none" stroke="#ffffff" stroke-width="2.6" stroke-linejoin="round"/>
+  <!-- Open Book Right Page -->
+  <path d="M35.5 15.5c-4.5-2-8.5-1.2-11.5 1.5v18c3-2.7 7-3.5 11.5-1.5z" fill="none" stroke="#dffafe" stroke-width="2.6" stroke-linejoin="round"/>
+  <!-- Graduation / Achievement Checkmark -->
+  <path d="m17.5 25 3.4 3.4 9.2-9.2" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- North Star Dot -->
+  <circle cx="35.5" cy="12.5" r="2.2" fill="#ffffff"/>
+</svg>

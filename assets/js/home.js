@@ -14,34 +14,36 @@ function renderHomeDashboard() {
   const now = new Date();
   const today = dateKey(now.getTime());
 
-  // 1. Time-Sensitive Greeting & Formatted Date
-  let userName = 'Aspirant';
+  // 1. User Identity & Time-Sensitive Greeting
+  let displayName = 'Aspirant';
+  let username = 'aspirant';
+  let photoURL = '';
+  let isGuest = true;
+
   try {
-    const custom = (typeof getCustomProfile === 'function') ? getCustomProfile() : null;
     const authUser = (typeof getCachedAuthUser === 'function') ? getCachedAuthUser() : null;
-    if (custom && custom.displayName) {
-      userName = custom.displayName.trim().split(' ')[0];
-    } else if (authUser && authUser.displayName) {
-      userName = authUser.displayName.trim().split(' ')[0];
-    } else {
-      const rawCustom = localStorage.getItem('careerdesk_custom_profile_v1');
-      const rawUser = localStorage.getItem('careerdesk_auth_user_cache');
-      if (rawCustom) {
-        const c = JSON.parse(rawCustom);
-        if (c && c.displayName) userName = c.displayName.trim().split(' ')[0];
-      } else if (rawUser) {
-        const u = JSON.parse(rawUser);
-        if (u && u.displayName) userName = u.displayName.trim().split(' ')[0];
-      }
+    const custom = (typeof getCustomProfile === 'function') ? getCustomProfile() : null;
+
+    if (authUser) {
+      isGuest = false;
+      displayName = authUser.displayName || 'Aspirant';
+      username = authUser.username || (typeof getEffectiveUsername === 'function' ? getEffectiveUsername(authUser) : (authUser.email ? authUser.email.split('@')[0] : 'aspirant'));
+      photoURL = authUser.photoURL || '';
+    } else if (custom) {
+      if (custom.displayName) displayName = custom.displayName;
+      if (custom.username) username = custom.username;
+      if (custom.photoURL) photoURL = custom.photoURL;
     }
   } catch (e) { }
 
+  const firstName = displayName.trim().split(' ')[0] || 'Aspirant';
   const hour = now.getHours();
-  let greeting = `Good Morning, ${userName}!`;
-  if (hour >= 12 && hour < 17) greeting = `Good Afternoon, ${userName}!`;
-  else if (hour >= 17 && hour < 22) greeting = `Good Evening, ${userName}!`;
-  else if (hour >= 22 || hour < 5) greeting = `Night Focus, ${userName}!`;
+  let greeting = `Good Morning, ${firstName}!`;
+  if (hour >= 12 && hour < 17) greeting = `Good Afternoon, ${firstName}!`;
+  else if (hour >= 17 && hour < 22) greeting = `Good Evening, ${firstName}!`;
+  else if (hour >= 22 || hour < 5) greeting = `Night Focus, ${firstName}!`;
 
+  const initials = (displayName || 'A').trim().split(/\s+/).map(n => n[0]).slice(0, 2).join('').toUpperCase();
   const dateOptions = { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' };
   const formattedDate = now.toLocaleDateString('en-US', dateOptions);
 
@@ -81,7 +83,70 @@ function renderHomeDashboard() {
   const todayRoutine = (state.routine || []).filter(r => r.date === today)
     .sort((a, b) => (a.startTime || '').localeCompare(b.startTime || ''));
 
-  // 6. Four Core Subject Pillars Data
+  // 6. Next In Routine calculation
+  let nextRoutineHtml = '';
+  if (todayRoutine.length > 0) {
+    const upcoming = todayRoutine.find(r => (r.endTime || '23:59') >= nowTimeStr);
+    if (upcoming) {
+      const isCurrent = (upcoming.startTime <= nowTimeStr && upcoming.endTime >= nowTimeStr);
+      nextRoutineHtml = `
+        <div class="home-next-routine-strip">
+          <div class="home-next-routine-left">
+            <span class="home-next-routine-badge ${isCurrent ? 'live' : ''}">
+              <i data-lucide="${isCurrent ? 'radio' : 'clock'}"></i>
+              <span>${isCurrent ? 'Now' : 'Next Up'}</span>
+            </span>
+            <span class="home-next-routine-desc">
+              <strong style="color:var(--text);">${escapeHtml(upcoming.subject)}</strong>
+              <span style="opacity:0.5; margin:0 4px;">•</span>
+              <span style="font-family:var(--font-mono); font-size:12px;">${escapeHtml(upcoming.startTime)} - ${escapeHtml(upcoming.endTime)}</span>
+              <span style="opacity:0.5; margin:0 4px;">—</span>
+              <span>${escapeHtml(upcoming.task || 'Scheduled Study Block')}</span>
+            </span>
+          </div>
+          <button type="button" class="home-next-routine-btn" data-focus-routine-subject="${escapeAttr(upcoming.subject)}">
+            <i data-lucide="play" style="width:13px;height:13px;"></i> <span>Start Focus</span>
+          </button>
+        </div>
+      `;
+    } else {
+      nextRoutineHtml = `
+        <div class="home-next-routine-strip">
+          <div class="home-next-routine-left">
+            <span class="home-next-routine-badge" style="background:rgba(16,185,129,0.15); color:#10b981;">
+              <i data-lucide="check-circle-2"></i>
+              <span>Done</span>
+            </span>
+            <span class="home-next-routine-desc">
+              All ${todayRoutine.length} scheduled routine blocks for today are finished! Great work!
+            </span>
+          </div>
+          <button type="button" class="home-next-routine-btn" id="homeJumpRoutineBtn" style="background:rgba(255,255,255,0.08); color:var(--text);">
+            <i data-lucide="calendar" style="width:13px;height:13px;"></i> <span>View Routine</span>
+          </button>
+        </div>
+      `;
+    }
+  } else {
+    nextRoutineHtml = `
+      <div class="home-next-routine-strip">
+        <div class="home-next-routine-left">
+          <span class="home-next-routine-badge">
+            <i data-lucide="calendar-plus"></i>
+            <span>Schedule</span>
+          </span>
+          <span class="home-next-routine-desc">
+            No routine tasks scheduled for today yet. Build your daily plan to stay focused.
+          </span>
+        </div>
+        <button type="button" class="home-next-routine-btn" id="homeJumpRoutineBtn">
+          <i data-lucide="plus" style="width:13px;height:13px;"></i> <span>Plan Schedule</span>
+        </button>
+      </div>
+    `;
+  }
+
+  // 7. Four Core Subject Pillars Data
   const primaryPillars = [
     { name: 'Bangla', bn: 'বাংলা', color: '#ec4899', bg: 'rgba(236, 72, 153, 0.12)' },
     { name: 'English', bn: 'ইংরেজি', color: '#06b6d4', bg: 'rgba(6, 182, 212, 0.12)' },
@@ -122,13 +187,13 @@ function renderHomeDashboard() {
     };
   });
 
-  // 7. Mistake Bank Data
+  // 8. Mistake Bank Data
   if (typeof loadMistakes === 'function' && (!mistakes || !mistakes.length)) {
     loadMistakes();
   }
   const pendingMistakes = mistakes || [];
 
-  // 8. Daily Motivation Quote
+  // 9. Daily Motivation Quote
   let activeQuote = {
     text: "Small daily improvements over time lead to stunning results.",
     author: "Robin Sharma"
@@ -147,24 +212,57 @@ function renderHomeDashboard() {
     return;
   }
 
-  // 1. HERO MISSION BRIEFING
+  // 1. HERO MISSION BRIEFING & USER COMMAND CENTER
   heroWrap.innerHTML = `
     <section class="home-hero">
-      <div class="home-hero-header">
-        <div class="home-hero-greeting-wrap">
-          <span class="home-hero-kicker">
-            <span class="home-hero-kicker-dot"></span>
-            Mission Control &bull; Daily Briefing
-          </span>
-          <h1 class="home-hero-title">${escapeHtml(greeting)}</h1>
-          <p class="home-hero-sub">Welcome to your command dashboard. Every minute of structured preparation compounds into exam mastery.</p>
+      <!-- User Command Hub / Mission Briefing -->
+      <div class="home-user-command-row">
+        <div class="home-user-profile-meta">
+          <div class="home-user-avatar-wrap">
+            ${photoURL ? `
+              <img src="${escapeAttr(photoURL)}" alt="${escapeAttr(displayName)}" class="home-user-avatar-img" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+              <div class="home-user-avatar-fallback" style="display:none;">${escapeHtml(initials)}</div>
+            ` : `
+              <div class="home-user-avatar-fallback">${isGuest ? '<i data-lucide="user" style="width:20px;height:20px;"></i>' : escapeHtml(initials)}</div>
+            `}
+            <span class="home-user-avatar-dot ${isGuest ? 'guest' : ''}" title="${isGuest ? 'Guest Mode' : 'Online &amp; Cloud Synced'}"></span>
+          </div>
+          <div class="home-user-text-info">
+            <div class="home-user-greeting-line">
+              <span class="home-user-greeting-name">${escapeHtml(greeting)}</span>
+              ${!isGuest ? `<span class="home-user-handle-pill">@${escapeHtml(username)}</span>` : ''}
+            </div>
+            <div class="home-user-subrow">
+              <span class="home-user-cloud-badge">
+                <span class="home-cloud-pulse-dot ${isGuest ? 'guest' : ''}"></span>
+                <span>${isGuest ? 'Guest Mode (Local Storage)' : 'Cloud Synced'}</span>
+              </span>
+              <span style="color:var(--border); font-size:11px;">•</span>
+              <span style="font-size:12px; color:var(--text-soft); font-family:var(--font-mono);">${escapeHtml(formattedDate)}</span>
+            </div>
+          </div>
         </div>
-        <div class="home-hero-date-badge">
-          <i data-lucide="calendar"></i>
-          <span>${escapeHtml(formattedDate)}</span>
+
+        <div class="home-user-actions-cluster">
+          ${isGuest ? `
+            <button type="button" class="pill solid" id="homeGuestAuthCta" style="background:linear-gradient(135deg, var(--accent1), var(--accent2)); font-weight:700;">
+              <i data-lucide="sparkles"></i> <span>Sign In / Register</span>
+            </button>
+          ` : `
+            <button type="button" class="pill solid" id="homeQuickFocusBtn" style="font-weight:700;">
+              <i data-lucide="play"></i> <span>Quick Focus</span>
+            </button>
+            <button type="button" class="pill subtle" id="homeProfileBtn" title="View Profile &amp; Settings">
+              <i data-lucide="user"></i> <span>Profile</span>
+            </button>
+          `}
         </div>
       </div>
 
+      <!-- Up Next In Schedule Strip -->
+      ${nextRoutineHtml}
+
+      <!-- Dynamic Daily Statistics Cards -->
       <div class="home-hero-stats">
         <!-- Daily Goal Progress -->
         <div class="home-stat-card" id="homeGoalCard" style="cursor:pointer;" title="Click to view Tracker &amp; Focus">
@@ -378,6 +476,52 @@ function startHomeExamCountdown(nearestExam) {
  * Event bindings for all Home cockpit tiles and widget buttons
  */
 function bindHomeDashboardEvents() {
+  // User command bar buttons
+  const homeGuestAuthCta = document.getElementById('homeGuestAuthCta');
+  if (homeGuestAuthCta) {
+    homeGuestAuthCta.addEventListener('click', () => {
+      if (typeof openAuthModal === 'function') openAuthModal('login');
+    });
+  }
+
+  const homeQuickFocusBtn = document.getElementById('homeQuickFocusBtn');
+  if (homeQuickFocusBtn) {
+    homeQuickFocusBtn.addEventListener('click', () => {
+      activateTab('tracker', true);
+      const subjectInput = document.getElementById('sessionSubject');
+      if (subjectInput) subjectInput.focus();
+    });
+  }
+
+  const homeProfileBtn = document.getElementById('homeProfileBtn');
+  if (homeProfileBtn) {
+    homeProfileBtn.addEventListener('click', () => {
+      activateTab('profile', true);
+    });
+  }
+
+  // Jump to routine buttons
+  document.querySelectorAll('#homeJumpRoutineBtn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.getElementById('homeRoutineSection')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  });
+
+  // Focus routine subject button from Next-Up strip
+  document.querySelectorAll('[data-focus-routine-subject]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const subj = btn.getAttribute('data-focus-routine-subject');
+      activateTab('tracker', true);
+      if (subj) {
+        const subjectSelect = document.getElementById('sessionSubject');
+        if (subjectSelect) {
+          subjectSelect.value = subj;
+          subjectSelect.dispatchEvent(new Event('change'));
+        }
+      }
+    });
+  });
+
   // Hero stat clicks
   const homeGoalCard = document.getElementById('homeGoalCard');
   if (homeGoalCard) {
