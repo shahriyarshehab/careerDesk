@@ -239,11 +239,26 @@ if (exportSettingsBtn) {
   });
 }
 
-// Import JSON Shortcut Button (Settings)
-const importSettingsBtn = document.getElementById('importDataBtnSettings');
-if (importSettingsBtn) {
-  importSettingsBtn.addEventListener('click', () => {
-    document.getElementById('importDataInput').click();
+// Cloud Backup Shortcut Buttons (Settings Data Card)
+const uploadCloudDataCardBtn = document.getElementById('btnUploadCloudFromDataCard');
+if (uploadCloudDataCardBtn) {
+  uploadCloudDataCardBtn.addEventListener('click', () => {
+    if (typeof uploadBackupToCloud === 'function') {
+      uploadBackupToCloud(true);
+    } else {
+      showToast('Cloud sync module is initializing...', true);
+    }
+  });
+}
+
+const restoreCloudDataCardBtn = document.getElementById('btnRestoreCloudFromDataCard');
+if (restoreCloudDataCardBtn) {
+  restoreCloudDataCardBtn.addEventListener('click', () => {
+    if (typeof restoreBackupFromCloud === 'function') {
+      restoreBackupFromCloud();
+    } else {
+      showToast('Cloud sync module is initializing...', true);
+    }
   });
 }
 

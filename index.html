@@ -25,7 +25,14 @@
   <link rel="stylesheet" href="assets/css/flashcards.css">
   <link rel="stylesheet" href="assets/css/mcq.css">
   <link rel="stylesheet" href="assets/css/settings.css">
+  <link rel="stylesheet" href="assets/css/profile.css">
   <link rel="stylesheet" href="assets/css/modals.css">
+
+  <!-- Firebase SDK (Compat) for Native Web Authentication & Cloud Sync -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+
   <script src="assets/js/lucide.min.js"></script>
 </head>
 
@@ -73,8 +80,8 @@
         aria-label="Exam Targets"><i data-lucide="calendar-clock"></i><span>Exams</span></button>
       <button class="tab-btn nav-link" data-tab="syllabus" role="tab" aria-selected="false" title="Syllabus"
         aria-label="Syllabus"><i data-lucide="list-checks"></i><span>Syllabus</span></button>
-      <button class="tab-btn nav-link" data-tab="settings" role="tab" aria-selected="false" title="Settings"
-        aria-label="Settings"><i data-lucide="settings"></i><span>Settings</span></button>
+      <button class="tab-btn nav-link" data-tab="profile" role="tab" aria-selected="false" title="User Profile &amp; Settings"
+        aria-label="User Profile"><i data-lucide="user"></i><span>Profile</span></button>
     </nav>
 
     <!-- Header Actions & Mini Floating Timer Widget -->
@@ -711,9 +718,12 @@
       <div id="categoryList"></div>
     </section>
 
-    <!-- ===== SETTINGS ===== -->
-    <section class="panel" id="panel-settings">
-      <h2 class="section-title">Settings & Data Management</h2>
+    <!-- ===== USER PROFILE & SETTINGS ===== -->
+    <section class="panel" id="panel-profile">
+      <!-- User Profile, Firebase Auth & Cloud Sync Hub -->
+      <div class="glass user-profile-card" id="userProfileCard"></div>
+
+      <h2 class="section-title">Settings &amp; Dashboard Customization</h2>
 
       <div class="glass" style="padding:20px; margin-bottom:18px;">
         <h2 class="section-title" style="font-size:16px;">Theme & Display</h2>
@@ -857,6 +867,27 @@
 
       <div class="glass data-management-card" style="padding:22px; border-color:var(--border);">
         <h2 class="section-title" style="font-size:17px; margin-bottom:16px;">Data Storage & Backup</h2>
+
+        <!-- Online Cloud Sync (Firebase) Sub-Section -->
+        <div class="settings-row" style="margin-bottom:16px; padding-bottom:14px; border-bottom:1px solid var(--border); border-top:none;">
+          <div>
+            <strong style="font-size:15px; display:flex; align-items:center; gap:7px; color:var(--text); margin-bottom:2px;">
+              <i data-lucide="cloud" style="color:var(--accent2); width:18px; height:18px;"></i>
+              Online Cloud Backup (Firebase)
+            </strong>
+            <span style="font-size:12.5px; color:var(--text-soft);" id="cloudBackupCardSubtext">
+              Synchronize and convert all your local data to your secure online cloud account
+            </span>
+          </div>
+          <div class="settings-btn-group data-action-buttons btn-group">
+            <button class="pill theme-action-btn" id="btnUploadCloudFromDataCard" type="button">
+              <i data-lucide="upload-cloud"></i> <span>Upload to Cloud</span>
+            </button>
+            <button class="pill theme-action-btn" id="btnRestoreCloudFromDataCard" type="button">
+              <i data-lucide="download-cloud"></i> <span>Restore Cloud</span>
+            </button>
+          </div>
+        </div>
 
         <!-- Auto Sync Sub-Section -->
         <div class="auto-sync-box glass-sub">
@@ -1210,6 +1241,7 @@
   <script src="assets/js/flashcards.js"></script>
   <script src="assets/js/questions-data.js"></script>
   <script src="assets/js/mcq.js"></script>
+  <script src="assets/js/firebase-sync.js"></script>
   <script src="assets/js/settings.js"></script>
   <script src="assets/js/home.js"></script>
   <script src="assets/js/app.js"></script>

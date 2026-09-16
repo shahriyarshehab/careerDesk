@@ -97,12 +97,13 @@ function normalizeTabName(tabName) {
   if (tabName === 'dashboard') return 'home';
   if (tabName === 'quiz') return 'flashcards';
   if (tabName === 'exams') return 'countdown';
+  if (tabName === 'settings') return 'profile';
   return tabName;
 }
 
 function activateTab(rawTabName, persist = false) {
   const tabName = normalizeTabName(rawTabName);
-  const targetPanel = document.getElementById('panel-' + tabName);
+  const targetPanel = document.getElementById('panel-' + tabName) || (tabName === 'profile' ? document.getElementById('panel-settings') : null);
   if (!targetPanel) return;
 
   document.querySelectorAll('.tab-btn').forEach(b => {
@@ -112,7 +113,8 @@ function activateTab(rawTabName, persist = false) {
     b.setAttribute('aria-selected', String(isActive));
   });
   document.querySelectorAll('.panel').forEach(p => {
-    p.classList.toggle('active', p.id === 'panel-' + tabName);
+    const isTarget = p === targetPanel;
+    p.classList.toggle('active', isTarget);
   });
 
   if (persist) {
@@ -126,7 +128,10 @@ function activateTab(rawTabName, persist = false) {
     }
   }
 
-  if (tabName === 'settings') {
+  if (tabName === 'profile' || tabName === 'settings') {
+    if (typeof renderUserProfileUI === 'function') {
+      renderUserProfileUI();
+    }
     renderSubjectManager();
     renderQuoteManager();
     syncQuoteSettings();
@@ -178,7 +183,7 @@ function initCommandPalette() {
     { id: 'tab-quiz', category: 'Navigation', icon: 'brain', title: 'Go to Quiz & Cards', subtitle: 'Practice flashcards & MCQs', action: () => activateTab('flashcards', true) },
     { id: 'tab-countdown', category: 'Navigation', icon: 'calendar-clock', title: 'Go to Exam Targets', subtitle: 'Exam countdowns & milestones', action: () => activateTab('countdown', true) },
     { id: 'tab-syllabus', category: 'Navigation', icon: 'list-checks', title: 'Go to Syllabus', subtitle: 'BCS syllabus & topic progress', action: () => activateTab('syllabus', true) },
-    { id: 'tab-settings', category: 'Navigation', icon: 'settings', title: 'Go to Settings', subtitle: 'Theme, backups & options', action: () => activateTab('settings', true) },
+    { id: 'tab-profile', category: 'Navigation', icon: 'user', title: 'Go to User Profile', subtitle: 'Cloud backup, sync & settings', action: () => activateTab('profile', true) },
     {
       id: 'act-pomodoro', category: 'Actions', icon: 'zap', title: 'Start 25m Pomodoro Focus', subtitle: 'Start 25-min deep focus session',
       action: () => {
@@ -444,6 +449,10 @@ function initCommandPalette() {
 
   if (typeof renderHomeDashboard === 'function') {
     renderHomeDashboard();
+  }
+
+  if (typeof renderUserProfileUI === 'function') {
+    renderUserProfileUI();
   }
 
   checkFirstTimeUser();

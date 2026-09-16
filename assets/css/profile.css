@@ -1,0 +1,613 @@
+/* ==========================================================================
+   CareerDesk — User Profile, Firebase Auth & Cloud Sync Styles
+   ========================================================================== */
+
+#panel-profile {
+  display: none;
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1), transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+#panel-profile.active {
+  display: block;
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ==========================================
+   USER PROFILE HERO CARD
+   ========================================== */
+.user-profile-card {
+  padding: 24px 26px;
+  border-radius: 18px;
+  background: linear-gradient(135deg, rgba(30, 41, 59, 0.65) 0%, rgba(15, 23, 42, 0.85) 100%);
+  border: 1px solid var(--border);
+  box-shadow: 0 10px 32px rgba(0, 0, 0, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  margin-bottom: 20px;
+  position: relative;
+  overflow: hidden;
+}
+
+html[data-theme="light"] .user-profile-card {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.96) 0%, rgba(241, 245, 249, 0.92) 100%);
+  border-color: rgba(226, 232, 240, 0.9);
+  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.06), inset 0 1px 0 rgba(255, 255, 255, 1);
+}
+
+.user-profile-card::before {
+  content: '';
+  position: absolute;
+  top: -60px;
+  right: -50px;
+  width: 220px;
+  height: 220px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(99, 102, 241, 0.18) 0%, rgba(6, 182, 212, 0.05) 70%, transparent 100%);
+  pointer-events: none;
+  filter: blur(28px);
+}
+
+.user-profile-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.user-profile-identity {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.user-avatar-wrap {
+  width: 68px;
+  height: 68px;
+  border-radius: 50%;
+  padding: 3px;
+  background: linear-gradient(135deg, var(--accent1), var(--accent2));
+  box-shadow: 0 0 18px rgba(99, 102, 241, 0.35);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.user-avatar-img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  background: #0f172a;
+}
+
+.user-avatar-fallback {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: #0f172a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 800;
+}
+
+html[data-theme="light"] .user-avatar-fallback {
+  background: #f8fafc;
+  color: var(--accent1);
+}
+
+.user-meta-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.user-display-name {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--text);
+  line-height: 1.2;
+}
+
+.user-email-text {
+  font-size: 13px;
+  color: var(--text-soft);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.user-provider-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  background: rgba(99, 102, 241, 0.12);
+  color: var(--accent1);
+  border: 1px solid rgba(99, 102, 241, 0.25);
+  margin-top: 2px;
+  width: fit-content;
+}
+
+.user-provider-badge.google {
+  background: rgba(66, 133, 244, 0.12);
+  color: #60a5fa;
+  border-color: rgba(66, 133, 244, 0.3);
+}
+
+.user-provider-badge.github {
+  background: rgba(255, 255, 255, 0.08);
+  color: #f1f5f9;
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+html[data-theme="light"] .user-provider-badge.github {
+  background: rgba(15, 23, 42, 0.08);
+  color: #0f172a;
+}
+
+/* Cloud Status Indicator */
+.cloud-sync-status-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 14px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border);
+}
+
+html[data-theme="light"] .cloud-sync-status-card {
+  background: rgba(241, 245, 249, 0.85);
+}
+
+.cloud-status-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #10b981;
+  box-shadow: 0 0 8px #10b981;
+  flex-shrink: 0;
+}
+
+.cloud-status-dot.offline {
+  background: #f59e0b;
+  box-shadow: 0 0 8px #f59e0b;
+}
+
+.cloud-status-dot.syncing {
+  background: #06b6d4;
+  box-shadow: 0 0 10px #06b6d4;
+  animation: cloudPulse 1.2s infinite alternate;
+}
+
+@keyframes cloudPulse {
+  0% { transform: scale(0.8); opacity: 0.6; }
+  100% { transform: scale(1.3); opacity: 1; }
+}
+
+.cloud-status-text {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text);
+  line-height: 1.3;
+}
+
+.cloud-status-sub {
+  font-size: 10.5px;
+  color: var(--text-soft);
+  display: block;
+}
+
+/* ==========================================
+   AUTHENTICATION BUTTONS & BAR
+   ========================================== */
+.user-auth-bar {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+}
+
+.auth-prompt-text {
+  font-size: 13px;
+  color: var(--text-soft);
+  margin: 0;
+  line-height: 1.45;
+}
+
+.auth-buttons-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.btn-auth {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  padding: 9px 18px;
+  border-radius: 11px;
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  user-select: none;
+  text-decoration: none;
+}
+
+.btn-google {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.18);
+  color: #ffffff;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
+}
+
+.btn-google:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: #4285f4;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(66, 133, 244, 0.28);
+}
+
+html[data-theme="light"] .btn-google {
+  background: #ffffff;
+  border-color: #cbd5e1;
+  color: #0f172a;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08);
+}
+
+html[data-theme="light"] .btn-google:hover {
+  background: #ffffff;
+  border-color: #4285f4;
+  box-shadow: 0 6px 16px rgba(66, 133, 244, 0.2);
+}
+
+.btn-github {
+  background: rgba(15, 23, 42, 0.85);
+  border-color: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.22);
+}
+
+.btn-github:hover {
+  background: #1e293b;
+  border-color: rgba(255, 255, 255, 0.3);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
+}
+
+html[data-theme="light"] .btn-github {
+  background: #0f172a;
+  color: #ffffff;
+  border-color: #0f172a;
+}
+
+html[data-theme="light"] .btn-github:hover {
+  background: #1e293b;
+}
+
+.auth-icon-svg {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+.btn-firebase-cfg {
+  font-size: 12px;
+  color: var(--text-soft);
+  background: transparent;
+  border: 1px solid var(--border);
+  padding: 8px 14px;
+  border-radius: 10px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.16s ease;
+}
+
+.btn-firebase-cfg:hover {
+  background: var(--surface);
+  color: var(--text);
+  border-color: var(--accent2);
+}
+
+/* ==========================================
+   ONLINE CLOUD BACKUP & CONVERSION SECTION
+   ========================================== */
+.cloud-backup-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 14px;
+  padding: 16px 20px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(6, 182, 212, 0.08) 100%);
+  border: 1px solid rgba(99, 102, 241, 0.28);
+  margin-bottom: 16px;
+}
+
+html[data-theme="light"] .cloud-backup-banner {
+  background: linear-gradient(135deg, rgba(238, 242, 255, 0.9) 0%, rgba(240, 249, 255, 0.9) 100%);
+  border-color: rgba(99, 102, 241, 0.3);
+}
+
+.cloud-banner-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  max-width: 560px;
+}
+
+.cloud-banner-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.cloud-banner-desc {
+  font-size: 12px;
+  color: var(--text-soft);
+  line-height: 1.4;
+}
+
+.cloud-banner-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.btn-convert-cloud {
+  background: linear-gradient(135deg, var(--accent1), var(--accent2)) !important;
+  color: #fff !important;
+  font-weight: 700 !important;
+  border: none !important;
+  box-shadow: 0 4px 14px rgba(99, 102, 241, 0.4) !important;
+  padding: 8px 16px !important;
+  border-radius: 10px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  cursor: pointer;
+  transition: all 0.2s ease !important;
+}
+
+.btn-convert-cloud:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(99, 102, 241, 0.55) !important;
+}
+
+/* ==========================================
+   FIREBASE CONFIGURATION MODAL
+   ========================================== */
+.firebase-cfg-modal {
+  max-width: 580px;
+  width: 92%;
+  padding: 26px;
+  border-radius: 18px;
+}
+
+.cfg-textarea {
+  width: 100%;
+  height: 160px;
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 1.45;
+  resize: vertical;
+  margin-top: 6px;
+}
+
+.cfg-help-tip {
+  font-size: 12px;
+  color: var(--text-soft);
+  line-height: 1.5;
+  margin-top: 10px;
+  background: rgba(6, 182, 212, 0.08);
+  border-left: 3px solid var(--accent2);
+  padding: 8px 12px;
+  border-radius: 6px;
+}
+
+/* ==========================================
+   AVATAR EDIT BADGE & NAME EDIT CONTROLS
+   ========================================== */
+.avatar-edit-badge {
+  position: absolute;
+  bottom: -2px;
+  right: -2px;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--surface-strong);
+  border: 1.5px solid var(--accent2);
+  color: var(--accent2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+  transition: all 0.2s ease;
+  z-index: 4;
+}
+
+.avatar-edit-badge:hover {
+  background: var(--accent2);
+  color: #fff;
+  transform: scale(1.15);
+  box-shadow: 0 0 12px var(--accent2);
+}
+
+.avatar-edit-badge svg,
+.avatar-edit-badge .lucide {
+  width: 13px;
+  height: 13px;
+}
+
+.user-name-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-edit-profile {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--border);
+  color: var(--text-soft);
+  cursor: pointer;
+  padding: 0;
+  transition: all 0.16s ease;
+}
+
+.btn-edit-profile:hover {
+  background: rgba(99, 102, 241, 0.18);
+  border-color: var(--accent1);
+  color: var(--accent1);
+  transform: translateY(-1px);
+}
+
+.btn-edit-profile svg,
+.btn-edit-profile .lucide {
+  width: 12px;
+  height: 12px;
+}
+
+/* Edit Profile Modal */
+.edit-profile-modal {
+  max-width: 520px;
+  width: 92%;
+  padding: 24px 26px;
+  border-radius: 18px;
+}
+
+.avatar-preview-box {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  margin-bottom: 16px;
+}
+
+.avatar-preview-img-wrap {
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  padding: 2px;
+  background: linear-gradient(135deg, var(--accent1), var(--accent2));
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.avatar-preview-img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  background: #0f172a;
+}
+
+.avatar-preview-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.avatar-presets-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.avatar-preset-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+  padding: 0;
+  overflow: hidden;
+  background: var(--surface);
+  transition: all 0.18s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+}
+
+.avatar-preset-btn:hover,
+.avatar-preset-btn.active {
+  border-color: var(--accent2);
+  transform: scale(1.12);
+  box-shadow: 0 0 12px var(--accent2);
+}
+
+/* Responsive Scaling */
+@media (max-width: 720px) {
+  .user-profile-card {
+    padding: 18px 16px;
+  }
+
+  .user-profile-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .auth-buttons-group {
+    width: 100%;
+  }
+
+  .btn-auth {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .cloud-backup-banner {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .btn-convert-cloud {
+    width: 100%;
+    justify-content: center;
+  }
+}

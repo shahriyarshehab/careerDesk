@@ -551,14 +551,16 @@
     filter: drop-shadow(0 0 6px rgba(129, 140, 248, 0.8));
   }
 
-  /* 7. Settings: Prism Cyan / Rotating Titanium Gears */
+  /* 7. Profile & Settings: Holographic Cyber Lavender / Prism Violet */
+  .tab-btn[data-tab="profile"]:hover:not(.active) i[data-lucide],
+  .tab-btn[data-tab="profile"]:hover:not(.active) svg,
+  .tab-btn[data-tab="profile"]:hover:not(.active) .lucide,
   .tab-btn[data-tab="settings"]:hover:not(.active) i[data-lucide],
   .tab-btn[data-tab="settings"]:hover:not(.active) svg,
   .tab-btn[data-tab="settings"]:hover:not(.active) .lucide {
-    color: #67e8f9 !important;
-    stroke: #67e8f9 !important;
-    transform: scale(1.18) rotate(45deg);
-    filter: drop-shadow(0 0 6px rgba(103, 232, 249, 0.8));
+    color: #a78bfa !important;
+    stroke: #a78bfa !important;
+    filter: drop-shadow(0 0 6px rgba(167, 139, 250, 0.8));
   }
 
   /* Light Theme Specific Hover States */
@@ -626,12 +628,15 @@
     filter: drop-shadow(0 0 4px rgba(79, 70, 229, 0.5));
   }
 
+  html[data-theme="light"] .tab-btn[data-tab="profile"]:hover:not(.active) i[data-lucide],
+  html[data-theme="light"] .tab-btn[data-tab="profile"]:hover:not(.active) svg,
+  html[data-theme="light"] .tab-btn[data-tab="profile"]:hover:not(.active) .lucide,
   html[data-theme="light"] .tab-btn[data-tab="settings"]:hover:not(.active) i[data-lucide],
   html[data-theme="light"] .tab-btn[data-tab="settings"]:hover:not(.active) svg,
   html[data-theme="light"] .tab-btn[data-tab="settings"]:hover:not(.active) .lucide {
-    color: #0891b2 !important;
-    stroke: #0891b2 !important;
-    filter: drop-shadow(0 0 4px rgba(8, 145, 178, 0.5));
+    color: #7c3aed !important;
+    stroke: #7c3aed !important;
+    filter: drop-shadow(0 0 4px rgba(124, 58, 237, 0.5));
   }
 
   .tab-btn.active,

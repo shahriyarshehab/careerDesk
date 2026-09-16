@@ -15,11 +15,32 @@ function renderHomeDashboard() {
   const today = dateKey(now.getTime());
 
   // 1. Time-Sensitive Greeting & Formatted Date
+  let userName = 'Aspirant';
+  try {
+    const custom = (typeof getCustomProfile === 'function') ? getCustomProfile() : null;
+    const authUser = (typeof getCachedAuthUser === 'function') ? getCachedAuthUser() : null;
+    if (custom && custom.displayName) {
+      userName = custom.displayName.trim().split(' ')[0];
+    } else if (authUser && authUser.displayName) {
+      userName = authUser.displayName.trim().split(' ')[0];
+    } else {
+      const rawCustom = localStorage.getItem('careerdesk_custom_profile_v1');
+      const rawUser = localStorage.getItem('careerdesk_auth_user_cache');
+      if (rawCustom) {
+        const c = JSON.parse(rawCustom);
+        if (c && c.displayName) userName = c.displayName.trim().split(' ')[0];
+      } else if (rawUser) {
+        const u = JSON.parse(rawUser);
+        if (u && u.displayName) userName = u.displayName.trim().split(' ')[0];
+      }
+    }
+  } catch (e) { }
+
   const hour = now.getHours();
-  let greeting = 'Good Morning, Aspirant!';
-  if (hour >= 12 && hour < 17) greeting = 'Good Afternoon, Aspirant!';
-  else if (hour >= 17 && hour < 22) greeting = 'Good Evening, Aspirant!';
-  else if (hour >= 22 || hour < 5) greeting = 'Night Focus, Aspirant!';
+  let greeting = `Good Morning, ${userName}!`;
+  if (hour >= 12 && hour < 17) greeting = `Good Afternoon, ${userName}!`;
+  else if (hour >= 17 && hour < 22) greeting = `Good Evening, ${userName}!`;
+  else if (hour >= 22 || hour < 5) greeting = `Night Focus, ${userName}!`;
 
   const dateOptions = { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' };
   const formattedDate = now.toLocaleDateString('en-US', dateOptions);
