@@ -293,3 +293,95 @@
     box-shadow: 0 4px 14px rgba(244, 63, 94, 0.22);
   }
 
+
+
+
+
+/* ===== Table Right Top Reset Button ===== */
+.routine-table-reset-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 3px 8px;
+  font-size: 11px;
+  font-weight: 700;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-soft);
+  cursor: pointer;
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  text-transform: none;
+  letter-spacing: normal;
+}
+
+.routine-table-reset-btn:hover {
+  background: rgba(239, 68, 68, 0.12);
+  border-color: rgba(239, 68, 68, 0.3);
+  color: #ef4444;
+  transform: translateY(-1px);
+}
+
+html[data-theme="light"] .routine-table-reset-btn {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+  color: #64748b;
+}
+
+html[data-theme="light"] .routine-table-reset-btn:hover {
+  background: #fee2e2;
+  border-color: #fca5a5;
+  color: #dc2626;
+}
+
+/* ===== Floating Add Block Button on Hovering Last Item ===== */
+.routine-table-container {
+  position: relative;
+}
+
+.routine-floating-add-dock {
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: -19px;
+  position: relative;
+  z-index: 10;
+  pointer-events: auto;
+}
+
+.routine-floating-add-circle {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent1), var(--accent2));
+  color: #ffffff;
+  border: 2px solid var(--surface-strong);
+  box-shadow: 0 4px 16px rgba(99, 102, 241, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  opacity: 0;
+  transform: scale(0.65) translateY(-4px);
+  pointer-events: none;
+  transition: opacity 0.22s cubic-bezier(0.16, 1, 0.3, 1), transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease;
+}
+
+.routine-table-container:has(tbody tr:last-child:hover) .routine-floating-add-circle,
+.routine-floating-add-dock:hover .routine-floating-add-circle,
+.routine-floating-add-circle.hover-active {
+  opacity: 1;
+  transform: scale(1) translateY(0);
+  pointer-events: auto;
+}
+
+.routine-floating-add-circle:hover {
+  transform: scale(1.15) translateY(-2px);
+  box-shadow: 0 6px 24px rgba(99, 102, 241, 0.6);
+}
+
+.routine-floating-add-circle:active {
+  transform: scale(0.96);
+}

@@ -93,7 +93,13 @@ const storageAdapter = {
     if (window.storage) {
       try { return await window.storage.set(key, value); } catch (e) { /* fall through to localStorage */ }
     }
-    try { localStorage.setItem(key, value); return { key, value }; } catch (e) { return null; }
+    try {
+      localStorage.setItem(key, value);
+      if (key === STORAGE_KEY && typeof window.scheduleFirestoreSync === 'function') {
+        window.scheduleFirestoreSync();
+      }
+      return { key, value };
+    } catch (e) { return null; }
   }
 };
 

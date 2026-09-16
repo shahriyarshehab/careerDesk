@@ -14,34 +14,36 @@ function renderHomeDashboard() {
   const now = new Date();
   const today = dateKey(now.getTime());
 
-  // 1. Time-Sensitive Greeting & Formatted Date
-  let userName = 'Aspirant';
+  // 1. User Identity & Time-Sensitive Greeting
+  let displayName = 'Aspirant';
+  let username = 'aspirant';
+  let photoURL = '';
+  let isGuest = true;
+
   try {
-    const custom = (typeof getCustomProfile === 'function') ? getCustomProfile() : null;
     const authUser = (typeof getCachedAuthUser === 'function') ? getCachedAuthUser() : null;
-    if (custom && custom.displayName) {
-      userName = custom.displayName.trim().split(' ')[0];
-    } else if (authUser && authUser.displayName) {
-      userName = authUser.displayName.trim().split(' ')[0];
-    } else {
-      const rawCustom = localStorage.getItem('careerdesk_custom_profile_v1');
-      const rawUser = localStorage.getItem('careerdesk_auth_user_cache');
-      if (rawCustom) {
-        const c = JSON.parse(rawCustom);
-        if (c && c.displayName) userName = c.displayName.trim().split(' ')[0];
-      } else if (rawUser) {
-        const u = JSON.parse(rawUser);
-        if (u && u.displayName) userName = u.displayName.trim().split(' ')[0];
-      }
+    const custom = (typeof getCustomProfile === 'function') ? getCustomProfile() : null;
+
+    if (authUser) {
+      isGuest = false;
+      displayName = authUser.displayName || 'Aspirant';
+      username = authUser.username || (typeof getEffectiveUsername === 'function' ? getEffectiveUsername(authUser) : (authUser.email ? authUser.email.split('@')[0] : 'aspirant'));
+      photoURL = authUser.photoURL || '';
+    } else if (custom) {
+      if (custom.displayName) displayName = custom.displayName;
+      if (custom.username) username = custom.username;
+      if (custom.photoURL) photoURL = custom.photoURL;
     }
   } catch (e) { }
 
+  const firstName = displayName.trim().split(' ')[0] || 'Aspirant';
   const hour = now.getHours();
-  let greeting = `Good Morning, ${userName}!`;
-  if (hour >= 12 && hour < 17) greeting = `Good Afternoon, ${userName}!`;
-  else if (hour >= 17 && hour < 22) greeting = `Good Evening, ${userName}!`;
-  else if (hour >= 22 || hour < 5) greeting = `Night Focus, ${userName}!`;
+  let greeting = `Good Morning, ${firstName}!`;
+  if (hour >= 12 && hour < 17) greeting = `Good Afternoon, ${firstName}!`;
+  else if (hour >= 17 && hour < 22) greeting = `Good Evening, ${firstName}!`;
+  else if (hour >= 22 || hour < 5) greeting = `Night Focus, ${firstName}!`;
 
+  const initials = (displayName || 'A').trim().split(/\s+/).map(n => n[0]).slice(0, 2).join('').toUpperCase();
   const dateOptions = { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' };
   const formattedDate = now.toLocaleDateString('en-US', dateOptions);
 
@@ -81,7 +83,70 @@ function renderHomeDashboard() {
   const todayRoutine = (state.routine || []).filter(r => r.date === today)
     .sort((a, b) => (a.startTime || '').localeCompare(b.startTime || ''));
 
-  // 6. Four Core Subject Pillars Data
+  // 6. Next In Routine calculation
+  let nextRoutineHtml = '';
+  if (todayRoutine.length > 0) {
+    const upcoming = todayRoutine.find(r => (r.endTime || '23:59') >= nowTimeStr);
+    if (upcoming) {
+      const isCurrent = (upcoming.startTime <= nowTimeStr && upcoming.endTime >= nowTimeStr);
+      nextRoutineHtml = `
+        <div class="home-next-routine-strip">
+          <div class="home-next-routine-left">
+            <span class="home-next-routine-badge ${isCurrent ? 'live' : ''}">
+              <i data-lucide="${isCurrent ? 'radio' : 'clock'}"></i>
+              <span>${isCurrent ? 'Now' : 'Next Up'}</span>
+            </span>
+            <span class="home-next-routine-desc">
+              <strong style="color:var(--text);">${escapeHtml(upcoming.subject)}</strong>
+              <span style="opacity:0.5; margin:0 4px;">•</span>
+              <span style="font-family:var(--font-mono); font-size:12px;">${escapeHtml(upcoming.startTime)} - ${escapeHtml(upcoming.endTime)}</span>
+              <span style="opacity:0.5; margin:0 4px;">—</span>
+              <span>${escapeHtml(upcoming.task || 'Scheduled Study Block')}</span>
+            </span>
+          </div>
+          <button type="button" class="home-next-routine-btn" data-focus-routine-subject="${escapeAttr(upcoming.subject)}">
+            <i data-lucide="play" style="width:13px;height:13px;"></i> <span>Start Focus</span>
+          </button>
+        </div>
+      `;
+    } else {
+      nextRoutineHtml = `
+        <div class="home-next-routine-strip">
+          <div class="home-next-routine-left">
+            <span class="home-next-routine-badge" style="background:rgba(16,185,129,0.15); color:#10b981;">
+              <i data-lucide="check-circle-2"></i>
+              <span>Done</span>
+            </span>
+            <span class="home-next-routine-desc">
+              All ${todayRoutine.length} scheduled routine blocks for today are finished! Great work!
+            </span>
+          </div>
+          <button type="button" class="home-next-routine-btn" id="homeJumpRoutineBtn" style="background:rgba(255,255,255,0.08); color:var(--text);">
+            <i data-lucide="calendar" style="width:13px;height:13px;"></i> <span>View Routine</span>
+          </button>
+        </div>
+      `;
+    }
+  } else {
+    nextRoutineHtml = `
+      <div class="home-next-routine-strip">
+        <div class="home-next-routine-left">
+          <span class="home-next-routine-badge">
+            <i data-lucide="calendar-plus"></i>
+            <span>Schedule</span>
+          </span>
+          <span class="home-next-routine-desc">
+            No routine tasks scheduled for today yet. Build your daily plan to stay focused.
+          </span>
+        </div>
+        <button type="button" class="home-next-routine-btn" id="homeJumpRoutineBtn">
+          <i data-lucide="plus" style="width:13px;height:13px;"></i> <span>Plan Schedule</span>
+        </button>
+      </div>
+    `;
+  }
+
+  // 7. Four Core Subject Pillars Data
   const primaryPillars = [
     { name: 'Bangla', bn: 'বাংলা', color: '#ec4899', bg: 'rgba(236, 72, 153, 0.12)' },
     { name: 'English', bn: 'ইংরেজি', color: '#06b6d4', bg: 'rgba(6, 182, 212, 0.12)' },
@@ -122,13 +187,13 @@ function renderHomeDashboard() {
     };
   });
 
-  // 7. Mistake Bank Data
+  // 8. Mistake Bank Data
   if (typeof loadMistakes === 'function' && (!mistakes || !mistakes.length)) {
     loadMistakes();
   }
   const pendingMistakes = mistakes || [];
 
-  // 8. Daily Motivation Quote
+  // 9. Daily Motivation Quote
   let activeQuote = {
     text: "Small daily improvements over time lead to stunning results.",
     author: "Robin Sharma"
@@ -138,265 +203,212 @@ function renderHomeDashboard() {
     activeQuote = state.customQuotes[idx] || activeQuote;
   }
 
-  // BUILD HTML
-  container.innerHTML = `
-    <div class="home-container">
-      <!-- 1. HERO MISSION BRIEFING -->
-      <section class="home-hero">
-        <div class="home-hero-header">
-          <div class="home-hero-greeting-wrap">
-            <span class="home-hero-kicker">
-              <span class="home-hero-kicker-dot"></span>
-              Mission Control &bull; Daily Briefing
-            </span>
-            <h1 class="home-hero-title">${escapeHtml(greeting)}</h1>
-            <p class="home-hero-sub">Welcome to your command dashboard. Every minute of structured preparation compounds into exam mastery.</p>
-          </div>
-          <div class="home-hero-date-badge">
-            <i data-lucide="calendar"></i>
-            <span>${escapeHtml(formattedDate)}</span>
-          </div>
-        </div>
+  const heroWrap = document.getElementById('homeHeroWrap');
+  const cockpitWrap = document.getElementById('homeCockpitWrap');
+  const columnsWrap = document.getElementById('homeColumnsWrap');
 
-        <div class="home-hero-stats">
-          <!-- Daily Goal Progress -->
-          <div class="home-stat-card" id="homeGoalCard" style="cursor:pointer;" title="Click to view Tracker &amp; Focus">
-            <div class="home-stat-header">
-              <span class="home-stat-label">Daily Study Target</span>
-              <span class="home-stat-icon"><i data-lucide="target"></i></span>
-            </div>
-            <div class="home-stat-value">${studiedH}h ${studiedM}m <span style="font-size:14px; font-weight:600; color:var(--text-soft);">/ ${targetH}h${targetM ? ' ' + targetM + 'm' : ''}</span></div>
-            <div class="home-stat-meta">${goalPct}% completed today</div>
-            <div class="home-stat-progress-bar">
-              <div class="home-stat-progress-fill" style="width: ${goalPct}%;"></div>
-            </div>
-          </div>
+  // If container wrappers don't exist yet, fallback to full container injection
+  if (!heroWrap || !cockpitWrap || !columnsWrap) {
+    return;
+  }
 
-          <!-- Target Streak -->
-          <div class="home-stat-card" id="homeStreakCard" style="cursor:pointer;" title="Click to view Study Heatmap">
-            <div class="home-stat-header">
-              <span class="home-stat-label">Consistency Streak</span>
-              <span class="home-stat-icon streak-icon"><i data-lucide="flame"></i></span>
-            </div>
-            <div class="home-stat-value">${streak} ${streak === 1 ? 'Day' : 'Days'}</div>
-            <div class="home-stat-meta">${streak > 0 ? 'Consistent daily momentum active' : 'Hit today\'s goal to build your streak'}</div>
-            <div class="home-stat-progress-bar">
-              <div class="home-stat-progress-fill" style="width: ${Math.min(100, Math.max(12, streak * 10))}%; background: linear-gradient(90deg, #f59e0b, #ef4444);"></div>
-            </div>
+  // 1. HERO MISSION BRIEFING & USER COMMAND CENTER
+  heroWrap.innerHTML = `
+    <section class="home-hero">
+      <!-- User Command Hub / Mission Briefing -->
+      <div class="home-user-command-row">
+        <div class="home-user-profile-meta">
+          <div class="home-user-avatar-wrap">
+            ${photoURL ? `
+              <img src="${escapeAttr(photoURL)}" alt="${escapeAttr(displayName)}" class="home-user-avatar-img" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+              <div class="home-user-avatar-fallback" style="display:none;">${escapeHtml(initials)}</div>
+            ` : `
+              <div class="home-user-avatar-fallback">${isGuest ? '<i data-lucide="user" style="width:20px;height:20px;"></i>' : escapeHtml(initials)}</div>
+            `}
+            <span class="home-user-avatar-dot ${isGuest ? 'guest' : ''}" title="${isGuest ? 'Guest Mode' : 'Online &amp; Cloud Synced'}"></span>
           </div>
-
-          <!-- Nearest Exam Target -->
-          <div class="home-stat-card" id="homeExamCard" style="cursor:pointer;" title="Click to view Exam Countdowns">
-            <div class="home-stat-header">
-              <span class="home-stat-label">Target Exam Target</span>
-              <span class="home-stat-icon exam-icon"><i data-lucide="calendar-clock"></i></span>
+          <div class="home-user-text-info">
+            <div class="home-user-greeting-line">
+              <span class="home-user-greeting-name">${escapeHtml(greeting)}</span>
+              ${!isGuest ? `<span class="home-user-handle-pill">@${escapeHtml(username)}</span>` : ''}
             </div>
-            <div class="home-stat-value" id="homeExamCountdownTime" style="font-family:var(--font-mono); font-size:19px; letter-spacing:0.2px;">
-              ${nearestExam ? 'Loading...' : 'None Set'}
-            </div>
-            <div class="home-stat-meta" style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
-              ${nearestExam ? escapeHtml(nearestExam.name) : 'Click to set target exam date'}
-            </div>
-            <div class="home-stat-progress-bar">
-              <div class="home-stat-progress-fill" style="width: 100%; background: linear-gradient(90deg, #f43f5e, #c084fc);"></div>
+            <div class="home-user-subrow">
+              <span class="home-user-cloud-badge">
+                <span class="home-cloud-pulse-dot ${isGuest ? 'guest' : ''}"></span>
+                <span>${isGuest ? 'Guest Mode (Local Storage)' : 'Cloud Synced'}</span>
+              </span>
+              <span style="color:var(--border); font-size:11px;">•</span>
+              <span style="font-size:12px; color:var(--text-soft); font-family:var(--font-mono);">${escapeHtml(formattedDate)}</span>
             </div>
           </div>
         </div>
-      </section>
 
-      <!-- 2. QUICK ACTION COCKPIT -->
-      <section class="home-cockpit">
-        <div class="home-section-head">
-          <span class="home-section-title"><i data-lucide="layout-grid"></i> 1-Tap Action Cockpit</span>
+        <div class="home-user-actions-cluster">
+          ${isGuest ? `
+            <button type="button" class="pill solid" id="homeGuestAuthCta" style="background:linear-gradient(135deg, var(--accent1), var(--accent2)); font-weight:700;">
+              <i data-lucide="sparkles"></i> <span>Sign In / Register</span>
+            </button>
+          ` : `
+            <button type="button" class="pill solid" id="homeQuickFocusBtn" style="font-weight:700;">
+              <i data-lucide="play"></i> <span>Quick Focus</span>
+            </button>
+            <button type="button" class="pill subtle" id="homeProfileBtn" title="View Profile &amp; Settings">
+              <i data-lucide="user"></i> <span>Profile</span>
+            </button>
+          `}
         </div>
-        <div class="home-cockpit-grid">
-          <!-- Action 1: Focus Timer -->
-          <div class="home-cockpit-card" id="cockpitStartFocus" style="--cockpit-color:#06b6d4; --cockpit-bg:rgba(6, 182, 212, 0.12); --cockpit-glow:rgba(6, 182, 212, 0.25);">
-            <div class="home-cockpit-icon"><i data-lucide="timer"></i></div>
-            <div class="home-cockpit-name">Focus Timer</div>
-            <div class="home-cockpit-desc">Start deep study session</div>
-          </div>
+      </div>
 
-          <!-- Action 2: 20-Q Model Test -->
-          <div class="home-cockpit-card" id="cockpitModelTest" style="--cockpit-color:#c084fc; --cockpit-bg:rgba(192, 132, 252, 0.12); --cockpit-glow:rgba(192, 132, 252, 0.25);">
-            <div class="home-cockpit-icon"><i data-lucide="zap"></i></div>
-            <div class="home-cockpit-name">Model Test</div>
-            <div class="home-cockpit-desc">20-Q timed exam mode</div>
-          </div>
+      <!-- Up Next In Schedule Strip -->
+      ${nextRoutineHtml}
 
-          <!-- Action 3: Flashcards -->
-          <div class="home-cockpit-card" id="cockpitFlashcards" style="--cockpit-color:#6366f1; --cockpit-bg:rgba(99, 102, 241, 0.12); --cockpit-glow:rgba(99, 102, 241, 0.25);">
-            <div class="home-cockpit-icon"><i data-lucide="layers"></i></div>
-            <div class="home-cockpit-name">Flashcards</div>
-            <div class="home-cockpit-desc">Active recall flip deck</div>
+      <!-- Dynamic Daily Statistics Cards -->
+      <div class="home-hero-stats">
+        <!-- Daily Goal Progress -->
+        <div class="home-stat-card" id="homeGoalCard" style="cursor:pointer;" title="Click to view Tracker &amp; Focus">
+          <div class="home-stat-header">
+            <span class="home-stat-label">Daily Study Target</span>
+            <span class="home-stat-icon"><i data-lucide="target"></i></span>
           </div>
-
-          <!-- Action 4: Mistake Bank -->
-          <div class="home-cockpit-card" id="cockpitMistakes" style="--cockpit-color:#f43f5e; --cockpit-bg:rgba(244, 63, 94, 0.12); --cockpit-glow:rgba(244, 63, 94, 0.25);">
-            <div class="home-cockpit-icon"><i data-lucide="alert-circle"></i></div>
-            <div class="home-cockpit-name">Mistake Bank</div>
-            <div class="home-cockpit-desc">Fix weak-area concepts</div>
-          </div>
-
-          <!-- Action 5: Quick Note -->
-          <div class="home-cockpit-card" id="cockpitQuickNote" style="--cockpit-color:#f59e0b; --cockpit-bg:rgba(245, 158, 11, 0.12); --cockpit-glow:rgba(245, 158, 11, 0.25);">
-            <div class="home-cockpit-icon"><i data-lucide="notebook-pen"></i></div>
-            <div class="home-cockpit-name">Smart Notes</div>
-            <div class="home-cockpit-desc">Record key revision notes</div>
-          </div>
-
-          <!-- Action 6: Motivational Poster -->
-          <div class="home-cockpit-card" id="cockpitMotivation" style="--cockpit-color:#10b981; --cockpit-bg:rgba(16, 185, 129, 0.12); --cockpit-glow:rgba(16, 185, 129, 0.25);">
-            <div class="home-cockpit-icon"><i data-lucide="image"></i></div>
-            <div class="home-cockpit-name">Daily Poster</div>
-            <div class="home-cockpit-desc">Export 1080p HD wallpaper</div>
+          <div class="home-stat-value">${studiedH}h ${studiedM}m <span style="font-size:14px; font-weight:600; color:var(--text-soft);">/ ${targetH}h${targetM ? ' ' + targetM + 'm' : ''}</span></div>
+          <div class="home-stat-meta">${goalPct}% completed today</div>
+          <div class="home-stat-progress-bar">
+            <div class="home-stat-progress-fill" style="width: ${goalPct}%;"></div>
           </div>
         </div>
-      </section>
 
-      <!-- 3. TWO-COLUMN ADAPTIVE DASHBOARD -->
-      <div class="home-columns-grid">
-        <!-- LEFT COLUMN: ROUTINE & PRIMARY PILLARS -->
-        <div class="home-column">
-          <!-- Today's Routine Timeline -->
-          <div class="home-widget">
-            <div class="home-widget-header">
-              <div class="home-widget-title-wrap">
-                <i data-lucide="calendar-days"></i>
-                <h3 class="home-widget-title">Today's Focus Timeline</h3>
-              </div>
-              <button type="button" class="home-widget-action" id="homeViewFullRoutineBtn">
-                Full Routine <i data-lucide="arrow-right"></i>
-              </button>
+        <!-- Target Streak -->
+        <div class="home-stat-card" id="homeStreakCard" style="cursor:pointer;" title="Click to view Study Heatmap">
+          <div class="home-stat-header">
+            <span class="home-stat-label">Consistency Streak</span>
+            <span class="home-stat-icon streak-icon"><i data-lucide="flame"></i></span>
+          </div>
+          <div class="home-stat-value">${streak} ${streak === 1 ? 'Day' : 'Days'}</div>
+          <div class="home-stat-meta">${streak > 0 ? 'Consistent daily momentum active' : 'Hit today\'s goal to build your streak'}</div>
+          <div class="home-stat-progress-bar">
+            <div class="home-stat-progress-fill" style="width: ${Math.min(100, Math.max(12, streak * 10))}%; background: linear-gradient(90deg, #f59e0b, #ef4444);"></div>
+          </div>
+        </div>
+
+        <!-- Nearest Exam Target -->
+        <div class="home-stat-card" id="homeExamCard" style="cursor:pointer;" title="Click to view Exam Countdowns">
+          <div class="home-stat-header">
+            <span class="home-stat-label">Target Exam Target</span>
+            <span class="home-stat-icon exam-icon"><i data-lucide="calendar-clock"></i></span>
+          </div>
+          <div class="home-stat-value" id="homeExamCountdownTime" style="font-family:var(--font-mono); font-size:19px; letter-spacing:0.2px;">
+            ${nearestExam ? 'Loading...' : 'None Set'}
+          </div>
+          <div class="home-stat-meta" style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+            ${nearestExam ? escapeHtml(nearestExam.name) : 'Click to set target exam date'}
+          </div>
+          <div class="home-stat-progress-bar">
+            <div class="home-stat-progress-fill" style="width: 100%; background: linear-gradient(90deg, #f43f5e, #c084fc);"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Integrated Sleek Motivation Strip -->
+      <div class="home-motivation-strip" id="quoteTicker">
+        <div class="home-motivation-content">
+          <span class="home-motivation-dot"></span>
+          <span class="home-motivation-text" id="tickerText">"${escapeHtml(activeQuote.text || '')}"</span>
+          <span class="home-motivation-author">&mdash; ${escapeHtml(activeQuote.author || 'CareerDesk')}</span>
+        </div>
+        <button type="button" class="home-motivation-wallpaper-btn" id="homeExportWallpaperAction" title="Export 1080p HD Motivation Wallpaper">
+          <i data-lucide="image"></i> <span>Wallpaper</span>
+        </button>
+      </div>
+    </section>
+  `;
+
+  // 2. QUICK ACTION COCKPIT (Cleaned up / Reserved)
+  if (cockpitWrap) cockpitWrap.innerHTML = '';
+
+  // 3. TWO-COLUMN BALANCED ADAPTIVE DASHBOARD
+  columnsWrap.innerHTML = `
+    <div class="home-columns-grid">
+      <!-- LEFT COLUMN: PRIMARY PREPARATION PILLARS -->
+      <div class="home-column">
+        <!-- Four Primary Pillars Radar -->
+        <div class="home-widget">
+          <div class="home-widget-header">
+            <div class="home-widget-title-wrap">
+              <i data-lucide="compass"></i>
+              <h3 class="home-widget-title">Core Preparation Pillars</h3>
             </div>
+            <button type="button" class="home-widget-action" id="homeViewSyllabusBtn">
+              <span>Syllabus Map</span> <i data-lucide="arrow-right"></i>
+            </button>
+          </div>
 
-            <div class="home-timeline-list" id="homeTimelineList">
-              ${todayRoutine.length === 0 ? `
-                <div class="empty-state" style="padding: 24px 16px; margin:0;">
-                  <p style="margin:0 0 12px; font-size:13.5px; color:var(--text-soft);">No routine scheduled for today. Create your study blocks to stay on track.</p>
-                  <button type="button" class="pill" id="homePlanRoutineNowBtn"><i data-lucide="calendar-plus"></i> Plan Today's Routine</button>
+          <div class="home-pillars-grid">
+            ${pillarStats.map(p => `
+              <div class="home-pillar-card" style="--pillar-color: ${p.color};">
+                <div class="home-pillar-head">
+                  <span class="home-pillar-title">
+                    <span class="home-pillar-dot"></span>
+                    ${escapeHtml(p.name)}
+                  </span>
+                  <span class="home-pillar-pct">${p.syllabusPct}%</span>
                 </div>
-              ` : todayRoutine.map(r => {
-                const isLive = r.startTime && r.endTime && r.startTime <= nowTimeStr && nowTimeStr <= r.endTime;
-                return `
-                  <div class="home-timeline-item ${isLive ? 'live-now' : ''}">
-                    <div class="home-timeline-left">
-                      <span class="home-timeline-time">${escapeHtml(r.startTime)} - ${escapeHtml(r.endTime)}</span>
-                      <div class="home-timeline-info">
-                        <span class="home-timeline-subject-tag">
-                          <span class="home-timeline-dot"></span>
-                          ${escapeHtml(r.subject || 'General')}
-                        </span>
-                        <span class="home-timeline-task" title="${escapeAttr(r.task || '')}">${escapeHtml(r.task || 'Study Session')}</span>
-                      </div>
-                    </div>
-                    <div class="home-timeline-right">
-                      ${isLive ? `<span class="home-live-badge"><span class="home-live-pulse"></span> LIVE NOW</span>` : ''}
-                      <button type="button" class="pill ${isLive ? '' : 'subtle'} home-timeline-btn" data-focus-task="${escapeAttr(r.subject)}">
-                        <i data-lucide="${isLive ? 'play' : 'arrow-right'}"></i>
-                        <span>${isLive ? 'Focus Now' : 'Study'}</span>
-                      </button>
-                    </div>
-                  </div>
-                `;
-              }).join('')}
+                <div class="home-pillar-progress">
+                  <div class="home-pillar-fill" style="width: ${p.syllabusPct}%;"></div>
+                </div>
+                <div class="home-pillar-footer">
+                  <span class="home-pillar-time">
+                    ${p.studiedMins > 0 ? `${p.studiedMins}m today` : `${p.doneTopics}/${p.totalTopics} topics done`}
+                  </span>
+                  <button type="button" class="home-pillar-study-btn" data-pillar-name="${escapeAttr(p.name)}">
+                    Study &rarr;
+                  </button>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT COLUMN: WEAK-AREA RADAR & ACTIONABLE REMEDIATION -->
+      <div class="home-column">
+        <!-- Weak-Area Revision Radar -->
+        <div class="home-widget">
+          <div class="home-widget-header">
+            <div class="home-widget-title-wrap">
+              <i data-lucide="target"></i>
+              <h3 class="home-widget-title">Weak-Area Revision Radar</h3>
             </div>
+            <span class="home-mistakes-counter">
+              <i data-lucide="alert-circle" style="width:12px; height:12px;"></i>
+              ${pendingMistakes.length} ${pendingMistakes.length === 1 ? 'Mistake' : 'Mistakes'}
+            </span>
           </div>
 
-          <!-- Four Primary Pillars Radar -->
-          <div class="home-widget">
-            <div class="home-widget-header">
-              <div class="home-widget-title-wrap">
-                <i data-lucide="compass"></i>
-                <h3 class="home-widget-title">Core Preparation Pillars</h3>
+          ${pendingMistakes.length === 0 ? `
+            <div class="empty-state" style="padding: 24px 16px; margin: 0; text-align: center;">
+              <div style="width:44px; height:44px; border-radius:12px; background:rgba(16,185,129,0.12); color:#10b981; display:flex; align-items:center; justify-content:center; margin: 0 auto 12px;">
+                <i data-lucide="check-circle-2" style="width:22px; height:22px;"></i>
               </div>
-              <button type="button" class="home-widget-action" id="homeViewSyllabusBtn">
-                Syllabus Map <i data-lucide="arrow-right"></i>
-              </button>
+              <h4 style="margin:0 0 6px; font-size:14px; font-weight:700; color:var(--text);">Mistake Bank is Clean!</h4>
+              <p style="margin:0 0 16px; font-size:12.5px; color:var(--text-soft); line-height:1.45;">You have no active mistake remediation items. Run timed model tests to discover weak concepts.</p>
+              <button type="button" class="pill solid" id="homeTakeQuizBtn" style="padding:8px 18px; font-size:12.5px;"><i data-lucide="zap"></i> Start Model Quiz</button>
             </div>
-
-            <div class="home-pillars-grid">
-              ${pillarStats.map(p => `
-                <div class="home-pillar-card" style="--pillar-color: ${p.color};">
-                  <div class="home-pillar-head">
-                    <span class="home-pillar-title">
-                      <span class="home-pillar-dot"></span>
-                      ${escapeHtml(p.name)}
-                    </span>
-                    <span class="home-pillar-pct">${p.syllabusPct}%</span>
-                  </div>
-                  <div class="home-pillar-progress">
-                    <div class="home-pillar-fill" style="width: ${p.syllabusPct}%;"></div>
-                  </div>
-                  <div class="home-pillar-footer">
-                    <span class="home-pillar-time">
-                      ${p.studiedMins > 0 ? `${p.studiedMins}m today` : `${p.doneTopics}/${p.totalTopics} topics done`}
-                    </span>
-                    <button type="button" class="home-pillar-study-btn" data-pillar-name="${escapeAttr(p.name)}">
-                      Study &rarr;
-                    </button>
+          ` : `
+            <div class="home-mistake-list">
+              ${pendingMistakes.slice(0, 3).map(m => `
+                <div class="home-mistake-item">
+                  <div class="home-mistake-item-q">${escapeHtml(m.q || 'Question')}</div>
+                  <div class="home-mistake-item-meta">
+                    <span class="home-mistake-tag">${escapeHtml(m.subject || 'BCS')}</span>
+                    <span>Correct: <strong>${escapeHtml(m.correctAns || 'N/A')}</strong></span>
                   </div>
                 </div>
               `).join('')}
             </div>
-          </div>
-        </div>
-
-        <!-- RIGHT COLUMN: WEAK-AREA RADAR & MOTIVATION SPOTLIGHT -->
-        <div class="home-column">
-          <!-- Weak-Area Revision Radar -->
-          <div class="home-widget">
-            <div class="home-widget-header">
-              <div class="home-widget-title-wrap">
-                <i data-lucide="target"></i>
-                <h3 class="home-widget-title">Weak-Area Revision Radar</h3>
-              </div>
-              <span class="home-mistakes-counter">
-                <i data-lucide="alert-circle" style="width:12px; height:12px;"></i>
-                ${pendingMistakes.length} ${pendingMistakes.length === 1 ? 'Mistake' : 'Mistakes'}
-              </span>
-            </div>
-
-            ${pendingMistakes.length === 0 ? `
-              <div class="empty-state" style="padding: 20px 14px; margin:0 0 14px;">
-                <p style="margin:0 0 10px; font-size:13px; color:var(--text-soft);">Mistake Bank is clean! Take practice model tests to identify weak spots.</p>
-                <button type="button" class="pill" id="homeTakeQuizBtn"><i data-lucide="zap"></i> Start Model Quiz</button>
-              </div>
-            ` : `
-              <div class="home-mistake-list">
-                ${pendingMistakes.slice(0, 3).map(m => `
-                  <div class="home-mistake-item">
-                    <div class="home-mistake-item-q">${escapeHtml(m.q || 'Question')}</div>
-                    <div class="home-mistake-item-meta">
-                      <span class="home-mistake-tag">${escapeHtml(m.subject || 'BCS')}</span>
-                      <span>Correct: <strong>${escapeHtml(m.correctAns || 'N/A')}</strong></span>
-                    </div>
-                  </div>
-                `).join('')}
-              </div>
-              <button type="button" class="pill danger" id="homeReviewMistakesBtn" style="width:100%; justify-content:center; font-size:12.5px;">
-                <i data-lucide="refresh-cw"></i> Practice Mistake Bank (${pendingMistakes.length})
-              </button>
-            `}
-          </div>
-
-          <!-- Daily Motivation Spotlight -->
-          <div class="home-widget">
-            <div class="home-widget-header">
-              <div class="home-widget-title-wrap">
-                <i data-lucide="sparkles"></i>
-                <h3 class="home-widget-title">Daily Motivation Spotlight</h3>
-              </div>
-              <button type="button" class="home-widget-action" id="homeExportWallpaperAction">
-                <i data-lucide="image"></i> Wallpaper
-              </button>
-            </div>
-
-            <div class="home-quote-card">
-              <p class="home-quote-text">"${escapeHtml(activeQuote.text || '')}"</p>
-              <p class="home-quote-author">&mdash; ${escapeHtml(activeQuote.author || 'CareerDesk Aspirant')}</p>
-            </div>
-          </div>
+            <button type="button" class="pill danger" id="homeReviewMistakesBtn" style="width:100%; justify-content:center; font-size:12.5px;">
+              <i data-lucide="refresh-cw"></i> Practice Mistake Bank (${pendingMistakes.length})
+            </button>
+          `}
         </div>
       </div>
     </div>
@@ -407,6 +419,13 @@ function renderHomeDashboard() {
 
   // Bind all interactive click handlers
   bindHomeDashboardEvents();
+
+  // Refresh integrated Daily Study Routine & Date Slider
+  if (typeof initMonthDropdown === 'function') initMonthDropdown();
+  if (typeof renderDateSlider === 'function') renderDateSlider();
+  if (typeof renderRoutine === 'function') renderRoutine();
+  if (typeof updateMonthYearPlaceholder === 'function') updateMonthYearPlaceholder();
+  if (typeof updateRoutineTodayButtonState === 'function') updateRoutineTodayButtonState();
 
   // Create Lucide Icons
   if (window.lucide && typeof window.lucide.createIcons === 'function') {
@@ -457,6 +476,52 @@ function startHomeExamCountdown(nearestExam) {
  * Event bindings for all Home cockpit tiles and widget buttons
  */
 function bindHomeDashboardEvents() {
+  // User command bar buttons
+  const homeGuestAuthCta = document.getElementById('homeGuestAuthCta');
+  if (homeGuestAuthCta) {
+    homeGuestAuthCta.addEventListener('click', () => {
+      if (typeof openAuthModal === 'function') openAuthModal('login');
+    });
+  }
+
+  const homeQuickFocusBtn = document.getElementById('homeQuickFocusBtn');
+  if (homeQuickFocusBtn) {
+    homeQuickFocusBtn.addEventListener('click', () => {
+      activateTab('tracker', true);
+      const subjectInput = document.getElementById('sessionSubject');
+      if (subjectInput) subjectInput.focus();
+    });
+  }
+
+  const homeProfileBtn = document.getElementById('homeProfileBtn');
+  if (homeProfileBtn) {
+    homeProfileBtn.addEventListener('click', () => {
+      activateTab('profile', true);
+    });
+  }
+
+  // Jump to routine buttons
+  document.querySelectorAll('#homeJumpRoutineBtn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.getElementById('homeRoutineSection')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  });
+
+  // Focus routine subject button from Next-Up strip
+  document.querySelectorAll('[data-focus-routine-subject]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const subj = btn.getAttribute('data-focus-routine-subject');
+      activateTab('tracker', true);
+      if (subj) {
+        const subjectSelect = document.getElementById('sessionSubject');
+        if (subjectSelect) {
+          subjectSelect.value = subj;
+          subjectSelect.dispatchEvent(new Event('change'));
+        }
+      }
+    });
+  });
+
   // Hero stat clicks
   const homeGoalCard = document.getElementById('homeGoalCard');
   if (homeGoalCard) {
@@ -550,7 +615,7 @@ function bindHomeDashboardEvents() {
   const homeViewFullRoutineBtn = document.getElementById('homeViewFullRoutineBtn');
   if (homeViewFullRoutineBtn) {
     homeViewFullRoutineBtn.addEventListener('click', () => {
-      activateTab('routine', true);
+      document.getElementById('homeRoutineSection')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     });
   }
 
@@ -558,7 +623,7 @@ function bindHomeDashboardEvents() {
   const homePlanRoutineNowBtn = document.getElementById('homePlanRoutineNowBtn');
   if (homePlanRoutineNowBtn) {
     homePlanRoutineNowBtn.addEventListener('click', () => {
-      activateTab('routine', true);
+      document.getElementById('homeRoutineSection')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     });
   }
 
@@ -620,12 +685,15 @@ function bindHomeDashboardEvents() {
     });
   }
 
-  // Wallpaper action in spotlight
+  // Wallpaper action in motivation strip
   const homeExportWallpaperAction = document.getElementById('homeExportWallpaperAction');
   if (homeExportWallpaperAction) {
     homeExportWallpaperAction.addEventListener('click', () => {
-      if (typeof openModal === 'function') {
-        openModal('quoteModal');
+      const tickerText = document.getElementById('tickerText')?.textContent || '';
+      if (typeof exportQuoteWallpaper === 'function') {
+        exportQuoteWallpaper(tickerText);
+      } else if (typeof showToast === 'function') {
+        showToast('Generating motivation wallpaper...');
       }
     });
   }

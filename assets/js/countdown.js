@@ -28,6 +28,9 @@ function loadExams() {
 function saveExams() {
   try {
     localStorage.setItem(EXAMS_KEY, JSON.stringify(exams));
+    if (typeof window.scheduleFirestoreSync === 'function') {
+      window.scheduleFirestoreSync();
+    }
   } catch (e) { }
 }
 
@@ -65,6 +68,7 @@ function renderExams() {
         <h3>${escapeHtml(ex.name)}</h3>
         <div class="countdown-head-actions">
           <span class="countdown-tag">${escapeHtml(ex.category || 'Exam')}</span>
+          <button class="countdown-edit-btn micro-btn edit" data-id="${ex.id}" title="Edit exam target">${ICON.edit}</button>
           <button class="countdown-del-btn" data-id="${ex.id}" title="Delete">${ICON.x}</button>
         </div>
       </div>
@@ -84,6 +88,7 @@ function renderExams() {
 }
 
 document.addEventListener('click', (e) => {
+  // Delete exam
   const delBtn = e.target.closest('.countdown-del-btn');
   if (delBtn) {
     const id = delBtn.dataset.id;
@@ -95,7 +100,75 @@ document.addEventListener('click', (e) => {
     renderExams();
     showToast('Exam target deleted');
   }
+
+  // Edit exam
+  const editBtn = e.target.closest('.countdown-edit-btn');
+  if (editBtn) {
+    const id = editBtn.dataset.id;
+    const ex = exams.find(x => String(x.id) === String(id));
+    if (!ex) return;
+    const modal = document.getElementById('editExamModal');
+    const nameInput = document.getElementById('editExamNameInput');
+    const catInput = document.getElementById('editExamCatInput');
+    const dateInput = document.getElementById('editExamDateInput');
+    const idInput = document.getElementById('editExamId');
+    if (!modal || !nameInput || !catInput || !dateInput || !idInput) return;
+    idInput.value = ex.id;
+    nameInput.value = ex.name || '';
+    catInput.value = ex.category || '';
+    // Format date for datetime-local input
+    try {
+      const d = new Date(ex.targetDate);
+      const pad = n => String(n).padStart(2, '0');
+      dateInput.value = `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+    } catch(e2) { dateInput.value = ''; }
+    modal.style.display = 'flex';
+    void modal.offsetWidth;
+    modal.classList.add('open');
+    if (window.lucide) lucide.createIcons();
+  }
 });
+
+// Edit exam modal save/cancel
+document.addEventListener('DOMContentLoaded', () => {
+  const saveEditExamBtn = document.getElementById('saveEditExamBtn');
+  const cancelEditExamBtn = document.getElementById('cancelEditExamBtn');
+  const closeEditExamModal = document.getElementById('closeEditExamModal');
+
+  function closeEditExam() {
+    const modal = document.getElementById('editExamModal');
+    if (modal) { modal.classList.remove('open'); setTimeout(() => { if (!modal.classList.contains('open')) modal.style.display = 'none'; }, 180); }
+  }
+
+  if (saveEditExamBtn) {
+    saveEditExamBtn.addEventListener('click', () => {
+      const id = document.getElementById('editExamId').value;
+      const name = document.getElementById('editExamNameInput').value.trim();
+      const cat = document.getElementById('editExamCatInput').value.trim();
+      const dateVal = document.getElementById('editExamDateInput').value;
+      if (!name || !dateVal) { showToast('Please enter both exam name and date.', true); return; }
+      const ex = exams.find(x => String(x.id) === String(id));
+      if (!ex) return;
+      ex.name = name;
+      ex.category = cat || 'Exam';
+      ex.targetDate = new Date(dateVal).toISOString();
+      saveExams();
+      renderExams();
+      closeEditExam();
+      showToast('Exam target updated!');
+    });
+  }
+
+  if (cancelEditExamBtn) cancelEditExamBtn.addEventListener('click', closeEditExam);
+  if (closeEditExamModal) closeEditExamModal.addEventListener('click', closeEditExam);
+
+  // Click outside to close
+  document.addEventListener('click', e => {
+    const modal = document.getElementById('editExamModal');
+    if (modal && e.target === modal) closeEditExam();
+  });
+});
+
 
 const toggleExamBtn = document.getElementById('toggleExamFormBtn');
 const examWrap = document.getElementById('examFormWrap');

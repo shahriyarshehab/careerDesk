@@ -94,10 +94,10 @@ document.addEventListener('click', (e) => {
 
 function normalizeTabName(tabName) {
   if (!tabName) return 'home';
-  if (tabName === 'dashboard') return 'home';
+  if (tabName === 'dashboard' || tabName === 'routine') return 'home';
   if (tabName === 'quiz') return 'flashcards';
   if (tabName === 'exams') return 'countdown';
-  if (tabName === 'settings') return 'profile';
+  if (tabName === 'settings' || tabName === 'auth' || tabName === 'login' || tabName === 'signup' || tabName === 'register') return 'profile';
   return tabName;
 }
 
@@ -117,6 +117,10 @@ function activateTab(rawTabName, persist = false) {
     p.classList.toggle('active', isTarget);
   });
 
+  if (rawTabName !== 'routine') {
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+  }
+
   if (persist) {
     try { localStorage.setItem(ACTIVE_TAB_KEY, tabName); } catch (e) { }
     try { if (window.location.hash !== '#' + tabName) history.replaceState(null, '', '#' + tabName); } catch (e) { }
@@ -126,18 +130,28 @@ function activateTab(rawTabName, persist = false) {
     if (typeof renderHomeDashboard === 'function') {
       renderHomeDashboard();
     }
+    if (rawTabName === 'routine') {
+      setTimeout(() => {
+        const routineSec = document.getElementById('homeRoutineSection');
+        if (routineSec) routineSec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 120);
+    }
   }
 
   if (tabName === 'profile' || tabName === 'settings') {
     if (typeof renderUserProfileUI === 'function') {
       renderUserProfileUI();
     }
-    if (typeof renderSecurityVaultUI === 'function') {
-      renderSecurityVaultUI();
-    }
     renderSubjectManager();
     renderQuoteManager();
     syncQuoteSettings();
+
+    // If navigated via #login or #signup directly, pop open the auth modal
+    if (rawTabName === 'login' || rawTabName === 'signup') {
+      if (typeof openAuthModal === 'function') {
+        openAuthModal(rawTabName === 'signup' ? 'signup' : 'login');
+      }
+    }
   }
 
   if (tabName === 'tracker') {
@@ -179,8 +193,8 @@ function initCommandPalette() {
   let currentItems = [];
 
   const staticCommands = [
-    { id: 'tab-home', category: 'Navigation', icon: 'layout-dashboard', title: 'Go to Home Dashboard', subtitle: 'Mission Control & daily briefing', action: () => activateTab('home', true) },
-    { id: 'tab-routine', category: 'Navigation', icon: 'calendar-days', title: 'Go to Routine', subtitle: 'View daily study schedule', action: () => activateTab('routine', true) },
+    { id: 'tab-home', category: 'Navigation', icon: 'layout-dashboard', title: 'Go to Home & Routine', subtitle: 'Mission Control, stats & daily study schedule', action: () => activateTab('home', true) },
+    { id: 'tab-routine', category: 'Navigation', icon: 'calendar-days', title: 'Jump to Study Routine', subtitle: 'View & edit daily study schedule on Home', action: () => activateTab('routine', true) },
     { id: 'tab-notes', category: 'Navigation', icon: 'notebook-pen', title: 'Go to Smart Notes', subtitle: 'Study notes, formulas & tags', action: () => activateTab('notes', true) },
     { id: 'tab-tracker', category: 'Navigation', icon: 'timer', title: 'Go to Tracker & Focus', subtitle: 'Pomodoro timer & activity stats', action: () => activateTab('tracker', true) },
     { id: 'tab-quiz', category: 'Navigation', icon: 'brain', title: 'Go to Quiz & Cards', subtitle: 'Practice flashcards & MCQs', action: () => activateTab('flashcards', true) },
@@ -219,8 +233,10 @@ function initCommandPalette() {
       id: 'act-add-routine', category: 'Actions', icon: 'calendar-plus', title: 'Add Study Block', subtitle: 'Insert new study session into today',
       action: () => {
         activateTab('routine', true);
-        const addBtn = document.getElementById('inlineAddRowBtn');
-        if (addBtn) addBtn.click();
+        setTimeout(() => {
+          const addBtn = document.getElementById('inlineAddRowBtn');
+          if (addBtn) addBtn.click();
+        }, 150);
       }
     },
     {
@@ -458,13 +474,298 @@ function initCommandPalette() {
     renderUserProfileUI();
   }
 
-  if (typeof renderSecurityVaultUI === 'function') {
-    renderSecurityVaultUI();
-  }
-
   checkFirstTimeUser();
 
   if (window.lucide) {
     lucide.createIcons();
   }
+
+  // Feature #14: Keyboard Shortcuts Panel
+  initKeyboardShortcutsPanel();
+
+  // Feature #13: Daily Reflection Journal
+  initDailyJournal();
+
+  // Feature #4: MCQ Quick Subject Pre-Filter
+  initMCQQuickFilter();
 })();
+
+/* ==========================================================================
+   Feature #14 — Keyboard Shortcuts Panel
+   ========================================================================== */
+function initKeyboardShortcutsPanel() {
+  const modal = document.getElementById('keyboardShortcutsModal');
+  const body = document.getElementById('shortcutsModalBody');
+  const closeBtn = document.getElementById('closeShortcutsModal');
+  const triggerBtn = document.getElementById('shortcutsHelpBtn');
+  if (!modal || !body) return;
+
+  const SHORTCUT_GROUPS = [
+    {
+      group: 'Navigation',
+      shortcuts: [
+        { keys: ['Alt', '1'], desc: 'Go to Home & Daily Routine' },
+        { keys: ['Alt', '2'], desc: 'Go to Smart Notes' },
+        { keys: ['Alt', '3'], desc: 'Go to Tracker & Focus' },
+        { keys: ['Alt', '4'], desc: 'Go to Quiz & Flashcards' },
+        { keys: ['Alt', '5'], desc: 'Go to Exam Targets' },
+        { keys: ['Alt', '6'], desc: 'Go to Syllabus' },
+        { keys: ['Alt', '7'], desc: 'Go to Profile & Settings' },
+      ]
+    },
+    {
+      group: 'Quick Actions',
+      shortcuts: [
+        { keys: ['Ctrl', 'K'], desc: 'Open Command Palette' },
+        { keys: ['?'], desc: 'Open Keyboard Shortcuts Panel' },
+        { keys: ['F'], desc: 'Toggle Fullscreen' },
+        { keys: ['T'], desc: 'Toggle Dark / Light Theme' },
+      ]
+    },
+    {
+      group: 'Study Timer',
+      shortcuts: [
+        { keys: ['Space'], desc: 'Start / Stop focus timer (when on Tracker tab)' },
+        { keys: ['Escape'], desc: 'Close any open modal or overlay' },
+      ]
+    }
+  ];
+
+  function renderShortcutsBody() {
+    body.innerHTML = SHORTCUT_GROUPS.map(grp => `
+      <div style="margin-bottom:18px;">
+        <div style="font-size:11px; text-transform:uppercase; letter-spacing:0.06em; font-weight:700; color:var(--text-muted); margin-bottom:10px;">${escapeHtml(grp.group)}</div>
+        <div style="display:flex; flex-direction:column; gap:7px;">
+          ${grp.shortcuts.map(s => `
+            <div style="display:flex; justify-content:space-between; align-items:center; padding:7px 10px; border-radius:9px; background:var(--surface); border:1px solid var(--border);">
+              <span style="font-size:13px; color:var(--text);">${escapeHtml(s.desc)}</span>
+              <div style="display:flex; gap:4px; flex-shrink:0;">
+                ${s.keys.map(k => `<kbd style="font-family:var(--font-mono); font-size:11px; font-weight:700; padding:3px 7px; border-radius:6px; border:1px solid var(--border); background:var(--surface-strong); color:var(--text); box-shadow:0 1px 3px rgba(0,0,0,0.12);">${escapeHtml(k)}</kbd>`).join('<span style="font-size:12px; color:var(--text-muted); align-self:center;">+</span>')}
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function openShortcuts() {
+    renderShortcutsBody();
+    modal.style.display = 'flex';
+    void modal.offsetWidth;
+    modal.classList.add('open');
+    if (window.lucide) lucide.createIcons();
+  }
+
+  function closeShortcuts() {
+    modal.classList.remove('open');
+    setTimeout(() => { if (!modal.classList.contains('open')) modal.style.display = 'none'; }, 180);
+  }
+
+  if (triggerBtn) triggerBtn.addEventListener('click', openShortcuts);
+  if (closeBtn) closeBtn.addEventListener('click', closeShortcuts);
+  modal.addEventListener('click', e => { if (e.target === modal) closeShortcuts(); });
+
+  // Global keyboard shortcuts
+  window.addEventListener('keydown', e => {
+    // Don't fire inside input/textarea/select
+    const tag = (e.target.tagName || '').toLowerCase();
+    if (tag === 'input' || tag === 'textarea' || tag === 'select') return;
+
+    // ? = open shortcuts panel
+    if (e.key === '?' && !e.ctrlKey && !e.metaKey && !e.altKey) {
+      e.preventDefault();
+      if (modal.classList.contains('open')) closeShortcuts();
+      else openShortcuts();
+    }
+    // F = toggle fullscreen
+    if (e.key === 'f' || e.key === 'F') {
+      if (!e.ctrlKey && !e.metaKey && !e.altKey) { e.preventDefault(); toggleFullscreen(); }
+    }
+    // T = toggle theme
+    if (e.key === 't' || e.key === 'T') {
+      if (!e.ctrlKey && !e.metaKey && !e.altKey) { e.preventDefault(); setTheme(state.theme === 'dark' ? 'light' : 'dark'); }
+    }
+    // Escape = close open modals
+    if (e.key === 'Escape') {
+      const openModal = document.querySelector('.modal-overlay.open');
+      if (openModal) { openModal.classList.remove('open'); setTimeout(() => { openModal.style.display = 'none'; }, 180); }
+    }
+    // Alt + Number = navigate tabs
+    if (e.altKey && !e.ctrlKey && !e.metaKey) {
+      const tabMap = { '1': 'home', '2': 'notes', '3': 'tracker', '4': 'flashcards', '5': 'countdown', '6': 'syllabus', '7': 'profile' };
+      if (tabMap[e.key]) { e.preventDefault(); activateTab(tabMap[e.key], true); }
+    }
+  });
+}
+
+/* ==========================================================================
+   Feature #13 — Daily Reflection Journal
+   ========================================================================== */
+const JOURNAL_KEY = 'careerdesk_daily_journal_v1';
+
+function getJournalData() {
+  try {
+    const raw = localStorage.getItem(JOURNAL_KEY);
+    return raw ? JSON.parse(raw) : {};
+  } catch (e) { return {}; }
+}
+
+function saveJournalData(data) {
+  try { localStorage.setItem(JOURNAL_KEY, JSON.stringify(data)); } catch (e) {}
+}
+
+function initDailyJournal() {
+  const toggleBtn = document.getElementById('toggleJournalBtn');
+  const journalWrap = document.getElementById('journalWrap');
+  const textarea = document.getElementById('journalTextarea');
+  const saveBtn = document.getElementById('journalSaveBtn');
+  const dateLabel = document.getElementById('journalDateLabel');
+  const statusEl = document.getElementById('journalSaveStatus');
+  const viewAllBtn = document.getElementById('journalViewAllBtn');
+  const historyWrap = document.getElementById('journalHistoryWrap');
+  const historyList = document.getElementById('journalHistoryList');
+  if (!toggleBtn || !journalWrap || !textarea) return;
+
+  const todayKey = dateKey(Date.now());
+
+  function loadTodayEntry() {
+    const journal = getJournalData();
+    const todayEntry = journal[todayKey] || '';
+    textarea.value = todayEntry;
+    if (dateLabel) {
+      const now = new Date();
+      dateLabel.textContent = '— ' + now.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+    }
+    if (statusEl) {
+      statusEl.textContent = todayEntry ? 'Entry saved for today.' : '';
+    }
+  }
+
+  function renderJournalHistory() {
+    if (!historyList) return;
+    const journal = getJournalData();
+    const entries = Object.entries(journal)
+      .filter(([key]) => key !== todayKey && journal[key] && journal[key].trim())
+      .sort((a, b) => b[0].localeCompare(a[0]))
+      .slice(0, 14); // Last 14 days
+
+    if (!entries.length) {
+      historyList.innerHTML = '<div style="font-size:13px; color:var(--text-muted); text-align:center; padding:10px 0;">No past journal entries found.</div>';
+      return;
+    }
+    historyList.innerHTML = entries.map(([dateStr, text]) => {
+      const d = new Date(dateStr);
+      const label = d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
+      return `
+        <div style="padding:12px 14px; border-radius:10px; border:1px solid var(--border); background:var(--surface);">
+          <div style="font-size:12px; font-weight:700; color:var(--text-muted); margin-bottom:6px;">${escapeHtml(label)}</div>
+          <div style="font-size:13px; color:var(--text); line-height:1.6; white-space:pre-wrap;">${escapeHtml(text)}</div>
+        </div>`;
+    }).join('');
+  }
+
+  toggleBtn.addEventListener('click', () => {
+    const isOpen = journalWrap.style.display !== 'none';
+    journalWrap.style.display = isOpen ? 'none' : 'block';
+    toggleBtn.classList.toggle('active-open', !isOpen);
+    if (!isOpen) {
+      loadTodayEntry();
+      textarea.focus();
+      if (window.lucide) lucide.createIcons();
+    }
+  });
+
+  if (saveBtn) {
+    saveBtn.addEventListener('click', () => {
+      const journal = getJournalData();
+      journal[todayKey] = textarea.value.trim();
+      saveJournalData(journal);
+      if (statusEl) {
+        statusEl.textContent = 'Saved at ' + new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+      }
+      showToast('Journal entry saved!');
+    });
+  }
+
+  if (viewAllBtn && historyWrap) {
+    viewAllBtn.addEventListener('click', () => {
+      const isOpen = historyWrap.style.display !== 'none';
+      historyWrap.style.display = isOpen ? 'none' : 'block';
+      viewAllBtn.innerHTML = isOpen ? '<i data-lucide="list"></i> Past Entries' : '<i data-lucide="chevron-up"></i> Hide';
+      if (!isOpen) renderJournalHistory();
+      if (window.lucide) lucide.createIcons();
+    });
+  }
+
+  loadTodayEntry();
+}
+
+/* ==========================================================================
+   Feature #4 — MCQ Quick Subject Pre-Filter
+   ========================================================================== */
+function initMCQQuickFilter() {
+  const selectEl = document.getElementById('mcqQuickSubjectSelect');
+  const countLabel = document.getElementById('mcqFilterCountLabel');
+  const quickFilter = document.getElementById('mcqQuickFilter');
+  if (!selectEl) return;
+
+  function populateSubjectOptions() {
+    const subjects = typeof masterSubjectList === 'function' ? masterSubjectList(false) : [];
+    selectEl.innerHTML = '<option value="all">All Subjects</option>' +
+      subjects.map(s => `<option value="${escapeAttr(s)}">${escapeHtml(s)}</option>`).join('') +
+      '<option value="custom">Custom Questions</option>';
+  }
+
+  function updateCountLabel(selectedSubject) {
+    if (!countLabel || typeof allQuestions === 'undefined') return;
+    let count;
+    if (selectedSubject === 'all') {
+      count = allQuestions.length;
+    } else if (selectedSubject === 'custom') {
+      count = allQuestions.filter(q => q.isCustom || q.isAutoAdded).length;
+    } else {
+      const target = typeof canonicalSubjectName === 'function' ? canonicalSubjectName(selectedSubject).toLowerCase() : selectedSubject.toLowerCase();
+      count = allQuestions.filter(q => {
+        const qc = typeof canonicalSubjectName === 'function' ? canonicalSubjectName(q.subject || '').toLowerCase() : (q.subject || '').toLowerCase();
+        return qc === target;
+      }).length;
+    }
+    countLabel.textContent = `${count} question${count !== 1 ? 's' : ''} available`;
+  }
+
+  selectEl.addEventListener('change', () => {
+    const selected = selectEl.value;
+    updateCountLabel(selected);
+    // Sync with the existing filter bar in practice mode
+    if (typeof filterMCQPoolBySubject === 'function') {
+      // Update active filter pill to match
+      const filterBar = document.getElementById('filter-bar');
+      if (filterBar) {
+        filterBar.querySelectorAll('.filter-pill').forEach(pill => {
+          pill.classList.toggle('active', pill.dataset.subject === selected);
+        });
+      }
+      filterMCQPoolBySubject(selected);
+    }
+    showToast(`Filter set: ${selected === 'all' ? 'All Subjects' : (selected === 'custom' ? 'Custom Questions' : selected)}`);
+  });
+
+  // Hide when exam mode is active
+  if (quickFilter) {
+    const observer = new MutationObserver(() => {
+      const modeBanner = document.getElementById('mode-banner');
+      const isExam = modeBanner && modeBanner.classList.contains('active');
+      quickFilter.style.display = isExam ? 'none' : 'flex';
+    });
+    const modeBanner = document.getElementById('mode-banner');
+    if (modeBanner) observer.observe(modeBanner, { attributes: true, attributeFilter: ['class'] });
+  }
+
+  // Populate after all subjects are loaded
+  setTimeout(() => {
+    populateSubjectOptions();
+    updateCountLabel('all');
+  }, 400);
+}
+

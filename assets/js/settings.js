@@ -156,125 +156,143 @@ if (connectBtn) {
   connectBtn.addEventListener('click', connectAutoSyncFile);
 }
 
-// ===== JSON export / import =====
-document.getElementById('exportDataBtn').addEventListener('click', async () => {
-  const exportBundle = {
-    ...state,
-    exams: exams || [],
-    mistakes: mistakes || [],
-    customMCQQuestions: (typeof getStoredQuestions === "function" ? getStoredQuestions() : []),
-    mcqProgress: (typeof userMCQProgress !== "undefined" ? userMCQProgress : null),
-    todayBreakMinutes: getTodayBreakMinutes()
-  };
-  const blob = new Blob([JSON.stringify(exportBundle, null, 2)], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'careerdesk-data.json';
-  document.body.appendChild(a); a.click(); a.remove();
-  URL.revokeObjectURL(url);
-  await writeToAutoBackupFile();
-  showToast('Data exported successfully as JSON!');
-});
+// ===== JSON export / import (Legacy fallback, guarded) =====
+const exportDataBtnEl = document.getElementById('exportDataBtn');
+if (exportDataBtnEl) {
+  exportDataBtnEl.addEventListener('click', async () => {
+    const exportBundle = {
+      ...state,
+      exams: exams || [],
+      mistakes: mistakes || [],
+      customMCQQuestions: (typeof getStoredQuestions === "function" ? getStoredQuestions() : []),
+      mcqProgress: (typeof userMCQProgress !== "undefined" ? userMCQProgress : null),
+      todayBreakMinutes: getTodayBreakMinutes()
+    };
+    const blob = new Blob([JSON.stringify(exportBundle, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'careerdesk-data.json';
+    document.body.appendChild(a); a.click(); a.remove();
+    URL.revokeObjectURL(url);
+    await writeToAutoBackupFile();
+    showToast('Data exported successfully as JSON!');
+  });
+}
 
-document.getElementById('importDataInput').addEventListener('change', (e) => {
-  const file = e.target.files && e.target.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = async (ev) => {
-    try {
-      let imported = JSON.parse(ev.target.result);
+const importDataInputEl = document.getElementById('importDataInput');
+if (importDataInputEl) {
+  importDataInputEl.addEventListener('change', (e) => {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = async (ev) => {
+      try {
+        let imported = JSON.parse(ev.target.result);
 
-      // Handle Zero-Knowledge Encrypted .vault files
-      if (imported && imported.__careerdesk_vault && typeof decryptVaultPayload === 'function') {
-        const pass = prompt('This backup is encrypted with Zero-Knowledge AES-GCM-256.\nEnter your secret passphrase:');
-        if (!pass) {
-          e.target.value = '';
-          return;
+        // Handle Zero-Knowledge Encrypted .vault files
+        if (imported && imported.__careerdesk_vault && typeof decryptVaultPayload === 'function') {
+          const pass = prompt('This backup is encrypted with Zero-Knowledge AES-GCM-256.\nEnter your secret passphrase:');
+          if (!pass) {
+            e.target.value = '';
+            return;
+          }
+          imported = await decryptVaultPayload(imported, pass);
+          sessionStorage.setItem('careerdesk_active_vault_pass', pass);
         }
-        imported = await decryptVaultPayload(imported, pass);
-        sessionStorage.setItem('careerdesk_active_vault_pass', pass);
-      }
 
-      // Anti-Prototype Pollution scrubbing
-      if (typeof scrubPrototypePollution === 'function') {
-        imported = scrubPrototypePollution(imported);
-      }
+        // Anti-Prototype Pollution scrubbing
+        if (typeof scrubPrototypePollution === 'function') {
+          imported = scrubPrototypePollution(imported);
+        }
 
-      const rawState = imported.state || imported;
+        const rawState = imported.state || imported;
 
-      const ok = window.confirm('This will replace all current data with the backup file data. Proceed?');
-      if (!ok) { e.target.value = ''; return; }
+        const ok = window.confirm('This will replace all current data with the backup file data. Proceed?');
+        if (!ok) { e.target.value = ''; return; }
 
-      state = {
-        routine: Array.isArray(rawState.routine) && rawState.routine.length ? migrateRoutine(rawState.routine) : buildDefaultRoutine(dateKey(Date.now())),
-        notes: Array.isArray(rawState.notes) ? rawState.notes : [],
-        customQuotes: Array.isArray(rawState.customQuotes) ? rawState.customQuotes : [],
-        quoteIdx: typeof rawState.quoteIdx === 'number' ? rawState.quoteIdx : 0,
-        quoteSource: rawState.quoteSource || 'all',
-        theme: rawState.theme === 'light' ? 'light' : 'dark',
-        sessions: Array.isArray(rawState.sessions) ? rawState.sessions : [],
-        activeSession: rawState.activeSession || null,
-        dailyTargetMinutes: typeof rawState.dailyTargetMinutes === 'number' ? rawState.dailyTargetMinutes : 240,
-        syllabus: Array.isArray(rawState.syllabus) ? rawState.syllabus : [],
-        flashcards: Array.isArray(rawState.flashcards) ? rawState.flashcards : [],
-        quoteCarouselEnabled: typeof rawState.quoteCarouselEnabled === 'boolean' ? rawState.quoteCarouselEnabled : true,
-        quoteCarouselInterval: typeof rawState.quoteCarouselInterval === 'number' ? rawState.quoteCarouselInterval : 300,
-        deletedSubjects: Array.isArray(rawState.deletedSubjects) ? rawState.deletedSubjects : [],
-        customSubjects: Array.isArray(rawState.customSubjects) ? rawState.customSubjects : [],
-        deletedQuotes: Array.isArray(rawState.deletedQuotes) ? rawState.deletedQuotes : []
-      };
+        state = {
+          routine: Array.isArray(rawState.routine) && rawState.routine.length ? migrateRoutine(rawState.routine) : buildDefaultRoutine(dateKey(Date.now())),
+          notes: Array.isArray(rawState.notes) ? rawState.notes : [],
+          customQuotes: Array.isArray(rawState.customQuotes) ? rawState.customQuotes : [],
+          quoteIdx: typeof rawState.quoteIdx === 'number' ? rawState.quoteIdx : 0,
+          quoteSource: rawState.quoteSource || 'all',
+          theme: rawState.theme === 'light' ? 'light' : 'dark',
+          sessions: Array.isArray(rawState.sessions) ? rawState.sessions : [],
+          activeSession: rawState.activeSession || null,
+          dailyTargetMinutes: typeof rawState.dailyTargetMinutes === 'number' ? rawState.dailyTargetMinutes : 240,
+          syllabus: Array.isArray(rawState.syllabus) ? rawState.syllabus : [],
+          flashcards: Array.isArray(rawState.flashcards) ? rawState.flashcards : [],
+          quoteCarouselEnabled: typeof rawState.quoteCarouselEnabled === 'boolean' ? rawState.quoteCarouselEnabled : true,
+          quoteCarouselInterval: typeof rawState.quoteCarouselInterval === 'number' ? rawState.quoteCarouselInterval : 300,
+          deletedSubjects: Array.isArray(rawState.deletedSubjects) ? rawState.deletedSubjects : [],
+          customSubjects: Array.isArray(rawState.customSubjects) ? rawState.customSubjects : [],
+          deletedQuotes: Array.isArray(rawState.deletedQuotes) ? rawState.deletedQuotes : []
+        };
 
-      const examsList = Array.isArray(imported.exams) ? imported.exams : (Array.isArray(rawState.exams) ? rawState.exams : null);
-      if (examsList) {
-        exams = examsList;
-        saveExams();
-      }
-      if (Array.isArray(imported.mistakes)) {
-        mistakes = imported.mistakes;
-        if (typeof saveMistakes === 'function') saveMistakes();
-      }
-      if (Array.isArray(imported.customMCQQuestions) && typeof saveStoredQuestions === 'function') {
-        saveStoredQuestions(imported.customMCQQuestions);
-      }
-      if (imported.mcqProgress && typeof saveMCQProgress === 'function') {
-        userMCQProgress = imported.mcqProgress;
-        saveMCQProgress();
-      }
-      if (typeof imported.todayBreakMinutes === 'number') {
-        localStorage.setItem('jobprep_break_minutes_today', String(imported.todayBreakMinutes));
-      }
+        const examsList = Array.isArray(imported.exams) ? imported.exams : (Array.isArray(rawState.exams) ? rawState.exams : null);
+        if (examsList) {
+          exams = examsList;
+          saveExams();
+        }
+        if (Array.isArray(imported.mistakes)) {
+          mistakes = imported.mistakes;
+          if (typeof saveMistakes === 'function') saveMistakes();
+        }
+        if (Array.isArray(imported.customMCQQuestions) && typeof saveStoredQuestions === 'function') {
+          saveStoredQuestions(imported.customMCQQuestions);
+        }
+        if (imported.mcqProgress && typeof saveMCQProgress === 'function') {
+          userMCQProgress = imported.mcqProgress;
+          saveMCQProgress();
+        }
+        if (typeof imported.todayBreakMinutes === 'number') {
+          localStorage.setItem('jobprep_break_minutes_today', String(imported.todayBreakMinutes));
+        }
 
-      await storageAdapter.set(STORAGE_KEY, JSON.stringify(state));
-      await writeToAutoBackupFile();
-      showToast('🛡️ Backup restored successfully!');
-      setTimeout(() => location.reload(), 800);
-    } catch (err) {
-      console.error('Import Error:', err);
-      showToast(err.message || 'Invalid backup file', true);
-    } finally {
-      e.target.value = '';
-    }
-  };
-  reader.readAsText(file);
-});
+        await storageAdapter.set(STORAGE_KEY, JSON.stringify(state));
+        await writeToAutoBackupFile();
+        showToast('🛡️ Backup restored successfully!');
+        setTimeout(() => location.reload(), 800);
+      } catch (err) {
+        console.error('Import Error:', err);
+        showToast(err.message || 'Invalid backup file', true);
+      } finally {
+        e.target.value = '';
+      }
+    };
+    reader.readAsText(file);
+  });
+}
 
 // Export JSON Shortcut Button (Settings)
 const exportSettingsBtn = document.getElementById('exportDataBtnSettings');
 if (exportSettingsBtn) {
   exportSettingsBtn.addEventListener('click', () => {
-    document.getElementById('exportDataBtn').click();
+    document.getElementById('exportDataBtn')?.click();
   });
 }
 
-// Cloud Backup Shortcut Buttons (Settings Data Card)
+// Firestore Real-Time Sync Button (Settings Data Card)
+const btnSyncFirestoreNow = document.getElementById('btnSyncFirestoreNow');
+if (btnSyncFirestoreNow) {
+  btnSyncFirestoreNow.addEventListener('click', async () => {
+    if (typeof syncUserDataToFirestore === 'function') {
+      await syncUserDataToFirestore(null, false);
+    } else if (typeof uploadBackupToCloud === 'function') {
+      uploadBackupToCloud(false);
+    }
+  });
+}
+
+// Cloud Backup Shortcut Buttons (Settings Data Card - backwards compatibility)
 const uploadCloudDataCardBtn = document.getElementById('btnUploadCloudFromDataCard');
 if (uploadCloudDataCardBtn) {
   uploadCloudDataCardBtn.addEventListener('click', () => {
-    if (typeof uploadBackupToCloud === 'function') {
+    if (typeof syncUserDataToFirestore === 'function') {
+      syncUserDataToFirestore(null, false);
+    } else if (typeof uploadBackupToCloud === 'function') {
       uploadBackupToCloud(true);
-    } else {
-      showToast('Cloud sync module is initializing...', true);
     }
   });
 }
@@ -282,10 +300,10 @@ if (uploadCloudDataCardBtn) {
 const restoreCloudDataCardBtn = document.getElementById('btnRestoreCloudFromDataCard');
 if (restoreCloudDataCardBtn) {
   restoreCloudDataCardBtn.addEventListener('click', () => {
-    if (typeof restoreBackupFromCloud === 'function') {
+    if (typeof collectUserDataFromFirestore === 'function') {
+      collectUserDataFromFirestore();
+    } else if (typeof restoreBackupFromCloud === 'function') {
       restoreBackupFromCloud();
-    } else {
-      showToast('Cloud sync module is initializing...', true);
     }
   });
 }
