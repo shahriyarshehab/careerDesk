@@ -308,7 +308,8 @@ function renderRoutine() {
     return timeA.localeCompare(timeB) || a.id - b.id;
   });
 
-  wrap.innerHTML = `<table class="routine">${ROUTINE_HEAD}<tbody>${rows.map(routineRowHtml).join('')}</tbody></table>`;
+  const hoverBtnHtml = '\n<tr class="add-block-hover-row">\n  <td colspan="4" style="padding:0; border:none; height:24px; position:relative;">\n    <button type="button" class="floating-add-btn" id="inlineAddRowBtn" title="Add another study block">\n      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>\n    </button>\n  </td>\n</tr>';
+    wrap.innerHTML = `<table class="routine">${ROUTINE_HEAD}<tbody>${rows.map(routineRowHtml).join('')}${hoverBtnHtml}</tbody></table>`;
   renderTrackerRoutinePreview();
 }
 
