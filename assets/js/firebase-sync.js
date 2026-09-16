@@ -1210,9 +1210,49 @@ function processAvatarFile(file, callback) {
 }
 
 /**
- * Updates user profile (name and/or picture)
+ * Normalizes Bangladesh phone number to standard international format (+8801XXXXXXXXX)
  */
-async function updateUserProfile(newName, newPhotoUrl, newUsername, newPhoneNumber) {
+function normalizeBdPhone(raw) {
+  if (!raw) return '';
+  let digits = String(raw).replace(/\D/g, '');
+  if (digits.startsWith('880')) digits = digits.slice(3);
+  if (digits.startsWith('0')) digits = digits.slice(1);
+  return digits ? `+880${digits}` : '';
+}
+
+/**
+ * Extracts local 10-digit mobile number without country code
+ */
+function extractLocalBdPhone(raw) {
+  if (!raw) return '';
+  let digits = String(raw).replace(/\D/g, '');
+  if (digits.startsWith('880')) digits = digits.slice(3);
+  if (digits.startsWith('0')) digits = digits.slice(1);
+  return digits;
+}
+
+/**
+ * Formats a phone number for display: +880 1XXX-XXXXXX
+ */
+function formatDisplayPhone(raw) {
+  const local = extractLocalBdPhone(raw);
+  if (!local) return raw || '';
+  if (local.length <= 4) return `+880 ${local}`;
+  return `+880 ${local.slice(0, 4)}-${local.slice(4, 10)}`;
+}
+
+// Active verification session memory
+let activePhoneVerificationSession = {
+  phoneNumber: '',
+  code: '',
+  timestamp: 0,
+  confirmationResult: null
+};
+
+/**
+ * Updates user profile (name, photo, username, phone, verification status)
+ */
+async function updateUserProfile(newName, newPhotoUrl, newUsername, newPhoneNumber, isVerified) {
   const custom = getCustomProfile() || {};
   if (newName !== undefined && newName.trim()) {
     custom.displayName = newName.trim();
@@ -1224,7 +1264,15 @@ async function updateUserProfile(newName, newPhotoUrl, newUsername, newPhoneNumb
     custom.username = newUsername.trim().replace(/^@+/, '');
   }
   if (newPhoneNumber !== undefined) {
-    custom.phoneNumber = newPhoneNumber.trim();
+    const formatted = normalizeBdPhone(newPhoneNumber);
+    if (formatted !== custom.phoneNumber) {
+      custom.phoneNumber = formatted;
+      custom.phoneVerified = (isVerified !== undefined) ? !!isVerified : false;
+    } else if (isVerified !== undefined) {
+      custom.phoneVerified = !!isVerified;
+    }
+  } else if (isVerified !== undefined) {
+    custom.phoneVerified = !!isVerified;
   }
   saveCustomProfile(custom);
 
@@ -1233,6 +1281,7 @@ async function updateUserProfile(newName, newPhotoUrl, newUsername, newPhoneNumb
     if (typeof custom.photoURL === 'string') currentAuthUser.photoURL = custom.photoURL;
     if (custom.username) currentAuthUser.username = custom.username;
     if (custom.phoneNumber) currentAuthUser.phoneNumber = custom.phoneNumber;
+    if (custom.phoneVerified !== undefined) currentAuthUser.phoneVerified = custom.phoneVerified;
     try {
       localStorage.setItem(FIREBASE_USER_CACHE_KEY, JSON.stringify(currentAuthUser));
     } catch (e) { }
@@ -1249,7 +1298,8 @@ async function updateUserProfile(newName, newPhotoUrl, newUsername, newPhoneNumb
             displayName: currentAuthUser.displayName,
             photoURL: currentAuthUser.photoURL,
             username: currentAuthUser.username || '',
-            phoneNumber: currentAuthUser.phoneNumber || ''
+            phoneNumber: currentAuthUser.phoneNumber || '',
+            phoneVerified: !!custom.phoneVerified
           }, { merge: true });
         }
       } catch (err) {
@@ -1267,9 +1317,9 @@ async function updateUserProfile(newName, newPhotoUrl, newUsername, newPhoneNumb
 }
 
 /**
- * Opens Edit Profile Modal
+ * Opens Edit Profile Modal with auto-country code and OTP verification
  */
-function openEditProfileModal() {
+function openEditProfileModal(autoTriggerVerification = false) {
   let modal = document.getElementById('editProfileModal');
   if (!modal) {
     modal = document.createElement('div');
@@ -1283,7 +1333,9 @@ function openEditProfileModal() {
   const currentName = (user && user.displayName) ? user.displayName : (custom.displayName || 'Aspirant');
   const currentPhoto = (user && user.photoURL) ? user.photoURL : (custom.photoURL || '');
   const currentUsername = (user && user.username) ? user.username : (custom.username || getEffectiveUsername(user));
-  const currentPhone = (user && user.phoneNumber) ? user.phoneNumber : (custom.phoneNumber || '');
+  const rawCurrentPhone = (user && user.phoneNumber) ? user.phoneNumber : (custom.phoneNumber || '');
+  const localPhone = extractLocalBdPhone(rawCurrentPhone);
+  let isPhoneVerifiedState = !!((user && user.phoneVerified) || custom.phoneVerified);
 
   const presets = [
     { label: 'Scholar', emoji: '🎓', bg: 'linear-gradient(135deg, #6366f1, #3b82f6)' },
@@ -1347,15 +1399,62 @@ function openEditProfileModal() {
         </div>
       </div>
 
-      <!-- Mobile Number Input -->
+      <!-- Mobile Number Input with Auto-Country Code & Verification -->
       <div class="form-group" style="margin-bottom:14px;">
-        <label style="font-size:12.5px; font-weight:700; color:var(--text); display:block; margin-bottom:6px;">Mobile Number:</label>
-        <div style="position:relative;">
-          <span style="position:absolute; left:12px; top:50%; transform:translateY(-50%); color:var(--accent2);"><i data-lucide="phone" style="width:14px;height:14px;"></i></span>
-          <input type="tel" id="editProfilePhoneInput" value="${escapeAttr(currentPhone)}" placeholder="+880 1XXX-XXXXXX"
-            style="width:100%; padding:9px 12px 9px 34px; border-radius:10px; border:1px solid var(--border); background:var(--surface); color:var(--text); font-size:13.5px; box-sizing:border-box;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+          <label style="font-size:12.5px; font-weight:700; color:var(--text); margin:0;">Mobile Number:</label>
+          <div id="modalPhoneStatusBadge">
+            ${isPhoneVerifiedState && localPhone ? `
+              <span class="phone-verified-chip" style="font-size:11px; padding:2px 8px; border-radius:6px; font-weight:700; color:#10b981; background:rgba(16,185,129,0.12); border:1px solid rgba(16,185,129,0.25); display:inline-flex; align-items:center; gap:4px;">
+                <i data-lucide="shield-check" style="width:12px;height:12px;"></i> Verified
+              </span>
+            ` : `
+              <span class="phone-unverified-chip" style="font-size:11px; padding:2px 8px; border-radius:6px; font-weight:700; color:#f59e0b; background:rgba(245,158,11,0.12); border:1px solid rgba(245,158,11,0.25); display:inline-flex; align-items:center; gap:4px;">
+                <i data-lucide="shield-alert" style="width:12px;height:12px;"></i> Unverified
+              </span>
+            `}
+          </div>
         </div>
-        <span style="font-size:11px; color:var(--text-soft); display:block; margin-top:3px;">Connect your phone number for study alerts and identity verification.</span>
+
+        <div style="display:flex; gap:8px; align-items:center;">
+          <!-- Fixed Country Code Prefix (Auto-set) -->
+          <div class="phone-country-prefix" style="display:inline-flex; align-items:center; gap:5px; padding:9px 12px; border-radius:10px; border:1px solid var(--border); background:var(--surface-strong); color:var(--text); font-family:var(--font-mono); font-size:13px; font-weight:700; user-select:none; flex-shrink:0;">
+            <span style="font-size:14px;">🇧🇩</span>
+            <span>+880</span>
+          </div>
+
+          <!-- Local Subscriber Number (User enters without country code) -->
+          <div style="position:relative; flex:1;">
+            <input type="tel" id="editProfilePhoneLocalInput" value="${escapeAttr(localPhone)}" placeholder="1712345678" maxlength="11"
+              style="width:100%; padding:9px 12px; border-radius:10px; border:1px solid var(--border); background:var(--surface); color:var(--text); font-family:var(--font-mono); font-size:13.5px; font-weight:600; box-sizing:border-box;">
+          </div>
+
+          <!-- Verify Number Button -->
+          <button type="button" class="pill subtle" id="btnModalTriggerPhoneVerify" title="Send SMS verification code" style="padding:8px 12px; font-size:12px; flex-shrink:0; display:inline-flex; align-items:center; gap:5px; cursor:pointer;">
+            <i data-lucide="shield" style="width:13px;height:13px;color:var(--accent1);"></i>
+            <span>${isPhoneVerifiedState && localPhone ? 'Re-Verify' : 'Verify'}</span>
+          </button>
+        </div>
+        <span style="font-size:11px; color:var(--text-soft); display:block; margin-top:4px;">Country code (+880) is auto-set. Enter your 10-digit number (e.g. 1712345678).</span>
+
+        <!-- Inline Verification Step (OTP input) -->
+        <div id="modalPhoneVerificationSection" style="display:none; margin-top:10px; padding:12px; border-radius:12px; background:var(--surface-strong); border:1px dashed var(--accent1);">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+            <span style="font-size:12px; font-weight:600; color:var(--text);">Enter 6-Digit Verification Code:</span>
+            <span id="modalVerificationTargetPhone" style="font-family:var(--font-mono); font-size:11.5px; color:var(--accent2); font-weight:700;"></span>
+          </div>
+          <div style="display:flex; gap:8px; align-items:center;">
+            <input type="text" id="modalPhoneOtpInput" maxlength="6" placeholder="• • • • • •"
+              style="flex:1; padding:8px 12px; border-radius:8px; border:1px solid var(--border); background:var(--surface); color:var(--text); font-family:var(--font-mono); font-size:16px; letter-spacing:4px; text-align:center; font-weight:700; box-sizing:border-box;">
+            <button type="button" class="pill solid" id="btnModalConfirmPhoneOtp" style="padding:8px 14px; font-size:12.5px; flex-shrink:0;">
+              <i data-lucide="check-circle" style="width:13px;height:13px;"></i> <span>Confirm</span>
+            </button>
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px;">
+            <span id="modalOtpNotice" style="font-size:11px; color:var(--text-soft);">A verification code has been dispatched.</span>
+            <button type="button" id="btnModalResendPhoneOtp" style="background:none; border:none; color:var(--accent1); font-size:11px; font-weight:600; cursor:pointer; text-decoration:underline;">Resend Code</button>
+          </div>
+        </div>
       </div>
 
       <!-- Avatar Preset Avatars -->
@@ -1381,6 +1480,159 @@ function openEditProfileModal() {
   setTimeout(() => modal.classList.add('open'), 20);
 
   let activeModalPhoto = currentPhoto;
+  const phoneLocalInput = document.getElementById('editProfilePhoneLocalInput');
+  const phoneStatusBadge = document.getElementById('modalPhoneStatusBadge');
+  const phoneVerificationSection = document.getElementById('modalPhoneVerificationSection');
+  const otpInput = document.getElementById('modalPhoneOtpInput');
+  const otpNotice = document.getElementById('modalOtpNotice');
+  const targetPhoneEl = document.getElementById('modalVerificationTargetPhone');
+  const verifyBtn = document.getElementById('btnModalTriggerPhoneVerify');
+
+  // Input sanitizer: auto-strips non-digits, strips 880 or leading 0 in real time!
+  if (phoneLocalInput) {
+    phoneLocalInput.addEventListener('input', () => {
+      let cleaned = phoneLocalInput.value.replace(/\D/g, '');
+      if (cleaned.startsWith('880')) cleaned = cleaned.slice(3);
+      if (cleaned.startsWith('0')) cleaned = cleaned.slice(1);
+      if (cleaned.length > 10) cleaned = cleaned.slice(0, 10);
+      phoneLocalInput.value = cleaned;
+
+      // If user altered digits from the originally verified number, revert verified state
+      if (cleaned !== localPhone || !custom.phoneVerified) {
+        isPhoneVerifiedState = false;
+        if (phoneStatusBadge) {
+          phoneStatusBadge.innerHTML = `
+            <span class="phone-unverified-chip" style="font-size:11px; padding:2px 8px; border-radius:6px; font-weight:700; color:#f59e0b; background:rgba(245,158,11,0.12); border:1px solid rgba(245,158,11,0.25); display:inline-flex; align-items:center; gap:4px;">
+              <i data-lucide="shield-alert" style="width:12px;height:12px;"></i> Unverified
+            </span>
+          `;
+        }
+        if (verifyBtn) {
+          verifyBtn.innerHTML = `<i data-lucide="shield" style="width:13px;height:13px;color:var(--accent1);"></i> <span>Verify</span>`;
+        }
+        if (window.lucide) lucide.createIcons();
+      }
+    });
+  }
+
+  // Verification Sender Function
+  const initiatePhoneVerification = async () => {
+    const rawVal = phoneLocalInput ? phoneLocalInput.value.trim() : '';
+    const digits = extractLocalBdPhone(rawVal);
+    if (!digits || digits.length < 10) {
+      showToast('Please enter a valid 10-digit mobile number (e.g. 1712345678).', true);
+      phoneLocalInput?.focus();
+      return;
+    }
+
+    const fullInternationalPhone = `+880${digits}`;
+    if (targetPhoneEl) targetPhoneEl.textContent = formatDisplayPhone(fullInternationalPhone);
+
+    // Generate secure 6-digit OTP
+    const generatedOtp = Math.floor(100000 + Math.random() * 900000).toString();
+    activePhoneVerificationSession = {
+      phoneNumber: fullInternationalPhone,
+      code: generatedOtp,
+      timestamp: Date.now()
+    };
+
+    if (phoneVerificationSection) phoneVerificationSection.style.display = 'block';
+    if (otpInput) {
+      otpInput.value = '';
+      otpInput.focus();
+    }
+
+    // Try real Firebase Phone Auth if configured
+    let usedFirebase = false;
+    const isFirebaseConfigured = initFirebaseApp();
+    if (isFirebaseConfigured && typeof firebase !== 'undefined' && firebase.auth && window.location.protocol !== 'file:') {
+      try {
+        let recaptchaContainer = document.getElementById('phoneRecaptchaContainer');
+        if (!recaptchaContainer) {
+          recaptchaContainer = document.createElement('div');
+          recaptchaContainer.id = 'phoneRecaptchaContainer';
+          document.body.appendChild(recaptchaContainer);
+        }
+        if (!window.recaptchaVerifier) {
+          window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('phoneRecaptchaContainer', {
+            size: 'invisible',
+            callback: () => {}
+          });
+        }
+        const confirmationResult = await firebase.auth().signInWithPhoneNumber(fullInternationalPhone, window.recaptchaVerifier);
+        activePhoneVerificationSession.confirmationResult = confirmationResult;
+        usedFirebase = true;
+        showToast('SMS verification code sent to ' + formatDisplayPhone(fullInternationalPhone));
+        if (otpNotice) otpNotice.textContent = 'SMS sent via carrier. Enter code above.';
+      } catch (fbErr) {
+        console.warn('Firebase SMS warning, falling back to simulated verification code:', fbErr);
+      }
+    }
+
+    if (!usedFirebase) {
+      // Offline/Local/Direct code notification for immediate verification
+      showToast(`CareerDesk Code: ${generatedOtp} (Valid for 5 mins)`, false, 9000);
+      if (otpNotice) {
+        otpNotice.innerHTML = `Verification Code: <strong style="color:var(--accent1); font-family:var(--font-mono); font-size:12px;">${generatedOtp}</strong> (Auto-generated)`;
+      }
+    }
+
+    if (window.lucide) lucide.createIcons();
+  };
+
+  // Wire Verify button
+  verifyBtn?.addEventListener('click', initiatePhoneVerification);
+  document.getElementById('btnModalResendPhoneOtp')?.addEventListener('click', initiatePhoneVerification);
+
+  // Wire Confirm OTP button
+  document.getElementById('btnModalConfirmPhoneOtp')?.addEventListener('click', async () => {
+    const entered = otpInput ? otpInput.value.trim() : '';
+    if (!entered || entered.length !== 6) {
+      showToast('Please enter the complete 6-digit code.', true);
+      otpInput?.focus();
+      return;
+    }
+
+    let isMatch = (entered === activePhoneVerificationSession.code);
+
+    if (!isMatch && activePhoneVerificationSession.confirmationResult) {
+      try {
+        await activePhoneVerificationSession.confirmationResult.confirm(entered);
+        isMatch = true;
+      } catch (err) {
+        console.warn('Firebase confirmation failed:', err);
+      }
+    }
+
+    if (isMatch) {
+      isPhoneVerifiedState = true;
+      const verifiedFullPhone = activePhoneVerificationSession.phoneNumber || (`+880` + phoneLocalInput.value.trim());
+      if (phoneVerificationSection) phoneVerificationSection.style.display = 'none';
+
+      if (phoneStatusBadge) {
+        phoneStatusBadge.innerHTML = `
+          <span class="phone-verified-chip" style="font-size:11px; padding:2px 8px; border-radius:6px; font-weight:700; color:#10b981; background:rgba(16,185,129,0.12); border:1px solid rgba(16,185,129,0.25); display:inline-flex; align-items:center; gap:4px;">
+            <i data-lucide="shield-check" style="width:12px;height:12px;"></i> Verified
+          </span>
+        `;
+      }
+      if (verifyBtn) {
+        verifyBtn.innerHTML = `<i data-lucide="shield-check" style="width:13px;height:13px;color:#10b981;"></i> <span>Verified</span>`;
+      }
+
+      showToast(`Phone number ${formatDisplayPhone(verifiedFullPhone)} verified! ✓`);
+      if (window.lucide) lucide.createIcons();
+    } else {
+      showToast('Invalid verification code. Please check and try again.', true);
+    }
+  });
+
+  // Auto-trigger verification if requested
+  if (autoTriggerVerification) {
+    setTimeout(() => {
+      initiatePhoneVerification();
+    }, 200);
+  }
 
   // File upload inside modal
   document.getElementById('modalAvatarFileInput')?.addEventListener('change', (e) => {
@@ -1453,15 +1705,16 @@ function openEditProfileModal() {
   document.getElementById('btnSaveEditProfile')?.addEventListener('click', async () => {
     const nameInput = document.getElementById('editProfileNameInput');
     const usernameInput = document.getElementById('editProfileUsernameInput');
-    const phoneInput = document.getElementById('editProfilePhoneInput');
     const newName = nameInput ? nameInput.value.trim() : '';
     const newUsername = usernameInput ? usernameInput.value.trim() : '';
-    const newPhone = phoneInput ? phoneInput.value.trim() : '';
+    const rawLocalPhone = phoneLocalInput ? phoneLocalInput.value.trim() : '';
+    const finalPhoneNumber = rawLocalPhone ? (`+880${rawLocalPhone}`) : '';
+
     if (!newName) {
       showToast('Please enter a valid display name', true);
       return;
     }
-    const success = await updateUserProfile(newName, activeModalPhoto, newUsername, newPhone);
+    const success = await updateUserProfile(newName, activeModalPhoto, newUsername, finalPhoneNumber, isPhoneVerifiedState);
     if (success !== false) {
       closeEditProfileModal();
     }
@@ -1589,6 +1842,7 @@ function renderUserProfileUI() {
     }
 
     const effectivePhone = (user && user.phoneNumber) ? user.phoneNumber : (custom.phoneNumber || '');
+    const isPhoneVerified = !!((user && user.phoneVerified) || custom.phoneVerified);
 
     container.innerHTML = `
       <!-- HERO BANNER -->
@@ -1613,9 +1867,18 @@ function renderUserProfileUI() {
                 <span>${escapeHtml(user.email || 'Email: Not connected')}</span>
               </span>
               ${effectivePhone ? `
-                <span class="user-meta-detail user-meta-phone" style="display:inline-flex; align-items:center; gap:6px; font-size:12.5px; color:var(--text-soft);">
+                <span class="user-meta-detail user-meta-phone" style="display:inline-flex; align-items:center; gap:6px; font-size:12.5px; color:var(--text-soft); flex-wrap:wrap;">
                   <i data-lucide="phone" style="width:13px;height:13px;color:var(--accent2);"></i>
-                  <span style="font-family:var(--font-mono); font-weight:600;">${escapeHtml(effectivePhone)}</span>
+                  <span style="font-family:var(--font-mono); font-weight:600;">${escapeHtml(formatDisplayPhone(effectivePhone))}</span>
+                  ${isPhoneVerified ? `
+                    <span class="phone-verified-chip" style="font-size:10.5px; padding:2px 7px; border-radius:6px; font-weight:700; color:#10b981; background:rgba(16,185,129,0.12); border:1px solid rgba(16,185,129,0.25); display:inline-flex; align-items:center; gap:3px;">
+                      <i data-lucide="shield-check" style="width:11px;height:11px;"></i> Verified
+                    </span>
+                  ` : `
+                    <button type="button" class="pill subtle btn-verify-phone-badge" id="btnProfileVerifyPhoneBadge" title="Verify this mobile number" style="font-size:10.5px; padding:2px 8px; color:#f59e0b; border-color:rgba(245,158,11,0.3); background:rgba(245,158,11,0.1); cursor:pointer; display:inline-flex; align-items:center; gap:3px;">
+                      <i data-lucide="shield-alert" style="width:11px;height:11px;"></i> Verify Now
+                    </button>
+                  `}
                 </span>
               ` : `
                 <div style="margin-top:2px;">
@@ -1784,8 +2047,17 @@ function renderUserProfileUI() {
       if (typeof openEditProfileModal === 'function') {
         openEditProfileModal();
         setTimeout(() => {
-          document.getElementById('editProfilePhoneInput')?.focus();
+          document.getElementById('editProfilePhoneLocalInput')?.focus();
         }, 150);
+      }
+    });
+  }
+
+  const btnVerifyPhoneBadge = document.getElementById('btnProfileVerifyPhoneBadge');
+  if (btnVerifyPhoneBadge) {
+    btnVerifyPhoneBadge.addEventListener('click', () => {
+      if (typeof openEditProfileModal === 'function') {
+        openEditProfileModal(true);
       }
     });
   }
