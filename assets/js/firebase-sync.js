@@ -59,9 +59,14 @@ function applyCustomProfileOverrides(user) {
 }
 
 /**
- * Retrieves the stored Firebase configuration from localStorage
+ * Retrieves the stored Firebase configuration from window.FIREBASE_CONFIG or localStorage
  */
 function getStoredFirebaseConfig() {
+  if (typeof window !== 'undefined' && window.FIREBASE_CONFIG && typeof window.FIREBASE_CONFIG === 'object') {
+    if (window.FIREBASE_CONFIG.apiKey && window.FIREBASE_CONFIG.projectId) {
+      return window.FIREBASE_CONFIG;
+    }
+  }
   try {
     const raw = localStorage.getItem(FIREBASE_CONFIG_KEY);
     if (raw) {
