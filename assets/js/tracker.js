@@ -763,6 +763,7 @@ if (timerModeSelector) {
     const modeChip = e.target.closest('.timer-mode-chip');
     if (!modeChip || state.activeSession || window.isCustomCountdownActive) return;
     timerMode = modeChip.dataset.mode === 'break' ? 'break' : 'study';
+    try { localStorage.setItem('careerdesk_subnav_tracker', timerMode); } catch (err) { }
     timerModeSelector.querySelectorAll('.timer-mode-chip').forEach(chip => chip.classList.toggle('active', chip === modeChip));
     syncTimerModeFields();
     document.getElementById('studyDurationOptions').hidden = timerMode !== 'study';
@@ -770,6 +771,15 @@ if (timerModeSelector) {
     const firstDuration = document.querySelector(`#${timerMode === 'break' ? 'breakDurationOptions' : 'studyDurationOptions'} .timer-dur-chip`);
     if (firstDuration) firstDuration.click();
   });
+
+  // Restore saved tracker sub-nav
+  try {
+    const savedTrackerMode = localStorage.getItem('careerdesk_subnav_tracker');
+    if (savedTrackerMode && (savedTrackerMode === 'study' || savedTrackerMode === 'break') && !state.activeSession) {
+      const targetModeChip = timerModeSelector.querySelector(`[data-mode="${savedTrackerMode}"]`);
+      if (targetModeChip) targetModeChip.click();
+    }
+  } catch (err) { }
 }
 
 if (durationSelector) {

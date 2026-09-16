@@ -110,8 +110,8 @@
             </div>
 
             <div class="routine-top-actions">
-              <!-- Month & Year display placeholder (visible in Day-by-Day mode) -->
-              <div class="routine-month-badge" id="routineMonthPlaceholder" title="Current viewing month & year">
+              <!-- Month & Year display placeholder (hidden in Day mode) -->
+              <div class="routine-month-badge" id="routineMonthPlaceholder" title="Current viewing month & year" style="display:none;">
                 <i data-lucide="calendar"></i>
                 <span id="routineMonthYearText">September 2026</span>
               </div>
@@ -130,15 +130,15 @@
                 </button>
               </div>
 
-              <!-- Quick Jump to Today button (shown when Day by Day is active) -->
-              <button type="button" class="pill routine-today-btn is-today" id="routineGoTodayBtn" title="Jump to today's routine">
+              <!-- Quick Jump to Today button (hidden as requested) -->
+              <button type="button" class="pill routine-today-btn is-today" id="routineGoTodayBtn" title="Jump to today's routine" style="display:none;">
                 <i data-lucide="calendar-check"></i> <span>Today</span>
               </button>
 
-              <!-- Segmented Group Button (Day by Day vs Monthly) -->
+              <!-- Segmented Group Button (Daily vs Monthly) -->
               <div class="routine-mode-toggle-group segmented-toggle-group">
-                <button type="button" class="pill btn-mode-switch active" id="dbdRoutineBtn" title="Day by Day daily routine view">
-                  <i data-lucide="calendar"></i> <span>Day by Day</span>
+                <button type="button" class="pill btn-mode-switch active" id="dbdRoutineBtn" title="Daily routine view">
+                  <i data-lucide="calendar"></i> <span>Daily</span>
                 </button>
                 <button type="button" class="pill btn-mode-switch" id="monthlyRoutineBtn" title="Toggle monthly overview list">
                   <i data-lucide="calendar-days"></i> <span>Monthly</span>
@@ -822,6 +822,17 @@
           </div>
         </div>
 
+        <!-- Delete Cloud Data Section -->
+        <div class="settings-row" style="margin-top:14px; padding-top:14px; border-top:none; border-bottom:1px solid var(--border); padding-bottom:14px;">
+          <div>
+            <strong style="font-size:14.5px; display:block; color:#f43f5e; margin-bottom:2px;">Delete Cloud Data</strong>
+            <span style="font-size:12.5px; color:var(--text-soft);">Permanently remove all synced routines, notes, syllabus checklist, and snapshots from Firestore cloud servers.</span>
+          </div>
+          <button class="pill danger" id="btnDeleteCloudData" type="button" style="white-space:nowrap; background:rgba(244,63,94,0.12); color:#f43f5e; border-color:rgba(244,63,94,0.3);">
+            <i data-lucide="cloud-off"></i> <span>Delete Cloud Data</span>
+          </button>
+        </div>
+
         <!-- Reset Data Section -->
         <div class="settings-row" style="margin-top:14px; padding-top:16px; border-top:none;">
           <div>
@@ -834,6 +845,36 @@
     </section>
 
   </main>
+
+  <!-- Delete Cloud Data Confirmation Modal -->
+  <div class="modal-overlay" id="deleteCloudModal" style="display:none;">
+    <div class="glass modal-card" style="max-width:440px; width:92%; padding:0; overflow:hidden; border-radius:18px; position:relative;">
+      <!-- Modal Header -->
+      <div style="padding:20px 22px 16px; border-bottom:1px solid var(--border); background:var(--surface-strong); display:flex; align-items:center; gap:10px;">
+        <div style="width:36px; height:36px; border-radius:10px; background:rgba(244,63,94,0.15); color:#f43f5e; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+          <i data-lucide="cloud-off" style="width:18px; height:18px;"></i>
+        </div>
+        <h3 style="margin:0; font-family:var(--font-display); font-size:16px; color:var(--text); flex:1;">Delete Cloud Data?</h3>
+        <button type="button" id="closeDeleteCloudModalBtn" style="background:none; border:none; cursor:pointer; color:var(--text-soft); padding:4px; display:flex; align-items:center; border-radius:8px; line-height:1;" title="Close" aria-label="Close modal">
+          <i data-lucide="x" style="width:18px; height:18px;"></i>
+        </button>
+      </div>
+      <!-- Modal Body -->
+      <div style="padding:18px 22px 22px;">
+        <p style="font-size:13.5px; color:var(--text-soft); line-height:1.65; margin:0 0 20px;">
+          Are you sure you want to permanently delete all your data from the cloud? All synchronized study routines, notes, syllabus checklist, mistake bank, and cloud snapshots stored in Firestore will be erased permanently.
+        </p>
+        <div style="display:flex; flex-direction:column; gap:10px;">
+          <button class="pill danger" id="confirmDeleteCloudBtn" type="button" style="width:100%; justify-content:center; padding:11px 16px; font-size:14px; font-weight:700;">
+            <i data-lucide="trash-2" style="width:15px; height:15px;"></i> Permanently Delete Cloud Data
+          </button>
+          <button class="pill subtle" id="cancelDeleteCloudModalBtn" type="button" style="width:100%; justify-content:center; padding:10px 16px; font-size:13.5px;">
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <!-- Cancel Session Confirmation Modal -->
   <div class="modal-overlay" id="cancelSessionModal">

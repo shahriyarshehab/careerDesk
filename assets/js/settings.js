@@ -308,6 +308,76 @@ if (restoreCloudDataCardBtn) {
   });
 }
 
+// ===== Delete Cloud Data by User with Confirmation Modal =====
+async function deleteUserCloudData() {
+  const user = (typeof getCachedAuthUser === 'function') ? getCachedAuthUser() : null;
+  if (!user) {
+    if (typeof showToast === 'function') showToast('Please sign in to delete cloud data.', true);
+    return;
+  }
+  try {
+    if (typeof initFirebaseApp === 'function') initFirebaseApp();
+    if (typeof firebase !== 'undefined' && firebase.firestore) {
+      const db = firebase.firestore();
+      // 1. Delete all backups in subcollection
+      try {
+        const snaps = await db.collection('users').doc(user.uid).collection('backups').get();
+        for (const snapDoc of snaps.docs) {
+          try { await snapDoc.ref.delete(); } catch(e) {}
+        }
+      } catch(e) {}
+      // 2. Delete user doc in Firestore
+      try {
+        await db.collection('users').doc(user.uid).delete();
+      } catch(e) {}
+    }
+    try {
+      localStorage.removeItem(FIREBASE_LAST_SYNC_KEY);
+      localStorage.removeItem('careerdesk_cloud_snapshots_cache');
+    } catch(e) {}
+    if (typeof showToast === 'function') showToast('Cloud data deleted permanently from servers.');
+    if (typeof renderUserProfileUI === 'function') renderUserProfileUI();
+    if (typeof renderCloudSnapshotsList === 'function') renderCloudSnapshotsList();
+  } catch (err) {
+    console.error('Error deleting cloud data:', err);
+    if (typeof showToast === 'function') showToast('Error deleting cloud data: ' + (err.message || 'Error'), true);
+  }
+}
+
+const btnDeleteCloudData = document.getElementById('btnDeleteCloudData');
+const deleteCloudModal = document.getElementById('deleteCloudModal');
+const closeDeleteCloudModalBtn = document.getElementById('closeDeleteCloudModalBtn');
+const cancelDeleteCloudModalBtn = document.getElementById('cancelDeleteCloudModalBtn');
+const confirmDeleteCloudBtn = document.getElementById('confirmDeleteCloudBtn');
+
+function openDeleteCloudModal() {
+  if (deleteCloudModal) deleteCloudModal.style.display = 'flex';
+}
+function closeDeleteCloudModal() {
+  if (deleteCloudModal) deleteCloudModal.style.display = 'none';
+}
+
+if (btnDeleteCloudData) {
+  btnDeleteCloudData.addEventListener('click', openDeleteCloudModal);
+}
+if (closeDeleteCloudModalBtn) {
+  closeDeleteCloudModalBtn.addEventListener('click', closeDeleteCloudModal);
+}
+if (cancelDeleteCloudModalBtn) {
+  cancelDeleteCloudModalBtn.addEventListener('click', closeDeleteCloudModal);
+}
+if (deleteCloudModal) {
+  deleteCloudModal.addEventListener('click', (e) => {
+    if (e.target === deleteCloudModal) closeDeleteCloudModal();
+  });
+}
+if (confirmDeleteCloudBtn) {
+  confirmDeleteCloudBtn.addEventListener('click', async () => {
+    closeDeleteCloudModal();
+    await deleteUserCloudData();
+  });
+}
+
 // ===== Reset all data =====
 document.getElementById('resetAllBtn').addEventListener('click', async () => {
   const ok = window.confirm('Are you sure? All routines, notes, syllabus, flashcards, and tracker sessions will be deleted. This cannot be undone.');

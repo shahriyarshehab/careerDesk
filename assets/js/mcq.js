@@ -2046,6 +2046,7 @@ if (quizFlashSwitch) {
     quizFlashSwitch.querySelectorAll(".chip").forEach(c => c.classList.remove("active"));
     chip.classList.add("active");
     const view = chip.dataset.view;
+    try { localStorage.setItem('careerdesk_subnav_quiz', view); } catch (err) { }
 
     const subFlash = document.getElementById("subview-flashcards");
     const subQuiz = document.getElementById("subview-quiz");
@@ -2055,6 +2056,17 @@ if (quizFlashSwitch) {
     if (subQuiz) subQuiz.style.display = view === "quiz" ? "block" : "none";
     if (subMistakes) subMistakes.style.display = view === "mistakes" ? "block" : "none";
   });
+
+  // Restore saved sub-nav view
+  try {
+    const savedQuizSubnav = localStorage.getItem('careerdesk_subnav_quiz');
+    if (savedQuizSubnav && ['flashcards', 'quiz', 'mistakes'].includes(savedQuizSubnav)) {
+      const savedChip = quizFlashSwitch.querySelector(`[data-view="${savedQuizSubnav}"]`);
+      if (savedChip) {
+        savedChip.click();
+      }
+    }
+  } catch (err) { }
 }
 
 

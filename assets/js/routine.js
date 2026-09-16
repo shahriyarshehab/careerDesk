@@ -447,6 +447,7 @@ function toggleMonthlyRoutineView(forceOpen) {
     if (monthSelectWrap) monthSelectWrap.style.display = 'inline-flex';
     if (titleEl) titleEl.textContent = 'Monthly Study Overview';
     if (leadEl) leadEl.textContent = 'Review all scheduled study sessions across the selected month.';
+    try { localStorage.setItem('careerdesk_subnav_routine', 'monthly'); } catch (e) { }
     showMonthlyRoutines();
   } else {
     if (mBox) mBox.hidden = true;
@@ -456,13 +457,13 @@ function toggleMonthlyRoutineView(forceOpen) {
     if (routineSaveNote) routineSaveNote.hidden = false;
     if (mBtn) mBtn.classList.remove('active');
     if (dBtn) dBtn.classList.add('active');
-    if (todayBtn) todayBtn.style.display = 'inline-flex';
-    if (monthPlaceholder) monthPlaceholder.style.display = 'inline-flex';
+    if (todayBtn) todayBtn.style.display = 'none';
+    if (monthPlaceholder) monthPlaceholder.style.display = 'none';
     if (monthSelectWrap) monthSelectWrap.style.display = 'none';
     if (titleEl) titleEl.textContent = 'Daily Study Routine';
     if (leadEl) leadEl.textContent = 'Plan your next study block and keep your momentum moving.';
+    try { localStorage.setItem('careerdesk_subnav_routine', 'daily'); } catch (e) { }
     updateMonthYearPlaceholder();
-    updateRoutineTodayButtonState();
     renderDateSlider();
     renderRoutine();
   }
@@ -531,9 +532,28 @@ function showMonthlyRoutines() {
 const dbdRoutineBtn = document.getElementById('dbdRoutineBtn');
 if (dbdRoutineBtn) {
   dbdRoutineBtn.addEventListener('click', () => {
+    // If user changed today to another, default if user clicks Daily (Day by Day) open today routine
+    const now = new Date();
+    currentViewYear = now.getFullYear();
+    currentViewMonth = now.getMonth();
+    routineDateFilter = dateKey(now.getTime());
+    const mSel = document.getElementById('monthDropdown');
+    if (mSel) mSel.value = `${currentViewYear}-${String(currentViewMonth + 1).padStart(2, '0')}`;
     toggleMonthlyRoutineView(false);
+    renderDateSlider();
+    renderRoutine();
   });
 }
+
+function restoreRoutineSubNav() {
+  try {
+    const saved = localStorage.getItem('careerdesk_subnav_routine');
+    if (saved === 'monthly') {
+      toggleMonthlyRoutineView(true);
+    }
+  } catch (e) { }
+}
+window.restoreRoutineSubNav = restoreRoutineSubNav;
 
 const todayRoutineBtn = document.getElementById('todayRoutineBtn');
 if (todayRoutineBtn) {

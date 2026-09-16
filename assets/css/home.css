@@ -524,35 +524,6 @@ html[data-theme="light"] .home-motivation-strip {
   flex-shrink: 0;
 }
 
-.home-motivation-wallpaper-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 5px 12px;
-  border-radius: 8px;
-  background: rgba(99, 102, 241, 0.12);
-  border: 1px solid rgba(99, 102, 241, 0.28);
-  color: var(--accent1);
-  font-size: 11.5px;
-  font-weight: 700;
-  cursor: pointer;
-  flex-shrink: 0;
-  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.home-motivation-wallpaper-btn:hover {
-  background: rgba(99, 102, 241, 0.22);
-  border-color: var(--accent1);
-  transform: translateY(-1px);
-  box-shadow: 0 3px 12px rgba(99, 102, 241, 0.25);
-}
-
-.home-motivation-wallpaper-btn svg,
-.home-motivation-wallpaper-btn .lucide {
-  width: 13px;
-  height: 13px;
-}
-
 /* ==========================================
    3. UNIFIED DAILY STUDY ROUTINE CARD
    ========================================== */
@@ -1130,10 +1101,6 @@ html[data-theme="light"] .home-mistake-item {
     flex-direction: column;
     align-items: flex-start;
     gap: 8px;
-  }
-
-  .home-motivation-wallpaper-btn {
-    align-self: flex-end;
   }
 
   .routine-card-header {

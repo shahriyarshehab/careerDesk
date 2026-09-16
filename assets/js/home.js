@@ -17,7 +17,7 @@ function renderHomeDashboard() {
   if (typeof renderDateSlider === 'function') renderDateSlider();
   if (typeof renderRoutine === 'function') renderRoutine();
   if (typeof updateMonthYearPlaceholder === 'function') updateMonthYearPlaceholder();
-  if (typeof updateRoutineTodayButtonState === 'function') updateRoutineTodayButtonState();
+  if (typeof restoreRoutineSubNav === 'function') restoreRoutineSubNav();
 
   // Create Lucide Icons
   if (window.lucide && typeof window.lucide.createIcons === 'function') {
@@ -147,7 +147,16 @@ function renderProfileAspirantHub() {
       </div>
     </div>
 
-    <!-- 1. DYNAMIC TODAY & TARGET METRICS CARDS -->
+    <!-- 1. MOTIVATION STRIP (Prominent top placement, clean without wallpaper) -->
+    <div class="home-motivation-strip" id="profileQuoteTicker" style="margin-bottom: 20px;">
+      <div class="home-motivation-content">
+        <span class="home-motivation-dot"></span>
+        <span class="home-motivation-text" id="profileTickerText">"${escapeHtml(activeQuote.text || '')}"</span>
+        <span class="home-motivation-author">&mdash; ${escapeHtml(activeQuote.author || 'CareerDesk')}</span>
+      </div>
+    </div>
+
+    <!-- 2. DYNAMIC TODAY & TARGET METRICS CARDS -->
     <div class="home-hero-stats" style="margin-bottom: 20px;">
       <!-- Daily Goal Progress -->
       <div class="home-stat-card" id="profileGoalCard" style="cursor:pointer;" title="Click to view Tracker &amp; Focus">
@@ -276,18 +285,6 @@ function renderProfileAspirantHub() {
           `}
         </div>
       </div>
-    </div>
-
-    <!-- 3. MOTIVATION TICKER & WALLPAPER GENERATOR -->
-    <div class="home-motivation-strip" id="profileQuoteTicker" style="margin-top: 18px;">
-      <div class="home-motivation-content">
-        <span class="home-motivation-dot"></span>
-        <span class="home-motivation-text" id="profileTickerText">"${escapeHtml(activeQuote.text || '')}"</span>
-        <span class="home-motivation-author">&mdash; ${escapeHtml(activeQuote.author || 'CareerDesk')}</span>
-      </div>
-      <button type="button" class="home-motivation-wallpaper-btn" id="profileExportWallpaperAction" title="Export 1080p HD Motivation Wallpaper">
-        <i data-lucide="image"></i> <span>Wallpaper</span>
-      </button>
     </div>
   `;
 
@@ -425,19 +422,6 @@ function bindProfileAspirantHubEvents() {
       activateTab('flashcards', true);
       const mistakeChip = document.querySelector("#quizFlashSwitch [data-view='mistakes']");
       if (mistakeChip) mistakeChip.click();
-    });
-  }
-
-  // Wallpaper action in motivation strip
-  const profileExportWallpaperAction = document.getElementById('profileExportWallpaperAction');
-  if (profileExportWallpaperAction) {
-    profileExportWallpaperAction.addEventListener('click', () => {
-      const tickerText = document.getElementById('profileTickerText')?.textContent || '';
-      if (typeof exportQuoteWallpaper === 'function') {
-        exportQuoteWallpaper(tickerText);
-      } else if (typeof showToast === 'function') {
-        showToast('Generating motivation wallpaper...');
-      }
     });
   }
 }
