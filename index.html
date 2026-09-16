@@ -539,8 +539,8 @@
                 <h3 class="mcq-title">BCS &amp; Govt Job Preparation</h3>
                 <span class="mcq-mode-pill" id="mcqCurrentModeBadge">Practice Mode</span>
                 <span class="mcq-mastery-chip" id="mcqMasteryBadge"
-                  title="Answer a question right 2 times in exam mode to remove it for this user"><i
-                    data-lucide="trophy"></i> 0 Mastered</span>
+                  title="Answer a question right 2 times to master and auto-replenish from the 1,000 bank"><i
+                    data-lucide="trophy"></i> 0 / 1,000 Mastered</span>
                 <button class="pill subtle" id="resetMasteredBtn"
                   style="display:none; font-size:11px; padding:3px 10px;"
                   title="Restore mastered questions back to practice list">Restore Mastered</button>
@@ -616,7 +616,7 @@
         <div class="dashboard-bar mcq-stats-bar">
           <div class="stat-card glass stat-progress-card">
             <div class="stat-card-inner">
-              <div class="stat-value" id="current-index">1 / 55</div>
+              <div class="stat-value" id="current-index">1 / 30</div>
               <div class="stat-label">Progress</div>
             </div>
             <div class="mcq-progress-track">
@@ -667,6 +667,10 @@
               <span class="q-badge" id="q-subject">Subject</span>
               <span class="q-source-tag" id="q-source-tag">BCS Standard</span>
               <span class="q-history-badge" id="q-history-badge">Mastery: 0/2</span>
+              <button class="pill subtle q-mark-mastered-btn" id="qMarkMasteredBtn" type="button"
+                style="font-size:11px; padding:2px 8px;"
+                title="Immediately master this question and load a new question from the 1,000 bank"><i
+                  data-lucide="award"></i> Mark Mastered</button>
             </div>
             <div style="display:flex; align-items:center; gap:8px;">
               <button class="pill subtle q-flag-btn" id="qFlagBtn" title="Flag this question for later review"><i
@@ -699,8 +703,6 @@
           <div class="nav-actions" style="display:flex; align-items:center; gap:10px;">
             <button class="pill" id="prev-btn" style="display:none;"><i data-lucide="arrow-left"></i> Previous</button>
             <div style="flex-grow:1;"></div>
-            <button class="pill btn-retry-mcq" id="retry-btn" style="display:none;"><i data-lucide="rotate-ccw"></i> Try
-              Again</button>
             <button class="pill solid" id="next-btn">Next <i data-lucide="arrow-right"></i></button>
           </div>
         </div>

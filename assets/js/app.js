@@ -711,27 +711,20 @@ function initMCQQuickFilter() {
   if (!selectEl) return;
 
   function populateSubjectOptions() {
-    const subjects = typeof masterSubjectList === 'function' ? masterSubjectList(false) : [];
-    selectEl.innerHTML = '<option value="all">All Subjects</option>' +
+    const subjects = typeof getDistinctMCQSubjects === 'function'
+      ? getDistinctMCQSubjects()
+      : (typeof masterSubjectList === 'function' ? masterSubjectList(false) : []);
+    selectEl.innerHTML = '<option value="all">All Subjects (30 Active / 1,000 Bank)</option>' +
       subjects.map(s => `<option value="${escapeAttr(s)}">${escapeHtml(s)}</option>`).join('') +
       '<option value="custom">Custom Questions</option>';
   }
 
   function updateCountLabel(selectedSubject) {
-    if (!countLabel || typeof allQuestions === 'undefined') return;
-    let count;
-    if (selectedSubject === 'all') {
-      count = allQuestions.length;
-    } else if (selectedSubject === 'custom') {
-      count = allQuestions.filter(q => q.isCustom || q.isAutoAdded).length;
-    } else {
-      const target = typeof canonicalSubjectName === 'function' ? canonicalSubjectName(selectedSubject).toLowerCase() : selectedSubject.toLowerCase();
-      count = allQuestions.filter(q => {
-        const qc = typeof canonicalSubjectName === 'function' ? canonicalSubjectName(q.subject || '').toLowerCase() : (q.subject || '').toLowerCase();
-        return qc === target;
-      }).length;
-    }
-    countLabel.textContent = `${count} question${count !== 1 ? 's' : ''} available`;
+    if (!countLabel) return;
+    const masteredCount = (typeof userMCQProgress !== 'undefined' && Array.isArray(userMCQProgress.masteredIds))
+      ? userMCQProgress.masteredIds.length : 0;
+    const activeCount = (typeof activeExamPool !== 'undefined') ? activeExamPool.length : 30;
+    countLabel.textContent = `${activeCount} Active / 1,000 Bank • ${masteredCount} Mastered`;
   }
 
   selectEl.addEventListener('change', () => {

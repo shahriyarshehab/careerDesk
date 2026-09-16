@@ -3,11 +3,12 @@
    ========================================================================== */
 
 const EXAM_QUESTION_COUNT = 20;
-
+const ACTIVE_POOL_LIMIT = 30;
 
 let userMCQProgress = {
   answers: {},          // { [qId]: { selectedIndex, isCorrect, timesCorrect, timesAnswered, lastAnswered } }
   masteredIds: [],      // IDs of questions answered correctly 2 times (removed from active list)
+  activePoolIds: [],    // IDs of currently active questions (strictly up to 30 items)
   removedSubjects: [],  // Removed subjects from the subject list
   addedExtendedIndex: 0
 };
@@ -19,11 +20,12 @@ function loadMCQProgress() {
       const parsed = JSON.parse(raw);
       userMCQProgress.answers = parsed.answers || {};
       userMCQProgress.masteredIds = Array.isArray(parsed.masteredIds) ? parsed.masteredIds.map(String) : [];
+      userMCQProgress.activePoolIds = Array.isArray(parsed.activePoolIds) ? parsed.activePoolIds.map(String) : [];
       userMCQProgress.removedSubjects = Array.isArray(parsed.removedSubjects) ? parsed.removedSubjects : [];
       userMCQProgress.addedExtendedIndex = typeof parsed.addedExtendedIndex === "number" ? parsed.addedExtendedIndex : 0;
     }
   } catch (e) {
-    userMCQProgress = { answers: {}, masteredIds: [], removedSubjects: [], addedExtendedIndex: 0 };
+    userMCQProgress = { answers: {}, masteredIds: [], activePoolIds: [], removedSubjects: [], addedExtendedIndex: 0 };
   }
 }
 
@@ -54,7 +56,7 @@ function saveStoredQuestions(qList) {
   } catch (e) { }
 }
 
-// Auto-Shuffle function (Fisher-Yates) for options while tracking correct answer
+// Auto-Shuffle function (Fisher-Yates) for options while tracking correct answer and unique slot ID
 function autoShuffleOptions(q) {
   if (!q || !Array.isArray(q.options)) return q;
   const optionsWithMeta = q.options.map((opt, idx) => ({
@@ -69,35 +71,128 @@ function autoShuffleOptions(q) {
 
   return {
     ...q,
+    _slotId: q._slotId || ('slot_' + (q.id !== undefined ? q.id : 'temp') + '_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5)),
     options: optionsWithMeta.map(o => o.text),
     correct: optionsWithMeta.findIndex(o => o.isCorrect)
   };
 }
 
-loadMCQProgress();
-
-// Combine default, AI, and custom questions, excluding already mastered questions and removed subjects
-function getActiveQuestionsPool() {
-  const masteredSet = new Set(userMCQProgress.masteredIds.map(String));
-  const removedSubjectsSet = new Set(userMCQProgress.removedSubjects || []);
-  const rawAll = [...defaultQuestions, ...aiCuratedPool, ...getStoredQuestions()];
-
-  // Deduplicate by question text
-  const seen = new Set();
-  const unique = [];
-  rawAll.forEach(q => {
-    const key = q.question.trim();
-    if (!seen.has(key)) {
-      seen.add(key);
-      unique.push(q);
-    }
-  });
-
-  // Filter out mastered questions (answered right 2 times) and questions from removed subjects
-  return unique.filter(q => !masteredSet.has(String(q.id)) && !removedSubjectsSet.has(q.subject));
+// Get unique session answer key for a question slot
+function getQuestionSlotKey(q, idx = currentMCQIndex) {
+  if (is20ExamMode) return String(idx !== undefined ? idx : currentMCQIndex);
+  if (q && q._slotId) return q._slotId;
+  return String(idx !== undefined ? idx : (q && q.id !== undefined ? q.id : 'slot_0'));
 }
 
-let allQuestions = getActiveQuestionsPool();
+loadMCQProgress();
+
+// Get complete unified master question bank (1,000 BCS questions + custom user questions)
+function getMasterQuestionBank() {
+  const bank = (typeof bcs1000QuestionBank !== 'undefined' && Array.isArray(bcs1000QuestionBank) && bcs1000QuestionBank.length > 0)
+    ? bcs1000QuestionBank
+    : (typeof defaultQuestions !== 'undefined' && Array.isArray(defaultQuestions) ? defaultQuestions : []);
+  const custom = getStoredQuestions();
+
+  const seen = new Set();
+  const all = [];
+  [...bank, ...custom].forEach((q, idx) => {
+    const id = q.id !== undefined ? String(q.id) : ('q_' + idx);
+    const key = q.question ? q.question.trim() : id;
+    if (!seen.has(key)) {
+      seen.add(key);
+      all.push({ ...q, id: q.id !== undefined ? q.id : id });
+    }
+  });
+  return all;
+}
+
+// Manage the active 30 items pool from the 1,000 question bank
+function replenishActivePool(filterSubject = 'all') {
+  const allMaster = getMasterQuestionBank();
+  const masteredSet = new Set((userMCQProgress.masteredIds || []).map(String));
+  const removedSubjectsSet = new Set((userMCQProgress.removedSubjects || []).map(s => String(s).toLowerCase()));
+
+  // 1. Clean existing activePoolIds: keep only valid, unmastered, unremoved IDs
+  let currentActive = (userMCQProgress.activePoolIds || []).map(String).filter(id => {
+    if (masteredSet.has(id)) return false;
+    const q = allMaster.find(item => String(item.id) === id);
+    if (!q) return false;
+    if (removedSubjectsSet.has(String(q.subject || '').toLowerCase())) return false;
+    return true;
+  });
+
+  // 2. Identify candidate questions from the 1,000 bank
+  let candidates = allMaster.filter(q => {
+    const strId = String(q.id);
+    if (masteredSet.has(strId)) return false;
+    if (removedSubjectsSet.has(String(q.subject || '').toLowerCase())) return false;
+    return true;
+  });
+
+  if (filterSubject === 'custom') {
+    candidates = candidates.filter(q => q.isCustom || q.isAutoAdded);
+  } else if (filterSubject && filterSubject !== 'all') {
+    const target = filterSubject.toLowerCase();
+    candidates = candidates.filter(q => {
+      const s = String(q.subject || '').toLowerCase();
+      const canon = typeof canonicalSubjectName === 'function' ? canonicalSubjectName(q.subject).toLowerCase() : s;
+      return s === target || canon === target;
+    });
+  }
+
+  // 3. For 'all' subjects: fill activePoolIds up to ACTIVE_POOL_LIMIT (30)
+  if (!filterSubject || filterSubject === 'all') {
+    const activeSet = new Set(currentActive);
+    for (const q of candidates) {
+      if (currentActive.length >= ACTIVE_POOL_LIMIT) break;
+      const strId = String(q.id);
+      if (!activeSet.has(strId)) {
+        activeSet.add(strId);
+        currentActive.push(strId);
+      }
+    }
+    userMCQProgress.activePoolIds = currentActive;
+    saveMCQProgress();
+
+    const qMap = new Map(allMaster.map(q => [String(q.id), q]));
+    return currentActive.map(id => qMap.get(id)).filter(Boolean);
+  } else {
+    // For a specific subject: ensure matching items up to 30
+    const matchingActive = currentActive.filter(id => {
+      const q = allMaster.find(item => String(item.id) === id);
+      if (!q) return false;
+      if (filterSubject === 'custom') return q.isCustom || q.isAutoAdded;
+      const s = String(q.subject || '').toLowerCase();
+      const canon = typeof canonicalSubjectName === 'function' ? canonicalSubjectName(q.subject).toLowerCase() : s;
+      return s === filterSubject.toLowerCase() || canon === filterSubject.toLowerCase();
+    });
+
+    const activeSet = new Set(matchingActive);
+    for (const q of candidates) {
+      if (matchingActive.length >= ACTIVE_POOL_LIMIT) break;
+      const strId = String(q.id);
+      if (!activeSet.has(strId)) {
+        activeSet.add(strId);
+        matchingActive.push(strId);
+        if (!currentActive.includes(strId) && currentActive.length < ACTIVE_POOL_LIMIT) {
+          currentActive.push(strId);
+        }
+      }
+    }
+    userMCQProgress.activePoolIds = currentActive;
+    saveMCQProgress();
+
+    const qMap = new Map(allMaster.map(q => [String(q.id), q]));
+    return matchingActive.map(id => qMap.get(id)).filter(Boolean);
+  }
+}
+
+// Return active pool (up to 30 items)
+function getActiveQuestionsPool(subject = 'all') {
+  return replenishActivePool(subject);
+}
+
+let allQuestions = getActiveQuestionsPool('all');
 let activeExamPool = [...allQuestions];
 let currentMCQIndex = 0;
 let correctAnswers = 0;
@@ -245,7 +340,7 @@ function renderMCQPalette() {
   grid.innerHTML = "";
 
   activeExamPool.forEach((q, idx) => {
-    const qKey = String(q.id !== undefined ? q.id : idx);
+    const qKey = getQuestionSlotKey(q, idx);
     const isCurrent = (idx === currentMCQIndex);
     const isAnswered = (sessionAnswered[qKey] && sessionAnswered[qKey].selectedIndex !== undefined);
     const isFlagged = Boolean(flaggedQuestions[qKey]);
@@ -277,7 +372,7 @@ function goToMCQQuestion(idx) {
 function toggleFlagCurrentQuestion() {
   if (!activeExamPool[currentMCQIndex]) return;
   const q = activeExamPool[currentMCQIndex];
-  const qKey = String(q.id !== undefined ? q.id : currentMCQIndex);
+  const qKey = getQuestionSlotKey(q, currentMCQIndex);
   flaggedQuestions[qKey] = !flaggedQuestions[qKey];
 
   const flagBtn = document.getElementById("qFlagBtn");
@@ -359,71 +454,94 @@ function updateMCQStats() {
 
   const masteredCount = (userMCQProgress.masteredIds || []).length;
   if (masteryBadge) {
-    masteryBadge.innerHTML = `${ICON.trophy} ${masteredCount} Mastered`;
+    masteryBadge.innerHTML = `${ICON.trophy} ${masteredCount} / 1,000 Mastered`;
+    masteryBadge.title = `${masteredCount} mastered out of 1,000 questions (Active Pool: ${activeExamPool.length} items)`;
   }
   if (resetMasteredBtn) {
     resetMasteredBtn.style.display = masteredCount > 0 ? "inline-flex" : "none";
+    resetMasteredBtn.innerHTML = `${ICON.rotccw} Restore Mastered (${masteredCount})`;
   }
 
   renderMCQPalette();
 }
 
-// Automatically add fresh questions from extendedQuestionPool
-function autoAddFreshQuestions() {
-  const masteredSet = new Set(userMCQProgress.masteredIds.map(String));
-  const removedSubjectsSet = new Set(userMCQProgress.removedSubjects || []);
-  const existingQuestions = new Set(allQuestions.map(q => q.question.trim()));
-
-  // Filter available candidates from extendedQuestionPool
-  const candidates = extendedQuestionPool.filter(q => {
-    return !existingQuestions.has(q.question.trim()) && !masteredSet.has(String(q.id)) && !removedSubjectsSet.has(q.subject);
-  });
-
-  if (candidates.length === 0) {
-    return 0;
+// Graduate mastered question: removes from active 30 items and replenishes 1 new question from 1,000 bank
+function graduateMasteredQuestion(questionId) {
+  const strId = String(questionId);
+  const masteredSet = new Set((userMCQProgress.masteredIds || []).map(String));
+  if (!masteredSet.has(strId)) {
+    userMCQProgress.masteredIds.push(strId);
   }
 
-  // Add a batch of up to 10 questions
-  const batch = candidates.slice(0, 10);
-  const stored = getStoredQuestions();
+  // Remove from activePoolIds
+  userMCQProgress.activePoolIds = (userMCQProgress.activePoolIds || []).map(String).filter(id => id !== strId);
 
-  batch.forEach(item => {
-    const newQ = {
-      ...item,
-      id: item.id || ("ext_" + Date.now() + "_" + Math.random().toString(36).substr(2, 5)),
-      isAutoAdded: true
-    };
-    stored.push(newQ);
-    allQuestions.push(newQ);
-    activeExamPool.push(autoShuffleOptions(newQ));
-  });
+  // Replenish with a fresh unmastered question from the 1,000 bank
+  const allMaster = getMasterQuestionBank();
+  const currentActiveSet = new Set(userMCQProgress.activePoolIds);
+  const updatedMasteredSet = new Set(userMCQProgress.masteredIds.map(String));
+  const removedSubjectsSet = new Set((userMCQProgress.removedSubjects || []).map(s => String(s).toLowerCase()));
 
-  saveStoredQuestions(stored);
-  updateMCQStats();
-  showToast(`You answered all questions! Added ${batch.length} fresh high-yield questions to your question bank.`, false);
-  return batch.length;
+  let replacement = null;
+  // If user is currently filtering by a subject, prefer picking replacement from that subject
+  if (currentSelectedSubject && currentSelectedSubject !== 'all' && currentSelectedSubject !== 'custom') {
+    const target = currentSelectedSubject.toLowerCase();
+    replacement = allMaster.find(q => {
+      const qId = String(q.id);
+      if (currentActiveSet.has(qId) || updatedMasteredSet.has(qId)) return false;
+      const s = String(q.subject || '').toLowerCase();
+      const canon = typeof canonicalSubjectName === 'function' ? canonicalSubjectName(q.subject).toLowerCase() : s;
+      return (s === target || canon === target) && !removedSubjectsSet.has(s);
+    });
+  }
+
+  // Fallback to any unmastered question across the entire 1,000 bank
+  if (!replacement) {
+    replacement = allMaster.find(q => {
+      const qId = String(q.id);
+      if (currentActiveSet.has(qId) || updatedMasteredSet.has(qId)) return false;
+      const s = String(q.subject || '').toLowerCase();
+      return !removedSubjectsSet.has(s);
+    });
+  }
+
+  if (replacement) {
+    userMCQProgress.activePoolIds.push(String(replacement.id));
+  }
+
+  saveMCQProgress();
+
+  // Update in-memory pools
+  allQuestions = allQuestions.filter(q => String(q.id) !== strId);
+  activeExamPool = activeExamPool.filter(q => String(q.id) !== strId);
+
+  if (replacement) {
+    const shuffled = autoShuffleOptions(replacement);
+    allQuestions.push(replacement);
+    activeExamPool.push(shuffled);
+  }
+
+  return replacement;
 }
 
 function advanceToNextMCQQuestion() {
   clearTimeout(autoNextTimeout);
+  clearInterval(autoAdvanceCountdownInterval);
   const nextBtn = document.getElementById("next-btn");
   if (nextBtn) nextBtn.innerHTML = (currentMCQIndex === activeExamPool.length - 1) ? "View Results" : `Next ${ICON.arrowR}`;
 
   const currentQ = activeExamPool[currentMCQIndex];
-  if (currentQ && currentQ._markedForDeletion) {
-    const delId = String(currentQ.id);
-    allQuestions = allQuestions.filter(q => String(q.id) !== delId);
-    activeExamPool = activeExamPool.filter(q => String(q.id) !== delId);
+  if (currentQ && (currentQ._markedForMasteryRemoval || currentQ._markedForDeletion)) {
+    const qId = currentQ.id;
+    const replacement = graduateMasteredQuestion(qId);
     updateMCQStats();
+
     if (currentMCQIndex >= activeExamPool.length) {
       currentMCQIndex = Math.max(0, activeExamPool.length - 1);
     }
     if (activeExamPool.length === 0) {
-      const added = autoAddFreshQuestions();
-      if (!added) {
-        showMCQSummary();
-        return;
-      }
+      showMCQSummary();
+      return;
     }
     renderMCQQuestion();
     return;
@@ -437,13 +555,7 @@ function advanceToNextMCQQuestion() {
       openExamSubmitModal();
       return;
     }
-    const added = autoAddFreshQuestions();
-    if (added > 0) {
-      currentMCQIndex++;
-      renderMCQQuestion();
-    } else {
-      showMCQSummary();
-    }
+    showMCQSummary();
   }
 }
 
@@ -463,7 +575,6 @@ function renderMCQQuestion() {
   const nextBtn = document.getElementById("next-btn");
   const currentIndexEl = document.getElementById("current-index");
   const historyBadge = document.getElementById("q-history-badge");
-  const retryBtn = document.getElementById("retry-btn");
   const qFlagBtn = document.getElementById("qFlagBtn");
   const qFlagText = document.getElementById("qFlagText");
   const autoNextPill = document.getElementById("qAutoNextPill");
@@ -472,21 +583,17 @@ function renderMCQQuestion() {
   if (!quizCard) return;
   clearTimeout(autoNextTimeout);
   clearInterval(autoAdvanceCountdownInterval);
-  if (retryBtn) retryBtn.style.display = "none";
   if (streakBanner) streakBanner.style.display = "none";
 
   if (activeExamPool.length === 0) {
-    const added = autoAddFreshQuestions();
-    if (!added) {
-      if (qText) qText.innerHTML = "<strong>All questions in this subject are Mastered!</strong><br><small style=\"color:var(--text-soft); font-weight:normal;\">You have answered all questions correctly twice. Click 'Restore Mastered' above or pick another subject.</small>";
-      if (optionsContainer) optionsContainer.innerHTML = "";
-      if (explanationBox) explanationBox.classList.remove("show");
-      if (prevBtn) prevBtn.style.display = "none";
-      if (nextBtn) nextBtn.style.display = "none";
-      if (currentIndexEl) currentIndexEl.textContent = "0 / 0";
-      if (historyBadge) historyBadge.textContent = "Mastered!";
-      return;
-    }
+    if (qText) qText.innerHTML = "<strong>All questions in this subject are Mastered!</strong><br><small style=\"color:var(--text-soft); font-weight:normal;\">You have answered all questions correctly twice. Click 'Restore Mastered' above or pick another subject.</small>";
+    if (optionsContainer) optionsContainer.innerHTML = "";
+    if (explanationBox) explanationBox.classList.remove("show");
+    if (prevBtn) prevBtn.style.display = "none";
+    if (nextBtn) nextBtn.style.display = "none";
+    if (currentIndexEl) currentIndexEl.textContent = "0 / 0";
+    if (historyBadge) historyBadge.textContent = "Mastered!";
+    return;
   }
 
   if (nextBtn) nextBtn.style.display = "inline-flex";
@@ -515,7 +622,8 @@ function renderMCQQuestion() {
     }
   }
 
-  const qKey = String(q.id !== undefined ? q.id : currentMCQIndex);
+  const qKey = getQuestionSlotKey(q, currentMCQIndex);
+  const qId = String(q.id !== undefined ? q.id : currentMCQIndex);
 
   // Flag button state
   if (qFlagBtn) {
@@ -527,12 +635,16 @@ function renderMCQQuestion() {
     }
   }
 
+  const markMasteredBtn = document.getElementById("qMarkMasteredBtn");
+  if (markMasteredBtn) {
+    markMasteredBtn.style.display = is20ExamMode ? "none" : "inline-flex";
+  }
+
   if (is20ExamMode) {
     // IN 20-QUESTION EXAM MODE
     if (explanationBox) explanationBox.classList.remove("show");
     if (historyBadge) historyBadge.style.display = "none";
     if (autoNextPill) autoNextPill.style.display = "none";
-    if (retryBtn) retryBtn.style.display = "none";
 
     const userChoice = (sessionAnswered[qKey] && sessionAnswered[qKey].selectedIndex !== undefined)
       ? sessionAnswered[qKey].selectedIndex
@@ -564,7 +676,7 @@ function renderMCQQuestion() {
     }
 
     const rememberedAnswer = sessionAnswered[qKey];
-    const prevStat = userMCQProgress.answers[qKey] || { timesCorrect: 0 };
+    const prevStat = userMCQProgress.answers[qId] || { timesCorrect: 0 };
     const timesCorrect = prevStat.timesCorrect || 0;
 
     // Update Question Mastery Badge
@@ -620,7 +732,6 @@ function renderMCQQuestion() {
         </div>`;
         explanationText.innerHTML = expHtml;
       } else {
-        if (retryBtn) retryBtn.style.display = "inline-flex";
         const yourText = escapeHtml(q.options[rememberedAnswer.selectedIndex] || "");
         const correctText = escapeHtml(q.options[q.correct] || "");
         explanationText.innerHTML = `
@@ -630,7 +741,7 @@ function renderMCQQuestion() {
             <strong>Correct Answer:</strong> <span style="color:#10b981; font-weight:600;">${correctText}</span>
           </div>
           <div style="margin-bottom:8px;"><strong>Explanation &amp; Shortcut:</strong> ${escapeHtml(q.explanation || "No explanation provided.")}</div>
-          <div class="mistake-saved-badge">${ICON.flag} Saved to Mistake Bank for review</div>
+          <div class="mistake-saved-badge">${ICON.flag} Saved to Mistake Bank &bull; Re-queued to answer again</div>
         `;
       }
       explanationBox.classList.add("show");
@@ -643,18 +754,18 @@ function renderMCQQuestion() {
 function selectMCQOption(selectedIndex, q) {
   clearTimeout(autoNextTimeout);
   clearInterval(autoAdvanceCountdownInterval);
-  const qKey = String(q.id !== undefined ? q.id : currentMCQIndex);
+  const slotKey = getQuestionSlotKey(q, currentMCQIndex);
+  const qId = String(q.id !== undefined ? q.id : currentMCQIndex);
   const optionsContainer = document.getElementById("options-container");
   const streakBanner = document.getElementById("mcq-streak-banner");
   const explanationBox = document.getElementById("explanation-box");
   const explanationText = document.getElementById("explanation-text");
-  const retryBtn = document.getElementById("retry-btn");
   const nextBtn = document.getElementById("next-btn");
 
   if (is20ExamMode) {
     // IN 20-QUESTION EXAM MODE:
     // Neutral recording without immediate spoilers
-    sessionAnswered[qKey] = { selectedIndex };
+    sessionAnswered[slotKey] = { selectedIndex };
 
     if (optionsContainer) {
       Array.from(optionsContainer.children).forEach((btn, idx) => {
@@ -677,15 +788,15 @@ function selectMCQOption(selectedIndex, q) {
 
   // IN PRACTICE / STUDY MODE:
   const isCorrect = (selectedIndex === q.correct);
-  sessionAnswered[qKey] = { selectedIndex, isCorrect };
+  sessionAnswered[slotKey] = { selectedIndex, isCorrect };
 
   // Update persistent progress
-  const prev = userMCQProgress.answers[qKey] || { timesCorrect: 0, timesAnswered: 0 };
+  const prev = userMCQProgress.answers[qId] || { timesCorrect: 0, timesAnswered: 0 };
   let newTimesCorrect = prev.timesCorrect || 0;
   if (isCorrect) newTimesCorrect++;
   const newTimesAnswered = (prev.timesAnswered || 0) + 1;
 
-  userMCQProgress.answers[qKey] = {
+  userMCQProgress.answers[qId] = {
     selectedIndex,
     isCorrect,
     timesCorrect: newTimesCorrect,
@@ -726,16 +837,15 @@ function selectMCQOption(selectedIndex, q) {
       spawnFloatingPoints(optionsContainer.children[selectedIndex], "+1.0");
     }
 
-    if (retryBtn) retryBtn.style.display = "none";
-
     // Check mastery (2-correct Leitner rule)
     if (newTimesCorrect >= 2) {
-      const strId = String(q.id !== undefined ? q.id : qKey);
+      const strId = String(q.id !== undefined ? q.id : qId);
       if (!userMCQProgress.masteredIds.map(String).includes(strId)) {
-        userMCQProgress.masteredIds.push(q.id !== undefined ? q.id : qKey);
+        userMCQProgress.masteredIds.push(q.id !== undefined ? q.id : qId);
         justMastered = true;
         playMCQAudio('mastered');
       }
+      q._markedForMasteryRemoval = true;
     }
 
     // Dynamic Streak / Correct Banner
@@ -825,20 +935,34 @@ function selectMCQOption(selectedIndex, q) {
       streakBanner.innerHTML = `
         <div class="streak-banner-title" style="color:#f43f5e;">
           ${ICON.xCircle}
-          <span>Incorrect! See correct answer and explanation below.</span>
+          <span>Incorrect! Saved to Mistake Bank &bull; Re-queued to answer again</span>
         </div>
         <div class="streak-banner-controls">
-          <span style="font-size:12px; color:var(--text-soft);">${ICON.flag} Saved to Mistake Bank</span>
+          <button class="pill solid" id="bannerNextBtn" type="button" style="font-size:12px; padding:4px 12px;">
+            Next Question ${ICON.arrowR}
+          </button>
         </div>
       `;
       streakBanner.style.display = "flex";
+
+      const bannerNextBtn = document.getElementById("bannerNextBtn");
+      if (bannerNextBtn) {
+        bannerNextBtn.addEventListener("click", () => {
+          advanceToNextMCQQuestion();
+        });
+      }
     }
 
-    // Re-queue question 3-4 spots later in practice pool for spaced repetition
+    // Re-queue question 3-4 spots later in practice pool with fresh _slotId and re-shuffled options
     const laterIdx = activeExamPool.findIndex((item, idx) => idx > currentMCQIndex && String(item.id) === String(q.id));
     if (laterIdx === -1 && !is20ExamMode && activeExamPool.length > 2) {
       const insertPos = Math.min(activeExamPool.length, currentMCQIndex + 4);
-      activeExamPool.splice(insertPos, 0, autoShuffleOptions({ ...q, _isReattempt: true }));
+      const reattemptQ = autoShuffleOptions({
+        ...q,
+        _slotId: 'reattempt_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6),
+        _isReattempt: true
+      });
+      activeExamPool.splice(insertPos, 0, reattemptQ);
     }
 
     // Automatically log to Mistake Bank
@@ -857,7 +981,6 @@ function selectMCQOption(selectedIndex, q) {
       renderMistakes();
     }
 
-    if (retryBtn) retryBtn.style.display = "inline-flex";
     if (nextBtn) nextBtn.innerHTML = (currentMCQIndex === activeExamPool.length - 1) ? "View Results" : `Next ${ICON.arrowR}`;
   }
 
@@ -902,7 +1025,7 @@ function selectMCQOption(selectedIndex, q) {
           <strong>Correct Answer:</strong> <span style="color:#10b981; font-weight:600;">${correctText}</span>
         </div>
         <div><strong>Explanation &amp; Shortcut:</strong> ${escapeHtml(q.explanation || "No explanation provided.")}</div>
-        <div class="mistake-saved-badge">${ICON.flag} Saved to Mistake Bank for review</div>
+        <div class="mistake-saved-badge">${ICON.flag} Saved to Mistake Bank &bull; Re-queued to answer again</div>
       `;
     }
     explanationBox.classList.add("show");
@@ -912,17 +1035,22 @@ function selectMCQOption(selectedIndex, q) {
 }
 
 function checkSessionCompletion() {
-  const answeredCount = activeExamPool.filter(q => {
-    const qKey = String(q.id !== undefined ? q.id : currentMCQIndex);
-    return Boolean(sessionAnswered[qKey]);
+  const answeredCount = activeExamPool.filter((q, idx) => {
+    const slotKey = getQuestionSlotKey(q, idx);
+    return Boolean(sessionAnswered[slotKey]);
   }).length;
 
   if (answeredCount >= activeExamPool.length && activeExamPool.length > 0) {
     setTimeout(() => {
-      const added = autoAddFreshQuestions();
-      if (added > 0) {
+      const freshQuestions = replenishActivePool(currentSelectedSubject);
+      if (freshQuestions && freshQuestions.length > 0) {
+        allQuestions = freshQuestions;
+        activeExamPool = freshQuestions.map(q => autoShuffleOptions(q));
+        currentMCQIndex = 0;
+        sessionAnswered = {};
         updateMCQStats();
         renderMCQQuestion();
+        showToast(`Loaded ${activeExamPool.length} questions from the 1,000 question bank.`, false);
       }
     }, 1200);
   }
@@ -973,31 +1101,26 @@ function setup20QuestionExam() {
   flaggedQuestions = {};
 
   // Refresh active pool excluding mastered
-  allQuestions = getActiveQuestionsPool();
+  allQuestions = getActiveQuestionsPool(currentSelectedSubject || 'all');
 
-  // Keep replenishing until the exam can always contain exactly 20 questions.
-  while (allQuestions.length < EXAM_QUESTION_COUNT) {
-    const added = autoAddFreshQuestions();
-    if (!added) break;
-  }
-
-  if (allQuestions.length < EXAM_QUESTION_COUNT) {
+  const examCount = Math.min(allQuestions.length, EXAM_QUESTION_COUNT);
+  if (examCount < 5) {
     is20ExamMode = false;
     if (modeBanner) modeBanner.classList.remove("active");
     if (paletteContainer) paletteContainer.style.display = "none";
     if (filterBar) filterBar.style.display = "flex";
     if (btnPractice) btnPractice.classList.add("active");
     if (btnExam20) btnExam20.classList.remove("active");
-    showToast(`At least ${EXAM_QUESTION_COUNT} questions are required to start an exam.`, true);
+    showToast(`At least 5 questions are required to start an exam (available: ${examCount}).`, true);
     return;
   }
 
-  // Shuffle all questions and pick up to 20
+  // Shuffle all active questions and pick up to examCount (default 20)
   const shuffled = [...allQuestions].sort(() => 0.5 - Math.random());
-  const raw20 = shuffled.slice(0, EXAM_QUESTION_COUNT);
+  const rawExam = shuffled.slice(0, examCount);
 
   // Auto-shuffle options for each question
-  activeExamPool = raw20.map(q => autoShuffleOptions(q));
+  activeExamPool = rawExam.map(q => autoShuffleOptions(q));
 
   currentMCQIndex = 0;
   correctAnswers = 0;
@@ -1048,8 +1171,9 @@ function showMCQSummary() {
 
   // Evaluate each question in the active exam pool
   activeExamPool.forEach((q, idx) => {
+    const slotKey = getQuestionSlotKey(q, idx);
     const qKey = String(q.id !== undefined ? q.id : idx);
-    const userAns = sessionAnswered[qKey];
+    const userAns = sessionAnswered[slotKey] || sessionAnswered[qKey];
 
     if (!userMCQProgress.answers[qKey]) {
       userMCQProgress.answers[qKey] = { timesCorrect: 0, timesWrong: 0, lastAnswered: null };
@@ -1104,6 +1228,13 @@ function showMCQSummary() {
     }
   });
 
+  // Auto-graduate newly mastered questions from the active 30 pool and replenish from 1,000 bank
+  if (newlyMasteredQuestions.length > 0) {
+    newlyMasteredQuestions.forEach(mq => {
+      graduateMasteredQuestion(mq.id);
+    });
+  }
+
   correctAnswers = examCorrect;
   wrongAnswers = examWrong;
 
@@ -1140,12 +1271,13 @@ function showMCQSummary() {
 
   let reviewItemsHtml = "";
   activeExamPool.forEach((q, idx) => {
+    const slotKey = getQuestionSlotKey(q, idx);
     const qKey = String(q.id !== undefined ? q.id : idx);
-    const userAns = sessionAnswered[qKey];
+    const userAns = sessionAnswered[slotKey] || sessionAnswered[qKey];
     const selectedIdx = userAns ? userAns.selectedIndex : undefined;
     const isCorrect = (selectedIdx === q.correct);
     const isSkipped = (selectedIdx === undefined);
-    const isFlagged = Boolean(flaggedQuestions[qKey]);
+    const isFlagged = Boolean(flaggedQuestions[slotKey] || flaggedQuestions[qKey]);
     const stat = userMCQProgress.answers[qKey] || { timesCorrect: 0 };
     const timesCorrect = stat.timesCorrect || 0;
     const isMastered = userMCQProgress.masteredIds.map(String).includes(String(q.id !== undefined ? q.id : qKey));
@@ -1394,12 +1526,17 @@ function resetMCQQuiz() {
   renderMCQQuestion();
 }
 
-const DEFAULT_MCQ_SUBJECTS = [
-  "Bangla",
-  "English",
-  "Mathematics",
-  "General Knowledge"
-];
+function getDistinctMCQSubjects() {
+  const bank = getMasterQuestionBank();
+  const set = new Set();
+  bank.forEach(q => {
+    if (q.subject && typeof q.subject === 'string') {
+      const trimmed = q.subject.trim();
+      if (trimmed) set.add(trimmed);
+    }
+  });
+  return Array.from(set);
+}
 
 let currentSelectedSubject = "all";
 
@@ -1408,23 +1545,20 @@ function renderMCQFilterBar() {
   if (!filterBar) return;
 
   if (!userMCQProgress || typeof userMCQProgress !== 'object') {
-    userMCQProgress = { answers: {}, masteredIds: [], removedSubjects: [], addedExtendedIndex: 0 };
+    userMCQProgress = { answers: {}, masteredIds: [], activePoolIds: [], removedSubjects: [], addedExtendedIndex: 0 };
   }
   if (!Array.isArray(userMCQProgress.removedSubjects)) {
     userMCQProgress.removedSubjects = [];
   }
-  const removedSet = new Set((userMCQProgress.removedSubjects || []).map(s => (typeof canonicalSubjectName === 'function' ? canonicalSubjectName(s) : s).toLowerCase()));
+  const removedSet = new Set((userMCQProgress.removedSubjects || []).map(s => String(s).toLowerCase()));
 
-  // Collect all active subjects from masterSubjectList
-  const masterSubs = (typeof masterSubjectList === 'function' ? masterSubjectList(false) : DEFAULT_MCQ_SUBJECTS);
-  const visibleSubjects = masterSubs.filter(s => {
-    const canonical = (typeof canonicalSubjectName === 'function' ? canonicalSubjectName(s) : s).toLowerCase();
-    return !removedSet.has(canonical);
-  });
+  // Collect distinct subjects from the 1,000 question bank and custom questions
+  const distinctSubs = getDistinctMCQSubjects();
+  const visibleSubjects = distinctSubs.filter(s => !removedSet.has(s.toLowerCase()));
 
   let html = `
     <button class="filter-pill ${currentSelectedSubject === 'all' ? 'active' : ''}" data-subject="all">
-      All Subjects
+      All Subjects (30 Active)
     </button>
   `;
 
@@ -1456,17 +1590,9 @@ function renderMCQFilterBar() {
 }
 
 function filterMCQPoolBySubject(selectedSubject) {
-  if (selectedSubject === "all") {
-    activeExamPool = allQuestions.map(q => autoShuffleOptions(q));
-  } else if (selectedSubject === "custom") {
-    activeExamPool = allQuestions.filter(q => q.isCustom || q.isAutoAdded).map(q => autoShuffleOptions(q));
-  } else {
-    const targetCanonical = (typeof canonicalSubjectName === 'function' ? canonicalSubjectName(selectedSubject) : selectedSubject).toLowerCase();
-    activeExamPool = allQuestions.filter(q => {
-      const qCanonical = (typeof canonicalSubjectName === 'function' ? canonicalSubjectName(q.subject) : (q.subject || '')).toLowerCase();
-      return qCanonical === targetCanonical;
-    }).map(q => autoShuffleOptions(q));
-  }
+  currentSelectedSubject = selectedSubject;
+  allQuestions = getActiveQuestionsPool(selectedSubject);
+  activeExamPool = allQuestions.map(q => autoShuffleOptions(q));
   currentMCQIndex = 0;
   sessionAnswered = {};
   const quizCard = document.getElementById("quiz-card");
@@ -1533,7 +1659,6 @@ function initMCQEngine() {
   const restartBtn = document.getElementById("restart-btn");
   const nextBtn = document.getElementById("next-btn");
   const prevBtn = document.getElementById("prev-btn");
-  const retryBtn = document.getElementById("retry-btn");
   const filterBar = document.getElementById("filter-bar");
   const resetMasteredBtn = document.getElementById("resetMasteredBtn");
   const btnModePractice = document.getElementById("btnModePractice");
@@ -1630,49 +1755,48 @@ function initMCQEngine() {
   // Restore Mastered Questions handler
   if (resetMasteredBtn) {
     resetMasteredBtn.addEventListener("click", () => {
-      if (window.confirm("Restore all mastered questions back to your active practice list?")) {
+      const count = (userMCQProgress.masteredIds || []).length;
+      if (window.confirm(`Restore all ${count} mastered questions back to your active practice list?`)) {
         userMCQProgress.masteredIds = [];
+        userMCQProgress.activePoolIds = [];
         saveMCQProgress();
-        allQuestions = getActiveQuestionsPool();
+        allQuestions = getActiveQuestionsPool(currentSelectedSubject);
         activeExamPool = allQuestions.map(q => autoShuffleOptions(q));
         currentMCQIndex = 0;
+        correctAnswers = 0;
+        wrongAnswers = 0;
+        sessionAnswered = {};
         updateMCQStats();
         renderMCQQuestion();
-        showToast("All mastered questions restored to practice pool!");
+        showToast("All mastered questions restored! Loaded 30 active questions from the 1,000 bank.");
       }
     });
   }
 
-  // Try Again on Wrong Answer
-  if (retryBtn) {
-    retryBtn.addEventListener("click", () => {
+  // Explicit Mark Mastered button handler
+  const markMasteredBtn = document.getElementById("qMarkMasteredBtn");
+  if (markMasteredBtn) {
+    markMasteredBtn.addEventListener("click", () => {
       clearTimeout(autoNextTimeout);
+      clearInterval(autoAdvanceCountdownInterval);
       const q = activeExamPool[currentMCQIndex];
       if (!q) return;
-      const qKey = String(q.id !== undefined ? q.id : currentMCQIndex);
-
-      // Clear session answer so user can retry
-      delete sessionAnswered[qKey];
-      if (userMCQProgress.answers[qKey]) {
-        delete userMCQProgress.answers[qKey].selectedIndex;
-        delete userMCQProgress.answers[qKey].isCorrect;
-        saveMCQProgress();
+      graduateMasteredQuestion(q.id);
+      playMCQAudio('mastered');
+      showToast("Question Mastered! Auto-removed & new question added from 1,000 bank.");
+      updateMCQStats();
+      if (currentMCQIndex >= activeExamPool.length) {
+        currentMCQIndex = Math.max(0, activeExamPool.length - 1);
       }
-
-      // Re-enable options
-      const optionsContainer = document.getElementById("options-container");
-      if (optionsContainer) {
-        optionsContainer.querySelectorAll(".option-btn").forEach(btn => {
-          btn.disabled = false;
-          btn.classList.remove("selected-wrong", "selected-correct", "highlight-correct");
-        });
+      if (activeExamPool.length === 0) {
+        showMCQSummary();
+      } else {
+        renderMCQQuestion();
       }
-
-      const explanationBox = document.getElementById("explanation-box");
-      if (explanationBox) explanationBox.classList.remove("show");
-      retryBtn.style.display = "none";
     });
   }
+
+
 
   if (nextBtn) {
     nextBtn.addEventListener("click", () => {

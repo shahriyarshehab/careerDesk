@@ -1,9 +1,4 @@
-/* ==========================================================================
-   CareerDesk — BCS 1000 MCQ Question Bank Repository
-   Full 1,000 Questions across all BCS Preliminary Syllabus Subjects
-   ========================================================================== */
-
-const bcs1000QuestionBank = [
+[
   {
     "id": 1,
     "subject": "বাংলা সাহিত্য",
@@ -13004,8 +12999,4 @@ const bcs1000QuestionBank = [
     "correct": 0,
     "explanation": "দুর্নীতি দমন ব্যুরো বিলুপ্ত করে ২০০৪ সালের ২৩ ফেব্রুয়ারি স্বাধীন দুর্নীতি দমন কমিশন আইন পাস হয়।"
   }
-];
-
-const defaultQuestions = bcs1000QuestionBank;
-const aiCuratedPool = [];
-const extendedQuestionPool = [];
+]

@@ -821,6 +821,7 @@ async function signOutUser() {
     localStorage.removeItem('custom_bcs_questions_v3');
     localStorage.removeItem('jobprep_break_minutes_today');
     localStorage.removeItem('user_mcq_progress_v2');
+    localStorage.removeItem('jobprep_mcq_progress_v2');
     localStorage.removeItem('jobprep_custom_quiz_questions');
     for (let i = localStorage.length - 1; i >= 0; i--) {
       const k = localStorage.key(i);
@@ -842,7 +843,7 @@ async function signOutUser() {
   exams = [];
   mistakes = [];
   if (typeof userMCQProgress !== 'undefined') {
-    userMCQProgress = { answers: {}, masteredIds: [], removedSubjects: [], addedExtendedIndex: 0 };
+    userMCQProgress = { answers: {}, masteredIds: [], activePoolIds: [], removedSubjects: [], addedExtendedIndex: 0 };
   }
 
   try {
