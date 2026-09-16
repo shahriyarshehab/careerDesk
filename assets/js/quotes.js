@@ -420,3 +420,81 @@ function wrapText(ctx, text, cx, cy, maxWidth, lineHeight) {
   lines.forEach((line, i) => ctx.fillText(line, cx, startY + i * lineHeight));
 }
 
+/**
+ * Generates and downloads a 1920x1080 HD Wallpaper directly
+ */
+async function exportQuoteWallpaper(customText, customAuthor) {
+  try {
+    const canvas = document.createElement('canvas');
+    canvas.width = 1920;
+    canvas.height = 1080;
+    const ctx = canvas.getContext('2d');
+    const W = 1920, H = 1080;
+    const dark = (typeof state !== 'undefined' && state.theme === 'light') ? false : true;
+
+    const grad = ctx.createLinearGradient(0, 0, W, H);
+    if (dark) {
+      grad.addColorStop(0, '#0b0f19');
+      grad.addColorStop(0.5, '#0f172a');
+      grad.addColorStop(1, '#082f49');
+    } else {
+      grad.addColorStop(0, '#f8fafc');
+      grad.addColorStop(0.5, '#eef2ff');
+      grad.addColorStop(1, '#e0f2fe');
+    }
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, W, H);
+
+    function blob(x, y, r, color, alpha) {
+      ctx.save(); ctx.globalAlpha = alpha;
+      const g = ctx.createRadialGradient(x, y, 0, x, y, r);
+      g.addColorStop(0, color); g.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill(); ctx.restore();
+    }
+    blob(W * 0.15, H * 0.2, 520, dark ? '#6366f1' : '#818cf8', 0.4);
+    blob(W * 0.85, H * 0.8, 550, dark ? '#06b6d4' : '#22d3ee', 0.35);
+
+    const text = customText || (state && state.customQuotes && state.customQuotes[0]?.text) || "Small daily improvements over time lead to stunning results.";
+    const by = customAuthor || (state && state.customQuotes && state.customQuotes[0]?.author) || "Robin Sharma";
+
+    ctx.textAlign = 'center';
+    ctx.fillStyle = dark ? '#f8fafc' : '#0f172a';
+    ctx.font = '700 52px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+
+    const words = text.split(' ');
+    let lines = [], current = '';
+    words.forEach(word => {
+      const test = current ? current + ' ' + word : word;
+      if (ctx.measureText(test).width > (W - 360) && current) { lines.push(current); current = word; }
+      else current = test;
+    });
+    if (current) lines.push(current);
+    const startY = H / 2 - ((lines.length - 1) * 75) / 2;
+    lines.forEach((line, i) => ctx.fillText(line, W / 2, startY + i * 75));
+
+    ctx.fillStyle = dark ? '#94a3b8' : '#64748b';
+    ctx.font = '600 28px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+    ctx.fillText('— ' + by, W / 2, startY + lines.length * 75 + 30);
+
+    ctx.fillStyle = dark ? 'rgba(255,255,255,0.45)' : 'rgba(15,23,42,0.45)';
+    ctx.font = '700 18px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+    ctx.fillText('CareerDesk • Mission Control', W / 2, H - 60);
+
+    canvas.toBlob((blobFile) => {
+      if (!blobFile) return;
+      const url = URL.createObjectURL(blobFile);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'careerdesk-wallpaper.png';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      if (typeof showToast === 'function') showToast('1080p HD Wallpaper generated & downloaded!');
+    }, 'image/png');
+  } catch (err) {
+    console.error('Wallpaper export error:', err);
+  }
+}
+
+
