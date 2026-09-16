@@ -859,13 +859,25 @@ function renderProfileTrackCard() {
         </div>
       </div>
 
-      <div class="track-role-switch segmented-group">
-        <button type="button" class="pill track-role-btn ${isStudent ? 'active solid' : ''}" data-role="student">
-          <i data-lucide="graduation-cap"></i> <span>Student</span>
+      <div class="track-header-actions">
+        <button type="button" class="track-subject-manager-btn btn-open-subject-manager" id="btnOpenSubjectManagerFromTrack" title="Open Master Subject Manager">
+          <div class="track-sm-icon-badge">
+            <i data-lucide="layers"></i>
+          </div>
+          <div class="track-sm-content">
+            <span class="track-sm-label">Subject Manager</span>
+            <span class="track-sm-badge">${activeSubjects.length} Active</span>
+          </div>
         </button>
-        <button type="button" class="pill track-role-btn ${isJobSeeker ? 'active solid' : ''}" data-role="job_seeker">
-          <i data-lucide="briefcase"></i> <span>Job Seeker</span>
-        </button>
+
+        <div class="track-role-switch segmented-group">
+          <button type="button" class="pill track-role-btn ${isStudent ? 'active solid' : ''}" data-role="student">
+            <i data-lucide="graduation-cap"></i> <span>Student</span>
+          </button>
+          <button type="button" class="pill track-role-btn ${isJobSeeker ? 'active solid' : ''}" data-role="job_seeker">
+            <i data-lucide="briefcase"></i> <span>Job Seeker</span>
+          </button>
+        </div>
       </div>
     </div>
 
@@ -912,6 +924,16 @@ function attachTrackCardListeners(container, track) {
       const isCurrentlyCollapsed = localStorage.getItem('careerdesk_track_card_collapsed') === 'true';
       localStorage.setItem('careerdesk_track_card_collapsed', (!isCurrentlyCollapsed).toString());
       renderProfileTrackCard();
+    });
+  }
+
+  // Open Subject Manager button from track card
+  const trackSmBtn = container.querySelector('#btnOpenSubjectManagerFromTrack');
+  if (trackSmBtn) {
+    trackSmBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      openSubjectManagerModal();
     });
   }
 

@@ -88,6 +88,114 @@ html[data-theme="light"] .profile-hero-banner {
 }
 
 /* ==============================================
+   PROFILE HERO QUOTE BAR
+   ============================================== */
+.profile-hero-quote-bar {
+  position: relative;
+  z-index: 2;
+  margin-top: 18px;
+  padding: 12px 18px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  transition: all 0.25s ease;
+}
+
+html[data-theme="light"] .profile-hero-quote-bar {
+  background: rgba(255, 255, 255, 0.85);
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.04);
+}
+
+.profile-hero-quote-main {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  min-width: 0;
+}
+
+.profile-quote-mark-badge {
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(6, 182, 212, 0.2));
+  border: 1px solid rgba(99, 102, 241, 0.3);
+  color: var(--accent2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.profile-quote-mark-badge svg,
+.profile-quote-mark-badge .lucide {
+  width: 15px;
+  height: 15px;
+}
+
+.profile-quote-text-wrap {
+  flex: 1;
+  min-width: 0;
+}
+
+.profile-quote-line {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.45;
+  font-style: italic;
+  font-weight: 500;
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.profile-quote-author {
+  display: inline-block;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--accent1);
+  margin-top: 2px;
+  font-style: normal;
+}
+
+.profile-quote-cycle-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 13px;
+  border-radius: 9px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text-soft);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+}
+
+.profile-quote-cycle-btn:hover {
+  color: var(--accent1);
+  border-color: rgba(99, 102, 241, 0.4);
+  background: rgba(99, 102, 241, 0.1);
+  transform: translateY(-1px);
+}
+
+.profile-quote-cycle-btn:hover svg,
+.profile-quote-cycle-btn:hover .lucide {
+  animation: spin 0.6s ease-in-out;
+}
+
+/* ==============================================
    AVATAR — animated gradient ring
    ============================================== */
 .user-avatar-wrap {
@@ -1940,6 +2048,91 @@ html[data-theme="light"] .auth-modal-card {
 .track-role-btn:hover:not(.active) {
   color: var(--text);
   background: var(--surface-hover, rgba(255, 255, 255, 0.05)) !important;
+}
+
+/* ==============================================
+   TARGET TRACK CARD — DEDICATED SUBJECT MANAGER BTN
+   ============================================== */
+.track-header-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.track-subject-manager-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 14px 6px 10px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(6, 182, 212, 0.1));
+  border: 1px solid rgba(99, 102, 241, 0.35);
+  box-shadow: 0 4px 14px rgba(99, 102, 241, 0.15);
+  color: var(--text);
+  cursor: pointer;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  text-decoration: none;
+}
+
+.track-subject-manager-btn:hover {
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.25), rgba(6, 182, 212, 0.18));
+  border-color: var(--accent1);
+  box-shadow: 0 6px 20px rgba(99, 102, 241, 0.28);
+  transform: translateY(-1.5px);
+}
+
+.track-sm-icon-badge {
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
+  background: linear-gradient(135deg, var(--accent1), var(--accent2));
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.35);
+}
+
+.track-sm-icon-badge svg,
+.track-sm-icon-badge .lucide {
+  width: 16px;
+  height: 16px;
+}
+
+.track-sm-content {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  line-height: 1.15;
+}
+
+.track-sm-label {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: 0.1px;
+}
+
+.track-sm-badge {
+  font-size: 10.5px;
+  font-weight: 700;
+  color: var(--accent1);
+  font-family: var(--font-mono);
+  margin-top: 2px;
+}
+
+html[data-theme="light"] .track-subject-manager-btn {
+  background: linear-gradient(135deg, #eef2ff, #f0fdfa);
+  border: 1px solid #cbd5e1;
+  box-shadow: 0 3px 10px rgba(99, 102, 241, 0.1);
+}
+
+html[data-theme="light"] .track-subject-manager-btn:hover {
+  background: linear-gradient(135deg, #e0e7ff, #ccfbf1);
+  border-color: var(--accent1);
+  box-shadow: 0 6px 16px rgba(99, 102, 241, 0.2);
 }
 
 /* Track Selection Box (Class Dropdown or Job Sector) */

@@ -285,11 +285,13 @@ function setupAuthStateListener() {
         const prevUid = currentAuthUser?.uid;
         currentAuthUser = {
           uid: user.uid,
-          displayName: user.displayName || user.email?.split('@')[0] || 'Aspirant',
+          displayName: user.displayName || user.email?.split('@')[0] || (user.phoneNumber ? ('User ' + user.phoneNumber.slice(-4)) : 'Aspirant'),
           email: user.email || '',
           photoURL: user.photoURL || '',
           providerId: user.providerData?.[0]?.providerId || 'firebase',
-          emailVerified: !!user.emailVerified
+          emailVerified: !!user.emailVerified,
+          phoneNumber: user.phoneNumber || '',
+          phoneVerified: !!user.phoneNumber
         };
         applyCustomProfileOverrides(currentAuthUser);
         try {
@@ -707,10 +709,55 @@ async function signInWithEmailPassword(emailOrUsername, password, isSignUp = fal
 }
 
 /**
- * Send Phone OTP via Firebase Phone Auth
+ * Creates or reuses a Firebase RecaptchaVerifier instance
+ */
+function getOrCreateRecaptchaVerifier(containerId = 'phoneRecaptchaContainer') {
+  if (typeof firebase === 'undefined' || !firebase.auth) return null;
+  let container = document.getElementById(containerId);
+  if (!container) {
+    container = document.createElement('div');
+    container.id = containerId;
+    document.body.appendChild(container);
+  }
+  if (window.careerDeskRecaptchaVerifier) {
+    try {
+      return window.careerDeskRecaptchaVerifier;
+    } catch (e) {
+      window.careerDeskRecaptchaVerifier = null;
+    }
+  }
+  try {
+    window.careerDeskRecaptchaVerifier = new firebase.auth.RecaptchaVerifier(containerId, {
+      size: 'invisible',
+      callback: () => {
+        // reCAPTCHA solved, allow signInWithPhoneNumber
+      },
+      'expired-callback': () => {
+        try { window.careerDeskRecaptchaVerifier?.clear(); } catch(e) {}
+        window.careerDeskRecaptchaVerifier = null;
+      }
+    });
+    return window.careerDeskRecaptchaVerifier;
+  } catch (err) {
+    console.warn('[CareerDesk Firebase] RecaptchaVerifier creation warning:', err);
+    return null;
+  }
+}
+
+/**
+ * Send Phone OTP via Firebase Phone Auth (JavaScript SDK)
  */
 async function sendPhoneOTP(phoneNumber) {
   isExplicitlySignedOut = false;
+  const normalizedPhone = normalizeBdPhone(phoneNumber);
+  if (!normalizedPhone || normalizedPhone.length < 13) {
+    const el = document.getElementById('phoneAuthError');
+    const msg = 'Please enter a valid mobile number (e.g. 017XXXXXXXX or +8801XXXXXXXXX).';
+    if (el) el.textContent = msg;
+    else showToast(msg, true);
+    return;
+  }
+
   if (window.location.protocol === 'file:') {
     openProtocolHelpModal('Phone');
     return;
@@ -721,13 +768,10 @@ async function sendPhoneOTP(phoneNumber) {
     return;
   }
   try {
-    if (!window.recaptchaVerifier) {
-      window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('phoneRecaptchaContainer', {
-        size: 'invisible',
-        callback: () => {}
-      });
-    }
-    const confirmationResult = await firebase.auth().signInWithPhoneNumber(phoneNumber, window.recaptchaVerifier);
+    const appVerifier = getOrCreateRecaptchaVerifier('phoneRecaptchaContainer');
+    if (!appVerifier) throw new Error('Could not initialize reCAPTCHA verifier.');
+
+    const confirmationResult = await firebase.auth().signInWithPhoneNumber(normalizedPhone, appVerifier);
     window.phoneConfirmationResult = confirmationResult;
     const otpStep = document.getElementById('phoneOtpStep');
     const sendStep = document.getElementById('phoneSendStep');
@@ -735,15 +779,21 @@ async function sendPhoneOTP(phoneNumber) {
     if (sendStep) sendStep.style.display = 'none';
     const phoneAuthError = document.getElementById('phoneAuthError');
     if (phoneAuthError) phoneAuthError.textContent = '';
-    showToast('OTP sent to ' + phoneNumber);
+    showToast('SMS verification code sent to ' + formatDisplayPhone(normalizedPhone));
   } catch (err) {
     const el = document.getElementById('phoneAuthError');
-    let msg = err.message || 'Failed to send OTP.';
-    if (err.code === 'auth/invalid-phone-number') msg = 'Invalid phone number. Use international format: +880XXXXXXXXXX';
-    if (err.code === 'auth/too-many-requests') msg = 'Too many OTP requests. Please wait and try again.';
+    let msg = err.message || 'Failed to send SMS OTP.';
+    if (err.code === 'auth/invalid-phone-number') msg = 'Invalid phone number format. Use +8801XXXXXXXXX';
+    if (err.code === 'auth/too-many-requests') msg = 'Too many requests. Please wait a few moments before trying again.';
+    if (err.code === 'auth/quota-exceeded') msg = 'SMS quota exceeded for today. Please try again later.';
+    if (err.code === 'auth/operation-not-allowed') msg = 'Phone Authentication is not enabled in your Firebase console.';
+    if (err.code === 'auth/unauthorized-domain') msg = 'This domain is not authorized in Firebase Console -> Auth -> Settings -> Authorized domains.';
     if (el) el.textContent = msg;
     else showToast(msg, true);
-    if (window.recaptchaVerifier) { try { window.recaptchaVerifier.clear(); } catch(e2) {} window.recaptchaVerifier = null; }
+    if (window.careerDeskRecaptchaVerifier) {
+      try { window.careerDeskRecaptchaVerifier.clear(); } catch(e2) {}
+      window.careerDeskRecaptchaVerifier = null;
+    }
   }
 }
 
@@ -758,7 +808,8 @@ async function verifyPhoneOTP(otp) {
       email: user.email || '',
       photoURL: user.photoURL || '',
       providerId: 'phone',
-      phoneNumber: user.phoneNumber || ''
+      phoneNumber: user.phoneNumber || '',
+      phoneVerified: true
     };
     applyCustomProfileOverrides(currentAuthUser);
     localStorage.setItem(FIREBASE_USER_CACHE_KEY, JSON.stringify(currentAuthUser));
@@ -1547,25 +1598,40 @@ function openEditProfileModal(autoTriggerVerification = false) {
     const isFirebaseConfigured = initFirebaseApp();
     if (isFirebaseConfigured && typeof firebase !== 'undefined' && firebase.auth && window.location.protocol !== 'file:') {
       try {
-        let recaptchaContainer = document.getElementById('phoneRecaptchaContainer');
-        if (!recaptchaContainer) {
-          recaptchaContainer = document.createElement('div');
-          recaptchaContainer.id = 'phoneRecaptchaContainer';
-          document.body.appendChild(recaptchaContainer);
+        const appVerifier = getOrCreateRecaptchaVerifier('phoneRecaptchaContainer');
+        if (appVerifier) {
+          let confirmationResult;
+          const currentUser = firebase.auth().currentUser;
+          if (currentUser && !currentAuthUser?.isDemo) {
+            try {
+              // Firebase Auth standard: link phone number to existing authenticated user
+              confirmationResult = await currentUser.linkWithPhoneNumber(fullInternationalPhone, appVerifier);
+            } catch (linkErr) {
+              if (linkErr.code === 'auth/credential-already-in-use' || linkErr.code === 'auth/provider-already-linked') {
+                confirmationResult = await firebase.auth().signInWithPhoneNumber(fullInternationalPhone, appVerifier);
+              } else {
+                throw linkErr;
+              }
+            }
+          } else {
+            // Firebase Auth standard: Authenticate with Firebase with a Phone Number
+            confirmationResult = await firebase.auth().signInWithPhoneNumber(fullInternationalPhone, appVerifier);
+          }
+          activePhoneVerificationSession.confirmationResult = confirmationResult;
+          usedFirebase = true;
+          showToast('SMS verification code sent to ' + formatDisplayPhone(fullInternationalPhone));
+          if (otpNotice) otpNotice.innerHTML = `SMS verification code dispatched to <strong>${escapeHtml(formatDisplayPhone(fullInternationalPhone))}</strong>. Enter the 6-digit code.`;
         }
-        if (!window.recaptchaVerifier) {
-          window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('phoneRecaptchaContainer', {
-            size: 'invisible',
-            callback: () => {}
-          });
-        }
-        const confirmationResult = await firebase.auth().signInWithPhoneNumber(fullInternationalPhone, window.recaptchaVerifier);
-        activePhoneVerificationSession.confirmationResult = confirmationResult;
-        usedFirebase = true;
-        showToast('SMS verification code sent to ' + formatDisplayPhone(fullInternationalPhone));
-        if (otpNotice) otpNotice.textContent = 'SMS sent via carrier. Enter code above.';
       } catch (fbErr) {
-        console.warn('Firebase SMS warning, falling back to simulated verification code:', fbErr);
+        console.warn('[CareerDesk Phone Auth] Firebase SMS error / fallback:', fbErr);
+        let fbErrMsg = fbErr.message || '';
+        if (fbErr.code === 'auth/invalid-phone-number') {
+          showToast('Invalid phone number format. Expected +8801XXXXXXXXX', true);
+        } else if (fbErr.code === 'auth/quota-exceeded') {
+          showToast('Firebase SMS daily quota exceeded. Using local verification.', true);
+        } else if (fbErr.code === 'auth/too-many-requests') {
+          showToast('Too many SMS requests. Please wait a moment.', true);
+        }
       }
     }
 
@@ -1595,18 +1661,52 @@ function openEditProfileModal(autoTriggerVerification = false) {
 
     let isMatch = (entered === activePhoneVerificationSession.code);
 
-    if (!isMatch && activePhoneVerificationSession.confirmationResult) {
+    if (activePhoneVerificationSession.confirmationResult) {
       try {
-        await activePhoneVerificationSession.confirmationResult.confirm(entered);
+        const userCredential = await activePhoneVerificationSession.confirmationResult.confirm(entered);
+        const fbUser = userCredential.user;
         isMatch = true;
+        if (fbUser) {
+          if (currentAuthUser) {
+            currentAuthUser.phoneNumber = fbUser.phoneNumber || activePhoneVerificationSession.phoneNumber;
+            currentAuthUser.phoneVerified = true;
+            try { localStorage.setItem(FIREBASE_USER_CACHE_KEY, JSON.stringify(currentAuthUser)); } catch (e) {}
+          }
+          if (typeof firebase !== 'undefined' && firebase.firestore && fbUser.uid) {
+            try {
+              await firebase.firestore().collection('users').doc(fbUser.uid).set({
+                phoneNumber: fbUser.phoneNumber || activePhoneVerificationSession.phoneNumber,
+                phoneVerified: true,
+                phoneVerifiedAt: new Date().toISOString()
+              }, { merge: true });
+            } catch (fsErr) {
+              console.warn('[CareerDesk Phone Auth] Firestore update warning:', fsErr);
+            }
+          }
+        }
       } catch (err) {
-        console.warn('Firebase confirmation failed:', err);
+        console.warn('[CareerDesk Phone Auth] Firebase confirmation failed:', err);
+        let msg = 'Invalid SMS verification code. Please check and try again.';
+        if (err.code === 'auth/invalid-verification-code') {
+          msg = 'The verification code entered is incorrect.';
+        } else if (err.code === 'auth/code-expired') {
+          msg = 'The verification code has expired. Please request a new code.';
+        }
+        showToast(msg, true);
       }
     }
 
     if (isMatch) {
       isPhoneVerifiedState = true;
       const verifiedFullPhone = activePhoneVerificationSession.phoneNumber || (`+880` + phoneLocalInput.value.trim());
+      custom.phoneNumber = verifiedFullPhone;
+      custom.phoneVerified = true;
+      saveCustomProfile(custom);
+      if (currentAuthUser) {
+        currentAuthUser.phoneNumber = verifiedFullPhone;
+        currentAuthUser.phoneVerified = true;
+        try { localStorage.setItem(FIREBASE_USER_CACHE_KEY, JSON.stringify(currentAuthUser)); } catch (e) {}
+      }
       if (phoneVerificationSection) phoneVerificationSection.style.display = 'none';
 
       if (phoneStatusBadge) {
@@ -1622,7 +1722,7 @@ function openEditProfileModal(autoTriggerVerification = false) {
 
       showToast(`Phone number ${formatDisplayPhone(verifiedFullPhone)} verified! ✓`);
       if (window.lucide) lucide.createIcons();
-    } else {
+    } else if (!activePhoneVerificationSession.confirmationResult) {
       showToast('Invalid verification code. Please check and try again.', true);
     }
   });
@@ -1783,6 +1883,18 @@ function renderUserProfileUI() {
 
   const chevronSvg = `<svg class="auth-btn-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>`;
 
+  // Get active motivational quote
+  let heroQuote = { q: 'Discipline is the bridge between goals and accomplishment.', a: 'CareerDesk' };
+  try {
+    if (typeof currentPool === 'function') {
+      const pool = currentPool();
+      if (pool && pool.length > 0) {
+        const qIdx = (state && typeof state.quoteIdx === 'number') ? (state.quoteIdx % pool.length) : 0;
+        heroQuote = pool[qIdx] || pool[0];
+      }
+    }
+  } catch (qErr) { }
+
   // Calculate live study stats
   let totalStudyMinutes = 0;
   if (state && Array.isArray(state.sessions)) {
@@ -1907,6 +2019,23 @@ function renderUserProfileUI() {
             </button>
           </div>
         </div>
+
+        <!-- MOTIVATIONAL QUOTE BAR IN PROFILE HERO -->
+        <div class="profile-hero-quote-bar">
+          <div class="profile-hero-quote-main">
+            <div class="profile-quote-mark-badge">
+              <i data-lucide="quote"></i>
+            </div>
+            <div class="profile-quote-text-wrap">
+              <p class="profile-quote-line profile-hero-quote-text-el" id="profileHeroQuoteText">"${escapeHtml(heroQuote.q)}"</p>
+              <span class="profile-quote-author profile-hero-quote-author-el" id="profileHeroQuoteAuthor">— ${escapeHtml(heroQuote.a || 'CareerDesk')}</span>
+            </div>
+          </div>
+          <button type="button" class="profile-quote-cycle-btn btn-cycle-profile-hero-quote" id="btnCycleProfileHeroQuote" title="Next motivational quote">
+            <i data-lucide="shuffle"></i>
+            <span>New Quote</span>
+          </button>
+        </div>
       </div>
 
       <!-- LIFETIME STATS SUMMARY GRID -->
@@ -1968,6 +2097,23 @@ function renderUserProfileUI() {
             <button type="button" class="pill subtle btn-open-subject-manager" id="btnOpenSubjectManagerFromGuest" title="Open Subject Manager" style="padding:10px 18px; font-size:13.5px; font-weight:600; display:inline-flex; align-items:center; gap:8px; cursor:pointer;">
               <i data-lucide="layers" style="width:16px; height:16px;"></i>
               <span>Subject Manager</span>
+            </button>
+          </div>
+
+          <!-- MOTIVATIONAL QUOTE BAR IN GUEST PROFILE HERO -->
+          <div class="profile-hero-quote-bar" style="margin-top:20px;">
+            <div class="profile-hero-quote-main">
+              <div class="profile-quote-mark-badge">
+                <i data-lucide="quote"></i>
+              </div>
+              <div class="profile-quote-text-wrap">
+                <p class="profile-quote-line profile-hero-quote-text-el" id="profileHeroQuoteTextGuest">"${escapeHtml(heroQuote.q)}"</p>
+                <span class="profile-quote-author profile-hero-quote-author-el" id="profileHeroQuoteAuthorGuest">— ${escapeHtml(heroQuote.a || 'CareerDesk')}</span>
+              </div>
+            </div>
+            <button type="button" class="profile-quote-cycle-btn btn-cycle-profile-hero-quote" id="btnCycleProfileHeroQuoteGuest" title="Next motivational quote">
+              <i data-lucide="shuffle"></i>
+              <span>New Quote</span>
             </button>
           </div>
         </div>
@@ -2062,6 +2208,16 @@ function renderUserProfileUI() {
     });
   }
 
+  // Quote cycling buttons on profile hero card
+  const cycleBtns = container.querySelectorAll('.btn-cycle-profile-hero-quote, #btnCycleProfileHeroQuote, #btnCycleProfileHeroQuoteGuest');
+  cycleBtns.forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      cycleProfileHeroQuote();
+    });
+  });
+
   if (typeof renderProfileAspirantHub === 'function') {
     renderProfileAspirantHub();
   }
@@ -2070,6 +2226,39 @@ function renderUserProfileUI() {
   if (window.lucide && typeof window.lucide.createIcons === 'function') {
     window.lucide.createIcons();
   }
+}
+
+/**
+ * Rotates to the next motivational quote in Profile Hero panel
+ */
+function cycleProfileHeroQuote() {
+  const pool = (typeof currentPool === 'function') ? currentPool() : [];
+  if (!pool || pool.length === 0) return;
+  if (typeof state !== 'undefined') {
+    state.quoteIdx = ((state.quoteIdx || 0) + 1) % pool.length;
+    if (typeof saveData === 'function') saveData();
+  }
+  const nextQ = pool[(state && typeof state.quoteIdx === 'number') ? state.quoteIdx : 0];
+  if (!nextQ) return;
+
+  const textEls = document.querySelectorAll('.profile-hero-quote-text-el, #profileHeroQuoteText, #profileHeroQuoteTextGuest');
+  const authorEls = document.querySelectorAll('.profile-hero-quote-author-el, #profileHeroQuoteAuthor, #profileHeroQuoteAuthorGuest');
+
+  textEls.forEach(tEl => {
+    tEl.style.opacity = '0';
+    tEl.style.transform = 'translateY(4px)';
+    setTimeout(() => {
+      tEl.textContent = `"${nextQ.q}"`;
+      tEl.style.opacity = '1';
+      tEl.style.transform = 'translateY(0)';
+    }, 150);
+  });
+
+  authorEls.forEach(aEl => {
+    aEl.textContent = `— ${nextQ.a || 'CareerDesk'}`;
+  });
+
+  if (typeof renderQuote === 'function') renderQuote();
 }
 
 // =========================================================
