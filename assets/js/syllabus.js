@@ -32,6 +32,7 @@ function renderCategories() {
     const done = cat.topics.filter(t => t.done).length;
     const pct = total ? Math.round((done / total) * 100) : 0;
     const isTopicDelActive = topicDeleteModeCategories.has(String(cat.id));
+    const meta = typeof getSubjectMeta === 'function' ? getSubjectMeta(cat.name) : { color: '#6366f1', icon: 'book-open' };
     const topicsHtml = cat.topics.length ? (
       '<div class="topic-tile-grid">' + cat.topics.map(t => `
         <div class="topic-tile ${t.done ? 'done' : ''}" data-cat="${cat.id}" data-topic="${t.id}">
@@ -54,7 +55,10 @@ function renderCategories() {
     return `
       <div class="category-card glass open ${isTopicDelActive ? 'topic-delete-mode' : ''}" data-cat="${cat.id}">
         <div class="category-head">
-          <div class="category-head-left">
+          <div class="category-head-left" style="display:flex; align-items:center; gap:10px;">
+            <span class="category-icon-badge" style="color:${meta.color}; background:${meta.color}18; border:1px solid ${meta.color}30; width:30px; height:30px; border-radius:8px; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0;">
+              <i data-lucide="${meta.icon || 'book-open'}" style="width:16px; height:16px;"></i>
+            </span>
             <h3 class="category-title" data-category-title="${cat.id}" title="Double-click to edit">${escapeHtml(cat.name)}</h3>
           </div>
           <div class="category-head-right">
@@ -97,6 +101,10 @@ function renderCategories() {
     `;
   }).join('');
   renderSyllabusOverall();
+
+  if (window.lucide && typeof window.lucide.createIcons === 'function') {
+    window.lucide.createIcons();
+  }
 }
 
 function saveSyllabusAndRefresh() {

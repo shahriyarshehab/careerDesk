@@ -17,6 +17,29 @@ function escapeAttr(s) { return String(s).replace(/"/g, '&quot;'); }
 
 function escapeHtml(s) { return String(s).replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c])); }
 
+function cleanQuoteText(str) {
+  if (!str) return '';
+  let s = String(str).trim();
+  while (
+    (s.startsWith('"') && s.endsWith('"')) ||
+    (s.startsWith('“') && s.endsWith('”')) ||
+    (s.startsWith("'") && s.endsWith("'")) ||
+    (s.startsWith('‘') && s.endsWith('’'))
+  ) {
+    s = s.slice(1, -1).trim();
+  }
+  return s;
+}
+
+function cleanQuoteAuthor(author) {
+  if (!author) return 'CareerDesk';
+  let a = String(author).trim();
+  if (a.startsWith('—') || a.startsWith('-')) {
+    a = a.replace(/^[—\-]\s*/, '').trim();
+  }
+  return a || 'CareerDesk';
+}
+
 function toBnDigits(n) { return String(n); }
 
 function dateKey(ts) {
@@ -640,7 +663,7 @@ const BANGLADESH_CURRICULUM_DATA = {
 };
 
 const SUBJECT_METADATA = {
-  'Bangla': { bn: 'বাংলা', color: '#ec4899', icon: 'book' },
+  'Bangla': { bn: 'বাংলা', color: '#ec4899', icon: 'book-open' },
   'English': { bn: 'ইংরেজি', color: '#06b6d4', icon: 'languages' },
   'Mathematics': { bn: 'গণিত', color: '#10b981', icon: 'calculator' },
   'General Knowledge': { bn: 'সাধারণ জ্ঞান', color: '#f59e0b', icon: 'globe' },
@@ -648,7 +671,7 @@ const SUBJECT_METADATA = {
   'Chemistry': { bn: 'রসায়ন', color: '#14b8a6', icon: 'flask-conical' },
   'Biology': { bn: 'জীববিজ্ঞান', color: '#22c55e', icon: 'dna' },
   'Higher Mathematics': { bn: 'উচ্চতর গণিত', color: '#6366f1', icon: 'sigma' },
-  'General Science': { bn: 'সাধারণ বিজ্ঞান', color: '#3b82f6', icon: 'sparkles' },
+  'General Science': { bn: 'সাধারণ বিজ্ঞান', color: '#3b82f6', icon: 'microscope' },
   'ICT': { bn: 'তথ্য ও যোগাযোগ প্রযুক্তি', color: '#38bdf8', icon: 'cpu' },
   'Computer & ICT': { bn: 'কম্পিউটার ও আইসিটি', color: '#0ea5e9', icon: 'monitor' },
   'BGS': { bn: 'বাংলাদেশ ও বিশ্বপরিচয়', color: '#f97316', icon: 'compass' },
@@ -656,22 +679,63 @@ const SUBJECT_METADATA = {
   'Agriculture': { bn: 'কৃষি শিক্ষা', color: '#84cc16', icon: 'sprout' },
   'Accounting': { bn: 'হিসাববিজ্ঞান', color: '#059669', icon: 'file-text' },
   'Finance & Banking': { bn: 'ফিন্যান্স ও ব্যাংকিং', color: '#0284c7', icon: 'coins' },
-  'Business Entrepreneurship': { bn: 'ব্যবসায় উদ্যোগ', color: '#d97706', icon: 'briefcase' },
-  'Business Organization': { bn: 'ব্যবসায় সংগঠন', color: '#ca8a04', icon: 'building' },
+  'Business Entrepreneurship': { bn: 'ব্যবসায় উদ্যোগ', color: '#d97706', icon: 'rocket' },
+  'Business Organization': { bn: 'ব্যবসায় সংগঠন', color: '#ca8a04', icon: 'building-2' },
   'History': { bn: 'ইতিহাস', color: '#e11d48', icon: 'landmark' },
   'Geography': { bn: 'ভূগোল', color: '#10b981', icon: 'map' },
-  'Geography & Environment': { bn: 'ভূগোল ও পরিবেশ', color: '#10b981', icon: 'map-pin' },
+  'Geography & Environment': { bn: 'ভূগোল ও পরিবেশ', color: '#10b981', icon: 'trees' },
   'Civics': { bn: 'পৌরনীতি ও নাগরিকতা', color: '#64748b', icon: 'shield' },
   'Economics': { bn: 'অর্থনীতি', color: '#eab308', icon: 'trending-up' },
   'Sociology': { bn: 'সমাজবিজ্ঞান', color: '#06b6d4', icon: 'users' },
   'Logic': { bn: 'যুক্তিবিদ্যা', color: '#a855f7', icon: 'lightbulb' },
   'Mental Ability': { bn: 'মানসিক দক্ষতা', color: '#d946ef', icon: 'brain' },
-  'Ethics & Good Governance': { bn: 'নৈতিকতা ও সুশাসন', color: '#475569', icon: 'award' }
+  'Ethics & Good Governance': { bn: 'নৈতিকতা ও সুশাসন', color: '#475569', icon: 'scale' }
 };
 
 function getSubjectMeta(subj) {
   const canon = canonicalSubjectName(subj);
-  return SUBJECT_METADATA[canon] || { bn: canon, color: '#6366f1', icon: 'book' };
+  if (SUBJECT_METADATA[canon]) return SUBJECT_METADATA[canon];
+
+  // Smart heuristic inference for custom/user-created subjects
+  const lower = String(canon).toLowerCase();
+  let icon = 'book-open';
+  let color = '#6366f1';
+
+  if (lower.includes('math') || lower.includes('গণিত') || lower.includes('অঙ্ক') || lower.includes('calcu')) {
+    icon = 'calculator'; color = '#10b981';
+  } else if (lower.includes('eng') || lower.includes('ইংরেজি') || lower.includes('vocab') || lower.includes('gram') || lower.includes('lang')) {
+    icon = 'languages'; color = '#06b6d4';
+  } else if (lower.includes('bang') || lower.includes('বাংলা') || lower.includes('সাহিত্য')) {
+    icon = 'book-open'; color = '#ec4899';
+  } else if (lower.includes('phys') || lower.includes('পদার্থ')) {
+    icon = 'atom'; color = '#8b5cf6';
+  } else if (lower.includes('chem') || lower.includes('রসায়ন')) {
+    icon = 'flask-conical'; color = '#14b8a6';
+  } else if (lower.includes('bio') || lower.includes('জীব')) {
+    icon = 'dna'; color = '#22c55e';
+  } else if (lower.includes('sci') || lower.includes('বিজ্ঞান')) {
+    icon = 'microscope'; color = '#3b82f6';
+  } else if (lower.includes('gk') || lower.includes('জ্ঞান') || lower.includes('affair') || lower.includes('বিশ্ব') || lower.includes('world')) {
+    icon = 'globe'; color = '#f59e0b';
+  } else if (lower.includes('ict') || lower.includes('comp') || lower.includes('তথ্য') || lower.includes('আইসিটি') || lower.includes('code') || lower.includes('prog') || lower.includes('tech')) {
+    icon = 'monitor'; color = '#0ea5e9';
+  } else if (lower.includes('law') || lower.includes('আইন') || lower.includes('moral') || lower.includes('ethic') || lower.includes('সুশাসন') || lower.includes('বিচার')) {
+    icon = 'scale'; color = '#475569';
+  } else if (lower.includes('bank') || lower.includes('finan') || lower.includes('অর্থ') || lower.includes('হিসাব') || lower.includes('account') || lower.includes('tax')) {
+    icon = 'coins'; color = '#0284c7';
+  } else if (lower.includes('med') || lower.includes('health') || lower.includes('চিকিৎসা') || lower.includes('ডাক্তার') || lower.includes('নাব')) {
+    icon = 'activity'; color = '#ef4444';
+  } else if (lower.includes('art') || lower.includes('ড্রয়িং') || lower.includes('চিত্র') || lower.includes('সঙ্গীত') || lower.includes('music')) {
+    icon = 'palette'; color = '#d946ef';
+  } else if (lower.includes('geo') || lower.includes('ভূগোল') || lower.includes('পরিবেশ') || lower.includes('earth') || lower.includes('climate')) {
+    icon = 'trees'; color = '#10b981';
+  } else if (lower.includes('hist') || lower.includes('ইতিহাস') || lower.includes('মুক্তিযুদ্ধ') || lower.includes('war')) {
+    icon = 'landmark'; color = '#e11d48';
+  } else if (lower.includes('biz') || lower.includes('business') || lower.includes('উদ্যোগ') || lower.includes('manage')) {
+    icon = 'rocket'; color = '#d97706';
+  }
+
+  return { bn: canon, color, icon };
 }
 
 function addSubject(name) {

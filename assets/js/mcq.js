@@ -603,7 +603,11 @@ function renderMCQQuestion() {
 
   const q = activeExamPool[currentMCQIndex];
   if (currentIndexEl) currentIndexEl.textContent = (currentMCQIndex + 1) + " / " + activeExamPool.length;
-  if (qSubject) qSubject.textContent = q.subject || "BCS Preliminary";
+  if (qSubject) {
+    const subjName = q.subject || "BCS Preliminary";
+    const meta = typeof getSubjectMeta === 'function' ? getSubjectMeta(subjName) : { icon: 'target' };
+    qSubject.innerHTML = `<i data-lucide="${meta.icon || 'target'}" style="width:13px; height:13px; vertical-align:middle; margin-right:4px;"></i><span>${escapeHtml(subjName)}</span>`;
+  }
   if (qSourceTag) qSourceTag.textContent = q.isCustom ? "Custom Question" : "BCS Preliminary Standard";
   if (qText) qText.textContent = (currentMCQIndex + 1) + ". " + q.question;
   if (optionsContainer) optionsContainer.innerHTML = "";
@@ -749,6 +753,10 @@ function renderMCQQuestion() {
   }
 
   renderMCQPalette();
+
+  if (window.lucide && typeof window.lucide.createIcons === 'function') {
+    window.lucide.createIcons();
+  }
 }
 
 function selectMCQOption(selectedIndex, q) {
@@ -1558,14 +1566,16 @@ function renderMCQFilterBar() {
 
   let html = `
     <button class="filter-pill ${currentSelectedSubject === 'all' ? 'active' : ''}" data-subject="all">
-      All Subjects (30 Active)
+      <i data-lucide="layers" style="width:13px; height:13px;"></i> <span>All Subjects (30 Active)</span>
     </button>
   `;
 
   visibleSubjects.forEach(s => {
     const isActive = currentSelectedSubject === s;
+    const meta = typeof getSubjectMeta === 'function' ? getSubjectMeta(s) : { icon: 'book-open' };
     html += `
       <button class="filter-pill ${isActive ? 'active' : ''}" data-subject="${escapeAttr(s)}">
+        <i data-lucide="${meta.icon || 'book-open'}" style="width:13px; height:13px;"></i>
         <span class="pill-label">${escapeHtml(s)}</span>
         <span class="pill-del-btn" data-del-subject="${escapeAttr(s)}" title="Remove ${escapeAttr(s)}">${ICON.x}</span>
       </button>
@@ -1574,7 +1584,7 @@ function renderMCQFilterBar() {
 
   html += `
     <button class="filter-pill ${currentSelectedSubject === 'custom' ? 'active' : ''}" data-subject="custom">
-      Custom Questions
+      <i data-lucide="sparkles" style="width:13px; height:13px;"></i> <span>Custom Questions</span>
     </button>
   `;
 
@@ -1587,6 +1597,10 @@ function renderMCQFilterBar() {
   }
 
   filterBar.innerHTML = html;
+
+  if (window.lucide && typeof window.lucide.createIcons === 'function') {
+    window.lucide.createIcons();
+  }
 }
 
 function filterMCQPoolBySubject(selectedSubject) {
@@ -1614,6 +1628,7 @@ function renderMistakes() {
   }
 
   mistakes.forEach((m, idx) => {
+    const meta = typeof getSubjectMeta === 'function' ? getSubjectMeta(m.subject) : { icon: 'alert-circle' };
     const card = document.createElement("div");
     card.className = "mistake-card glass";
     card.style.cssText = "padding:16px 18px; margin-bottom:12px; border-radius:12px; border:1px solid var(--border);";
@@ -1621,7 +1636,7 @@ function renderMistakes() {
       <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:8px; gap:10px;">
         <h4 style="margin:0; font-size:15px; font-weight:700; color:var(--text); line-height:1.4;">${escapeHtml(m.q)}</h4>
         <div style="display:flex; align-items:center; gap:8px; flex-shrink:0;">
-          ${m.subject ? `<span class="q-badge" style="font-size:11px; padding:2px 8px;">${escapeHtml(m.subject)}</span>` : ""}
+          ${m.subject ? `<span class="q-badge" style="font-size:11px; padding:2px 8px; display:inline-flex; align-items:center; gap:4px;"><i data-lucide="${meta.icon || 'alert-circle'}" style="width:12px; height:12px;"></i> <span>${escapeHtml(m.subject)}</span></span>` : ""}
           <button class="pill danger mistake-del-btn" data-del-mistake="${idx}" title="Remove question from Mistake Bank" aria-label="Remove question">${ICON.trash} <span>Remove</span></button>
         </div>
       </div>

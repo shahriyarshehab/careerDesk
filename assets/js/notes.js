@@ -40,10 +40,12 @@ function formatKeepDate(ts) {
   if (isYesterday) {
     return `Yesterday, ${timeStr}`;
   }
-  if (d.getFullYear() === now.getFullYear()) {
-    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-  }
-  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  const dateStr = d.toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    ...(d.getFullYear() !== now.getFullYear() ? { year: 'numeric' } : {})
+  });
+  return `${dateStr}, ${timeStr}`;
 }
 
 function renderNotes() {
@@ -58,11 +60,15 @@ function renderNotes() {
     card.className = 'note-card glass' + (n.pinned ? ' pinned' : '');
     card.dataset.noteId = n.id;
     const d = new Date(n.ts);
+    const meta = typeof getSubjectMeta === 'function' ? getSubjectMeta(n.tag || 'General') : { icon: 'tag' };
     card.innerHTML = `
       <div class="note-top">
         <div class="note-title-wrap">
           <h3 class="note-title">${escapeHtml(n.title || 'Untitled')}</h3>
-          <span class="note-tag">${escapeHtml(n.tag || 'General')}</span>
+          <span class="note-tag" style="display:inline-flex; align-items:center; gap:4px;">
+            <i data-lucide="${meta.icon || 'tag'}" style="width:11px; height:11px;"></i>
+            <span>${escapeHtml(n.tag || 'General')}</span>
+          </span>
         </div>
         <button class="pin-btn ${n.pinned ? 'pin-active' : ''}" title="${n.pinned ? 'Unpin note' : 'Pin note'}" aria-label="Pin note" data-id="${n.id}">
           ${ICON.pin}
@@ -86,6 +92,10 @@ function renderNotes() {
     `;
     notesGrid.appendChild(card);
   });
+
+  if (window.lucide && typeof window.lucide.createIcons === 'function') {
+    window.lucide.createIcons();
+  }
 }
 
 notesGrid.addEventListener('click', (e) => {

@@ -92,26 +92,33 @@ function renderFlashcards() {
     updateFlashcardModeUI();
     return;
   }
-  flashGrid.innerHTML = list.map(f => `
-    <div class="flash-card" data-id="${f.id}">
-      <div class="flash-card-actions">
-        <button type="button" class="card-edit-btn" data-edit="${f.id}" title="Edit Flashcard" aria-label="Edit Flashcard">${ICON.edit}</button>
-        <button type="button" class="card-del-btn" data-del="${f.id}" title="Delete Flashcard" aria-label="Delete Flashcard">${ICON.trash}</button>
-      </div>
-      <div class="flash-card-inner">
-        <div class="flash-face flash-front">
-          ${f.category ? `<span class="flash-card-tag">${escapeHtml(f.category)}</span>` : ''}
-          <div style="font-weight:600; padding:0 6px;">${escapeHtml(f.front)}</div>
-          <div style="position:absolute; bottom:8px; font-size:10.5px; opacity:0.6;">Click to reveal</div>
+  flashGrid.innerHTML = list.map(f => {
+    const meta = f.category && typeof getSubjectMeta === 'function' ? getSubjectMeta(f.category) : { icon: 'layers' };
+    return `
+      <div class="flash-card" data-id="${f.id}">
+        <div class="flash-card-actions">
+          <button type="button" class="card-edit-btn" data-edit="${f.id}" title="Edit Flashcard" aria-label="Edit Flashcard">${ICON.edit}</button>
+          <button type="button" class="card-del-btn" data-del="${f.id}" title="Delete Flashcard" aria-label="Delete Flashcard">${ICON.trash}</button>
         </div>
-        <div class="flash-face flash-back">
-          <div style="font-size:13px; line-height:1.6; white-space:pre-wrap; max-height:100%; overflow-y:auto; padding:4px;">${escapeHtml(f.back)}</div>
+        <div class="flash-card-inner">
+          <div class="flash-face flash-front">
+            ${f.category ? `<span class="flash-card-tag" style="display:inline-flex; align-items:center; gap:4px;"><i data-lucide="${meta.icon || 'layers'}" style="width:12px; height:12px;"></i> <span>${escapeHtml(f.category)}</span></span>` : ''}
+            <div style="font-weight:600; padding:0 6px;">${escapeHtml(f.front)}</div>
+            <div style="position:absolute; bottom:8px; font-size:10.5px; opacity:0.6;">Click to reveal</div>
+          </div>
+          <div class="flash-face flash-back">
+            <div style="font-size:13px; line-height:1.6; white-space:pre-wrap; max-height:100%; overflow-y:auto; padding:4px;">${escapeHtml(f.back)}</div>
+          </div>
         </div>
       </div>
-    </div>
-  `).join('');
+    `;
+  }).join('');
 
   updateFlashcardModeUI();
+
+  if (window.lucide && typeof window.lucide.createIcons === 'function') {
+    window.lucide.createIcons();
+  }
 }
 
 function openEditFlashcardModal(id) {

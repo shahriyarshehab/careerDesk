@@ -78,6 +78,244 @@ html[data-theme="light"] .profile-hero-banner {
   filter: blur(20px);
 }
 
+/* ==========================================================================
+   PROFILE HERO QUOTE TICKER (ABOVE HERO SECTION WITH TYPING ANIMATION)
+   ========================================================================== */
+.profile-quote-ticker-top {
+  position: relative;
+  width: 100%;
+  padding: 13px 22px;
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.08) 0%, rgba(6, 182, 212, 0.05) 50%, rgba(255, 255, 255, 0.02) 100%);
+  border-bottom: 1px solid rgba(99, 102, 241, 0.18);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  box-sizing: border-box;
+  overflow: hidden;
+  transition: all 0.25s ease;
+}
+
+.profile-quote-ticker-top:hover {
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.12) 0%, rgba(6, 182, 212, 0.08) 50%, rgba(255, 255, 255, 0.03) 100%);
+  border-bottom-color: rgba(99, 102, 241, 0.35);
+}
+
+html[data-theme="light"] .profile-quote-ticker-top {
+  background: linear-gradient(135deg, rgba(238, 242, 255, 0.95) 0%, rgba(240, 249, 255, 0.95) 60%, rgba(255, 255, 255, 0.98) 100%);
+  border-bottom: 1px solid rgba(99, 102, 241, 0.22);
+}
+
+html[data-theme="light"] .profile-quote-ticker-top:hover {
+  background: linear-gradient(135deg, rgba(230, 236, 255, 0.98) 0%, rgba(235, 248, 255, 0.98) 100%);
+}
+
+.profile-quote-ticker-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  min-width: 0;
+}
+
+.profile-quote-lang-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: rgba(99, 102, 241, 0.14);
+  border: 1px solid rgba(99, 102, 241, 0.3);
+  color: var(--accent1);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  user-select: none;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+}
+
+.profile-quote-lang-badge:hover {
+  background: rgba(99, 102, 241, 0.24);
+  border-color: var(--accent1);
+  transform: translateY(-1px);
+}
+
+.profile-quote-lang-badge.bangla {
+  background: rgba(6, 182, 212, 0.14);
+  border-color: rgba(6, 182, 212, 0.3);
+  color: var(--accent2);
+}
+
+.lang-indicator-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent1);
+  box-shadow: 0 0 6px var(--accent1);
+  animation: quoteDotPulse 1.8s infinite;
+}
+
+.profile-quote-lang-badge.bangla .lang-indicator-dot {
+  background: var(--accent2);
+  box-shadow: 0 0 6px var(--accent2);
+}
+
+@keyframes quoteDotPulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.8); }
+}
+
+.profile-quote-typing-area {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: var(--text);
+  font-weight: 500;
+}
+
+.profile-quote-phrase {
+  display: inline-flex;
+  align-items: baseline;
+  font-style: italic;
+  gap: 0;
+}
+
+.profile-quote-curly-open,
+.profile-quote-curly-close {
+  color: var(--accent1);
+  font-weight: 700;
+  font-size: 15px;
+  font-style: normal;
+  user-select: none;
+  opacity: 0.9;
+  line-height: 1;
+}
+
+.profile-quote-curly-open {
+  margin-right: 1px;
+}
+
+.profile-quote-curly-close {
+  margin-left: 1px;
+}
+
+.profile-quote-typed-text {
+  font-style: italic;
+  letter-spacing: 0.01em;
+  color: var(--text);
+  min-height: 20px;
+}
+
+.profile-quote-cursor {
+  display: inline-block;
+  width: 2px;
+  height: 14px;
+  background: var(--accent2);
+  margin-left: 2px;
+  margin-right: 1px;
+  vertical-align: middle;
+  animation: cursorBlink 0.75s infinite ease-in-out;
+}
+
+@keyframes cursorBlink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+.profile-quote-author-pill {
+  display: inline-block;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--accent2);
+  font-style: normal;
+  letter-spacing: 0.02em;
+  opacity: 0.9;
+  white-space: nowrap;
+}
+
+.profile-quote-controls {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.profile-quote-ctrl-btn {
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border);
+  color: var(--text-soft);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.profile-quote-ctrl-btn svg,
+.profile-quote-ctrl-btn .lucide {
+  width: 13px;
+  height: 13px;
+  transition: transform 0.25s ease;
+}
+
+.profile-quote-ctrl-btn:hover {
+  color: var(--accent2);
+  border-color: rgba(6, 182, 212, 0.4);
+  background: rgba(6, 182, 212, 0.12);
+  transform: translateY(-1px);
+}
+
+.profile-quote-ctrl-btn:active {
+  transform: translateY(0);
+}
+
+html[data-theme="light"] .profile-quote-ctrl-btn {
+  background: rgba(0, 0, 0, 0.04);
+  border-color: rgba(226, 232, 240, 0.95);
+}
+
+/* Progress bar showing remaining duration */
+.profile-quote-progress-bar {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: 2px;
+  background: rgba(99, 102, 241, 0.12);
+  overflow: hidden;
+}
+
+.profile-quote-progress-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, var(--accent1), var(--accent2));
+}
+
+@media (max-width: 768px) {
+  .profile-quote-ticker-top {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px 14px;
+  }
+  .profile-quote-controls {
+    align-self: flex-end;
+  }
+}
+
 /* ==============================================
    PROFILE HERO GRID & LAYOUT
    ============================================== */
@@ -85,10 +323,10 @@ html[data-theme="light"] .profile-hero-banner {
   position: relative;
   z-index: 2;
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
   gap: 24px;
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
 }
 
 .profile-hero-left {
@@ -96,64 +334,99 @@ html[data-theme="light"] .profile-hero-banner {
   align-items: center;
   gap: 20px;
   flex: 1;
-  min-width: 0;
+  min-width: 280px;
 }
 
 .profile-hero-right {
   display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 12px;
-  width: 100%;
-  max-width: 420px;
+  align-items: center;
+  justify-content: flex-end;
   flex-shrink: 0;
 }
 
-/* Quote on hero card show right top */
-.profile-hero-top-quote {
-  width: 100%;
-  padding: 11px 16px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 14px;
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.16);
-  transition: all 0.25s ease;
-  box-sizing: border-box;
-}
-
-html[data-theme="light"] .profile-hero-top-quote {
-  background: rgba(255, 255, 255, 0.88);
-  border: 1px solid rgba(226, 232, 240, 0.95);
-  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.04);
-}
-
-/* Edit & Sign Out buttons stacked vertically */
+/* Edit & Sign Out buttons in single horizontal line down on the right */
+.profile-hero-actions-row,
 .profile-hero-vertical-actions {
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  gap: 8px;
-  width: 100%;
-  max-width: 220px;
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 10px !important;
+  width: auto !important;
+  flex-wrap: wrap !important;
 }
 
+.profile-hero-actions-row button,
 .profile-hero-vertical-actions button {
-  width: 100%;
-  justify-content: center;
-  padding: 8px 16px !important;
+  width: auto !important;
+  height: 38px !important;
+  padding: 0 16px !important;
   font-size: 13px !important;
-  font-weight: 600;
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  border-radius: 9px;
-  box-sizing: border-box;
+  font-weight: 600 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 7px !important;
+  border-radius: 10px !important;
+  box-sizing: border-box !important;
+  white-space: nowrap !important;
+  margin: 0 !important;
+  cursor: pointer !important;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.btn-edit-profile-main {
+  background: linear-gradient(135deg, var(--accent1), var(--accent2)) !important;
+  color: #ffffff !important;
+  border: none !important;
+  box-shadow: 0 3px 12px rgba(99, 102, 241, 0.3) !important;
+}
+
+.btn-edit-profile-main:hover {
+  transform: translateY(-1.5px) !important;
+  box-shadow: 0 6px 18px rgba(99, 102, 241, 0.45) !important;
+}
+
+.profile-hero-actions-row .btn-edit-profile-guest,
+.profile-hero-vertical-actions .btn-edit-profile-guest {
+  border: 1px solid var(--border) !important;
+  background: var(--surface) !important;
+  color: var(--text) !important;
+}
+
+.profile-hero-actions-row .btn-edit-profile-guest:hover,
+.profile-hero-vertical-actions .btn-edit-profile-guest:hover {
+  border-color: var(--accent1) !important;
+  color: var(--accent1) !important;
+  transform: translateY(-1.5px) !important;
+}
+
+.profile-hero-actions-row .btn-profile-signup-cta,
+.profile-hero-vertical-actions .btn-profile-signup-cta {
+  background: linear-gradient(135deg, var(--accent1), var(--accent2)) !important;
+  color: #ffffff !important;
+  border: none !important;
+  box-shadow: 0 3px 12px rgba(99, 102, 241, 0.3) !important;
+}
+
+.profile-hero-actions-row .btn-profile-signup-cta:hover,
+.profile-hero-vertical-actions .btn-profile-signup-cta:hover {
+  transform: translateY(-1.5px) !important;
+  box-shadow: 0 6px 18px rgba(99, 102, 241, 0.45) !important;
+}
+
+.profile-hero-actions-row .btn-profile-login-cta,
+.profile-hero-vertical-actions .btn-profile-login-cta {
+  background: rgba(99, 102, 241, 0.12) !important;
+  border: 1px solid rgba(99, 102, 241, 0.32) !important;
+  color: var(--accent1) !important;
+}
+
+.profile-hero-actions-row .btn-profile-login-cta:hover,
+.profile-hero-vertical-actions .btn-profile-login-cta:hover {
+  background: rgba(99, 102, 241, 0.22) !important;
+  border-color: var(--accent1) !important;
+  transform: translateY(-1.5px) !important;
 }
 
 @media (max-width: 820px) {
@@ -163,12 +436,11 @@ html[data-theme="light"] .profile-hero-top-quote {
     gap: 20px;
   }
   .profile-hero-right {
-    max-width: 100%;
-    align-items: stretch;
+    justify-content: flex-start !important;
   }
+  .profile-hero-actions-row,
   .profile-hero-vertical-actions {
-    max-width: 100%;
-    flex-direction: column;
+    justify-content: flex-start !important;
   }
 }
 
@@ -176,6 +448,15 @@ html[data-theme="light"] .profile-hero-top-quote {
   .profile-hero-left {
     flex-direction: column;
     align-items: flex-start;
+  }
+  .profile-hero-actions-row,
+  .profile-hero-vertical-actions {
+    flex-direction: row !important;
+    flex-wrap: wrap !important;
+  }
+  .profile-hero-actions-row button,
+  .profile-hero-vertical-actions button {
+    flex: 1 1 auto !important;
   }
 }
 
@@ -226,14 +507,15 @@ html[data-theme="light"] .profile-hero-quote-bar {
 .profile-quote-mark-badge {
   width: 32px;
   height: 32px;
-  border-radius: 10px;
-  background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(6, 182, 212, 0.2));
-  border: 1px solid rgba(99, 102, 241, 0.3);
+  border-radius: 9px;
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.22), rgba(6, 182, 212, 0.22));
+  border: 1px solid rgba(99, 102, 241, 0.35);
   color: var(--accent2);
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.2);
 }
 
 .profile-quote-mark-badge svg,
@@ -249,51 +531,99 @@ html[data-theme="light"] .profile-hero-quote-bar {
 
 .profile-quote-line {
   margin: 0;
-  font-size: 13px;
+  font-size: 12.5px;
   line-height: 1.45;
   font-style: italic;
   font-weight: 500;
   color: var(--text);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
+  letter-spacing: 0.01em;
   transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.profile-quote-meta-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 3px;
+  flex-wrap: wrap;
 }
 
 .profile-quote-author {
   display: inline-block;
-  font-size: 11.5px;
+  font-size: 11px;
   font-weight: 700;
   color: var(--accent1);
-  margin-top: 2px;
   font-style: normal;
+  letter-spacing: 0.02em;
+}
+
+.profile-quote-pill {
+  display: inline-flex;
+  align-items: center;
+  font-size: 9.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: rgba(6, 182, 212, 0.12);
+  color: var(--accent2);
+  border: 1px solid rgba(6, 182, 212, 0.25);
+}
+
+html[data-theme="light"] .profile-quote-pill {
+  background: rgba(6, 182, 212, 0.1);
+  color: #0891b2;
+  border-color: rgba(6, 182, 212, 0.3);
 }
 
 .profile-quote-cycle-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 13px;
+  width: 32px;
+  height: 32px;
+  padding: 0;
   border-radius: 9px;
-  background: var(--surface);
+  background: rgba(255, 255, 255, 0.04);
   border: 1px solid var(--border);
   color: var(--text-soft);
-  font-size: 12px;
-  font-weight: 600;
   cursor: pointer;
   flex-shrink: 0;
-  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.profile-quote-cycle-btn svg,
+.profile-quote-cycle-btn .lucide {
+  width: 14px;
+  height: 14px;
+  transition: transform 0.35s ease;
 }
 
 .profile-quote-cycle-btn:hover {
-  color: var(--accent1);
-  border-color: rgba(99, 102, 241, 0.4);
-  background: rgba(99, 102, 241, 0.1);
-  transform: translateY(-1px);
+  color: var(--accent2);
+  border-color: rgba(6, 182, 212, 0.4);
+  background: rgba(6, 182, 212, 0.12);
+  transform: scale(1.06);
 }
 
 .profile-quote-cycle-btn:hover svg,
 .profile-quote-cycle-btn:hover .lucide {
-  animation: spin 0.6s ease-in-out;
+  transform: rotate(180deg);
+}
+
+.profile-quote-cycle-btn:active {
+  transform: scale(0.96);
+}
+
+html[data-theme="light"] .profile-quote-cycle-btn {
+  background: rgba(0, 0, 0, 0.03);
+  border-color: rgba(226, 232, 240, 0.9);
 }
 
 /* ==============================================
@@ -2407,7 +2737,7 @@ html[data-theme="light"] .auth-modal-card {
   flex-wrap: wrap;
   padding-bottom: 18px;
   border-bottom: 1px solid var(--border);
-  margin-bottom: 20px;
+  margin-bottom: 18px;
 }
 
 .track-title-wrap {
@@ -2443,6 +2773,21 @@ html[data-theme="light"] .auth-modal-card {
   font-weight: 700;
   color: var(--text);
   line-height: 1.25;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.track-active-pill {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: rgba(99, 102, 241, 0.12);
+  border: 1px solid rgba(99, 102, 241, 0.28);
+  color: var(--accent1);
 }
 
 .track-main-subtitle {
@@ -2452,25 +2797,32 @@ html[data-theme="light"] .auth-modal-card {
   line-height: 1.4;
 }
 
-/* Role Switcher Pill */
+/* Header Controls & Role Switcher */
+.track-header-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
 .track-role-switch {
   display: inline-flex;
   padding: 4px;
-  background: var(--surface);
+  background: var(--surface-strong);
   border: 1px solid var(--border);
-  border-radius: 14px;
+  border-radius: 12px;
 }
 
 .track-role-btn {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 8px 16px;
-  border-radius: 10px !important;
+  gap: 7px;
+  padding: 6px 14px;
+  border-radius: 9px !important;
   border: none !important;
   background: transparent !important;
   color: var(--text-soft);
-  font-size: 13px;
+  font-size: 12.5px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
@@ -2488,14 +2840,336 @@ html[data-theme="light"] .auth-modal-card {
   background: var(--surface-hover, rgba(255, 255, 255, 0.05)) !important;
 }
 
-/* ==============================================
-   TARGET TRACK CARD — DEDICATED SUBJECT MANAGER BTN
-   ============================================== */
-.track-header-actions {
+/* ==========================================================================
+   SEGMENTED SUBNAV TABS (CURRICULUM / SUBJECT MANAGER / INACTIVE)
+   ========================================================================== */
+.track-subnav-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px;
+  background: var(--surface-strong);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  margin-bottom: 18px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.track-subnav-bar::-webkit-scrollbar {
+  display: none;
+}
+
+.track-subnav-btn {
   display: inline-flex;
   align-items: center;
+  gap: 7px;
+  padding: 7px 14px;
+  border-radius: 9px !important;
+  border: 1px solid transparent !important;
+  background: transparent !important;
+  color: var(--text-soft);
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.track-subnav-btn:hover:not(.active) {
+  color: var(--text);
+  background: var(--surface-hover, rgba(255, 255, 255, 0.05)) !important;
+}
+
+.track-subnav-btn.active.solid {
+  background: linear-gradient(135deg, var(--accent1), var(--accent2)) !important;
+  color: #ffffff !important;
+  font-weight: 700;
+  box-shadow: 0 3px 12px rgba(99, 102, 241, 0.28);
+}
+
+.track-tab-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 10px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--accent2);
+}
+
+.track-subnav-btn.active.solid .track-tab-badge {
+  background: rgba(255, 255, 255, 0.25);
+  border-color: transparent;
+  color: #ffffff;
+}
+
+.track-tab-badge.danger {
+  background: rgba(244, 63, 94, 0.15) !important;
+  border-color: rgba(244, 63, 94, 0.35) !important;
+  color: #f43f5e !important;
+}
+
+.track-subnav-btn.active.solid .track-tab-badge.danger {
+  background: rgba(255, 255, 255, 0.3) !important;
+  color: #ffffff !important;
+}
+
+/* ==========================================================================
+   MASTER SUBJECT MANAGER (TAB 2) STYLING
+   ========================================================================== */
+
+/* Overview Metric Cards */
+.track-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.track-metric-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 13px 15px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.track-metric-card:hover {
+  border-color: rgba(99, 102, 241, 0.35);
+  transform: translateY(-1.5px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+}
+
+.track-metric-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(6, 182, 212, 0.15));
+  border: 1px solid rgba(99, 102, 241, 0.3);
+  color: var(--accent2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.track-metric-icon svg {
+  width: 17px;
+  height: 17px;
+}
+
+.track-metric-info {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.track-metric-val {
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--text);
+  line-height: 1.2;
+}
+
+.track-metric-lbl {
+  font-size: 11.5px;
+  color: var(--text-soft);
+  margin-top: 2px;
+  white-space: nowrap;
+}
+
+/* Manager Toolbar */
+.track-manager-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   gap: 12px;
   flex-wrap: wrap;
+  margin-bottom: 14px;
+  padding: 12px 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+}
+
+.track-search-box {
+  position: relative;
+  flex: 1;
+  min-width: 200px;
+}
+
+.track-search-box input {
+  width: 100%;
+  padding: 8px 12px 8px 34px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--surface-strong);
+  color: var(--text);
+  font-size: 13px;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.track-search-box input:focus {
+  border-color: var(--accent1);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.18);
+}
+
+.track-search-box .search-icon {
+  position: absolute;
+  left: 11px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 14px;
+  height: 14px;
+  color: var(--text-soft);
+  pointer-events: none;
+}
+
+.track-add-inline-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 240px;
+}
+
+.track-add-inline-group input {
+  flex: 1;
+  padding: 8px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--surface-strong);
+  color: var(--text);
+  font-size: 13px;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.track-add-inline-group input:focus {
+  border-color: var(--accent1);
+}
+
+/* Manager Subject Row / Card */
+.track-manager-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 12px 18px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  margin-bottom: 10px;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.track-manager-card::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: var(--subj-accent, var(--accent1));
+  opacity: 0.85;
+}
+
+.track-manager-card:hover {
+  border-color: rgba(99, 102, 241, 0.35);
+  background: var(--surface-hover, rgba(255, 255, 255, 0.05));
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+}
+
+.track-manager-card-info {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  flex: 1;
+  min-width: 0;
+}
+
+.track-manager-card-title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.track-manager-card-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.track-custom-tag {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: rgba(6, 182, 212, 0.12);
+  border: 1px solid rgba(6, 182, 212, 0.25);
+  color: var(--accent2);
+}
+
+.track-manager-card-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.track-jump-banner {
+  margin-top: 18px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.08), rgba(6, 182, 212, 0.05));
+  border: 1px dashed rgba(99, 102, 241, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.track-jump-link {
+  color: var(--accent1);
+  font-weight: 700;
+  font-size: 13px;
+  text-decoration: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.2s ease;
+}
+
+.track-jump-link:hover {
+  color: var(--accent2);
+  transform: translateX(2px);
+}
+
+.track-empty-box {
+  padding: 34px 20px;
+  text-align: center;
+  background: var(--surface);
+  border: 1px dashed var(--border);
+  border-radius: 14px;
+  margin: 12px 0;
 }
 
 .track-subject-manager-btn {
@@ -2754,6 +3428,35 @@ html[data-theme="light"] .track-subject-manager-btn:hover {
   flex-shrink: 0;
 }
 
+.track-primary-icon-box {
+  width: 32px;
+  height: 32px;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.track-primary-icon-box i,
+.track-primary-icon-box svg {
+  width: 17px;
+  height: 17px;
+}
+
+.track-primary-card:hover .track-primary-icon-box {
+  transform: scale(1.08);
+}
+
+.track-primary-num-badge {
+  font-size: 10.5px;
+  font-weight: 800;
+  font-family: var(--font-mono);
+  color: var(--text-soft);
+  opacity: 0.65;
+}
+
 .track-primary-titles {
   flex: 1;
   min-width: 0;
@@ -2932,6 +3635,34 @@ html[data-theme="light"] .track-subject-manager-btn:hover {
   border-radius: 50%;
   background: var(--subj-dot-color, var(--accent1));
   flex-shrink: 0;
+}
+
+.track-chip-icon,
+.track-manager-card-icon,
+.track-subj-icon-badge {
+  width: 26px;
+  height: 26px;
+  border-radius: 7px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: transform 0.2s ease;
+}
+
+.track-chip-icon i,
+.track-chip-icon svg,
+.track-manager-card-icon i,
+.track-manager-card-icon svg,
+.track-subj-icon-badge i,
+.track-subj-icon-badge svg {
+  width: 14px;
+  height: 14px;
+}
+
+.track-subject-chip:hover .track-chip-icon,
+.track-manager-card:hover .track-manager-card-icon {
+  transform: scale(1.1);
 }
 
 .track-chip-text {

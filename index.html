@@ -38,13 +38,13 @@
 
     <!-- Nav Menu Pills -->
     <nav class="tabs nav-menu" role="tablist" aria-label="Primary Navigation">
-      <button class="tab-btn nav-link active" data-tab="home" role="tab" aria-selected="true" title="Mission Control Home &amp; Study Routine"
-        aria-label="Dashboard Home"><i data-lucide="layout-dashboard"></i><span>Home</span></button>
+      <button class="tab-btn nav-link active" data-tab="home" role="tab" aria-selected="true" title="Home &amp; Daily Study Routine"
+        aria-label="Home"><i data-lucide="home"></i><span>Home</span></button>
       <button class="tab-btn nav-link" data-tab="notes" role="tab" aria-selected="false" title="Smart Notes"
         aria-label="Smart Notes"><i data-lucide="notebook-pen"></i><span>Notes</span></button>
       <button class="tab-btn nav-link" data-tab="tracker" role="tab" aria-selected="false" title="Tracker &amp; Focus"
         aria-label="Tracker"><i data-lucide="timer"></i><span>Tracker</span></button>
-      <button class="tab-btn nav-link" data-tab="flashcards" role="tab" aria-selected="false" title="Quiz &amp; Cards"
+      <button class="tab-btn nav-link" data-tab="quiz" role="tab" aria-selected="false" title="BCS &amp; Govt MCQ Practice"
         aria-label="Quiz"><i data-lucide="brain"></i><span>Quiz</span></button>
       <button class="tab-btn nav-link" data-tab="countdown" role="tab" aria-selected="false" title="Exam Targets"
         aria-label="Exam Targets"><i data-lucide="calendar-clock"></i><span>Exams</span></button>
@@ -102,7 +102,7 @@
               <!-- Month & Year display placeholder (hidden in Day mode) -->
               <div class="routine-month-badge" id="routineMonthPlaceholder" title="Current viewing month & year" style="display:none;">
                 <i data-lucide="calendar"></i>
-                <span id="routineMonthYearText">September 2026</span>
+                <span id="routineMonthYearText"></span>
               </div>
 
               <!-- Month Selector controls (visible ONLY in Monthly Overview mode) -->
@@ -430,103 +430,36 @@
       <div class="countdown-grid" id="countdownGrid"></div>
     </section>
 
-    <!-- ===== FLASHCARDS & QUIZ COMBINED ===== -->
-    <section class="panel" id="panel-flashcards">
-      <div
-        style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:16px;">
-        <h2 class="section-title" style="margin:0;">Quiz, Flashcards & Weak Areas</h2>
-        <div class="quote-source-switch segmented-toggle-group" id="quizFlashSwitch">
-          <button type="button" class="chip btn-mode-switch active" data-view="flashcards">
-            <i data-lucide="layers"></i> <span>Flashcards</span>
+    <!-- ===== BCS & GOVT MCQ PRACTICE & MISTAKE BANK ===== -->
+    <section class="panel" id="panel-quiz">
+      <div class="panel-header-row" style="margin-bottom:16px;">
+        <div style="display:flex; align-items:center; gap:10px;">
+          <h2 class="section-title" style="margin:0;">BCS &amp; Govt Job MCQs</h2>
+          <span class="badge" style="font-size:11.5px; padding:3px 10px; border-radius:12px; background:rgba(99,102,241,0.12); color:var(--accent1); font-weight:700; border:1px solid rgba(99,102,241,0.25);">1,000 Questions Bank</span>
+        </div>
+        <div class="segmented-toggle-group" id="quizFlashSwitch">
+          <button type="button" class="chip btn-mode-switch active" data-view="quiz" title="MCQ Practice &amp; Exam">
+            <i data-lucide="target"></i> <span>MCQ Quiz</span>
           </button>
-          <button type="button" class="chip btn-mode-switch" data-view="quiz">
-            <i data-lucide="target"></i> <span>BCS &amp; Govt MCQ</span>
-          </button>
-          <button type="button" class="chip btn-mode-switch" data-view="mistakes">
+          <button type="button" class="chip btn-mode-switch" data-view="mistakes" title="Review Mistake Bank">
             <i data-lucide="alert-circle"></i> <span>Mistake Bank</span>
+            <span class="badge" id="headerMistakeCountBadge" style="margin-left:4px; font-size:10px; padding:1px 6px; border-radius:10px; background:rgba(244,63,94,0.2); color:#f43f5e; font-weight:700;">0</span>
           </button>
         </div>
       </div>
 
-      <!-- Subview 1: Flashcards -->
-      <div id="subview-flashcards" class="combined-subview">
-        <!-- Unified Flashcards Control Bar -->
-        <div class="flashcards-toolbar glass">
-          <div class="flash-toolbar-left">
-            <select id="flashFilterCategory" class="pill filter-dropdown" title="Filter flashcards by subject">
-              <option value="all">All Subjects</option>
-            </select>
-            <span class="flash-count-chip" id="flashCountBadge"><i data-lucide="layers"></i> 0 Cards</span>
-          </div>
-          <div class="flash-toolbar-right">
-            <div class="btn-group category-action-group flashcard-action-group" id="flashcard-btn-group">
-              <button type="button" class="cat-group-btn cat-add-btn flash-add-btn" id="add-flashcard-btn" title="Add Flashcard" aria-label="Add Flashcard">
-                <i data-lucide="plus"></i> <span>Add Card</span>
-              </button>
-              <button type="button" class="cat-group-btn" id="syncFlashcardsBtn"
-                title="Generate active recall flashcards directly from BCS & Govt Job MCQs" aria-label="Sync MCQs">
-                <i data-lucide="zap"></i> <span>Sync MCQs</span>
-              </button>
-              <button type="button" class="cat-group-btn cat-edit-btn flash-edit-btn" id="toggle-edit-card-btn" title="Edit Flashcards" aria-label="Edit Flashcards">
-                <i data-lucide="edit-2"></i> <span>Edit Card</span>
-              </button>
-              <button type="button" class="cat-group-btn cat-shuffle-btn flash-shuffle-btn" id="shuffle-flashcards-btn" title="Shuffle Flashcards" aria-label="Shuffle Flashcards">
-                <i data-lucide="shuffle"></i> <span>Shuffle</span>
-              </button>
-              <button type="button" class="cat-group-btn cat-del-trigger flash-del-btn" id="toggle-delete-card-btn" title="Delete Flashcards" aria-label="Delete Flashcards">
-                <i data-lucide="trash-2"></i> <span>Delete Card</span>
-              </button>
-              <button type="button" class="cat-group-btn btn-exam-mode" id="startExamBtn" title="Launch Interactive Flashcard Exam" aria-label="Launch Flashcard Exam">
-                <i data-lucide="target"></i> <span>Exam Mode</span>
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <div class="collapsible-form glass" id="flashFormWrap"
-          style="display:none; margin-bottom:16px; padding:18px; border-radius:14px;">
-          <h3 style="margin: 0 0 12px; font-size: 15px; font-weight: 700;">Create Custom Flashcard</h3>
-          <div class="entry-form">
-            <div class="flash-form-row">
-              <textarea id="flashFront" placeholder="Front Side — Question, Word, or BCS Concept" rows="3"></textarea>
-            </div>
-            <div class="flash-form-row">
-              <textarea id="flashBack" placeholder="Back Side — Correct Answer, Meaning, or Detailed Explanation"
-                rows="3"></textarea>
-            </div>
-            <div class="flash-form-row flash-form-actions"
-              style="display:flex; gap:10px; align-items:center; justify-content:space-between;">
-              <select id="flashCategory" class="pill" style="flex:1; max-width:240px;">
-                <option value="">No Category</option>
-              </select>
-              <button class="pill solid" id="addFlashBtn">Save Flashcard</button>
-            </div>
-          </div>
-        </div>
-
-        <div id="flashModeBanner" style="display:none;"></div>
-        <div class="flash-grid" id="flashGrid"></div>
-      </div>
-
-      <!-- Subview 2: BCS & Govt Job MCQ System -->
-      <div id="subview-quiz" class="combined-subview" style="display:none;">
-        <!-- Redesigned MCQ Header & Control Center -->
+      <!-- Subview: BCS & Govt Job MCQ System -->
+      <div id="subview-quiz" class="combined-subview">
+        <!-- Clean MCQ Header & Mode Controls -->
         <div class="mcq-top-bar glass">
           <div class="mcq-title-group">
-            <span class="mcq-brand-icon"><i data-lucide="target"></i></span>
+            <span class="mcq-brand-icon"><i data-lucide="brain"></i></span>
             <div>
               <div class="mcq-title-row" style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
-                <h3 class="mcq-title">BCS &amp; Govt Job Preparation</h3>
+                <h3 class="mcq-title">BCS Preliminary Question Pool</h3>
                 <span class="mcq-mode-pill" id="mcqCurrentModeBadge">Practice Mode</span>
-                <span class="mcq-mastery-chip" id="mcqMasteryBadge"
-                  title="Answer a question right 2 times to master and auto-replenish from the 1,000 bank"><i
-                    data-lucide="trophy"></i> 0 / 1,000 Mastered</span>
-                <button class="pill subtle" id="resetMasteredBtn"
-                  style="display:none; font-size:11px; padding:3px 10px;"
-                  title="Restore mastered questions back to practice list">Restore Mastered</button>
               </div>
-              <p class="mcq-subtitle">Authentic preliminary questions mapped to the 200-mark BCS syllabus with instant
-                explanations, negative marking, and real exam mode.</p>
+              <p class="mcq-subtitle">Curated 1,000 questions covering all 10 preliminary subjects with randomized practice and instant explanations.</p>
             </div>
           </div>
           <div class="mcq-action-buttons">
@@ -535,44 +468,25 @@
                 title="Practice with instant feedback and explanations"><i data-lucide="book-open"></i>
                 Practice</button>
               <button class="pill btn-mode-switch btn-exam20" id="start-exam-20-btn"
-                title="Start 20-question timed model test"><i data-lucide="clipboard-check"></i> Exam
+                title="Start 20-question timed model test"><i data-lucide="clipboard-check"></i> 20-Q Exam
               </button>
             </div>
             <div class="mcq-quick-tools">
-              <button class="icon-btn" id="mcqSoundToggleBtn" title="Toggle Sound Feedback"><i data-lucide="volume-2"></i></button>
-              <button class="pill subtle" id="mcqAutoAdvanceToggle" title="Auto-advance when answered correctly"><i
-                  data-lucide="zap"></i> Auto Change: <b>ON</b></button>
-              <button class="pill subtle" id="open-add-modal" title="Add / Import custom questions"><i
-                  data-lucide="file-up"></i> Custom Qs</button>
-              <button class="pill subtle" id="reset-btn" title="Restart question pool"><i data-lucide="rotate-ccw"></i>
-                Restart</button>
+              <button class="pill subtle" id="randomQuestionBtn" title="Draw another random question immediately"><i data-lucide="shuffle"></i> Random Q</button>
+              <button class="pill subtle" id="reset-btn" title="Restart and re-shuffle questions"><i data-lucide="rotate-ccw"></i> Restart</button>
             </div>
           </div>
         </div>
 
-        <!-- MCQ Quick Subject Pre-Filter (above exam banner) -->
-        <div class="mcq-quick-filter glass" id="mcqQuickFilter" style="display:flex; align-items:center; gap:10px; padding:10px 16px; border-radius:12px; margin-bottom:12px; flex-wrap:wrap;">
-          <span style="font-size:12.5px; font-weight:600; color:var(--text-soft); white-space:nowrap; display:flex; align-items:center; gap:6px;">
-            <i data-lucide="filter" style="width:13px; height:13px;"></i> Quick Filter:
-          </span>
-          <select id="mcqQuickSubjectSelect" class="pill" style="font-size:12.5px; padding:5px 10px; max-width:220px;" title="Filter questions by subject before starting">
-            <option value="all">All Subjects</option>
-          </select>
-          <span style="font-size:11.5px; color:var(--text-muted);" id="mcqFilterCountLabel"></span>
-        </div>
-
-        <!-- 20-Question Exam Mode Live Banner & Submit -->
-        <div class="mode-banner glass" id="mode-banner">
+        <!-- 20-Question Exam Mode Live Banner & Submit (Only visible in exam mode) -->
+        <div class="mode-banner glass" id="mode-banner" style="display:none;">
           <div class="mode-banner-info">
-            <div class="mode-banner-title"><i data-lucide="clock" class="pulse-icon"></i> 20-Question Model Test in
-              Progress</div>
-            <div class="mode-banner-sub">BCS Standard Negative Marking: <b>+1.0</b> for correct • <b>-0.5</b> for
-              incorrect</div>
+            <div class="mode-banner-title"><i data-lucide="clock" class="pulse-icon"></i> 20-Question Model Test in Progress</div>
+            <div class="mode-banner-sub">BCS Standard Negative Marking: <b>+1.0</b> correct • <b>-0.5</b> incorrect</div>
           </div>
           <div class="mode-banner-right">
             <div class="exam-timer-display" id="exam-timer">15:00</div>
-            <button class="pill solid btn-finish-exam" id="finishEarlyBtn"><i data-lucide="check-circle-2"></i> Finish
-              &amp; Submit</button>
+            <button class="pill solid btn-finish-exam" id="finishEarlyBtn"><i data-lucide="check-circle-2"></i> Submit Test</button>
           </div>
         </div>
 
@@ -583,7 +497,6 @@
             <div class="palette-legend">
               <span class="legend-item"><span class="legend-dot current"></span> Current</span>
               <span class="legend-item"><span class="legend-dot answered"></span> Answered</span>
-              <span class="legend-item"><span class="legend-dot flagged"></span> Flagged</span>
               <span class="legend-item"><span class="legend-dot unanswered"></span> Unanswered</span>
             </div>
           </div>
@@ -592,15 +505,20 @@
           </div>
         </div>
 
-        <!-- Redesigned Stats Bar with Progress Bar & Streak Counter -->
+        <!-- Clean Subject Category Filter Pills -->
+        <div class="filter-bar" id="filter-bar">
+          <!-- Dynamically populated with clean icons -->
+        </div>
+
+        <!-- Clean Score & Progress Metric Bar -->
         <div class="dashboard-bar mcq-stats-bar">
           <div class="stat-card glass stat-progress-card">
             <div class="stat-card-inner">
-              <div class="stat-value" id="current-index">1 / 30</div>
-              <div class="stat-label">Progress</div>
+              <div class="stat-value" id="current-index">1 / 1,000</div>
+              <div class="stat-label">Questions Studied</div>
             </div>
             <div class="mcq-progress-track">
-              <div class="mcq-progress-bar" id="mcqProgressBar" style="width: 2%;"></div>
+              <div class="mcq-progress-bar" id="mcqProgressBar" style="width: 1%;"></div>
             </div>
           </div>
 
@@ -614,51 +532,24 @@
             <div class="stat-label">Incorrect (-0.5)</div>
           </div>
 
-          <div class="stat-card glass stat-streak-card" id="mcqStreakCard">
-            <div class="stat-value stat-streak" id="mcqStreakCount">0</div>
-            <div class="stat-label">🔥 Streak (Best: <span id="mcqBestStreak">0</span>)</div>
-          </div>
-
           <div class="stat-card glass stat-score-card">
             <div class="stat-value stat-score" id="score-val">0.00</div>
             <div class="stat-label">Net Score</div>
           </div>
         </div>
 
-        <!-- Subject Category Filter Bar -->
-        <div class="filter-bar" id="filter-bar">
-          <button class="filter-pill active" data-subject="all">All Subjects</button>
-          <button class="filter-pill" data-subject="Bangla"><span>Bangla</span><span class="pill-del-btn"
-              data-del-subject="Bangla" title="Remove Bangla"><i data-lucide="x"></i></span></button>
-          <button class="filter-pill" data-subject="English"><span>English</span><span class="pill-del-btn"
-              data-del-subject="English" title="Remove English"><i data-lucide="x"></i></span></button>
-          <button class="filter-pill" data-subject="Mathematics"><span>Mathematics</span><span class="pill-del-btn"
-              data-del-subject="Mathematics" title="Remove Mathematics"><i data-lucide="x"></i></span></button>
-          <button class="filter-pill" data-subject="General Knowledge"><span>General Knowledge</span><span
-              class="pill-del-btn" data-del-subject="General Knowledge" title="Remove General Knowledge"><i
-                data-lucide="x"></i></span></button>
-          <button class="filter-pill" data-subject="custom">Custom Questions</button>
-        </div>
-
         <!-- Main Question Card -->
         <div class="mcq-card glass" id="quiz-card">
           <div class="q-meta">
             <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
-              <span class="q-badge" id="q-subject">Subject</span>
-              <span class="q-source-tag" id="q-source-tag">BCS Standard</span>
-              <span class="q-history-badge" id="q-history-badge">Mastery: 0/2</span>
-              <button class="pill subtle q-mark-mastered-btn" id="qMarkMasteredBtn" type="button"
-                style="font-size:11px; padding:2px 8px;"
-                title="Immediately master this question and load a new question from the 1,000 bank"><i
-                  data-lucide="award"></i> Mark Mastered</button>
+              <span class="q-badge" id="q-subject"><i data-lucide="book-open"></i> Subject</span>
+              <span class="q-source-tag" id="q-source-tag">BCS Question Pool</span>
+              <span class="q-history-badge" id="q-counter-badge" style="font-size:11.5px; font-weight:600; color:var(--text-soft);"><i data-lucide="hash"></i> Random Q#1</span>
             </div>
             <div style="display:flex; align-items:center; gap:8px;">
-              <button class="pill subtle q-flag-btn" id="qFlagBtn" title="Flag this question for later review"><i
-                  data-lucide="flag"></i> <span id="qFlagText">Mark for Review</span></button>
-              <span class="auto-next-pill" id="qAutoNextPill"
-                title="Correct answers automatically advance to the next question"><i data-lucide="zap"></i>
-                Auto-Next</span>
-              <span class="shuffle-badge"><i data-lucide="shuffle"></i> Auto-Shuffled</span>
+              <button class="pill subtle q-flag-btn" id="qFlagBtn" title="Save this question to your Mistake Bank for revision">
+                <i data-lucide="bookmark"></i> <span id="qFlagText">Save to Mistakes</span>
+              </button>
             </div>
           </div>
 
@@ -669,49 +560,56 @@
           </div>
 
           <!-- Right Answer & Streak Celebration Banner -->
-          <div class="mcq-streak-banner" id="mcq-streak-banner" style="display:none;">
-            <!-- Dynamically populated on correct/wrong answers -->
-          </div>
+          <div class="mcq-streak-banner" id="mcq-streak-banner" style="display:none;"></div>
 
           <!-- Explanation Box -->
           <div class="explanation-box" id="explanation-box">
-            <div class="exp-title"><i data-lucide="lightbulb"></i> Correct Explanation &amp; Shortcut Technique:</div>
+            <div class="exp-title"><i data-lucide="lightbulb"></i> Answer &amp; Detailed Explanation:</div>
             <div id="explanation-text">Explanation will appear here...</div>
           </div>
 
           <!-- Navigation Actions -->
-          <div class="nav-actions" style="display:flex; align-items:center; gap:10px;">
+          <div class="nav-actions" style="display:flex; align-items:center; justify-content:space-between; gap:10px; margin-top:16px;">
             <button class="pill" id="prev-btn" style="display:none;"><i data-lucide="arrow-left"></i> Previous</button>
-            <div style="flex-grow:1;"></div>
-            <button class="pill solid" id="next-btn">Next <i data-lucide="arrow-right"></i></button>
+            <div style="display:flex; align-items:center; gap:10px; margin-left:auto;">
+              <button class="pill solid" id="next-btn"><i data-lucide="shuffle"></i> <span>Next Random Question</span> <i data-lucide="arrow-right"></i></button>
+            </div>
           </div>
         </div>
 
         <!-- Final Result Card -->
         <div class="mcq-card summary-card glass" id="summary-card" style="display:none;">
-          <h2 class="summary-title" id="summary-title-text">Exam Session Completed!</h2>
+          <h2 class="summary-title" id="summary-title-text">Exam Completed!</h2>
           <div class="summary-score-large" id="final-score">0.00</div>
           <div class="summary-details" id="final-details">
-            Total Questions: 0 | Correct: 0 | Wrong: 0 | Negative Marking: -0.5
+            Total Questions: 20 | Correct: 0 | Wrong: 0 | Negative Marking: -0.5
           </div>
           <div class="summary-actions btn-group">
-            <button class="pill solid btn-exam20" id="retake-20-btn"><i data-lucide="zap"></i> <span>Retake 20 Questions</span></button>
-            <button class="pill" id="restart-btn"><i data-lucide="rotate-ccw"></i> <span>Return to Bank</span></button>
+            <button class="pill solid btn-exam20" id="retake-20-btn"><i data-lucide="zap"></i> <span>Start New 20-Q Exam</span></button>
+            <button class="pill" id="restart-btn"><i data-lucide="rotate-ccw"></i> <span>Back to Practice Mode</span></button>
           </div>
         </div>
       </div>
 
-      <!-- Subview 3: Mistake Bank -->
+      <!-- Subview: Mistake Bank -->
       <div id="subview-mistakes" class="combined-subview" style="display:none;">
-        <div class="glass" style="padding:22px;">
+        <div class="glass" style="padding:22px; border-radius:16px;">
           <div
             style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:12px;">
-            <h2 class="section-title" style="font-size:17px; margin:0;">Mistake Bank (Weak Areas)</h2>
-            <button class="pill danger" id="clearMistakesBtn" style="font-size:12.5px; padding:6px 14px;">Clear All
-              Mistakes</button>
+            <div style="display:flex; align-items:center; gap:10px;">
+              <div style="width:36px; height:36px; border-radius:10px; background:rgba(244,63,94,0.12); color:#f43f5e; display:flex; align-items:center; justify-content:center;">
+                <i data-lucide="alert-circle" style="width:18px; height:18px;"></i>
+              </div>
+              <div>
+                <h2 class="section-title" style="font-size:17px; margin:0;">Mistake Bank &amp; Weak Areas</h2>
+                <span style="font-size:12px; color:var(--text-soft);">Questions missed during quizzes or bookmarked for targeted remediation</span>
+              </div>
+            </div>
+            <div class="btn-group">
+              <button class="pill subtle" id="practiceMistakesQuizBtn" type="button"><i data-lucide="play"></i> <span>Practice Mistakes</span></button>
+              <button class="pill danger" id="clearMistakesBtn" type="button"><i data-lucide="trash-2"></i> <span>Clear Mistakes</span></button>
+            </div>
           </div>
-          <p style="font-size:13px; color:var(--text-soft); margin-bottom:14px;">Questions answered incorrectly during
-            quizzes are automatically stored here for rapid spaced revision.</p>
           <div class="mistake-bank-list" id="mistakeBankList"></div>
         </div>
       </div>
@@ -817,8 +715,8 @@
         <!-- Delete Cloud Data Section -->
         <div class="settings-row" style="margin-top:14px; padding-top:14px; border-top:none; border-bottom:1px solid var(--border); padding-bottom:14px;">
           <div>
-            <strong style="font-size:14.5px; display:block; color:#f43f5e; margin-bottom:2px;">Delete Cloud Data</strong>
-            <span style="font-size:12.5px; color:var(--text-soft);">Permanently remove all synced routines, notes, syllabus checklist, and snapshots from Firestore cloud servers.</span>
+            <strong style="font-size:14.5px; display:block; color:#f43f5e; margin-bottom:2px;">Delete User Cloud Data</strong>
+            <span style="font-size:12.5px; color:var(--text-soft);">Permanently remove synced routines, notes, syllabus, and snapshots from Firestore cloud or purge local cached workspaces for a specific user.</span>
           </div>
           <button class="pill danger" id="btnDeleteCloudData" type="button" style="white-space:nowrap; background:rgba(244,63,94,0.12); color:#f43f5e; border-color:rgba(244,63,94,0.3);">
             <i data-lucide="cloud-off"></i> <span>Delete Cloud Data</span>
@@ -830,32 +728,112 @@
 
   </main>
 
-  <!-- Delete Cloud Data Confirmation Modal -->
+  <!-- Delete Cloud Data & User Reset Modal -->
   <div class="modal-overlay" id="deleteCloudModal" style="display:none;">
-    <div class="glass modal-card" style="max-width:440px; width:92%; padding:0; overflow:hidden; border-radius:18px; position:relative;">
+    <div class="glass modal-card" style="max-width:500px; width:92%; padding:0; overflow:hidden; border-radius:20px; position:relative; box-shadow:0 24px 60px rgba(0,0,0,0.35);">
       <!-- Modal Header -->
-      <div style="padding:20px 22px 16px; border-bottom:1px solid var(--border); background:var(--surface-strong); display:flex; align-items:center; gap:10px;">
-        <div style="width:36px; height:36px; border-radius:10px; background:rgba(244,63,94,0.15); color:#f43f5e; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
-          <i data-lucide="cloud-off" style="width:18px; height:18px;"></i>
+      <div style="padding:18px 22px; border-bottom:1px solid var(--border); background:var(--surface-strong); display:flex; align-items:center; gap:12px;">
+        <div style="width:38px; height:38px; border-radius:12px; background:rgba(244,63,94,0.15); color:#f43f5e; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+          <i data-lucide="cloud-off" style="width:20px; height:20px;"></i>
         </div>
-        <h3 style="margin:0; font-family:var(--font-display); font-size:16px; color:var(--text); flex:1;">Delete Cloud Data?</h3>
-        <button type="button" id="closeDeleteCloudModalBtn" style="background:none; border:none; cursor:pointer; color:var(--text-soft); padding:4px; display:flex; align-items:center; border-radius:8px; line-height:1;" title="Close" aria-label="Close modal">
+        <div style="flex:1; min-width:0;">
+          <h3 style="margin:0; font-family:var(--font-display); font-size:16.5px; font-weight:700; color:var(--text); letter-spacing:-0.2px;">Delete User Cloud Data</h3>
+          <p style="margin:2px 0 0; font-size:12px; color:var(--text-soft);">Erase remote Firestore documents or local workspace caches for a specific user</p>
+        </div>
+        <button type="button" id="closeDeleteCloudModalBtn" class="modal-close" title="Close" aria-label="Close modal">
           <i data-lucide="x" style="width:18px; height:18px;"></i>
         </button>
       </div>
+
       <!-- Modal Body -->
-      <div style="padding:18px 22px 22px;">
-        <p style="font-size:13.5px; color:var(--text-soft); line-height:1.65; margin:0 0 20px;">
-          Are you sure you want to permanently delete all your data from the cloud? All synchronized study routines, notes, syllabus checklist, mistake bank, and cloud snapshots stored in Firestore will be erased permanently.
-        </p>
+      <div style="padding:20px 22px 24px; max-height:calc(85vh - 120px); overflow-y:auto;">
+        
+        <!-- Target Account Selection -->
+        <div style="margin-bottom:14px;">
+          <label for="deleteCloudUserSelect" style="display:block; font-size:12.5px; font-weight:700; color:var(--text); margin-bottom:6px;">
+            Target Account
+          </label>
+          <div style="position:relative;">
+            <select id="deleteCloudUserSelect" style="width:100%; padding:9px 12px; border-radius:10px; border:1px solid var(--border); background:var(--surface); color:var(--text); font-size:13.5px; font-family:inherit; outline:none; transition:border-color 0.2s;">
+              <!-- Populated dynamically via JS -->
+            </select>
+          </div>
+        </div>
+
+        <!-- Custom UID Input (conditionally visible) -->
+        <div id="deleteCloudCustomUidRow" style="display:none; margin-bottom:14px;">
+          <label for="deleteCloudCustomUid" style="display:block; font-size:12px; font-weight:600; color:var(--text-soft); margin-bottom:5px;">
+            Specific User UID / Email Identifier
+          </label>
+          <input type="text" id="deleteCloudCustomUid" placeholder="Paste UID (e.g. user_abc123) or email..." style="width:100%; padding:8px 12px; border-radius:9px; border:1px solid var(--border); background:var(--surface); color:var(--text); font-size:13px; font-family:inherit; outline:none;" />
+        </div>
+
+        <!-- Target Account Info Card -->
+        <div id="deleteCloudTargetCard" style="background:var(--surface-strong); border:1px solid var(--border); border-radius:12px; padding:12px 14px; margin-bottom:16px;">
+          <div style="display:flex; align-items:center; gap:12px;">
+            <div id="deleteCloudAvatar" style="width:40px; height:40px; border-radius:10px; background:linear-gradient(135deg, var(--accent1), var(--accent2)); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:16px; flex-shrink:0;">
+              U
+            </div>
+            <div style="flex:1; min-width:0;">
+              <div id="deleteCloudTargetName" style="font-size:14px; font-weight:700; color:var(--text); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">Active User</div>
+              <div id="deleteCloudTargetEmail" style="font-size:12px; color:var(--text-soft); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">user@example.com</div>
+              <div id="deleteCloudTargetUid" style="font-size:11px; font-family:monospace; color:var(--text-muted); margin-top:2px;">UID: -</div>
+            </div>
+          </div>
+          <!-- Target Cloud Auth Status Banner -->
+          <div id="deleteCloudAuthNotice" style="margin-top:10px; padding:8px 10px; border-radius:8px; font-size:12px; line-height:1.45; background:rgba(16,185,129,0.1); border:1px solid rgba(16,185,129,0.25); color:#10b981;">
+            <!-- Rendered dynamically -->
+          </div>
+        </div>
+
+        <!-- Deletion Options Checklist -->
+        <div style="background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:12px 14px; margin-bottom:16px;">
+          <div style="font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; color:var(--text-soft); margin-bottom:10px;">
+            Deletion Actions
+          </div>
+          <div style="display:flex; flex-direction:column; gap:10px;">
+            <label style="display:flex; align-items:flex-start; gap:9px; cursor:pointer; font-size:13px; color:var(--text); line-height:1.4;">
+              <input type="checkbox" id="chkDeleteCloudRecords" checked style="accent-color:#f43f5e; margin-top:2px; width:16px; height:16px;">
+              <span>
+                <strong style="display:block;">Permanent Firestore Cloud Wipe</strong>
+                <span style="font-size:11.5px; color:var(--text-soft);">Deletes <code>/users/{uid}</code>, backup snapshots, and username claims on Firestore.</span>
+              </span>
+            </label>
+            <label style="display:flex; align-items:flex-start; gap:9px; cursor:pointer; font-size:13px; color:var(--text); line-height:1.4;">
+              <input type="checkbox" id="chkDeleteLocalRecords" checked style="accent-color:#f43f5e; margin-top:2px; width:16px; height:16px;">
+              <span>
+                <strong style="display:block;">Purge Local Workspace &amp; Cache</strong>
+                <span style="font-size:11.5px; color:var(--text-soft);">Clears browser offline bundles, local snapshots, and mistake bank for this user.</span>
+              </span>
+            </label>
+            <label id="lblDeleteSignOut" style="display:flex; align-items:flex-start; gap:9px; cursor:pointer; font-size:13px; color:var(--text); line-height:1.4;">
+              <input type="checkbox" id="chkDeleteSignOut" checked style="accent-color:#f43f5e; margin-top:2px; width:16px; height:16px;">
+              <span>
+                <strong style="display:block;">Sign Out from this Device</strong>
+                <span style="font-size:11.5px; color:var(--text-soft);">Terminates active session and resets active study state to clean default.</span>
+              </span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Status / Progress Feedback Box -->
+        <div id="deleteCloudProgressBox" style="display:none; padding:10px 14px; border-radius:10px; font-size:12.5px; line-height:1.5; margin-bottom:16px; background:rgba(99,102,241,0.1); border:1px solid rgba(99,102,241,0.25); color:var(--accent1);">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span style="display:inline-block; width:14px; height:14px; border:2px solid var(--accent1); border-top-color:transparent; border-radius:50%; animation:spin 0.8s linear infinite; flex-shrink:0;"></span>
+            <span id="deleteCloudProgressText">Processing deletion...</span>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
         <div style="display:flex; flex-direction:column; gap:10px;">
-          <button class="pill danger" id="confirmDeleteCloudBtn" type="button" style="width:100%; justify-content:center; padding:11px 16px; font-size:14px; font-weight:700;">
-            <i data-lucide="trash-2" style="width:15px; height:15px;"></i> Permanently Delete Cloud Data
+          <button class="pill danger" id="confirmDeleteCloudBtn" type="button" style="width:100%; justify-content:center; padding:11px 16px; font-size:14px; font-weight:700; box-shadow:0 4px 14px rgba(244,63,94,0.25);">
+            <i data-lucide="trash-2" style="width:16px; height:16px;"></i> <span id="confirmDeleteCloudBtnText">Permanently Delete User Data</span>
           </button>
           <button class="pill subtle" id="cancelDeleteCloudModalBtn" type="button" style="width:100%; justify-content:center; padding:10px 16px; font-size:13.5px;">
             Cancel
           </button>
         </div>
+
       </div>
     </div>
   </div>

@@ -95,7 +95,7 @@ document.addEventListener('click', (e) => {
 function normalizeTabName(tabName) {
   if (!tabName) return 'home';
   if (tabName === 'dashboard' || tabName === 'routine') return 'home';
-  if (tabName === 'quiz') return 'flashcards';
+  if (tabName === 'flashcards' || tabName === 'quiz' || tabName === 'mcq') return 'quiz';
   if (tabName === 'exams') return 'countdown';
   if (tabName === 'settings' || tabName === 'auth' || tabName === 'login' || tabName === 'signup' || tabName === 'register') return 'profile';
   return tabName;
@@ -103,7 +103,9 @@ function normalizeTabName(tabName) {
 
 function activateTab(rawTabName, persist = false) {
   const tabName = normalizeTabName(rawTabName);
-  const targetPanel = document.getElementById('panel-' + tabName) || (tabName === 'profile' ? document.getElementById('panel-settings') : null);
+  const targetPanel = document.getElementById('panel-' + tabName) || 
+                      (tabName === 'profile' ? document.getElementById('panel-settings') : null) ||
+                      (tabName === 'quiz' ? document.getElementById('panel-flashcards') : null);
   if (!targetPanel) return;
 
   document.querySelectorAll('.tab-btn').forEach(b => {
@@ -193,11 +195,11 @@ function initCommandPalette() {
   let currentItems = [];
 
   const staticCommands = [
-    { id: 'tab-home', category: 'Navigation', icon: 'layout-dashboard', title: 'Go to Home & Routine', subtitle: 'Mission Control, stats & daily study schedule', action: () => activateTab('home', true) },
+    { id: 'tab-home', category: 'Navigation', icon: 'home', title: 'Go to Home & Routine', subtitle: 'Mission Control, stats & daily study schedule', action: () => activateTab('home', true) },
     { id: 'tab-routine', category: 'Navigation', icon: 'calendar-days', title: 'Jump to Study Routine', subtitle: 'View & edit daily study schedule on Home', action: () => activateTab('routine', true) },
     { id: 'tab-notes', category: 'Navigation', icon: 'notebook-pen', title: 'Go to Smart Notes', subtitle: 'Study notes, formulas & tags', action: () => activateTab('notes', true) },
     { id: 'tab-tracker', category: 'Navigation', icon: 'timer', title: 'Go to Tracker & Focus', subtitle: 'Pomodoro timer & activity stats', action: () => activateTab('tracker', true) },
-    { id: 'tab-quiz', category: 'Navigation', icon: 'brain', title: 'Go to Quiz & Cards', subtitle: 'Practice flashcards & MCQs', action: () => activateTab('flashcards', true) },
+    { id: 'tab-quiz', category: 'Navigation', icon: 'brain', title: 'Go to BCS & Govt MCQ Quiz', subtitle: 'Practice randomized MCQs & model tests', action: () => activateTab('quiz', true) },
     { id: 'tab-countdown', category: 'Navigation', icon: 'calendar-clock', title: 'Go to Exam Targets', subtitle: 'Exam countdowns & milestones', action: () => activateTab('countdown', true) },
     { id: 'tab-syllabus', category: 'Navigation', icon: 'list-checks', title: 'Go to Syllabus', subtitle: 'BCS syllabus & topic progress', action: () => activateTab('syllabus', true) },
     { id: 'tab-profile', category: 'Navigation', icon: 'user', title: 'Go to User Profile', subtitle: 'Cloud backup, sync & settings', action: () => activateTab('profile', true) },

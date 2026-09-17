@@ -65,8 +65,9 @@ function renderProfileAspirantHub() {
   if (typeof loadExams === 'function' && (!exams || !exams.length)) {
     loadExams();
   }
-  const upcomingExams = (exams || []).filter(e => new Date(e.targetDate).getTime() > Date.now())
-    .sort((a, b) => new Date(a.targetDate).getTime() - new Date(b.targetDate).getTime());
+  const getExamMs = e => (typeof parseExamTargetMs === 'function' ? parseExamTargetMs(e.targetDate) : new Date(e.targetDate).getTime());
+  const upcomingExams = (exams || []).filter(e => getExamMs(e) > Date.now())
+    .sort((a, b) => getExamMs(a) - getExamMs(b));
   const nearestExam = upcomingExams[0] || null;
 
   // 4. Primary Core Subject Pillars Data (Adaptive to Student vs Job Seeker)
@@ -218,28 +219,33 @@ function renderProfileAspirantHub() {
           </div>
 
           <div class="home-pillars-grid">
-            ${pillarStats.map(p => `
-              <div class="home-pillar-card" style="--pillar-color: ${p.color};">
-                <div class="home-pillar-head">
-                  <span class="home-pillar-title">
-                    <span class="home-pillar-dot"></span>
-                    ${escapeHtml(p.name)}
-                  </span>
-                  <span class="home-pillar-pct">${p.syllabusPct}%</span>
+            ${pillarStats.map(p => {
+              const meta = typeof getSubjectMeta === 'function' ? getSubjectMeta(p.name) : { icon: 'book-open' };
+              return `
+                <div class="home-pillar-card" style="--pillar-color: ${p.color};">
+                  <div class="home-pillar-head">
+                    <span class="home-pillar-title" style="display:inline-flex; align-items:center; gap:7px;">
+                      <span class="home-pillar-icon" style="color: ${p.color}; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0;">
+                        <i data-lucide="${meta.icon || 'book-open'}" style="width:14px; height:14px;"></i>
+                      </span>
+                      <span>${escapeHtml(p.name)}</span>
+                    </span>
+                    <span class="home-pillar-pct">${p.syllabusPct}%</span>
+                  </div>
+                  <div class="home-pillar-progress">
+                    <div class="home-pillar-fill" style="width: ${p.syllabusPct}%;"></div>
+                  </div>
+                  <div class="home-pillar-footer">
+                    <span class="home-pillar-time">
+                      ${p.studiedMins > 0 ? `${p.studiedMins}m today` : `${p.doneTopics}/${p.totalTopics} topics done`}
+                    </span>
+                    <button type="button" class="home-pillar-study-btn" data-pillar-name="${escapeAttr(p.name)}">
+                      Study &rarr;
+                    </button>
+                  </div>
                 </div>
-                <div class="home-pillar-progress">
-                  <div class="home-pillar-fill" style="width: ${p.syllabusPct}%;"></div>
-                </div>
-                <div class="home-pillar-footer">
-                  <span class="home-pillar-time">
-                    ${p.studiedMins > 0 ? `${p.studiedMins}m today` : `${p.doneTopics}/${p.totalTopics} topics done`}
-                  </span>
-                  <button type="button" class="home-pillar-study-btn" data-pillar-name="${escapeAttr(p.name)}">
-                    Study &rarr;
-                  </button>
-                </div>
-              </div>
-            `).join('')}
+              `;
+            }).join('')}
           </div>
         </div>
       </div>
@@ -269,15 +275,21 @@ function renderProfileAspirantHub() {
             </div>
           ` : `
             <div class="home-mistake-list">
-              ${pendingMistakes.slice(0, 3).map(m => `
-                <div class="home-mistake-item">
-                  <div class="home-mistake-item-q">${escapeHtml(m.q || 'Question')}</div>
-                  <div class="home-mistake-item-meta">
-                    <span class="home-mistake-tag">${escapeHtml(m.subject || 'BCS')}</span>
-                    <span>Correct: <strong>${escapeHtml(m.correctAns || 'N/A')}</strong></span>
+              ${pendingMistakes.slice(0, 3).map(m => {
+                const meta = typeof getSubjectMeta === 'function' ? getSubjectMeta(m.subject) : { icon: 'target' };
+                return `
+                  <div class="home-mistake-item">
+                    <div class="home-mistake-item-q">${escapeHtml(m.q || 'Question')}</div>
+                    <div class="home-mistake-item-meta">
+                      <span class="home-mistake-tag" style="display:inline-flex; align-items:center; gap:4px;">
+                        <i data-lucide="${meta.icon || 'target'}" style="width:11px; height:11px;"></i>
+                        <span>${escapeHtml(m.subject || 'BCS')}</span>
+                      </span>
+                      <span>Correct: <strong>${escapeHtml(m.correctAns || 'N/A')}</strong></span>
+                    </div>
                   </div>
-                </div>
-              `).join('')}
+                `;
+              }).join('')}
             </div>
             <button type="button" class="pill danger" id="profileReviewMistakesBtn" style="width:100%; justify-content:center; font-size:12.5px; margin-top:8px;">
               <i data-lucide="refresh-cw"></i> Practice Mistake Bank (${pendingMistakes.length})
@@ -321,7 +333,8 @@ function startProfileExamCountdown(nearestExam) {
     const elLive = document.getElementById('profileExamCountdownTime') || document.getElementById('homeExamCountdownTime');
     if (!elLive) return;
 
-    const diff = new Date(nearestExam.targetDate).getTime() - Date.now();
+    const targetMs = typeof parseExamTargetMs === 'function' ? parseExamTargetMs(nearestExam.targetDate) : new Date(nearestExam.targetDate).getTime();
+    const diff = targetMs - Date.now();
     if (diff <= 0) {
       elLive.textContent = 'Exam Today!';
       return;

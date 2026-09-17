@@ -204,14 +204,32 @@ if (prevDateBtn) prevDateBtn.addEventListener('click', () => shiftRoutineDate(-1
 const nextDateBtn = document.getElementById('dateNextBtn');
 if (nextDateBtn) nextDateBtn.addEventListener('click', () => shiftRoutineDate(1));
 
-const ROUTINE_HEAD = '<thead><tr><th style="width:16%">Start</th><th style="width:16%">End</th><th style="width:24%">Subject</th><th>Topic / Task</th><th style="width:78px; text-align:right;"><button type="button" class="routine-table-reset-btn" id="resetRoutineBtn" title="Reset to recommended daily routine"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle; margin-right:3px;"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path></svg><span>Reset</span></button></th></tr></thead>';
+function formatTime12(t) {
+  if (!t || !t.includes(':')) return t || '--:--';
+  const [hStr, mStr] = t.split(':');
+  let h = parseInt(hStr, 10);
+  if (isNaN(h)) return t;
+  const ampm = h >= 12 ? 'PM' : 'AM';
+  h = h % 12;
+  if (h === 0) h = 12;
+  return `${h}:${mStr} ${ampm}`;
+}
+window.formatTime12 = formatTime12;
+
+const ROUTINE_HEAD = '<thead><tr><th style="width:16%">Start</th><th style="width:16%">End</th><th style="width:24%">Subject</th><th>Topic / Task</th><th style="width:78px; text-align:right;"><button type="button" class="routine-table-reset-btn" id="resetRoutineBtn" title="Reset to recommended daily routine"><i data-lucide="rotate-ccw" style="width:12px; height:12px; vertical-align:middle; margin-right:3px;"></i><span>Reset</span></button></th></tr></thead>';
 
 function routineRowHtml(row) {
+  const meta = typeof getSubjectMeta === 'function' ? getSubjectMeta(row.subject) : { color: '#6366f1', icon: 'book-open' };
   return `
     <tr>
       <td><input type="time" value="${row.startTime || ''}" data-field="startTime" data-id="${row.id}"></td>
       <td><input type="time" value="${row.endTime || ''}" data-field="endTime" data-id="${row.id}"></td>
-      <td><input type="text" value="${escapeAttr(row.subject || '')}" placeholder="Subject" data-field="subject" data-id="${row.id}" list="appSubjectDatalist"></td>
+      <td>
+        <div style="display:flex; align-items:center; gap:6px;">
+          <span style="color:${meta.color}; display:inline-flex; align-items:center;"><i data-lucide="${meta.icon || 'book-open'}" style="width:14px; height:14px;"></i></span>
+          <input type="text" value="${escapeAttr(row.subject || '')}" placeholder="Subject" data-field="subject" data-id="${row.id}" list="appSubjectDatalist" style="flex:1;">
+        </div>
+      </td>
       <td><input type="text" value="${escapeAttr(row.task || '')}" placeholder="Task description" data-field="task" data-id="${row.id}"></td>
       <td><button class="del-row" title="Delete row" data-id="${row.id}">${ICON.x}</button></td>
     </tr>
@@ -233,23 +251,33 @@ function renderTrackerRoutinePreview() {
   }
 
   const max = Math.max(...entries.map(([, min]) => min));
-  const rowsHtml = entries.map(([subj, min]) => `
-    <div class="tracker-routine-item">
-      <div class="tracker-routine-details">
-        <div class="tracker-routine-subject-row">
-          <span class="tracker-routine-subject">${escapeHtml(subj)}</span>
-          <span class="tracker-routine-time">${fmtHM(min)}</span>
-        </div>
-        <div class="tracker-routine-progress">
-          <div class="tracker-routine-track">
-            <div class="tracker-routine-fill" style="width:${Math.round((min / max) * 100)}%"></div>
+  const rowsHtml = entries.map(([subj, min]) => {
+    const meta = typeof getSubjectMeta === 'function' ? getSubjectMeta(subj) : { color: '#6366f1', icon: 'book-open' };
+    return `
+      <div class="tracker-routine-item">
+        <div class="tracker-routine-details">
+          <div class="tracker-routine-subject-row">
+            <span class="tracker-routine-subject" style="display:inline-flex; align-items:center; gap:6px;">
+              <span style="color:${meta.color}; display:inline-flex; align-items:center;"><i data-lucide="${meta.icon || 'book-open'}" style="width:13px; height:13px;"></i></span>
+              <span>${escapeHtml(subj)}</span>
+            </span>
+            <span class="tracker-routine-time">${fmtHM(min)}</span>
+          </div>
+          <div class="tracker-routine-progress">
+            <div class="tracker-routine-track">
+              <div class="tracker-routine-fill" style="width:${Math.round((min / max) * 100)}%; background:${meta.color};"></div>
+            </div>
           </div>
         </div>
       </div>
-    </div>
-  `).join('');
+    `;
+  }).join('');
 
-  box.innerHTML = `<div class="tracker-routine-title">Today\'s Subject Breakdown</div>${rowsHtml}`;
+  box.innerHTML = `<div class="tracker-routine-title">Today's Subject Breakdown</div>${rowsHtml}`;
+
+  if (window.lucide && typeof window.lucide.createIcons === 'function') {
+    window.lucide.createIcons();
+  }
 }
 
 function renderRoutine() {
@@ -316,10 +344,7 @@ function renderRoutine() {
         </table>
         <div class="routine-floating-add-dock" id="routineFloatingAddDock">
           <button type="button" class="routine-floating-add-circle" id="inlineAddRowBtn" title="Add another study block" aria-label="Add study block">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round">
-              <line x1="12" y1="5" x2="12" y2="19"></line>
-              <line x1="5" y1="12" x2="19" y2="12"></line>
-            </svg>
+            <i data-lucide="plus" style="width:18px; height:18px;"></i>
           </button>
         </div>
       </div>
@@ -342,6 +367,9 @@ function renderRoutine() {
       dock.addEventListener('mouseenter', showBtn);
       dock.addEventListener('mouseleave', hideBtn);
     }
+  if (window.lucide && typeof window.lucide.createIcons === 'function') {
+    window.lucide.createIcons();
+  }
   renderTrackerRoutinePreview();
 }
 
@@ -509,7 +537,7 @@ function showMonthlyRoutines() {
         </thead>
         <tbody>
           ${rows.map(r => `<tr>
-            <td style="font-family:var(--font-mono); font-size:12px; color:var(--accent2);">${escapeHtml(r.startTime || '--:--')} – ${escapeHtml(r.endTime || '--:--')}</td>
+            <td style="font-family:var(--font-mono); font-size:12px; color:var(--accent2);">${escapeHtml(formatTime12(r.startTime))} – ${escapeHtml(formatTime12(r.endTime))}</td>
             <td style="font-weight:600; color:var(--text);">${escapeHtml(r.subject || 'No Subject')}</td>
             <td style="color:var(--text-soft);">${escapeHtml(r.task || '—')}</td>
           </tr>`).join('')}

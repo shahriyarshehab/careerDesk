@@ -952,6 +952,7 @@ function buildCloudDataBundle() {
  * Uploads/Syncs current active user data to Firestore
  */
 async function syncUserDataToFirestore(user = null, silent = true) {
+  if (window._isDeletingCloudData || isExplicitlySignedOut) return;
   if (!user) user = getCachedAuthUser();
   if (!user) {
     if (!silent) showToast('Please sign in to sync with cloud', true);
@@ -1139,12 +1140,14 @@ async function collectUserDataFromFirestore(user = null) {
  */
 let _firestoreSyncTimer = null;
 function scheduleFirestoreSync() {
+  if (window._isDeletingCloudData || isExplicitlySignedOut) return;
   if (_firestoreSyncTimer) clearTimeout(_firestoreSyncTimer);
   const liveBadge = document.getElementById('cloudSyncLiveBadge');
   if (liveBadge) {
     liveBadge.innerHTML = `<span style="display:inline-block; width:7px; height:7px; border-radius:50%; background:var(--accent2); margin-right:5px; animation:spin 1s linear infinite;"></span> Saving...`;
   }
   _firestoreSyncTimer = setTimeout(async () => {
+    if (window._isDeletingCloudData || isExplicitlySignedOut) return;
     const user = getCachedAuthUser();
     if (user) {
       await syncUserDataToFirestore(user, true);
@@ -1831,6 +1834,34 @@ function renderUserProfileUI() {
     }
 
     container.innerHTML = `
+      <!-- MOTIVATIONAL QUOTE SHOWCASE ABOVE HERO SECTION WITH TYPING ANIMATION -->
+      <div class="profile-quote-ticker-top" id="profileHeroQuoteTicker">
+        <div class="profile-quote-ticker-content">
+          <div class="profile-quote-mark-badge" title="Daily Motivational Spark">
+            <i data-lucide="quote"></i>
+          </div>
+          <div class="profile-quote-lang-badge" id="profileQuoteLangBadge" title="Language: English (Click for বাংলা)">
+            <span class="lang-indicator-dot"></span>
+            <span id="profileQuoteLangText">EN</span>
+          </div>
+          <div class="profile-quote-typing-area">
+            <span class="profile-quote-phrase"><span class="profile-quote-curly-open">“</span><span class="profile-quote-typed-text" id="profileQuoteTypedText"></span><span class="profile-quote-cursor" id="profileQuoteCursor"></span><span class="profile-quote-curly-close">”</span></span>
+            <span class="profile-quote-author-pill" id="profileQuoteAuthorPill">— Jim Rohn</span>
+          </div>
+        </div>
+        <div class="profile-quote-controls">
+          <button type="button" class="profile-quote-ctrl-btn" id="btnToggleQuotePause" title="Pause / Resume animation">
+            <i data-lucide="pause"></i>
+          </button>
+          <button type="button" class="profile-quote-ctrl-btn btn-cycle-profile-hero-quote" id="btnCycleProfileHeroQuote" title="Next motivational quote">
+            <i data-lucide="skip-forward"></i>
+          </button>
+        </div>
+        <div class="profile-quote-progress-bar">
+          <div class="profile-quote-progress-fill" id="profileQuoteProgressFill"></div>
+        </div>
+      </div>
+
       <!-- HERO BANNER -->
       <div class="profile-hero-banner">
         <div class="profile-hero-grid">
@@ -1871,26 +1902,9 @@ function renderUserProfileUI() {
             </div>
           </div>
 
-          <!-- Right: Quote on Top Right, Edit & Sign Out Stacked Vertically -->
+          <!-- Right: Edit & Sign Out in Single Line Down -->
           <div class="profile-hero-right">
-            <!-- Top Right Quote -->
-            <div class="profile-hero-top-quote">
-              <div class="profile-hero-quote-main">
-                <div class="profile-quote-mark-badge">
-                  <i data-lucide="quote"></i>
-                </div>
-                <div class="profile-quote-text-wrap">
-                  <p class="profile-quote-line profile-hero-quote-text-el" id="profileHeroQuoteText">"${escapeHtml(heroQuote.q)}"</p>
-                  <span class="profile-quote-author profile-hero-quote-author-el" id="profileHeroQuoteAuthor">— ${escapeHtml(heroQuote.a || 'CareerDesk')}</span>
-                </div>
-              </div>
-              <button type="button" class="profile-quote-cycle-btn btn-cycle-profile-hero-quote" id="btnCycleProfileHeroQuote" title="Next motivational quote">
-                <i data-lucide="shuffle"></i>
-              </button>
-            </div>
-
-            <!-- Vertical Action Buttons (Edit Profile & Sign Out) -->
-            <div class="profile-hero-vertical-actions">
+            <div class="profile-hero-actions-row">
               <button type="button" class="pill solid btn-edit-profile-main" id="btnOpenEditProfileModal" title="Edit Profile Details">
                 <i data-lucide="user-cog" style="width:15px;height:15px;"></i> <span>Edit Profile</span>
               </button>
@@ -1931,8 +1945,36 @@ function renderUserProfileUI() {
   } else {
     // ===== SIGNED-OUT / GUEST STATE (CLEAN, READABLE TEXT) =====
     container.innerHTML = `
-      <div class="auth-guest-landing-card clean-guest-card">
-        <div class="profile-hero-grid guest-hero-grid">
+      <div class="auth-guest-landing-card clean-guest-card" style="padding:0; overflow:hidden;">
+        <!-- MOTIVATIONAL QUOTE SHOWCASE ABOVE HERO SECTION WITH TYPING ANIMATION -->
+        <div class="profile-quote-ticker-top" id="profileHeroQuoteTicker">
+          <div class="profile-quote-ticker-content">
+            <div class="profile-quote-mark-badge" title="Daily Motivational Spark">
+              <i data-lucide="quote"></i>
+            </div>
+            <div class="profile-quote-lang-badge" id="profileQuoteLangBadge" title="Language: English (Click for বাংলা)">
+              <span class="lang-indicator-dot"></span>
+              <span id="profileQuoteLangText">EN</span>
+            </div>
+            <div class="profile-quote-typing-area">
+              <span class="profile-quote-phrase"><span class="profile-quote-curly-open">“</span><span class="profile-quote-typed-text" id="profileQuoteTypedText"></span><span class="profile-quote-cursor" id="profileQuoteCursor"></span><span class="profile-quote-curly-close">”</span></span>
+              <span class="profile-quote-author-pill" id="profileQuoteAuthorPill">— Jim Rohn</span>
+            </div>
+          </div>
+          <div class="profile-quote-controls">
+            <button type="button" class="profile-quote-ctrl-btn" id="btnToggleQuotePause" title="Pause / Resume animation">
+              <i data-lucide="pause"></i>
+            </button>
+            <button type="button" class="profile-quote-ctrl-btn btn-cycle-profile-hero-quote" id="btnCycleProfileHeroQuoteGuest" title="Next motivational quote">
+              <i data-lucide="skip-forward"></i>
+            </button>
+          </div>
+          <div class="profile-quote-progress-bar">
+            <div class="profile-quote-progress-fill" id="profileQuoteProgressFill"></div>
+          </div>
+        </div>
+
+        <div class="profile-hero-grid guest-hero-grid" style="padding:22px;">
           <!-- Left: Guest Details -->
           <div class="profile-hero-left">
             <div class="user-avatar-wrap">
@@ -1961,36 +2003,19 @@ function renderUserProfileUI() {
             </div>
           </div>
 
-          <!-- Right: Quote on Top Right, Guest Actions Stacked Vertically -->
+          <!-- Right: Guest Actions in Single Line Down -->
           <div class="profile-hero-right">
-            <!-- Top Right Quote -->
-            <div class="profile-hero-top-quote">
-              <div class="profile-hero-quote-main">
-                <div class="profile-quote-mark-badge">
-                  <i data-lucide="quote"></i>
-                </div>
-                <div class="profile-quote-text-wrap">
-                  <p class="profile-quote-line profile-hero-quote-text-el" id="profileHeroQuoteTextGuest">"${escapeHtml(heroQuote.q)}"</p>
-                  <span class="profile-quote-author profile-hero-quote-author-el" id="profileHeroQuoteAuthorGuest">— ${escapeHtml(heroQuote.a || 'CareerDesk')}</span>
-                </div>
-              </div>
-              <button type="button" class="profile-quote-cycle-btn btn-cycle-profile-hero-quote" id="btnCycleProfileHeroQuoteGuest" title="Next motivational quote">
-                <i data-lucide="shuffle"></i>
-              </button>
-            </div>
-
-            <!-- Vertical Action Buttons (NO duplicate Subject Manager) -->
-            <div class="profile-hero-vertical-actions">
+            <div class="profile-hero-actions-row">
               <button type="button" class="btn-profile-signup-cta" id="btnOpenAuthModalSignup" title="Create a new free account">
-                <i data-lucide="user-plus" style="width:16px; height:16px;"></i>
+                <i data-lucide="user-plus" style="width:15px; height:15px;"></i>
                 <span>Create Account</span>
               </button>
               <button type="button" class="btn-profile-login-cta" id="btnOpenAuthModalLogin" title="Sign in to your account">
-                <i data-lucide="log-in" style="width:16px; height:16px;"></i>
+                <i data-lucide="log-in" style="width:15px; height:15px;"></i>
                 <span>Sign In</span>
               </button>
-              <button type="button" class="pill subtle" id="btnOpenEditProfileModalGuest" title="Edit Profile Details">
-                <i data-lucide="user-cog" style="width:16px; height:16px;"></i>
+              <button type="button" class="pill subtle btn-edit-profile-guest" id="btnOpenEditProfileModalGuest" title="Edit Profile Details">
+                <i data-lucide="user-cog" style="width:15px; height:15px;"></i>
                 <span>Edit Profile</span>
               </button>
             </div>
@@ -2072,7 +2097,11 @@ function renderUserProfileUI() {
     btn.addEventListener('click', (e) => {
       e.preventDefault();
       e.stopPropagation();
-      cycleProfileHeroQuote();
+      if (typeof skipToNextQuoteTypewriter === 'function') {
+        skipToNextQuoteTypewriter();
+      } else {
+        cycleProfileHeroQuote();
+      }
     });
   });
 
@@ -2084,12 +2113,21 @@ function renderUserProfileUI() {
   if (window.lucide && typeof window.lucide.createIcons === 'function') {
     window.lucide.createIcons();
   }
+
+  // Initialize Bilingual Motivational Quote Typewriter above Hero Section
+  if (typeof initProfileQuoteTypewriter === 'function') {
+    initProfileQuoteTypewriter();
+  }
 }
 
 /**
  * Rotates to the next motivational quote in Profile Hero panel
  */
 function cycleProfileHeroQuote() {
+  if (typeof skipToNextQuoteTypewriter === 'function') {
+    skipToNextQuoteTypewriter();
+    return;
+  }
   const pool = (typeof currentPool === 'function') ? currentPool() : [];
   if (!pool || pool.length === 0) return;
   if (typeof state !== 'undefined') {
@@ -2102,18 +2140,21 @@ function cycleProfileHeroQuote() {
   const textEls = document.querySelectorAll('.profile-hero-quote-text-el, #profileHeroQuoteText, #profileHeroQuoteTextGuest');
   const authorEls = document.querySelectorAll('.profile-hero-quote-author-el, #profileHeroQuoteAuthor, #profileHeroQuoteAuthorGuest');
 
+  const qText = typeof cleanQuoteText === 'function' ? cleanQuoteText(nextQ.q) : (nextQ.q || '');
+  const qAuthor = typeof cleanQuoteAuthor === 'function' ? cleanQuoteAuthor(nextQ.a) : (nextQ.a || 'CareerDesk');
+
   textEls.forEach(tEl => {
     tEl.style.opacity = '0';
     tEl.style.transform = 'translateY(4px)';
     setTimeout(() => {
-      tEl.textContent = `"${nextQ.q}"`;
+      tEl.textContent = `“${qText}”`;
       tEl.style.opacity = '1';
       tEl.style.transform = 'translateY(0)';
     }, 150);
   });
 
   authorEls.forEach(aEl => {
-    aEl.textContent = `— ${nextQ.a || 'CareerDesk'}`;
+    aEl.textContent = `— ${qAuthor}`;
   });
 
   if (typeof renderQuote === 'function') renderQuote();
@@ -4019,6 +4060,407 @@ async function importCloudBackupJSON(file) {
   };
   reader.readAsText(file);
 }
+
+// =========================================================
+// MULTI-ACCOUNT DISCOVERY & CLOUD/LOCAL DATA PURGE SUBSYSTEM
+// =========================================================
+
+/**
+ * Safely accesses firebase.auth().currentUser without throwing if apps is empty
+ */
+function getSafeFirebaseAuthUser() {
+  try {
+    if (typeof firebase !== 'undefined' && firebase.apps && firebase.apps.length > 0 && typeof firebase.auth === 'function') {
+      return firebase.auth().currentUser;
+    }
+  } catch (e) { }
+  return null;
+}
+window.getSafeFirebaseAuthUser = getSafeFirebaseAuthUser;
+
+/**
+ * Gathers all known user accounts from active auth session, local bundles,
+ * username registry, and snapshot caches.
+ */
+function getKnownUserAccounts() {
+  const accounts = new Map();
+  const activeUser = (typeof getCachedAuthUser === 'function') ? getCachedAuthUser() : null;
+  const firebaseAuthUser = getSafeFirebaseAuthUser();
+
+  // 1. Currently active session user
+  if (activeUser && activeUser.uid) {
+    const isOnlineAuth = !!(firebaseAuthUser && firebaseAuthUser.uid === activeUser.uid && !activeUser.isDemo);
+    accounts.set(activeUser.uid, {
+      uid: activeUser.uid,
+      displayName: activeUser.displayName || 'Active Aspirant',
+      email: activeUser.email || '',
+      photoURL: activeUser.photoURL || '',
+      providerId: activeUser.providerId || 'account',
+      isActive: true,
+      isAuthenticated: isOnlineAuth,
+      isDemo: !!activeUser.isDemo,
+      source: 'Active User Session'
+    });
+  }
+
+  // 2. Scan usernames registry
+  try {
+    const unameMap = getLocalUsernameMap();
+    for (const [uname, entry] of Object.entries(unameMap)) {
+      if (entry && entry.uid) {
+        if (!accounts.has(entry.uid)) {
+          const isAuth = !!(firebaseAuthUser && firebaseAuthUser.uid === entry.uid);
+          accounts.set(entry.uid, {
+            uid: entry.uid,
+            displayName: uname ? `@${uname}` : 'CareerDesk User',
+            email: entry.email || '',
+            photoURL: '',
+            providerId: 'account',
+            isActive: false,
+            isAuthenticated: isAuth,
+            isDemo: false,
+            source: 'Username Registry'
+          });
+        } else {
+          const acc = accounts.get(entry.uid);
+          if (!acc.email && entry.email) acc.email = entry.email;
+          if (uname) acc.username = uname;
+        }
+      }
+    }
+  } catch (e) { }
+
+  // 3. Scan localStorage for isolated user data bundles: careerdesk_user_data_{uid}
+  try {
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key && key.startsWith('careerdesk_user_data_')) {
+        const uid = key.slice('careerdesk_user_data_'.length);
+        if (uid && !accounts.has(uid)) {
+          let email = '';
+          let displayName = 'User (' + uid.slice(0, 8) + ')';
+          try {
+            const raw = localStorage.getItem(key);
+            if (raw) {
+              const parsed = JSON.parse(raw);
+              if (parsed) {
+                if (parsed.email) email = parsed.email;
+                if (parsed.displayName) displayName = parsed.displayName;
+              }
+            }
+          } catch (e) { }
+          const isAuth = !!(firebaseAuthUser && firebaseAuthUser.uid === uid);
+          accounts.set(uid, {
+            uid: uid,
+            displayName: displayName,
+            email: email,
+            photoURL: '',
+            providerId: 'local_bundle',
+            isActive: false,
+            isAuthenticated: isAuth,
+            isDemo: false,
+            source: 'Saved Local Workspace'
+          });
+        }
+      }
+    }
+  } catch (e) { }
+
+  // 4. Scan localStorage for snapshots cache: careerdesk_snapshots_cache_{uid}
+  try {
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key && key.startsWith('careerdesk_snapshots_cache_')) {
+        const uid = key.slice('careerdesk_snapshots_cache_'.length);
+        if (uid && !accounts.has(uid)) {
+          const isAuth = !!(firebaseAuthUser && firebaseAuthUser.uid === uid);
+          accounts.set(uid, {
+            uid: uid,
+            displayName: 'User with Snapshots (' + uid.slice(0, 8) + ')',
+            email: '',
+            photoURL: '',
+            providerId: 'snapshot_cache',
+            isActive: false,
+            isAuthenticated: isAuth,
+            isDemo: false,
+            source: 'Snapshot Cache'
+          });
+        }
+      }
+    }
+  } catch (e) { }
+
+  return Array.from(accounts.values());
+}
+window.getKnownUserAccounts = getKnownUserAccounts;
+
+/**
+ * Permanently deletes cloud and/or local data for a specific user.
+ * Prevents auto-sync resurrection, purges snapshots, backups, usernames,
+ * and isolated local state.
+ *
+ * @param {string} targetUid - User UID or 'ALL_LOCAL'
+ * @param {Object} options - { deleteCloud: boolean, deleteLocal: boolean, signOut: boolean, onProgress: function }
+ */
+async function deleteCloudDataForUser(targetUid, options = {}) {
+  const {
+    deleteCloud = true,
+    deleteLocal = true,
+    signOut = true,
+    onProgress = null
+  } = options;
+
+  const report = (msg) => {
+    if (typeof onProgress === 'function') onProgress(msg);
+  };
+
+  // 1. Guard against auto-sync resurrection
+  window._isDeletingCloudData = true;
+  if (_firestoreSyncTimer) {
+    clearTimeout(_firestoreSyncTimer);
+    _firestoreSyncTimer = null;
+  }
+
+  // Handle ALL_LOCAL bulk purge
+  if (targetUid === 'ALL_LOCAL') {
+    report('Purging all local workspaces and user accounts...');
+    try {
+      // Remove all user caches
+      for (let i = localStorage.length - 1; i >= 0; i--) {
+        const k = localStorage.key(i);
+        if (k && (k.startsWith('careerdesk_user_data_') ||
+                  k.startsWith('careerdesk_snapshots_cache_') ||
+                  k.startsWith('careerdesk_last_snap_') ||
+                  k.startsWith('careerdesk_cloud_backup_'))) {
+          localStorage.removeItem(k);
+        }
+      }
+      localStorage.removeItem(CAREERDESK_USERNAMES_KEY);
+      localStorage.removeItem(FIREBASE_LAST_SYNC_KEY);
+      localStorage.removeItem('careerdesk_cloud_snapshots_cache');
+      localStorage.removeItem('jobprep-exams-list');
+      localStorage.removeItem('jobprep_exams_list');
+      localStorage.removeItem('jobprep_mistakes_bank_v2');
+      localStorage.removeItem('jobprep_mistakes_bank');
+      localStorage.removeItem('jobprep_break_minutes_today');
+      localStorage.removeItem('custom_bcs_questions_v3');
+      localStorage.removeItem('jobprep_custom_quiz_questions');
+      localStorage.removeItem('user_mcq_progress_v2');
+      localStorage.removeItem('jobprep_mcq_progress_v2');
+      localStorage.removeItem('careerdesk_track_v1');
+      localStorage.removeItem(CAREERDESK_CUSTOM_PROFILE_KEY);
+
+      if (typeof exams !== 'undefined') exams = [];
+      if (typeof mistakes !== 'undefined') mistakes = [];
+      if (typeof userMCQProgress !== 'undefined') {
+        userMCQProgress = { answers: {}, masteredIds: [], activePoolIds: [], removedSubjects: [], addedExtendedIndex: 0 };
+      }
+
+      const keepTheme = (state && state.theme) ? state.theme : 'dark';
+      if (typeof getDefaultState === 'function') {
+        state = getDefaultState();
+        state.theme = keepTheme;
+      }
+      if (typeof storageAdapter !== 'undefined') {
+        await storageAdapter.set(STORAGE_KEY, JSON.stringify(state));
+      }
+
+      if (signOut) {
+        isExplicitlySignedOut = true;
+        currentAuthUser = null;
+        localStorage.removeItem(FIREBASE_USER_CACHE_KEY);
+        if (typeof firebase !== 'undefined' && firebase.apps && firebase.apps.length > 0 && typeof firebase.auth === 'function') {
+          try { await firebase.auth().signOut(); } catch (e) { }
+        }
+      }
+
+      refreshAllDashboardPanels();
+      if (typeof syncAllSubjectSelects === 'function') syncAllSubjectSelects();
+      if (typeof renderUserProfileUI === 'function') renderUserProfileUI();
+      if (typeof renderProfileTrackCard === 'function') renderProfileTrackCard();
+      if (typeof renderProfileAspirantHub === 'function') renderProfileAspirantHub();
+      if (typeof renderCloudSnapshotsList === 'function') renderCloudSnapshotsList();
+    } catch (bulkErr) {
+      console.error('[CareerDesk] Error purging all local data:', bulkErr);
+    } finally {
+      setTimeout(() => { window._isDeletingCloudData = false; }, 3000);
+    }
+    return { targetUid, cloudSuccess: false, cloudError: null, localPurged: true, signedOut: signOut };
+  }
+
+  // Target a specific UID
+  const currentUser = getCachedAuthUser();
+  const isActiveUser = !!(currentUser && currentUser.uid === targetUid);
+  let cloudSuccess = false;
+  let cloudError = null;
+
+  report('Validating account permissions...');
+
+  // 2. Delete from Firestore if requested
+  if (deleteCloud) {
+    const isFirebaseOnline = (typeof firebase !== 'undefined' && firebase.apps && firebase.apps.length > 0 && firebase.firestore);
+    const firebaseAuthUser = getSafeFirebaseAuthUser();
+    const isTargetAuthenticated = !!(firebaseAuthUser && firebaseAuthUser.uid === targetUid);
+
+    if (isFirebaseOnline && isTargetAuthenticated) {
+      report('Connecting to Firestore to delete cloud documents...');
+      const db = firebase.firestore();
+
+      try {
+        // A. Delete snapshots in /users/{targetUid}/backups
+        report('Deleting point-in-time cloud snapshots...');
+        try {
+          const backupsSnap = await db.collection('users').doc(targetUid).collection('backups').get();
+          for (const doc of backupsSnap.docs) {
+            try { await doc.ref.delete(); } catch (e) { }
+          }
+        } catch (subErr) {
+          console.warn('[CareerDesk] Backups subcollection cleanup warning:', subErr);
+        }
+
+        // B. Delete legacy subcollections /users/{targetUid}/careerdesk_backups
+        try {
+          const legacySnap = await db.collection('users').doc(targetUid).collection('careerdesk_backups').get();
+          for (const doc of legacySnap.docs) {
+            try { await doc.ref.delete(); } catch (e) { }
+          }
+        } catch (subErr) {
+          console.warn('[CareerDesk] Legacy backups subcollection cleanup warning:', subErr);
+        }
+
+        // C. Delete username registration in /usernames/{username}
+        report('Releasing cloud username reservation...');
+        try {
+          const usernameMap = getLocalUsernameMap();
+          for (const [uname, entry] of Object.entries(usernameMap)) {
+            if (entry && entry.uid === targetUid) {
+              try {
+                await db.collection('usernames').doc(uname).delete();
+              } catch (uErr) {
+                console.warn('[CareerDesk] Username document delete warning:', uname, uErr);
+              }
+            }
+          }
+        } catch (uMapErr) { }
+
+        // D. Delete the main document /users/{targetUid}
+        report('Deleting root cloud document (/users/' + targetUid.slice(0, 8) + '...)...');
+        await db.collection('users').doc(targetUid).delete();
+
+        cloudSuccess = true;
+      } catch (firestoreErr) {
+        console.error('[CareerDesk] Firestore cloud deletion error:', firestoreErr);
+        cloudError = firestoreErr;
+      }
+    } else if (isFirebaseOnline && !isTargetAuthenticated) {
+      cloudError = new Error('NOT_AUTHENTICATED_FOR_UID');
+    } else {
+      cloudError = new Error('FIREBASE_OFFLINE');
+    }
+  }
+
+  // 3. Purge Local Storage Data for this UID
+  if (deleteLocal) {
+    report('Purging local cached workspace & snapshots...');
+    try {
+      localStorage.removeItem('careerdesk_user_data_' + targetUid);
+      localStorage.removeItem('careerdesk_snapshots_cache_' + targetUid);
+      localStorage.removeItem('careerdesk_last_snap_' + targetUid);
+      localStorage.removeItem('careerdesk_cloud_backup_' + targetUid);
+
+      // Clean local username map
+      try {
+        const map = getLocalUsernameMap();
+        let changed = false;
+        for (const [k, v] of Object.entries(map)) {
+          if (v && v.uid === targetUid) {
+            delete map[k];
+            changed = true;
+          }
+        }
+        if (changed) {
+          localStorage.setItem(CAREERDESK_USERNAMES_KEY, JSON.stringify(map));
+        }
+      } catch (e) { }
+
+      // If active user is the target, reset workspace state
+      if (isActiveUser) {
+        localStorage.removeItem(FIREBASE_LAST_SYNC_KEY);
+        localStorage.removeItem('careerdesk_cloud_snapshots_cache');
+        localStorage.removeItem('jobprep-exams-list');
+        localStorage.removeItem('jobprep_exams_list');
+        localStorage.removeItem('jobprep_mistakes_bank_v2');
+        localStorage.removeItem('jobprep_mistakes_bank');
+        localStorage.removeItem('jobprep_break_minutes_today');
+        localStorage.removeItem('custom_bcs_questions_v3');
+        localStorage.removeItem('jobprep_custom_quiz_questions');
+        localStorage.removeItem('user_mcq_progress_v2');
+        localStorage.removeItem('jobprep_mcq_progress_v2');
+        localStorage.removeItem('careerdesk_track_v1');
+        localStorage.removeItem(CAREERDESK_CUSTOM_PROFILE_KEY);
+
+        if (typeof exams !== 'undefined') exams = [];
+        if (typeof mistakes !== 'undefined') mistakes = [];
+        if (typeof userMCQProgress !== 'undefined') {
+          userMCQProgress = { answers: {}, masteredIds: [], activePoolIds: [], removedSubjects: [], addedExtendedIndex: 0 };
+        }
+
+        const keepTheme = (state && state.theme) ? state.theme : 'dark';
+        if (typeof getDefaultState === 'function') {
+          state = getDefaultState();
+          state.theme = keepTheme;
+        }
+        if (typeof storageAdapter !== 'undefined') {
+          await storageAdapter.set(STORAGE_KEY, JSON.stringify(state));
+        }
+      }
+    } catch (localPurgeErr) {
+      console.error('[CareerDesk] Local storage purge error:', localPurgeErr);
+    }
+  }
+
+  // 4. Sign Out if active user & signOut requested
+  if (isActiveUser && signOut) {
+    report('Signing out active user session...');
+    isExplicitlySignedOut = true;
+    currentAuthUser = null;
+    try {
+      localStorage.removeItem(FIREBASE_USER_CACHE_KEY);
+      localStorage.removeItem(CAREERDESK_CUSTOM_PROFILE_KEY);
+      localStorage.removeItem(FIREBASE_LAST_SYNC_KEY);
+    } catch (e) { }
+    try {
+      if (typeof firebase !== 'undefined' && firebase.apps && firebase.apps.length > 0 && typeof firebase.auth === 'function') {
+        await firebase.auth().signOut();
+      }
+    } catch (e) { }
+  }
+
+  // 5. Refresh all UI panels
+  report('Updating application views...');
+  try {
+    refreshAllDashboardPanels();
+    if (typeof syncAllSubjectSelects === 'function') syncAllSubjectSelects();
+    if (typeof renderUserProfileUI === 'function') renderUserProfileUI();
+    if (typeof renderProfileTrackCard === 'function') renderProfileTrackCard();
+    if (typeof renderProfileAspirantHub === 'function') renderProfileAspirantHub();
+    if (typeof renderCloudSnapshotsList === 'function') renderCloudSnapshotsList();
+  } catch (e) { }
+
+  // 6. Release deletion guard after delay
+  setTimeout(() => {
+    window._isDeletingCloudData = false;
+  }, 3000);
+
+  return {
+    targetUid,
+    cloudSuccess,
+    cloudError,
+    localPurged: deleteLocal,
+    signedOut: (isActiveUser && signOut)
+  };
+}
+window.deleteCloudDataForUser = deleteCloudDataForUser;
 
 /**
  * Initialize Cloud Backup UI Controls & Event Handlers

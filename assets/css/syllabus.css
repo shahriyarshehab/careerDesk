@@ -82,6 +82,27 @@
     margin: 0;
   }
 
+  .category-icon-badge {
+    width: 32px;
+    height: 32px;
+    border-radius: 9px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: transform 0.2s ease;
+  }
+
+  .category-icon-badge i,
+  .category-icon-badge svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .category-card:hover .category-icon-badge {
+    transform: scale(1.08);
+  }
+
   .category-progress-text {
     font-size: 12px;
     color: var(--text-soft);

@@ -31,6 +31,19 @@ function saveExams() {
   } catch (e) { }
 }
 
+function parseExamTargetMs(target) {
+  if (!target) return 0;
+  if (typeof target === 'number') return target;
+  const str = String(target).trim();
+  if (str.length === 10 && /^\d{4}-\d{2}-\d{2}$/.test(str)) {
+    const [y, m, d] = str.split('-').map(Number);
+    return new Date(y, m - 1, d, 23, 59, 59, 999).getTime();
+  }
+  const parsed = new Date(str).getTime();
+  return isNaN(parsed) ? 0 : parsed;
+}
+window.parseExamTargetMs = parseExamTargetMs;
+
 function renderExams() {
   const grid = document.getElementById('countdownGrid');
   if (!grid) return;
@@ -43,7 +56,7 @@ function renderExams() {
 
   const now = Date.now();
   exams.forEach(ex => {
-    const targetTime = new Date(ex.targetDate).getTime();
+    const targetTime = parseExamTargetMs(ex.targetDate);
     const diff = targetTime - now;
 
     let days = 0, hours = 0, mins = 0, secs = 0;

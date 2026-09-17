@@ -44,6 +44,120 @@ const famousQuotes = [
   { q: 'Whatever the mind of man can conceive and believe, it can achieve.', a: 'Napoleon Hill' }
 ];
 
+const BILINGUAL_QUOTES = [
+  {
+    en: "Discipline is the bridge between goals and accomplishment.",
+    bn: "শৃঙ্খলা হলো লক্ষ্য এবং অর্জনের মধ্যে সেতুবন্ধন।",
+    author: "Jim Rohn"
+  },
+  {
+    en: "Small daily improvements over time lead to stunning results.",
+    bn: "প্রতিদিনের ছোট ছোট উন্নতি একসময় অবিশ্বাস্য সাফল্য এনে দেয়।",
+    author: "Robin Sharma"
+  },
+  {
+    en: "Push yourself because no one else is going to do it for you.",
+    bn: "নিজেকে নিজেই তাগিদ দিন, কারণ অন্য কেউ আপনার হয়ে স্বপ্ন পূরণ করবে না।",
+    author: "CareerDesk"
+  },
+  {
+    en: "Success does not come from what you do occasionally; it comes from what you do consistently.",
+    bn: "সাফল্য কখনো কখনো করা কাজ থেকে আসে না; এটি আসে নিয়মিত অনুশীলনের মাধ্যমে।",
+    author: "Marie Forleo"
+  },
+  {
+    en: "Focus on the process, and the results will take care of themselves.",
+    bn: "প্রক্রিয়া এবং অভ্যাসে মনোযোগ দিন, ফলাফল নিজের থেকেই ধরা দেবে।",
+    author: "CareerDesk"
+  },
+  {
+    en: "Your future is created by what you do today, not tomorrow.",
+    bn: "আপনার ভবিষ্যৎ গড়ে উঠবে আজকের কাজের মাধ্যমে, আগামীকালের ওপর নয়।",
+    author: "Robert Kiyosaki"
+  },
+  {
+    en: "Hard work beats talent when talent fails to work hard.",
+    bn: "পরিশ্রম সবসময় প্রতিভাকে হারিয়ে দেয়, যখন প্রতিভা কঠোর পরিশ্রম করতে ব্যর্থ হয়।",
+    author: "Tim Notke"
+  },
+  {
+    en: "Study while others are sleeping; prepare while others are playing.",
+    bn: "অন্যরা যখন ঘুমাচ্ছে তখন আপনি পড়ুন; অন্যরা যখন অলস সময় কাটাচ্ছে তখন আপনি প্রস্তুতি নিন।",
+    author: "William Arthur Ward"
+  },
+  {
+    en: "Do not decrease the goal. Increase the effort.",
+    bn: "লক্ষ্য ছোট করবেন না; নিজের প্রচেষ্টাকে বহুগুণ বাড়িয়ে দিন।",
+    author: "Grant Cardone"
+  },
+  {
+    en: "Every expert was once a beginner.",
+    bn: "প্রতিটি দক্ষ মানুষই জীবনের শুরুতে একজন অনভিজ্ঞ শিক্ষার্থী ছিলেন।",
+    author: "Helen Hayes"
+  },
+  {
+    en: "Believe you can and you are halfway there.",
+    bn: "বিশ্বাস করুন আপনি পারবেন, তবেই আপনার পথচলার অর্ধেক কাজ সম্পন্ন হয়ে যাবে।",
+    author: "Theodore Roosevelt"
+  },
+  {
+    en: "It always seems impossible until it is done.",
+    bn: "যতক্ষণ পর্যন্ত কাজ সম্পন্ন না হয়, ততক্ষণ পর্যন্ত এটি অসম্ভব বলেই মনে হয়।",
+    author: "Nelson Mandela"
+  },
+  {
+    en: "The secret of getting ahead is getting started.",
+    bn: "এগিয়ে যাওয়ার একমাত্র গোপন চাবিকাঠি হলো কাজ অবিলম্বে শুরু করে দেওয়া।",
+    author: "Mark Twain"
+  },
+  {
+    en: "Wake up with determination. Go to bed with satisfaction.",
+    bn: "দৃঢ় সংকল্প নিয়ে সকালে ঘুম থেকে উঠুন, রাতে পরম তৃপ্তি নিয়ে ঘুমাতে যান।",
+    author: "George Horace Lorimer"
+  },
+  {
+    en: "The only way to do great work is to love what you do.",
+    bn: "মহৎ কাজ করার একমাত্র উপায় হলো আপনি যা করেন তাকে অন্তর থেকে ভালোবাসা।",
+    author: "Steve Jobs"
+  },
+  {
+    en: "Start where you are. Use what you have. Do what you can.",
+    bn: "আপনি যেখানে আছেন সেখান থেকেই শুরু করুন। যা আছে তা ব্যবহার করুন। যা পারেন তা করে যান।",
+    author: "Arthur Ashe"
+  },
+  {
+    en: "Education is the most powerful weapon which you can use to change the world.",
+    bn: "শিক্ষাই হলো সবচেয়ে শক্তিশালী অস্ত্র, যা দিয়ে আপনি সারা পৃথিবীকে বদলে দিতে পারেন।",
+    author: "Nelson Mandela"
+  },
+  {
+    en: "We are what we repeatedly do. Excellence, then, is not an act, but a habit.",
+    bn: "আমরা প্রতিদিন যা বারবার করি, তাই আমাদের পরিচয়। উৎকর্ষতা কোনো কাজ নয়, এটি একটি অভ্যাস।",
+    author: "Aristotle"
+  },
+  {
+    en: "Success is not final, failure is not fatal: It is the courage to continue that counts.",
+    bn: "সাফল্যই শেষ কথা নয়, ব্যর্থতাও কোনো সমাপ্তি নয়: লড়াই চালিয়ে যাওয়ার সাহসই আসল বিষয়।",
+    author: "Winston Churchill"
+  },
+  {
+    en: "It does not matter how slowly you go as long as you do not stop.",
+    bn: "আপনি কতটা ধীরে এগোচ্ছেন তা মুখ্য নয়, যতক্ষণ না আপনি থেমে যাচ্ছেন।",
+    author: "Confucius"
+  },
+  {
+    en: "There are no secrets to success. It is the result of preparation, hard work, and learning from failure.",
+    bn: "সাফল্যের কোনো গোপন রহস্য নেই। এটি হলো প্রস্তুতি, কঠোর পরিশ্রম এবং ভুল থেকে শেখার ফলাফল।",
+    author: "Colin Powell"
+  },
+  {
+    en: "There is no substitute for hard work.",
+    bn: "কঠোর পরিশ্রমের কোনো বিকল্প নেই।",
+    author: "Thomas Edison"
+  }
+];
+
+
 
 // ===== Quotes Manager =====
 const quoteTextEl = document.getElementById('quoteText');
@@ -102,8 +216,10 @@ function renderQuote() {
   // Sync with Profile Hero quote card
   const heroText = document.getElementById('profileHeroQuoteText') || document.getElementById('profileHeroQuoteTextGuest');
   const heroAuthor = document.getElementById('profileHeroQuoteAuthor') || document.getElementById('profileHeroQuoteAuthorGuest');
-  if (heroText) heroText.textContent = `"${item.q}"`;
-  if (heroAuthor) heroAuthor.textContent = item.a ? `— ${item.a}` : '— CareerDesk';
+  const cleanQ = typeof cleanQuoteText === 'function' ? cleanQuoteText(item.q) : (item.q || '').replace(/^["'“”]+|["'“”]+$/g, '').trim();
+  const cleanA = typeof cleanQuoteAuthor === 'function' ? cleanQuoteAuthor(item.a) : (item.a ? item.a.replace(/^[—\-]\s*/, '').trim() : 'CareerDesk');
+  if (heroText) heroText.textContent = `“${cleanQ}”`;
+  if (heroAuthor) heroAuthor.textContent = `— ${cleanA}`;
 }
 
 function renderQuoteManager() {
@@ -360,6 +476,302 @@ if (editModalEl) {
     if (e.target === editModalEl) closeEditQuoteModal();
   });
 }
+
+/* ==========================================================================
+   BILINGUAL MOTIVATIONAL TYPEWRITER ENGINE (English -> Bangla with Duration)
+   ========================================================================== */
+
+let quoteTypewriterTimeout = null;
+let quoteHoldTimeout = null;
+let quoteHoldStartTime = 0;
+let quoteHoldRemaining = 0;
+let quoteHoldDuration = 4000; // 4 seconds duration per language
+let quoteIsPaused = false;
+let quoteIsHovered = false;
+let quoteActiveLang = 'en'; // 'en' | 'bn'
+let quoteActiveIndex = 0;
+let quoteCharIndex = 0;
+let quotePhase = 'typing'; // 'typing' | 'holding' | 'erasing'
+
+function getGraphemeArray(text) {
+  if (typeof Intl !== 'undefined' && Intl.Segmenter) {
+    try {
+      const segmenter = new Intl.Segmenter(undefined, { granularity: 'grapheme' });
+      return Array.from(segmenter.segment(text), s => s.segment);
+    } catch (e) { }
+  }
+  return Array.from(String(text || ''));
+}
+
+function getBilingualQuotesPool() {
+  const pool = (typeof BILINGUAL_QUOTES !== 'undefined' && Array.isArray(BILINGUAL_QUOTES)) ? BILINGUAL_QUOTES : [];
+  const custom = (state && Array.isArray(state.customQuotes)) ? state.customQuotes : [];
+  const deleted = new Set((state && state.deletedQuotes) || []);
+
+  const activeCustom = custom.filter(c => !deleted.has(String(c.id))).map(c => ({
+    en: c.text,
+    bn: c.bn || c.text,
+    author: c.author || 'Custom'
+  }));
+
+  const combined = [...pool, ...activeCustom];
+  return combined.length > 0 ? combined : [{ en: "Small daily improvements over time lead to stunning results.", bn: "প্রতিদিনের ছোট ছোট উন্নতি একসময় অবিশ্বাস্য সাফল্য এনে দেয়।", author: "CareerDesk" }];
+}
+
+function stopQuoteTypewriter() {
+  if (quoteTypewriterTimeout) {
+    clearTimeout(quoteTypewriterTimeout);
+    quoteTypewriterTimeout = null;
+  }
+  if (quoteHoldTimeout) {
+    clearTimeout(quoteHoldTimeout);
+    quoteHoldTimeout = null;
+  }
+}
+
+function stepQuoteTypewriter() {
+  stopQuoteTypewriter();
+
+  if (quoteIsPaused) return;
+
+  const textEl = document.getElementById('profileQuoteTypedText');
+  const langTextEl = document.getElementById('profileQuoteLangText');
+  const langBadgeEl = document.getElementById('profileQuoteLangBadge');
+  const authorEl = document.getElementById('profileQuoteAuthorPill');
+  const progressFill = document.getElementById('profileQuoteProgressFill');
+
+  if (!textEl) return;
+
+  const pool = getBilingualQuotesPool();
+  const currentQuote = pool[((quoteActiveIndex % pool.length) + pool.length) % pool.length];
+  if (!currentQuote) return;
+
+  // Determine current text
+  const rawText = (quoteActiveLang === 'en' ? currentQuote.en : currentQuote.bn) || currentQuote.en || '';
+  const cleanText = typeof cleanQuoteText === 'function' ? cleanQuoteText(rawText) : rawText.trim();
+  const graphemes = getGraphemeArray(cleanText);
+
+  // Update language badge & author
+  if (langTextEl) langTextEl.textContent = quoteActiveLang === 'en' ? 'EN' : 'BN';
+  if (langBadgeEl) {
+    langBadgeEl.classList.toggle('bangla', quoteActiveLang === 'bn');
+    langBadgeEl.title = quoteActiveLang === 'en' ? 'Language: English (Click for বাংলা)' : 'Language: বাংলা (Click for English)';
+  }
+  if (authorEl) {
+    const authorName = typeof cleanQuoteAuthor === 'function' ? cleanQuoteAuthor(currentQuote.author) : (currentQuote.author || 'CareerDesk');
+    authorEl.textContent = `— ${authorName}`;
+  }
+
+  // State machine: typing -> holding -> erasing
+  if (quotePhase === 'typing') {
+    if (progressFill) {
+      progressFill.style.transition = 'none';
+      progressFill.style.width = '0%';
+    }
+
+    quoteCharIndex++;
+    textEl.textContent = graphemes.slice(0, quoteCharIndex).join('');
+
+    if (quoteCharIndex < graphemes.length) {
+      // Continue typing
+      const delay = Math.floor(Math.random() * 12) + 32; // 32-44ms natural rhythm
+      quoteTypewriterTimeout = setTimeout(stepQuoteTypewriter, delay);
+    } else {
+      // Finished typing this text -> switch to holding
+      quotePhase = 'holding';
+      quoteHoldRemaining = quoteHoldDuration;
+      startQuoteHoldTimer();
+    }
+  } else if (quotePhase === 'erasing') {
+    if (progressFill) {
+      progressFill.style.transition = 'none';
+      progressFill.style.width = '0%';
+    }
+
+    quoteCharIndex--;
+    textEl.textContent = graphemes.slice(0, quoteCharIndex).join('');
+
+    if (quoteCharIndex > 0) {
+      // Continue erasing
+      quoteTypewriterTimeout = setTimeout(stepQuoteTypewriter, 18);
+    } else {
+      // Finished erasing! Switch language or move to next quote
+      if (quoteActiveLang === 'en') {
+        quoteActiveLang = 'bn';
+      } else {
+        quoteActiveLang = 'en';
+        quoteActiveIndex = (quoteActiveIndex + 1) % pool.length;
+      }
+      quoteCharIndex = 0;
+      quotePhase = 'typing';
+      // Brief breathing pause between languages
+      quoteTypewriterTimeout = setTimeout(stepQuoteTypewriter, 400);
+    }
+  }
+}
+
+function startQuoteHoldTimer() {
+  const progressFill = document.getElementById('profileQuoteProgressFill');
+  if (progressFill) {
+    progressFill.style.transition = `width ${quoteHoldRemaining}ms linear`;
+    progressFill.style.width = '100%';
+  }
+  quoteHoldStartTime = Date.now();
+
+  quoteHoldTimeout = setTimeout(() => {
+    quotePhase = 'erasing';
+    if (progressFill) {
+      progressFill.style.transition = 'none';
+      progressFill.style.width = '0%';
+    }
+    quoteTypewriterTimeout = setTimeout(stepQuoteTypewriter, 80);
+  }, quoteHoldRemaining);
+}
+
+function pauseQuoteHoldTimer() {
+  if (quoteHoldTimeout) {
+    clearTimeout(quoteHoldTimeout);
+    quoteHoldTimeout = null;
+    const elapsed = Date.now() - quoteHoldStartTime;
+    quoteHoldRemaining = Math.max(0, quoteHoldRemaining - elapsed);
+    const progressFill = document.getElementById('profileQuoteProgressFill');
+    if (progressFill) {
+      const computedWidth = window.getComputedStyle(progressFill).width;
+      progressFill.style.transition = 'none';
+      progressFill.style.width = computedWidth;
+    }
+  }
+}
+
+function resumeQuoteHoldTimer() {
+  if (quotePhase === 'holding' && !quoteIsPaused && !quoteIsHovered) {
+    startQuoteHoldTimer();
+  }
+}
+
+function toggleQuoteTypewriterPause() {
+  quoteIsPaused = !quoteIsPaused;
+  const pauseBtn = document.getElementById('btnToggleQuotePause');
+
+  if (quoteIsPaused) {
+    if (quotePhase === 'holding') pauseQuoteHoldTimer();
+    stopQuoteTypewriter();
+    if (pauseBtn) {
+      pauseBtn.innerHTML = '<i data-lucide="play" style="width:13px;height:13px;"></i>';
+      pauseBtn.title = 'Resume quote typing animation';
+      if (window.lucide && typeof window.lucide.createIcons === 'function') window.lucide.createIcons();
+    }
+  } else {
+    if (pauseBtn) {
+      pauseBtn.innerHTML = '<i data-lucide="pause" style="width:13px;height:13px;"></i>';
+      pauseBtn.title = 'Pause quote typing animation';
+      if (window.lucide && typeof window.lucide.createIcons === 'function') window.lucide.createIcons();
+    }
+    if (quotePhase === 'holding') {
+      resumeQuoteHoldTimer();
+    } else {
+      stepQuoteTypewriter();
+    }
+  }
+}
+
+function skipToNextQuoteTypewriter() {
+  stopQuoteTypewriter();
+  const pool = getBilingualQuotesPool();
+  quoteActiveIndex = (quoteActiveIndex + 1) % pool.length;
+  quoteActiveLang = 'en';
+  quoteCharIndex = 0;
+  quotePhase = 'typing';
+
+  const progressFill = document.getElementById('profileQuoteProgressFill');
+  if (progressFill) {
+    progressFill.style.transition = 'none';
+    progressFill.style.width = '0%';
+  }
+
+  const textEl = document.getElementById('profileQuoteTypedText');
+  if (textEl) textEl.textContent = '';
+
+  stepQuoteTypewriter();
+}
+
+function toggleQuoteLanguageManual() {
+  stopQuoteTypewriter();
+  quoteActiveLang = quoteActiveLang === 'en' ? 'bn' : 'en';
+  quoteCharIndex = 0;
+  quotePhase = 'typing';
+
+  const progressFill = document.getElementById('profileQuoteProgressFill');
+  if (progressFill) {
+    progressFill.style.transition = 'none';
+    progressFill.style.width = '0%';
+  }
+
+  const textEl = document.getElementById('profileQuoteTypedText');
+  if (textEl) textEl.textContent = '';
+
+  stepQuoteTypewriter();
+}
+
+function initProfileQuoteTypewriter() {
+  const container = document.getElementById('profileHeroQuoteTicker');
+  const textEl = document.getElementById('profileQuoteTypedText');
+  if (!container || !textEl) return;
+
+  stopQuoteTypewriter();
+
+  // Wire Controls
+  const pauseBtn = document.getElementById('btnToggleQuotePause');
+  const nextBtn = document.getElementById('btnCycleProfileHeroQuote');
+  const langBadge = document.getElementById('profileQuoteLangBadge');
+
+  if (pauseBtn && !pauseBtn._bound) {
+    pauseBtn._bound = true;
+    pauseBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      toggleQuoteTypewriterPause();
+    });
+  }
+
+  if (nextBtn && !nextBtn._bound) {
+    nextBtn._bound = true;
+    nextBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      skipToNextQuoteTypewriter();
+    });
+  }
+
+  if (langBadge && !langBadge._bound) {
+    langBadge._bound = true;
+    langBadge.addEventListener('click', (e) => {
+      e.stopPropagation();
+      toggleQuoteLanguageManual();
+    });
+  }
+
+  if (container && !container._boundHover) {
+    container._boundHover = true;
+    container.addEventListener('mouseenter', () => {
+      quoteIsHovered = true;
+      if (quotePhase === 'holding' && !quoteIsPaused) pauseQuoteHoldTimer();
+    });
+    container.addEventListener('mouseleave', () => {
+      quoteIsHovered = false;
+      if (quotePhase === 'holding' && !quoteIsPaused) resumeQuoteHoldTimer();
+    });
+  }
+
+  // Start typing from beginning if fresh
+  quoteCharIndex = 0;
+  quotePhase = 'typing';
+  textEl.textContent = '';
+  stepQuoteTypewriter();
+}
+
+window.initProfileQuoteTypewriter = initProfileQuoteTypewriter;
+window.skipToNextQuoteTypewriter = skipToNextQuoteTypewriter;
+window.toggleQuoteTypewriterPause = toggleQuoteTypewriterPause;
+
 
 
 
