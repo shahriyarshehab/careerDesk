@@ -98,6 +98,12 @@ function renderQuote() {
   if (quoteTextEl) quoteTextEl.textContent = item.q;
   if (quoteAuthorEl) quoteAuthorEl.textContent = item.a ? '— ' + item.a : 'CareerDesk • Daily practice';
   updateTicker(item.a ? item.q + ' — ' + item.a : item.q);
+
+  // Sync with Profile Hero quote card
+  const heroText = document.getElementById('profileHeroQuoteText') || document.getElementById('profileHeroQuoteTextGuest');
+  const heroAuthor = document.getElementById('profileHeroQuoteAuthor') || document.getElementById('profileHeroQuoteAuthorGuest');
+  if (heroText) heroText.textContent = `"${item.q}"`;
+  if (heroAuthor) heroAuthor.textContent = item.a ? `— ${item.a}` : '— CareerDesk';
 }
 
 function renderQuoteManager() {

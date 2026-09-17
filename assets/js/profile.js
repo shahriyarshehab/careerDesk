@@ -396,28 +396,6 @@ if (btnCreateSnapshotNow) {
   });
 }
 
-// JSON Cloud File Export Button
-const btnExportCloudJSON = document.getElementById('btnExportCloudJSON');
-if (btnExportCloudJSON) {
-  btnExportCloudJSON.addEventListener('click', () => {
-    if (typeof exportCloudBackupJSON === 'function') {
-      exportCloudBackupJSON();
-    }
-  });
-}
-
-// JSON Cloud File Import Listener
-const cloudJSONFileInput = document.getElementById('cloudJSONFileInput');
-if (cloudJSONFileInput) {
-  cloudJSONFileInput.addEventListener('change', (e) => {
-    if (e.target.files && e.target.files[0]) {
-      if (typeof importCloudBackupJSON === 'function') {
-        importCloudBackupJSON(e.target.files[0]);
-      }
-      e.target.value = '';
-    }
-  });
-}
 
 // Cloud Backup Shortcut Buttons (Settings Data Card - backwards compatibility)
 const uploadCloudDataCardBtn = document.getElementById('btnUploadCloudFromDataCard');
@@ -560,13 +538,14 @@ if (resetAllBtnEl) {
     const ok = window.confirm('Are you sure? All routines, notes, syllabus, flashcards, and tracker sessions will be deleted. This cannot be undone.');
     if (!ok) return;
     const keepTheme = state.theme;
-    state = {
+    state = typeof getDefaultState === 'function' ? getDefaultState() : {
       routine: [], notes: [], customQuotes: [], quoteIdx: 0, quoteSource: 'all', theme: keepTheme,
       sessions: [], activeSession: null, dailyTargetMinutes: 240,
       syllabus: [], flashcards: [],
       quoteCarouselEnabled: true, quoteCarouselInterval: 300,
       deletedSubjects: [], customSubjects: [], deletedQuotes: []
     };
+    state.theme = keepTheme;
     try {
       localStorage.removeItem(EXAMS_KEY);
       localStorage.removeItem(MISTAKES_KEY);
@@ -582,41 +561,6 @@ if (resetAllBtnEl) {
   });
 }
 
-// ===== Toggle & Add Custom Subject (Settings) =====
-const toggleSubjectBtn = document.getElementById('toggleSubjectFormBtn');
-const subjectAddForm = document.getElementById('subjectAddForm');
-const addSubjectBtn = document.getElementById('addSubjectBtn');
-const newSubjectInput = document.getElementById('newSubjectInput');
-
-if (toggleSubjectBtn && subjectAddForm) {
-  toggleSubjectBtn.addEventListener('click', () => {
-    const isOpen = subjectAddForm.style.display !== 'none';
-    subjectAddForm.style.display = isOpen ? 'none' : 'flex';
-    toggleSubjectBtn.innerHTML = isOpen ? `${ICON.plus} <span>New Subject</span>` : `${ICON.x} <span>Close</span>`;
-    toggleSubjectBtn.classList.toggle('active-open', !isOpen);
-    if (!isOpen && newSubjectInput) {
-      newSubjectInput.focus();
-    }
-  });
-}
-
-if (addSubjectBtn && newSubjectInput) {
-  addSubjectBtn.addEventListener('click', () => {
-    const name = newSubjectInput.value.trim();
-    if (!name) { newSubjectInput.focus(); return; }
-    const added = (typeof addSubject === 'function' ? addSubject(name) : name) || name;
-    newSubjectInput.value = '';
-    if (subjectAddForm && toggleSubjectBtn) {
-      subjectAddForm.style.display = 'none';
-      toggleSubjectBtn.innerHTML = `${ICON.plus} <span>New Subject</span>`;
-      toggleSubjectBtn.classList.remove('active-open');
-    }
-    showToast(`"${added}" added to subject list.`);
-  });
-  newSubjectInput.addEventListener('keydown', e => {
-    if (e.key === 'Enter') addSubjectBtn.click();
-  });
-}
 
 // ==========================================================================
 // Academic & Career Track / Bangladesh Curriculum & Subject Management Hub

@@ -2763,7 +2763,6 @@ function openEmailAuthModal(defaultTab = 'email') {
             <label style="display:block; font-size:12px; font-weight:600; color:var(--text-soft); margin-bottom:5px;">Phone Number (International Format)</label>
             <input type="tel" id="authPhoneInput" placeholder="+880 1XXX-XXXXXX"
               style="width:100%; padding:10px 12px; border-radius:10px; border:1px solid var(--border); background:var(--surface); color:var(--text); font-size:13px; box-sizing:border-box; margin-bottom:12px;">
-            <div id="phoneRecaptchaContainer"></div>
             <button type="button" id="btnSendOTP" class="pill solid" style="width:100%; justify-content:center; padding:11px; font-size:14px; font-weight:700;">
               <i data-lucide="send" style="width:15px; height:15px;"></i> Send OTP
             </button>

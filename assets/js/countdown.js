@@ -12,8 +12,9 @@ function loadExams() {
     const data = localStorage.getItem(EXAMS_KEY);
     if (data) {
       const parsed = JSON.parse(data);
+      // Filter out legacy mock exam targets with small numeric IDs (1-5) if present
       exams = Array.isArray(parsed)
-        ? parsed.filter(e => e && e.name !== '47th BCS Preliminary Exam' && e.name !== 'Combined Bank Senior Officer')
+        ? parsed.filter(e => e && !(typeof e.id === 'number' && e.id >= 1 && e.id <= 5))
         : [];
     } else {
       exams = [];
@@ -126,7 +127,7 @@ document.addEventListener('click', (e) => {
 });
 
 // Edit exam modal save/cancel
-document.addEventListener('DOMContentLoaded', () => {
+function initEditExamListeners() {
   const saveEditExamBtn = document.getElementById('saveEditExamBtn');
   const cancelEditExamBtn = document.getElementById('cancelEditExamBtn');
   const closeEditExamModal = document.getElementById('closeEditExamModal');
@@ -163,7 +164,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const modal = document.getElementById('editExamModal');
     if (modal && e.target === modal) closeEditExam();
   });
-});
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initEditExamListeners);
+} else {
+  initEditExamListeners();
+}
 
 
 const toggleExamBtn = document.getElementById('toggleExamFormBtn');

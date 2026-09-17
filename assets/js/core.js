@@ -154,27 +154,14 @@ function getDefaultState() {
 
 function isMockFlashcard(f) {
   if (!f) return true;
-  if (typeof f.id === 'number' && f.id >= 1 && f.id <= 25) return true;
-  const mockKeywords = [
-    'Ephemeral', 'Venerate', 'Millennium', 'kick the bucket', 'Look forward to',
-    'চর্যাপদ', 'দুর্গেশনন্দিনী', 'গীতাঞ্জলি', 'ধূমকেতু', 'রক্তাক্ত প্রান্তর',
-    'সন্ধি', 'সূর্য', 'ত্রিভুজ', 'মৌলিক সংখ্যা', 'বৃত্তের ক্ষেত্রফল', 'x + y = 7',
-    'মুজিবনগর সরকার', 'জাতীয় সংসদের মোট আসন', 'মেঘনা নদী', 'জাতিসংঘের (United Nations)',
-    'জাপানের মুদ্রা', 'সাহারা মরুভূমি', 'মস্তিষ্ক', 'ভিটামিন K', 'HTTPS এর ডিফল্ট পোর্ট'
-  ];
-  return mockKeywords.some(k => f.front && f.front.includes(k));
+  // Only purge legacy static mock cards from v1 with small numeric IDs (1-25)
+  return typeof f.id === 'number' && f.id >= 1 && f.id <= 25;
 }
 
 function isMockRoutineTask(r) {
   if (!r) return true;
-  const mockTasks = [
-    'Literature & Grammar Review',
-    'Grammar & High-Yield Vocabulary Review',
-    'Quantitative Aptitude & Problem Solving',
-    'Current Affairs & Bangladesh/International',
-    'Critical Reasoning & Problem Solving'
-  ];
-  return mockTasks.includes(r.task);
+  // Only purge legacy static mock rows from v1 with small numeric IDs (1-5)
+  return typeof r.id === 'number' && r.id >= 1 && r.id <= 5;
 }
 
 function isMockSyllabusCategory(cat) {

@@ -183,22 +183,6 @@ if (confirmOnboardingBtn) {
   });
 }
 
-// Reset default curriculum subjects (re-open wizard like new user)
-const resetDefaultsBtn = document.getElementById('resetDefaultSubjectsBtn');
-if (resetDefaultsBtn) {
-  resetDefaultsBtn.addEventListener('click', () => {
-    const ok = confirm('Reset subjects to default curriculum list?\n\nThis will open the subject selection wizard so you can configure your subjects as a new user.');
-    if (!ok) return;
-    state.deletedSubjects = [];
-    state.customSubjects = [];
-    try { localStorage.removeItem(ONBOARDING_KEY); } catch (e) { }
-    saveData();
-    syncAllSubjectSelects();
-    renderSubjectManager();
-    openOnboardingModal(true);
-    showToast('Curriculum reset — please select your study subjects.');
-  });
-}
 
 
 function checkFirstTimeUser() {
@@ -225,13 +209,17 @@ function refreshTimerSub() {
   }
 }
 
-sessionSubjectSel.addEventListener('change', () => {
-  sessionCustomInput.style.display = sessionSubjectSel.value === '__custom__' ? 'block' : 'none';
-  if (sessionSubjectSel.value !== '__custom__') {
-    sessionCustomInput.value = '';
-  }
-  refreshTimerSub();
-});
+if (sessionSubjectSel) {
+  sessionSubjectSel.addEventListener('change', () => {
+    if (sessionCustomInput) {
+      sessionCustomInput.style.display = sessionSubjectSel.value === '__custom__' ? 'block' : 'none';
+      if (sessionSubjectSel.value !== '__custom__') {
+        sessionCustomInput.value = '';
+      }
+    }
+    refreshTimerSub();
+  });
+}
 if (sessionCustomInput) {
   sessionCustomInput.addEventListener('input', refreshTimerSub);
 }
@@ -239,30 +227,40 @@ const breakReasonSelect = document.getElementById('breakReason');
 if (breakReasonSelect) breakReasonSelect.addEventListener('change', refreshTimerSub);
 
 function currentSubjectValue() {
-  if (sessionSubjectSel.value === '__custom__') return sessionCustomInput.value.trim();
+  if (!sessionSubjectSel) return '';
+  if (sessionSubjectSel.value === '__custom__' && sessionCustomInput) return sessionCustomInput.value.trim();
   return sessionSubjectSel.value;
 }
 
-startBtn.addEventListener('click', () => {
-  if (!timerMode) return;
-  const subj = currentSubjectValue();
-  if (!subj) { sessionCustomInput.style.display = 'block'; sessionCustomInput.focus(); return; }
-  const canonical = (typeof addSubject === 'function' ? addSubject(subj) : subj) || subj;
-  state.activeSession = { subject: canonical, start: Date.now() };
-  saveData();
-  renderTrackerAll();
-});
+if (startBtn) {
+  startBtn.addEventListener('click', () => {
+    if (!timerMode) return;
+    const subj = currentSubjectValue();
+    if (!subj) {
+      if (sessionCustomInput) {
+        sessionCustomInput.style.display = 'block';
+        sessionCustomInput.focus();
+      }
+      return;
+    }
+    const canonical = (typeof addSubject === 'function' ? addSubject(subj) : subj) || subj;
+    state.activeSession = { subject: canonical, start: Date.now() };
+    saveData();
+    renderTrackerAll();
+  });
+}
 
-stopBtn.addEventListener('click', () => {
-  if (!state.activeSession) return;
-  const end = Date.now();
-  const durationMin = Math.max(1, Math.round((end - state.activeSession.start) / 60000));
-  state.sessions.push({ id: Date.now(), subject: state.activeSession.subject, start: state.activeSession.start, end, duration: durationMin });
-  state.activeSession = null;
-  saveData();
-  renderTrackerAll();
-});
-
+if (stopBtn) {
+  stopBtn.addEventListener('click', () => {
+    if (!state.activeSession) return;
+    const end = Date.now();
+    const durationMin = Math.max(1, Math.round((end - state.activeSession.start) / 60000));
+    state.sessions.push({ id: Date.now(), subject: state.activeSession.subject, start: state.activeSession.start, end, duration: durationMin });
+    state.activeSession = null;
+    saveData();
+    renderTrackerAll();
+  });
+}
 
 function setDailyTarget(hours) {
   const v = parseFloat(hours);
@@ -270,8 +268,10 @@ function setDailyTarget(hours) {
   renderProgress();
   saveData();
 }
-targetHoursInput.addEventListener('change', () => setDailyTarget(targetHoursInput.value));
-targetHoursInput.addEventListener('input', () => setDailyTarget(targetHoursInput.value));
+if (targetHoursInput) {
+  targetHoursInput.addEventListener('change', () => setDailyTarget(targetHoursInput.value));
+  targetHoursInput.addEventListener('input', () => setDailyTarget(targetHoursInput.value));
+}
 const targetHoursSettingsEl = document.getElementById('targetHoursSettings');
 if (targetHoursSettingsEl) {
   targetHoursSettingsEl.addEventListener('change', (e) => setDailyTarget(e.target.value));
@@ -762,8 +762,10 @@ if (timerModeSelector) {
     try { localStorage.setItem('careerdesk_subnav_tracker', timerMode); } catch (err) { }
     timerModeSelector.querySelectorAll('.timer-mode-chip').forEach(chip => chip.classList.toggle('active', chip === modeChip));
     syncTimerModeFields();
-    document.getElementById('studyDurationOptions').hidden = timerMode !== 'study';
-    document.getElementById('breakDurationOptions').hidden = timerMode !== 'break';
+    const studyOptEl = document.getElementById('studyDurationOptions');
+    const breakOptEl = document.getElementById('breakDurationOptions');
+    if (studyOptEl) studyOptEl.hidden = timerMode !== 'study';
+    if (breakOptEl) breakOptEl.hidden = timerMode !== 'break';
     const firstDuration = document.querySelector(`#${timerMode === 'break' ? 'breakDurationOptions' : 'studyDurationOptions'} .timer-dur-chip`);
     if (firstDuration) firstDuration.click();
   });

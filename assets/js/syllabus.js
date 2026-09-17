@@ -105,39 +105,46 @@ function saveSyllabusAndRefresh() {
   syncAllSubjectSelects();
 }
 
-document.getElementById('addCategoryBtn').addEventListener('click', () => {
-  const input = document.getElementById('newCategoryInput');
-  const name = input.value.trim();
-  if (!name) return;
-  if (typeof addSubject === 'function') addSubject(name);
-  const topicInput = document.getElementById('newTopicInput');
-  const firstTopic = topicInput.value.trim();
-  const normalizedName = name.toLowerCase();
-  const existingCat = state.syllabus.find(c => String(c.name).trim().toLowerCase() === normalizedName);
-  if (existingCat) {
-    if (firstTopic) {
-      const normalizedTopic = firstTopic.toLowerCase();
-      const alreadyExists = existingCat.topics.some(t => String(t.name).trim().toLowerCase() === normalizedTopic);
-      if (alreadyExists) {
-        showToast('This topic already exists in this category.', true);
+const addCategoryBtn = document.getElementById('addCategoryBtn');
+if (addCategoryBtn) {
+  addCategoryBtn.addEventListener('click', () => {
+    const input = document.getElementById('newCategoryInput');
+    if (!input) return;
+    const name = input.value.trim();
+    if (!name) return;
+    if (typeof addSubject === 'function') addSubject(name);
+    const topicInput = document.getElementById('newTopicInput');
+    const firstTopic = topicInput ? topicInput.value.trim() : '';
+    const normalizedName = name.toLowerCase();
+    const existingCat = state.syllabus.find(c => String(c.name).trim().toLowerCase() === normalizedName);
+    if (existingCat) {
+      if (firstTopic) {
+        const normalizedTopic = firstTopic.toLowerCase();
+        const alreadyExists = existingCat.topics.some(t => String(t.name).trim().toLowerCase() === normalizedTopic);
+        if (alreadyExists) {
+          showToast('This topic already exists in this category.', true);
+        } else {
+          existingCat.topics.push({ id: Date.now(), name: firstTopic, done: false });
+          showToast('Topic added to existing category.');
+        }
       } else {
-        existingCat.topics.push({ id: Date.now(), name: firstTopic, done: false });
-        showToast('Topic added to existing category.');
+        showToast('This category already exists.', true);
       }
-    } else {
-      showToast('This category already exists.', true);
+      input.value = '';
+      if (topicInput) topicInput.value = '';
+      saveSyllabusAndRefresh();
+      return;
     }
-    input.value = ''; topicInput.value = '';
+    const id = Date.now();
+    state.syllabus.push({ id, name, topics: firstTopic ? [{ id: Date.now() + 1, name: firstTopic, done: false }] : [] });
+    input.value = '';
+    if (topicInput) topicInput.value = '';
     saveSyllabusAndRefresh();
-    return;
-  }
-  const id = Date.now();
-  state.syllabus.push({ id, name, topics: firstTopic ? [{ id: Date.now() + 1, name: firstTopic, done: false }] : [] });
-  input.value = ''; topicInput.value = '';
-  saveSyllabusAndRefresh();
-});
+  });
+}
 
-categoryList.addEventListener('click', (e) => {
+if (categoryList) {
+  categoryList.addEventListener('click', (e) => {
   if (e.detail > 1) return;
 
   // Delete trigger clicked: toggle dropdown menu
@@ -257,6 +264,7 @@ categoryList.addEventListener('click', (e) => {
     return;
   }
 });
+}
 
 // Global click to dismiss category delete dropdowns when clicking outside
 document.addEventListener('click', (e) => {
@@ -266,35 +274,37 @@ document.addEventListener('click', (e) => {
   }
 });
 
-categoryList.addEventListener('dblclick', (e) => {
-  const label = e.target.closest('.tile-label');
-  if (label) {
-    const cat = state.syllabus.find(c => String(c.id) === label.dataset.topicCat);
-    if (!cat) return;
-    const topic = cat.topics.find(t => String(t.id) === label.dataset.topicLabel);
-    if (!topic) return;
-    const name = window.prompt('Enter new topic name:', topic.name);
-    if (name === null) return;
-    const trimmed = name.trim();
-    if (!trimmed) return;
-    topic.name = trimmed;
-    saveSyllabusAndRefresh();
-    return;
-  }
-  const title = e.target.closest('.category-title');
-  if (title) {
-    const cat = state.syllabus.find(c => String(c.id) === title.dataset.categoryTitle);
-    if (!cat) return;
-    const name = window.prompt('Enter new category name:', cat.name);
-    if (name === null) return;
-    const trimmed = name.trim();
-    if (!trimmed || trimmed === cat.name) return;
-    if (typeof renameSubject === 'function') {
-      renameSubject(cat.name, trimmed);
-    } else {
-      cat.name = trimmed;
+if (categoryList) {
+  categoryList.addEventListener('dblclick', (e) => {
+    const label = e.target.closest('.tile-label');
+    if (label) {
+      const cat = state.syllabus.find(c => String(c.id) === label.dataset.topicCat);
+      if (!cat) return;
+      const topic = cat.topics.find(t => String(t.id) === label.dataset.topicLabel);
+      if (!topic) return;
+      const name = window.prompt('Enter new topic name:', topic.name);
+      if (name === null) return;
+      const trimmed = name.trim();
+      if (!trimmed) return;
+      topic.name = trimmed;
       saveSyllabusAndRefresh();
+      return;
     }
-  }
-});
+    const title = e.target.closest('.category-title');
+    if (title) {
+      const cat = state.syllabus.find(c => String(c.id) === title.dataset.categoryTitle);
+      if (!cat) return;
+      const name = window.prompt('Enter new category name:', cat.name);
+      if (name === null) return;
+      const trimmed = name.trim();
+      if (!trimmed || trimmed === cat.name) return;
+      if (typeof renameSubject === 'function') {
+        renameSubject(cat.name, trimmed);
+      } else {
+        cat.name = trimmed;
+        saveSyllabusAndRefresh();
+      }
+    }
+  });
+}
 

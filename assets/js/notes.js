@@ -56,6 +56,7 @@ function renderNotes() {
   list.forEach(n => {
     const card = document.createElement('div');
     card.className = 'note-card glass' + (n.pinned ? ' pinned' : '');
+    card.dataset.noteId = n.id;
     const d = new Date(n.ts);
     card.innerHTML = `
       <div class="note-top">
@@ -158,24 +159,28 @@ if (toggleNoteBtn && noteWrap) {
   });
 }
 
-document.getElementById('addNoteBtn').addEventListener('click', () => {
-  const titleEl = document.getElementById('noteTitle');
-  const bodyEl = document.getElementById('noteBody');
-  const tagEl = document.getElementById('noteTag');
-  const title = titleEl.value.trim();
-  const body = bodyEl.value.trim();
-  if (!title && !body) return;
-  state.notes.push({ id: Date.now(), title, body, tag: tagEl.value, pinned: false, ts: Date.now() });
-  titleEl.value = ''; bodyEl.value = '';
-  renderNotes(); saveData();
+const addNoteBtn = document.getElementById('addNoteBtn');
+if (addNoteBtn) {
+  addNoteBtn.addEventListener('click', () => {
+    const titleEl = document.getElementById('noteTitle');
+    const bodyEl = document.getElementById('noteBody');
+    const tagEl = document.getElementById('noteTag');
+    const title = titleEl ? titleEl.value.trim() : '';
+    const body = bodyEl ? bodyEl.value.trim() : '';
+    if (!title && !body) return;
+    state.notes.push({ id: Date.now(), title, body, tag: tagEl ? tagEl.value : 'General', pinned: false, ts: Date.now() });
+    if (titleEl) titleEl.value = '';
+    if (bodyEl) bodyEl.value = '';
+    renderNotes(); saveData();
 
-  if (noteWrap && toggleNoteBtn) {
-    noteWrap.style.display = 'none';
-    toggleNoteBtn.innerHTML = `${ICON.plus} New Note`;
-    toggleNoteBtn.classList.remove('active-open');
-  }
-  showToast('Note saved successfully!');
-});
+    if (noteWrap && toggleNoteBtn) {
+      noteWrap.style.display = 'none';
+      toggleNoteBtn.innerHTML = `${ICON.plus} New Note`;
+      toggleNoteBtn.classList.remove('active-open');
+    }
+    showToast('Note saved successfully!');
+  });
+}
 
 const noteSearchClearBtn = document.getElementById('noteSearchClearBtn');
 if (noteSearch) {

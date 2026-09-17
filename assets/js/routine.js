@@ -360,15 +360,19 @@ document.addEventListener('input', (e) => {
     const row = state.routine.find(r => String(r.id) === t.dataset.id);
     if (row) {
       row[t.dataset.field] = t.value;
-      if (t.dataset.field === 'subject') {
-        const val = t.value.trim();
-        if (val && typeof addSubject === 'function') {
-          addSubject(val);
-        } else {
-          syncAllSubjectSelects();
-        }
-      }
       saveData();
+    }
+  }
+});
+
+document.addEventListener('change', (e) => {
+  const t = e.target;
+  if (t.closest('#routineCardWrap') && t.dataset.field === 'subject') {
+    const val = t.value.trim();
+    if (val && typeof addSubject === 'function') {
+      addSubject(val);
+    } else {
+      syncAllSubjectSelects();
     }
   }
 });
@@ -483,16 +487,16 @@ function showMonthlyRoutines() {
   box.hidden = false;
   box.innerHTML = dates.length ? dates.map((date, idx) => {
     const rows = byDate[date].sort((a, b) => (a.startTime || '').localeCompare(b.startTime || ''));
-    return `<article class="monthly-routine-card" data-month-date="${date}" style="animation-delay: ${idx * 35}ms;">
+    return `<article class="monthly-routine-card" data-month-date="${escapeAttr(date)}" style="animation-delay: ${idx * 35}ms;">
       <div class="monthly-routine-head">
         <div style="display:flex; align-items:center; gap:8px;">
           <i data-lucide="calendar" style="width:16px; height:16px; color:var(--accent1);"></i>
-          <strong>${bnDateLabel(date)}</strong>
+          <strong>${escapeHtml(bnDateLabel(date))}</strong>
           <span class="badge" style="font-size:11px; padding:2px 8px; border-radius:12px; background:var(--surface-strong); border:1px solid var(--border); color:var(--text-soft); font-weight:600;">${rows.length} ${rows.length === 1 ? 'block' : 'blocks'}</span>
         </div>
         <div class="monthly-routine-actions btn-group">
-          <button class="pill action-btn-edit" data-month-edit="${date}" title="Open this date in daily routine editor" aria-label="Edit Date Routine">${ICON.edit} <span>Open &amp; Edit</span></button>
-          <button class="pill danger action-btn-del" data-month-delete="${date}" title="Delete Routine for this date" aria-label="Delete Date Routine">${ICON.trash} <span>Delete</span></button>
+          <button class="pill action-btn-edit" data-month-edit="${escapeAttr(date)}" title="Open this date in daily routine editor" aria-label="Edit Date Routine">${ICON.edit} <span>Open &amp; Edit</span></button>
+          <button class="pill danger action-btn-del" data-month-delete="${escapeAttr(date)}" title="Delete Routine for this date" aria-label="Delete Date Routine">${ICON.trash} <span>Delete</span></button>
         </div>
       </div>
       <table class="mini-routine">
