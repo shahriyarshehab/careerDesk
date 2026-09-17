@@ -115,15 +115,42 @@ function prepareQuestionWithOptionsShuffled(rawQ) {
   };
 }
 
-// Get Master 1,000 Questions Bank
+const CUSTOM_MCQ_KEY = 'custom_bcs_questions_v3';
+
+function getStoredQuestions() {
+  try {
+    const raw = localStorage.getItem(CUSTOM_MCQ_KEY) || localStorage.getItem('jobprep_custom_quiz_questions');
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch (e) {
+    return [];
+  }
+}
+window.getStoredQuestions = getStoredQuestions;
+
+function saveStoredQuestions(questions) {
+  try {
+    localStorage.setItem(CUSTOM_MCQ_KEY, JSON.stringify(questions));
+    if (typeof window.scheduleFirestoreSync === 'function') {
+      window.scheduleFirestoreSync();
+    }
+  } catch (e) { }
+}
+
+// Get Master Questions Bank (Curated BCS Bank + Custom Stored Questions)
 function getMasterQuestions() {
+  let base = [];
   if (typeof bcs1000QuestionBank !== 'undefined' && Array.isArray(bcs1000QuestionBank) && bcs1000QuestionBank.length > 0) {
-    return bcs1000QuestionBank;
+    base = bcs1000QuestionBank;
+  } else if (typeof defaultQuestions !== 'undefined' && Array.isArray(defaultQuestions)) {
+    base = defaultQuestions;
   }
-  if (typeof defaultQuestions !== 'undefined' && Array.isArray(defaultQuestions)) {
-    return defaultQuestions;
+  const custom = getStoredQuestions();
+  if (custom.length > 0) {
+    return [...custom, ...base];
   }
-  return [];
+  return base;
 }
 
 // Get Candidate Questions for the active subject filter
@@ -1310,11 +1337,219 @@ function initMCQEngine() {
     restartBtn.addEventListener("click", switchToPracticeMode);
   }
 
+  // Manage Questions Modal Controls
+  const btnOpenManageQuestions = document.getElementById("btnOpenManageQuestions");
+  if (btnOpenManageQuestions) {
+    btnOpenManageQuestions.addEventListener("click", openManageQuestionsModal);
+  }
+
+  const mcqModalTabSwitch = document.getElementById("mcqModalTabSwitch");
+  if (mcqModalTabSwitch) {
+    mcqModalTabSwitch.addEventListener("click", (e) => {
+      const chip = e.target.closest(".chip");
+      if (chip && chip.dataset.tab) {
+        setManageQuestionsTab(chip.dataset.tab);
+      }
+    });
+  }
+
+  const addQuestionForm = document.getElementById("add-question-form");
+  if (addQuestionForm) {
+    addQuestionForm.addEventListener("submit", handleAddCustomQuestion);
+  }
+
+  const btnExportJson = document.getElementById("btn-export-mcq-json");
+  if (btnExportJson) {
+    btnExportJson.addEventListener("click", handleExportMCQJson);
+  }
+
+  const btnImportJson = document.getElementById("btn-import-json");
+  if (btnImportJson) {
+    btnImportJson.addEventListener("click", handleImportMCQJson);
+  }
+
   // Initial Pool Build and First Render
   buildPracticePool(currentSelectedSubject);
   renderMCQFilterBar();
   renderMCQQuestion();
   updateMCQStatsBar();
+}
+
+// ==========================================================================
+// 8. Custom Questions & JSON Import / Export Manager
+// ==========================================================================
+
+function openManageQuestionsModal() {
+  const modal = document.getElementById('add-modal');
+  if (!modal) return;
+
+  const newSubjSel = document.getElementById('new-subject');
+  if (newSubjSel) {
+    const subs = (typeof masterSubjectList === 'function') ? masterSubjectList(false) : Object.keys(BCS_SUBJECT_META);
+    newSubjSel.innerHTML = subs.map(s => `<option value="${escapeAttr(s)}">${escapeHtml(s)}</option>`).join('');
+  }
+
+  setManageQuestionsTab('create');
+  modal.classList.add('open');
+  if (window.lucide && typeof window.lucide.createIcons === 'function') {
+    window.lucide.createIcons();
+  }
+}
+window.openManageQuestionsModal = openManageQuestionsModal;
+
+function closeManageQuestionsModal() {
+  const modal = document.getElementById('add-modal');
+  if (modal) modal.classList.remove('open');
+}
+window.closeManageQuestionsModal = closeManageQuestionsModal;
+
+function setManageQuestionsTab(tabName) {
+  const tabSwitch = document.getElementById('mcqModalTabSwitch');
+  const createPanel = document.getElementById('modal-tab-create');
+  const importPanel = document.getElementById('modal-tab-import');
+
+  if (tabSwitch) {
+    tabSwitch.querySelectorAll('.chip').forEach(c => {
+      const isTarget = c.dataset.tab === tabName;
+      c.classList.toggle('active', isTarget);
+      c.classList.toggle('solid', isTarget);
+    });
+  }
+
+  if (createPanel) createPanel.style.display = (tabName === 'create') ? 'block' : 'none';
+  if (importPanel) importPanel.style.display = (tabName === 'import') ? 'block' : 'none';
+}
+
+function handleAddCustomQuestion(e) {
+  e.preventDefault();
+  const subjEl = document.getElementById('new-subject');
+  const qEl = document.getElementById('new-question');
+  const opt0El = document.getElementById('opt-0');
+  const opt1El = document.getElementById('opt-1');
+  const opt2El = document.getElementById('opt-2');
+  const opt3El = document.getElementById('opt-3');
+  const correctEl = document.getElementById('new-correct');
+  const expEl = document.getElementById('new-explanation');
+
+  const subject = subjEl ? subjEl.value.trim() : 'General';
+  const question = qEl ? qEl.value.trim() : '';
+  const opt0 = opt0El ? opt0El.value.trim() : '';
+  const opt1 = opt1El ? opt1El.value.trim() : '';
+  const opt2 = opt2El ? opt2El.value.trim() : '';
+  const opt3 = opt3El ? opt3El.value.trim() : '';
+  const correct = correctEl ? parseInt(correctEl.value, 10) : 0;
+  const explanation = expEl ? expEl.value.trim() : '';
+
+  if (!question || !opt0 || !opt1 || !opt2 || !opt3) {
+    if (typeof showToast === 'function') showToast('Please enter the question and all 4 options.', true);
+    return;
+  }
+
+  const newQ = {
+    id: Date.now(),
+    subject,
+    question,
+    options: [opt0, opt1, opt2, opt3],
+    correct: isNaN(correct) ? 0 : correct,
+    explanation: explanation || 'Custom question.'
+  };
+
+  const currentCustom = getStoredQuestions();
+  currentCustom.unshift(newQ);
+  saveStoredQuestions(currentCustom);
+
+  if (qEl) qEl.value = '';
+  if (opt0El) opt0El.value = '';
+  if (opt1El) opt1El.value = '';
+  if (opt2El) opt2El.value = '';
+  if (opt3El) opt3El.value = '';
+  if (expEl) expEl.value = '';
+
+  closeManageQuestionsModal();
+
+  buildPracticePool(currentSelectedSubject, true);
+  renderMCQFilterBar();
+  renderMCQQuestion();
+  updateMCQStatsBar();
+
+  if (typeof showToast === 'function') {
+    showToast('Custom question saved successfully!');
+  }
+}
+
+function handleExportMCQJson() {
+  const master = getMasterQuestions();
+  const jsonStr = JSON.stringify(master, null, 2);
+
+  const textarea = document.getElementById('agent-import-text');
+  if (textarea) textarea.value = jsonStr;
+
+  const blob = new Blob([jsonStr], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'careerdesk-mcq-question-bank.json';
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+
+  if (typeof showToast === 'function') {
+    showToast(`Exported ${master.length} questions as JSON!`);
+  }
+}
+
+function handleImportMCQJson() {
+  const textarea = document.getElementById('agent-import-text');
+  if (!textarea || !textarea.value.trim()) {
+    if (typeof showToast === 'function') showToast('Please paste a valid JSON questions array.', true);
+    return;
+  }
+
+  try {
+    const parsed = JSON.parse(textarea.value.trim());
+    if (!Array.isArray(parsed) || !parsed.length) {
+      if (typeof showToast === 'function') showToast('JSON must be a non-empty array of question objects.', true);
+      return;
+    }
+
+    const validQuestions = [];
+    parsed.forEach((item, idx) => {
+      if (item && item.question && Array.isArray(item.options) && item.options.length >= 2) {
+        validQuestions.push({
+          id: item.id || (Date.now() + idx),
+          subject: item.subject || 'General',
+          question: String(item.question).trim(),
+          options: item.options.map(o => String(o).trim()),
+          correct: typeof item.correct === 'number' ? item.correct : 0,
+          explanation: item.explanation ? String(item.explanation).trim() : ''
+        });
+      }
+    });
+
+    if (!validQuestions.length) {
+      if (typeof showToast === 'function') showToast('No valid questions found in JSON array.', true);
+      return;
+    }
+
+    const existing = getStoredQuestions();
+    const merged = [...validQuestions, ...existing];
+    saveStoredQuestions(merged);
+
+    textarea.value = '';
+    closeManageQuestionsModal();
+
+    buildPracticePool(currentSelectedSubject, true);
+    renderMCQFilterBar();
+    renderMCQQuestion();
+    updateMCQStatsBar();
+
+    if (typeof showToast === 'function') {
+      showToast(`Successfully imported ${validQuestions.length} questions!`);
+    }
+  } catch (err) {
+    if (typeof showToast === 'function') showToast('Invalid JSON syntax: ' + err.message, true);
+  }
 }
 
 // Auto-run on DOM ready or direct load

@@ -479,19 +479,20 @@ if (editModalEl) {
 
 /* ==========================================================================
    BILINGUAL MOTIVATIONAL TYPEWRITER ENGINE (English -> Bangla with Duration)
+   Realistic human cadence + silky smooth layout-stable transitions
    ========================================================================== */
 
 let quoteTypewriterTimeout = null;
 let quoteHoldTimeout = null;
 let quoteHoldStartTime = 0;
 let quoteHoldRemaining = 0;
-let quoteHoldDuration = 4000; // 4 seconds duration per language
+let quoteHoldDuration = 5500; // 5.5 seconds comfortable reading duration
 let quoteIsPaused = false;
 let quoteIsHovered = false;
 let quoteActiveLang = 'en'; // 'en' | 'bn'
 let quoteActiveIndex = 0;
 let quoteCharIndex = 0;
-let quotePhase = 'typing'; // 'typing' | 'holding' | 'erasing'
+let quotePhase = 'typing'; // 'typing' | 'holding' | 'transitioning'
 
 function getGraphemeArray(text) {
   if (typeof Intl !== 'undefined' && Intl.Segmenter) {
@@ -501,6 +502,26 @@ function getGraphemeArray(text) {
     } catch (e) { }
   }
   return Array.from(String(text || ''));
+}
+
+function getRealisticTypingDelay(currentChar, nextChar) {
+  // Realistic human cadence: 55ms to 85ms base
+  let delay = Math.floor(Math.random() * 30) + 60;
+
+  // Space between words: thoughtful human breath
+  if (currentChar === ' ') {
+    delay += Math.floor(Math.random() * 30) + 40; // ~100ms - 130ms
+  }
+  // Soft punctuation (comma, semicolon, colon, dash)
+  else if (currentChar === ',' || currentChar === ';' || currentChar === ':' || currentChar === '-' || currentChar === '—') {
+    delay += Math.floor(Math.random() * 60) + 220; // ~280ms - 340ms
+  }
+  // Sentence ending punctuation (period, exclamation, question mark, Bengali Dari '।')
+  else if (currentChar === '.' || currentChar === '!' || currentChar === '?' || currentChar === '।') {
+    delay += Math.floor(Math.random() * 80) + 360; // ~420ms - 500ms
+  }
+
+  return delay;
 }
 
 function getBilingualQuotesPool() {
@@ -538,6 +559,7 @@ function stepQuoteTypewriter() {
   const langTextEl = document.getElementById('profileQuoteLangText');
   const langBadgeEl = document.getElementById('profileQuoteLangBadge');
   const authorEl = document.getElementById('profileQuoteAuthorPill');
+  const cursorEl = document.getElementById('profileQuoteCursor');
   const progressFill = document.getElementById('profileQuoteProgressFill');
 
   if (!textEl) return;
@@ -562,50 +584,36 @@ function stepQuoteTypewriter() {
     authorEl.textContent = `— ${authorName}`;
   }
 
-  // State machine: typing -> holding -> erasing
+  // Typing phase
   if (quotePhase === 'typing') {
     if (progressFill) {
       progressFill.style.transition = 'none';
       progressFill.style.width = '0%';
+      progressFill.style.opacity = '1';
+    }
+
+    if (cursorEl) {
+      cursorEl.classList.remove('blinking', 'quote-cursor-hidden');
+      cursorEl.classList.add('typing');
     }
 
     quoteCharIndex++;
     textEl.textContent = graphemes.slice(0, quoteCharIndex).join('');
 
     if (quoteCharIndex < graphemes.length) {
-      // Continue typing
-      const delay = Math.floor(Math.random() * 12) + 32; // 32-44ms natural rhythm
+      const currentChar = graphemes[quoteCharIndex - 1];
+      const nextChar = graphemes[quoteCharIndex];
+      const delay = getRealisticTypingDelay(currentChar, nextChar);
       quoteTypewriterTimeout = setTimeout(stepQuoteTypewriter, delay);
     } else {
-      // Finished typing this text -> switch to holding
+      // Finished typing -> switch to holding
       quotePhase = 'holding';
+      if (cursorEl) {
+        cursorEl.classList.remove('typing');
+        cursorEl.classList.add('blinking');
+      }
       quoteHoldRemaining = quoteHoldDuration;
       startQuoteHoldTimer();
-    }
-  } else if (quotePhase === 'erasing') {
-    if (progressFill) {
-      progressFill.style.transition = 'none';
-      progressFill.style.width = '0%';
-    }
-
-    quoteCharIndex--;
-    textEl.textContent = graphemes.slice(0, quoteCharIndex).join('');
-
-    if (quoteCharIndex > 0) {
-      // Continue erasing
-      quoteTypewriterTimeout = setTimeout(stepQuoteTypewriter, 18);
-    } else {
-      // Finished erasing! Switch language or move to next quote
-      if (quoteActiveLang === 'en') {
-        quoteActiveLang = 'bn';
-      } else {
-        quoteActiveLang = 'en';
-        quoteActiveIndex = (quoteActiveIndex + 1) % pool.length;
-      }
-      quoteCharIndex = 0;
-      quotePhase = 'typing';
-      // Brief breathing pause between languages
-      quoteTypewriterTimeout = setTimeout(stepQuoteTypewriter, 400);
     }
   }
 }
@@ -619,12 +627,8 @@ function startQuoteHoldTimer() {
   quoteHoldStartTime = Date.now();
 
   quoteHoldTimeout = setTimeout(() => {
-    quotePhase = 'erasing';
-    if (progressFill) {
-      progressFill.style.transition = 'none';
-      progressFill.style.width = '0%';
-    }
-    quoteTypewriterTimeout = setTimeout(stepQuoteTypewriter, 80);
+    // Graceful smooth fade transition to next language or next quote
+    smoothTransitionNext(false);
   }, quoteHoldRemaining);
 }
 
@@ -649,24 +653,82 @@ function resumeQuoteHoldTimer() {
   }
 }
 
+function smoothTransitionNext(forceNextQuote = false) {
+  stopQuoteTypewriter();
+  quotePhase = 'transitioning';
+
+  const textEl = document.getElementById('profileQuoteTypedText');
+  const authorEl = document.getElementById('profileQuoteAuthorPill');
+  const cursorEl = document.getElementById('profileQuoteCursor');
+  const progressFill = document.getElementById('profileQuoteProgressFill');
+
+  if (progressFill) {
+    progressFill.style.transition = 'opacity 0.25s ease';
+    progressFill.style.opacity = '0';
+  }
+
+  if (textEl) textEl.classList.add('quote-text-fade-out');
+  if (authorEl) authorEl.classList.add('quote-text-fade-out');
+  if (cursorEl) cursorEl.classList.add('quote-cursor-hidden');
+
+  setTimeout(() => {
+    const pool = getBilingualQuotesPool();
+    if (forceNextQuote) {
+      quoteActiveLang = 'en';
+      quoteActiveIndex = (quoteActiveIndex + 1) % pool.length;
+    } else {
+      if (quoteActiveLang === 'en') {
+        quoteActiveLang = 'bn';
+      } else {
+        quoteActiveLang = 'en';
+        quoteActiveIndex = (quoteActiveIndex + 1) % pool.length;
+      }
+    }
+
+    quoteCharIndex = 0;
+    quotePhase = 'typing';
+
+    if (textEl) {
+      textEl.textContent = '';
+      textEl.classList.remove('quote-text-fade-out');
+    }
+    if (authorEl) {
+      authorEl.classList.remove('quote-text-fade-out');
+    }
+    if (cursorEl) {
+      cursorEl.classList.remove('quote-cursor-hidden', 'blinking');
+      cursorEl.classList.add('typing');
+    }
+
+    if (progressFill) {
+      progressFill.style.transition = 'none';
+      progressFill.style.width = '0%';
+      progressFill.style.opacity = '1';
+    }
+
+    // Brief, pleasant human pause before beginning typing
+    quoteTypewriterTimeout = setTimeout(stepQuoteTypewriter, 340);
+  }, 320);
+}
+
 function toggleQuoteTypewriterPause() {
   quoteIsPaused = !quoteIsPaused;
-  const pauseBtn = document.getElementById('btnToggleQuotePause');
+  const pauseBtns = document.querySelectorAll('#btnToggleQuotePause');
 
   if (quoteIsPaused) {
     if (quotePhase === 'holding') pauseQuoteHoldTimer();
     stopQuoteTypewriter();
-    if (pauseBtn) {
-      pauseBtn.innerHTML = '<i data-lucide="play" style="width:13px;height:13px;"></i>';
-      pauseBtn.title = 'Resume quote typing animation';
-      if (window.lucide && typeof window.lucide.createIcons === 'function') window.lucide.createIcons();
-    }
+    pauseBtns.forEach(btn => {
+      btn.innerHTML = '<i data-lucide="play" style="width:13px;height:13px;"></i>';
+      btn.title = 'Resume quote typing animation';
+    });
+    if (window.lucide && typeof window.lucide.createIcons === 'function') window.lucide.createIcons();
   } else {
-    if (pauseBtn) {
-      pauseBtn.innerHTML = '<i data-lucide="pause" style="width:13px;height:13px;"></i>';
-      pauseBtn.title = 'Pause quote typing animation';
-      if (window.lucide && typeof window.lucide.createIcons === 'function') window.lucide.createIcons();
-    }
+    pauseBtns.forEach(btn => {
+      btn.innerHTML = '<i data-lucide="pause" style="width:13px;height:13px;"></i>';
+      btn.title = 'Pause quote typing animation';
+    });
+    if (window.lucide && typeof window.lucide.createIcons === 'function') window.lucide.createIcons();
     if (quotePhase === 'holding') {
       resumeQuoteHoldTimer();
     } else {
@@ -676,41 +738,45 @@ function toggleQuoteTypewriterPause() {
 }
 
 function skipToNextQuoteTypewriter() {
-  stopQuoteTypewriter();
-  const pool = getBilingualQuotesPool();
-  quoteActiveIndex = (quoteActiveIndex + 1) % pool.length;
-  quoteActiveLang = 'en';
-  quoteCharIndex = 0;
-  quotePhase = 'typing';
-
-  const progressFill = document.getElementById('profileQuoteProgressFill');
-  if (progressFill) {
-    progressFill.style.transition = 'none';
-    progressFill.style.width = '0%';
-  }
-
-  const textEl = document.getElementById('profileQuoteTypedText');
-  if (textEl) textEl.textContent = '';
-
-  stepQuoteTypewriter();
+  smoothTransitionNext(true);
 }
 
 function toggleQuoteLanguageManual() {
   stopQuoteTypewriter();
-  quoteActiveLang = quoteActiveLang === 'en' ? 'bn' : 'en';
-  quoteCharIndex = 0;
-  quotePhase = 'typing';
-
-  const progressFill = document.getElementById('profileQuoteProgressFill');
-  if (progressFill) {
-    progressFill.style.transition = 'none';
-    progressFill.style.width = '0%';
-  }
+  quotePhase = 'transitioning';
 
   const textEl = document.getElementById('profileQuoteTypedText');
-  if (textEl) textEl.textContent = '';
+  const authorEl = document.getElementById('profileQuoteAuthorPill');
+  const cursorEl = document.getElementById('profileQuoteCursor');
 
-  stepQuoteTypewriter();
+  if (textEl) textEl.classList.add('quote-text-fade-out');
+  if (authorEl) authorEl.classList.add('quote-text-fade-out');
+  if (cursorEl) cursorEl.classList.add('quote-cursor-hidden');
+
+  setTimeout(() => {
+    quoteActiveLang = quoteActiveLang === 'en' ? 'bn' : 'en';
+    quoteCharIndex = 0;
+    quotePhase = 'typing';
+
+    if (textEl) {
+      textEl.textContent = '';
+      textEl.classList.remove('quote-text-fade-out');
+    }
+    if (authorEl) {
+      authorEl.classList.remove('quote-text-fade-out');
+    }
+    if (cursorEl) {
+      cursorEl.classList.remove('quote-cursor-hidden');
+    }
+
+    const progressFill = document.getElementById('profileQuoteProgressFill');
+    if (progressFill) {
+      progressFill.style.transition = 'none';
+      progressFill.style.width = '0%';
+    }
+
+    quoteTypewriterTimeout = setTimeout(stepQuoteTypewriter, 260);
+  }, 300);
 }
 
 function initProfileQuoteTypewriter() {
@@ -720,35 +786,40 @@ function initProfileQuoteTypewriter() {
 
   stopQuoteTypewriter();
 
-  // Wire Controls
-  const pauseBtn = document.getElementById('btnToggleQuotePause');
-  const nextBtn = document.getElementById('btnCycleProfileHeroQuote');
-  const langBadge = document.getElementById('profileQuoteLangBadge');
+  // Wire all Pause Buttons
+  document.querySelectorAll('#btnToggleQuotePause').forEach(btn => {
+    if (!btn._bound) {
+      btn._bound = true;
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        toggleQuoteTypewriterPause();
+      });
+    }
+  });
 
-  if (pauseBtn && !pauseBtn._bound) {
-    pauseBtn._bound = true;
-    pauseBtn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      toggleQuoteTypewriterPause();
-    });
-  }
+  // Wire all Next/Cycle Buttons (signed-in & guest)
+  document.querySelectorAll('.btn-cycle-profile-hero-quote, #btnCycleProfileHeroQuote, #btnCycleProfileHeroQuoteGuest').forEach(btn => {
+    if (!btn._bound) {
+      btn._bound = true;
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        skipToNextQuoteTypewriter();
+      });
+    }
+  });
 
-  if (nextBtn && !nextBtn._bound) {
-    nextBtn._bound = true;
-    nextBtn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      skipToNextQuoteTypewriter();
-    });
-  }
+  // Wire all Language Badges
+  document.querySelectorAll('#profileQuoteLangBadge').forEach(badge => {
+    if (!badge._bound) {
+      badge._bound = true;
+      badge.addEventListener('click', (e) => {
+        e.stopPropagation();
+        toggleQuoteLanguageManual();
+      });
+    }
+  });
 
-  if (langBadge && !langBadge._bound) {
-    langBadge._bound = true;
-    langBadge.addEventListener('click', (e) => {
-      e.stopPropagation();
-      toggleQuoteLanguageManual();
-    });
-  }
-
+  // Hover Pause/Resume
   if (container && !container._boundHover) {
     container._boundHover = true;
     container.addEventListener('mouseenter', () => {

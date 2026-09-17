@@ -8,8 +8,11 @@ const noteSearch = document.getElementById('noteSearch');
 const noteFilterTag = document.getElementById('noteFilterTag');
 
 function filteredNotes() {
-  const q = noteSearch.value.trim().toLowerCase();
-  const tag = noteFilterTag.value;
+  const searchEl = document.getElementById('noteSearch') || noteSearch;
+  const filterEl = document.getElementById('noteFilterTag') || noteFilterTag;
+  const q = searchEl ? searchEl.value.trim().toLowerCase() : '';
+  const tag = filterEl ? filterEl.value : 'all';
+  if (!Array.isArray(state.notes)) state.notes = [];
   return state.notes.filter(n => {
     const matchesTag = tag === 'all' || n.tag === tag;
     const matchesQ = !q || (n.title || '').toLowerCase().includes(q) || (n.body || '').toLowerCase().includes(q);
@@ -49,10 +52,12 @@ function formatKeepDate(ts) {
 }
 
 function renderNotes() {
+  const grid = document.getElementById('notesGrid') || notesGrid;
+  if (!grid) return;
   const list = filteredNotes();
-  notesGrid.innerHTML = '';
+  grid.innerHTML = '';
   if (!list.length) {
-    notesGrid.innerHTML = '<div class="empty-state">No notes found. Create a new note using the button above.</div>';
+    grid.innerHTML = '<div class="empty-state">No notes found. Create a new note using the button above.</div>';
     return;
   }
   list.forEach(n => {
@@ -137,7 +142,7 @@ function startEdit(id) {
   if (!card) return;
   card.innerHTML = `
     <div class="note-edit-area">
-      <input type="text" value="${escapeHtml(n.title || '')}" id="edit-title-${id}">
+      <input type="text" value="${typeof escapeAttr === 'function' ? escapeAttr(n.title || '') : escapeHtml(n.title || '')}" id="edit-title-${id}">
       <textarea rows="4" id="edit-body-${id}">${escapeHtml(n.body || '')}</textarea>
       <div class="quote-actions" style="justify-content:flex-start;">
         <button class="pill solid" data-save="${id}">Save</button>

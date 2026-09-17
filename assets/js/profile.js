@@ -46,6 +46,11 @@ function closeSubjectManagerModal() {
   }
 }
 
+const closeSubjectManagerModalBtn = document.getElementById('closeSubjectManagerModalBtn');
+if (closeSubjectManagerModalBtn) {
+  closeSubjectManagerModalBtn.addEventListener('click', closeSubjectManagerModal);
+}
+
 function renderSubjectManager() {
   const container = document.getElementById('subjectManagerList');
   const deletedSection = document.getElementById('deletedSubjectSection');

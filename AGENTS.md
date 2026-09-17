@@ -29,6 +29,7 @@ CareerDesk/
 │   ├── css/
 │   │   ├── base.css        # Theme variables, reset, typography, header, mobile dock navbar
 │   │   ├── components.css  # Universal .btn-group, .action-group, .segmented-group, .micro-btn
+│   │   ├── home.css        # Daily Study Routine hero card, date slider, and monthly view styling
 │   │   ├── routine.css     # Routine tables, calendar date slider, monthly schedule
 │   │   ├── quotes.css      # Motivation ticker, wallpaper generator, quotes manager
 │   │   ├── notes.css       # Quick notes grid, cards, pinning, search filtering
@@ -38,8 +39,12 @@ CareerDesk/
 │   │   ├── flashcards.css  # Flashcards deck, flip card animation, fullscreen exam overlay
 │   │   ├── mcq.css         # BCS MCQ engine, options, floating points, mistake bank
 │   │   ├── profile.css     # User profile card, academic track, subject manager & cloud sync
+│   │   ├── security.css    # PIN lock screen overlay, tamper indicators & crypto modal styling
 │   │   ├── modals.css      # Command Palette (Ctrl+K), generic modals & dialogs
 │   │   └── master.css      # Master stylesheet project manifest (only CSS linked by index.html)
+│   ├── data/
+│   │   ├── bcs-mcq-question-bank-1000.json # Complete 1,000 authentic BCS questions dataset
+│   │   └── careerdesk-backup.json          # Complete sample backup schema package
 │   ├── js/
 │   │   ├── master.js       # Master JavaScript project file & loader (only script linked by index.html)
 │   │   ├── core.js         # Master subject control, data schema, localStorage adapter & utilities
@@ -49,9 +54,10 @@ CareerDesk/
 │   │   ├── tracker.js      # Focus timer, 24h activity break tracker, heatmap & goals
 │   │   ├── countdown.js    # Target exam countdown timers engine
 │   │   ├── syllabus.js     # Category & topic progress tracking, inline edit & delete mode
-│   │   ├── flashcards.js   # Flashcard deck review, flip animation & interactive exam mode
+│   │   ├── flashcards.js   # Deprecated flashcard stubs preserved for backwards compatibility
 │   │   ├── questions.js    # Curated question banks and BCS question pool
-│   │   ├── mcq.js          # MCQ practice engine, 20-Q exam mode, sound, mistake bank
+│   │   ├── mcq.js          # MCQ practice engine, 20-Q exam mode, sound, mistake bank & custom question manager
+│   │   ├── security.js     # Privacy PIN lock, WebCrypto AES-GCM encryption & data integrity checks
 │   │   ├── profile.js      # Profile track manager, Bangladesh class curriculum, subjects & cloud backups
 │   │   ├── home.js         # Routine and profile aspirant metrics hub
 │   │   ├── app.js          # Theme, fullscreen, modals, tabs router, command palette & init
@@ -77,10 +83,12 @@ CareerDesk/
 - **`assets/js/tracker.js`**: Real-time study timer, 24h break logs, activity heatmap, and target hours.
 - **`assets/js/countdown.js`**: Target exam countdown cards, date differentials, and exam target creation.
 - **`assets/js/syllabus.js`**: Interactive curriculum tracking, progress bars, topic completion toggles, and deletion modes.
-- **`assets/js/flashcards.js`**: Spaced flashcards deck, flip card animations, category filters, and full-screen distraction-free Exam Mode.
+- **`assets/js/flashcards.js`**: Backward-compatible stubs for legacy flashcard references.
 - **`assets/js/questions.js`**: Dedicated static repository containing default questions, AI-curated pool, and extended BCS question pools.
-- **`assets/js/mcq.js`**: Real-time MCQ quiz practice engine, 20-question timed exam mode, audio sound effects, mistake bank remediation, and JSON question import/export.
-- **`assets/js/profile.js`**: Profile track manager (Student vs Job Seeker), Bangladesh class-wise curriculum subjects, activity statistics per subject, and cloud backups.
+- **`assets/js/mcq.js`**: Real-time MCQ quiz practice engine, 20-question timed exam mode, audio sound effects, mistake bank remediation, custom question creation, and JSON question import/export.
+- **`assets/js/security.js`**: Zero-knowledge AES-GCM-256 WebCrypto encryption, privacy PIN lock overlay, and tamper verification.
+- **`assets/js/profile.js`**: Profile track manager (Student vs Job Seeker), Bangladesh class curriculum, subjects & cloud backups.
+- **`assets/js/home.js`**: Routine and profile aspirant metrics hub.
 - **`assets/js/app.js`**: Application router (`activateTab`), modal controllers, fullscreen toggles, Command Palette (`Ctrl+K`), and bootstrap `init()`.
 - **`assets/js/lucide.min.js`**: Replaces `<i data-lucide="...">` with SVG icons on startup. In dynamically generated JS templates, use the inline `ICON` object from `core.js`.
 

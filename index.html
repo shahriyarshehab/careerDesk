@@ -472,6 +472,7 @@
               </button>
             </div>
             <div class="mcq-quick-tools">
+              <button class="pill subtle" id="btnOpenManageQuestions" title="Add custom questions or import/export question bank"><i data-lucide="folder-plus"></i> Manage Questions</button>
               <button class="pill subtle" id="randomQuestionBtn" title="Draw another random question immediately"><i data-lucide="shuffle"></i> Random Q</button>
               <button class="pill subtle" id="reset-btn" title="Restart and re-shuffle questions"><i data-lucide="rotate-ccw"></i> Restart</button>
             </div>
@@ -853,7 +854,7 @@
           </div>
           <p style="margin:2px 0 0; font-size:12px; color:var(--text-soft);">Central control for Routine, Tracker, Syllabus, and Quizzes</p>
         </div>
-        <button type="button" id="closeSubjectManagerModalBtn" style="background:none; border:none; cursor:pointer; color:var(--text-soft); padding:6px; display:flex; align-items:center; border-radius:8px; line-height:1;" title="Close" aria-label="Close Subject Manager">
+        <button type="button" id="closeSubjectManagerModalBtn" data-close="subjectManagerModal" style="background:none; border:none; cursor:pointer; color:var(--text-soft); padding:6px; display:flex; align-items:center; border-radius:8px; line-height:1;" title="Close" aria-label="Close Subject Manager">
           <i data-lucide="x" style="width:18px; height:18px;"></i>
         </button>
       </div>
@@ -926,8 +927,8 @@
         style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
         <h3 class="modal-title" style="margin:0; font-family:var(--font-display); font-size:18px; color:var(--text);">
           Manage Questions</h3>
-        <button class="modal-close" id="close-modal"
-          style="background:none; border:none; color:var(--text-soft); cursor:pointer; display:flex; align-items:center; justify-content:center;"><i
+        <button class="modal-close" id="close-modal" data-close="add-modal"
+          style="background:none; border:none; color:var(--text-soft); cursor:pointer; display:flex; align-items:center; justify-content:center;" title="Close" aria-label="Close modal"><i
             data-lucide="x"></i></button>
       </div>
 
@@ -995,7 +996,7 @@
               style="width:100%; padding:10px; border-radius:10px; border:1px solid var(--border); background:var(--surface); color:var(--text);"></textarea>
           </div>
           <div class="quote-actions btn-group" style="justify-content:flex-end; margin-top:16px;">
-            <button type="button" class="pill" id="closeModalCancelBtn">Cancel</button>
+            <button type="button" class="pill" id="closeModalCancelBtn" data-close="add-modal">Cancel</button>
             <button type="submit" class="pill solid"><i data-lucide="save"></i> <span>Save Question</span></button>
           </div>
         </form>

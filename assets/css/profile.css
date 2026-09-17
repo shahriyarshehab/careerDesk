@@ -84,7 +84,8 @@ html[data-theme="light"] .profile-hero-banner {
 .profile-quote-ticker-top {
   position: relative;
   width: 100%;
-  padding: 13px 22px;
+  min-height: 54px;
+  padding: 12px 22px;
   background: linear-gradient(135deg, rgba(99, 102, 241, 0.08) 0%, rgba(6, 182, 212, 0.05) 50%, rgba(255, 255, 255, 0.02) 100%);
   border-bottom: 1px solid rgba(99, 102, 241, 0.18);
   backdrop-filter: blur(16px);
@@ -95,7 +96,7 @@ html[data-theme="light"] .profile-hero-banner {
   gap: 16px;
   box-sizing: border-box;
   overflow: hidden;
-  transition: all 0.25s ease;
+  transition: background 0.25s ease, border-color 0.25s ease;
 }
 
 .profile-quote-ticker-top:hover {
@@ -118,6 +119,27 @@ html[data-theme="light"] .profile-quote-ticker-top:hover {
   gap: 12px;
   flex: 1;
   min-width: 0;
+}
+
+.profile-quote-mark-badge {
+  width: 32px;
+  height: 32px;
+  border-radius: 9px;
+  background: rgba(99, 102, 241, 0.12);
+  border: 1px solid rgba(99, 102, 241, 0.25);
+  color: var(--accent1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+}
+
+.profile-quote-mark-badge svg,
+.profile-quote-mark-badge .lucide {
+  width: 15px;
+  height: 15px;
 }
 
 .profile-quote-lang-badge {
@@ -173,46 +195,57 @@ html[data-theme="light"] .profile-quote-ticker-top:hover {
   flex: 1;
   min-width: 0;
   display: flex;
-  align-items: baseline;
+  align-items: center;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 6px 10px;
   font-size: 13.5px;
   line-height: 1.5;
   color: var(--text);
   font-weight: 500;
+  min-height: 24px;
 }
 
 .profile-quote-phrase {
   display: inline-flex;
   align-items: baseline;
   font-style: italic;
-  gap: 0;
+  font-family: 'Hind Siliguri', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  letter-spacing: 0.01em;
 }
 
 .profile-quote-curly-open,
 .profile-quote-curly-close {
   color: var(--accent1);
   font-weight: 700;
-  font-size: 15px;
+  font-size: 16px;
   font-style: normal;
   user-select: none;
-  opacity: 0.9;
+  opacity: 0.85;
   line-height: 1;
 }
 
 .profile-quote-curly-open {
-  margin-right: 1px;
+  margin-right: 2px;
 }
 
 .profile-quote-curly-close {
-  margin-left: 1px;
+  margin-left: 2px;
 }
 
 .profile-quote-typed-text {
+  display: inline;
   font-style: italic;
   letter-spacing: 0.01em;
   color: var(--text);
-  min-height: 20px;
+  font-family: inherit;
+  transition: opacity 0.32s cubic-bezier(0.16, 1, 0.3, 1), transform 0.32s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+}
+
+.profile-quote-typed-text.quote-text-fade-out,
+.profile-quote-author-pill.quote-text-fade-out {
+  opacity: 0 !important;
+  transform: translateY(-3px) scale(0.99) !important;
 }
 
 .profile-quote-cursor {
@@ -221,18 +254,34 @@ html[data-theme="light"] .profile-quote-ticker-top:hover {
   height: 14px;
   background: var(--accent2);
   margin-left: 2px;
-  margin-right: 1px;
+  margin-right: 2px;
   vertical-align: middle;
-  animation: cursorBlink 0.75s infinite ease-in-out;
+  border-radius: 1px;
+  transition: opacity 0.15s ease;
 }
 
-@keyframes cursorBlink {
+.profile-quote-cursor.typing {
+  opacity: 1 !important;
+  box-shadow: 0 0 6px rgba(6, 182, 212, 0.7);
+  animation: none !important;
+}
+
+.profile-quote-cursor.blinking {
+  animation: quoteCursorBlink 0.95s infinite ease-in-out;
+}
+
+.profile-quote-cursor.quote-cursor-hidden {
+  opacity: 0 !important;
+}
+
+@keyframes quoteCursorBlink {
   0%, 100% { opacity: 1; }
   50% { opacity: 0; }
 }
 
 .profile-quote-author-pill {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
   font-size: 11.5px;
   font-weight: 700;
   color: var(--accent2);
@@ -240,6 +289,7 @@ html[data-theme="light"] .profile-quote-ticker-top:hover {
   letter-spacing: 0.02em;
   opacity: 0.9;
   white-space: nowrap;
+  transition: opacity 0.32s cubic-bezier(0.16, 1, 0.3, 1), transform 0.32s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .profile-quote-controls {
