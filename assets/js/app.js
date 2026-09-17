@@ -160,6 +160,12 @@ function activateTab(rawTabName, persist = false) {
     renderTrackerAll();
   }
 
+  if (tabName === 'quiz') {
+    if (typeof renderMCQFilterBar === 'function') renderMCQFilterBar();
+    if (typeof renderMCQQuestion === 'function') renderMCQQuestion();
+    if (typeof updateMCQStatsBar === 'function') updateMCQStatsBar();
+  }
+
   if (window.lucide && typeof window.lucide.createIcons === 'function') {
     window.lucide.createIcons();
   }

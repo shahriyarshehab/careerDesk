@@ -1052,43 +1052,6 @@
     </div>
   </div>
 
-  <!-- Edit Flashcard Modal -->
-  <div class="modal-overlay" id="editFlashModal" style="display:none;">
-    <div class="glass modal-card" style="max-width:520px; width:92%; padding:24px; position:relative;">
-      <div class="modal-header"
-        style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
-        <h3 class="modal-title"
-          style="margin:0; font-family:var(--font-display); font-size:17px; color:var(--text); display:flex; align-items:center; gap:8px;">
-          <i data-lucide="edit-3" style="width:18px; height:18px; color:var(--accent1);"></i> Edit Flashcard
-        </h3>
-        <button class="modal-close" id="closeEditFlashModal" type="button" aria-label="Close modal"
-          style="background:none; border:none; color:var(--text-soft); cursor:pointer; display:flex; align-items:center; justify-content:center; padding:4px;">
-          <i data-lucide="x"></i>
-        </button>
-      </div>
-      <input type="hidden" id="editFlashId">
-      <div class="form-group" style="margin-bottom:12px;">
-        <label style="display:block; font-size:13px; font-weight:600; margin-bottom:6px; color:var(--text-soft);">Front Side (Question / Concept):</label>
-        <textarea id="editFlashFront" rows="3" required
-          style="width:100%; padding:10px 12px; border-radius:10px; border:1px solid var(--border); background:var(--surface); color:var(--text); font-family:inherit; font-size:13px; resize:vertical;"></textarea>
-      </div>
-      <div class="form-group" style="margin-bottom:12px;">
-        <label style="display:block; font-size:13px; font-weight:600; margin-bottom:6px; color:var(--text-soft);">Back Side (Answer / Explanation):</label>
-        <textarea id="editFlashBack" rows="3" required
-          style="width:100%; padding:10px 12px; border-radius:10px; border:1px solid var(--border); background:var(--surface); color:var(--text); font-family:inherit; font-size:13px; resize:vertical;"></textarea>
-      </div>
-      <div class="form-group" style="margin-bottom:18px;">
-        <label style="display:block; font-size:13px; font-weight:600; margin-bottom:6px; color:var(--text-soft);">Category / Subject:</label>
-        <select id="editFlashCategory" class="pill" style="width:100%; max-width:100%; padding:9px 12px; border-radius:10px; border:1px solid var(--border); background:var(--surface); color:var(--text); font-family:inherit; font-size:13px;">
-          <option value="">No Category</option>
-        </select>
-      </div>
-      <div class="btn-group" style="justify-content:flex-end;">
-        <button class="pill" id="cancelEditFlashBtn" type="button">Cancel</button>
-        <button class="pill solid" id="saveEditFlashBtn" type="button"><i data-lucide="check"></i> <span>Save Changes</span></button>
-      </div>
-    </div>
-  </div>
 
   <!-- Exam Submission Confirmation Modal -->
   <div class="modal-overlay" id="examSubmitModal">

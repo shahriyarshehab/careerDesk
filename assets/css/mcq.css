@@ -635,7 +635,7 @@
   /* Redesigned Dashboard Stats Bar with Progress Bar & Streak */
   .mcq-stats-bar {
     display: grid;
-    grid-template-columns: 1.3fr 1fr 1fr 1.2fr 1fr;
+    grid-template-columns: 1.3fr 1fr 1fr 1.1fr;
     gap: 12px;
     margin-bottom: 16px;
   }
