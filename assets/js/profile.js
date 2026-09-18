@@ -93,14 +93,20 @@ function renderSubjectManager() {
         ? `<div class="subject-stats-badges">${statPills.join('')}</div>`
         : '<span style="font-size:11.5px; color:var(--text-soft); opacity:0.7;">No logged activity</span>';
 
+      const currentTrack = typeof getUserTrack === 'function' ? getUserTrack() : null;
+      const currentLang = currentTrack ? (currentTrack.subjectLanguage || 'en') : 'en';
+      const displayName = typeof getSubjectDisplayName === 'function' ? getSubjectDisplayName(s, currentLang) : s;
+      const altName = currentLang === 'bn' ? '' : (meta.bn || '');
+
       return `
         <div class="subject-manager-row">
           <div class="subject-info">
-            <div style="display:flex; align-items:center; gap:8px;">
+            <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
               <span class="track-subj-icon-badge" style="color:${meta.color}; background:${meta.color}18; width:26px; height:26px; border-radius:7px; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0;">
                 <i data-lucide="${meta.icon || 'book-open'}" style="width:14px; height:14px;"></i>
               </span>
-              <span class="subject-manager-name">${escapeHtml(s)}</span>
+              <span class="subject-manager-name">${escapeHtml(displayName)}</span>
+              ${altName && altName !== displayName ? `<span style="font-size:11.5px; color:var(--text-soft); font-weight:500;">(${escapeHtml(altName)})</span>` : ''}
             </div>
             ${statsHtml}
           </div>
@@ -812,7 +818,10 @@ function renderProfileTrackCard() {
   const container = document.getElementById('profileTrackCard');
   if (!container) return;
 
-  const track = typeof getUserTrack === 'function' ? getUserTrack() : { role: 'job_seeker', studentClass: 'ssc_science', jobType: 'govt' };
+  const track = typeof getUserTrack === 'function' ? getUserTrack() : { role: 'job_seeker', studentClass: 'ssc_science', jobType: 'govt', subjectLanguage: 'en' };
+  const currentLang = track.subjectLanguage || 'en';
+  const isLangBn = currentLang === 'bn';
+  const isLangEn = !isLangBn;
   const isStudent = track.role === 'student';
   const isJobSeeker = !isStudent;
   const currentClassId = track.studentClass || 'ssc_science';
@@ -829,14 +838,15 @@ function renderProfileTrackCard() {
   const allSubjects = typeof masterSubjectList === 'function' ? masterSubjectList(true) : [];
   const deletedSubjects = allSubjects.filter(s => deletedSet.has(canonicalSubjectName(s).toLowerCase()));
 
-  // Find class curriculum data if student
+  // Find class curriculum data if student (filter out user-deleted subjects so auto-generated list never shows them)
   const classObj = (typeof BANGLADESH_CURRICULUM_DATA !== 'undefined' && BANGLADESH_CURRICULUM_DATA.classes)
     ? (BANGLADESH_CURRICULUM_DATA.classes.find(c => c.id === currentClassId) || BANGLADESH_CURRICULUM_DATA.classes[3])
     : { name: 'SSC Science', short: 'SSC', badge: 'Secondary Science', subjects: ['Bangla', 'English', 'Mathematics', 'Physics', 'Chemistry', 'Biology', 'Higher Mathematics', 'ICT'] };
-  const classSubjects = classObj.subjects || [];
+  const rawClassSubjects = classObj.subjects || [];
+  const classSubjects = rawClassSubjects.filter(s => !deletedSet.has(canonicalSubjectName(s).toLowerCase()));
 
-  // Job Seeker subjects
-  const primaryJobSubs = (typeof BANGLADESH_CURRICULUM_DATA !== 'undefined' && BANGLADESH_CURRICULUM_DATA.jobSeeker)
+  // Job Seeker subjects (filter out user-deleted subjects so auto-generated list never shows them)
+  const rawPrimaryJobSubs = (typeof BANGLADESH_CURRICULUM_DATA !== 'undefined' && BANGLADESH_CURRICULUM_DATA.jobSeeker)
     ? BANGLADESH_CURRICULUM_DATA.jobSeeker.primarySubjects
     : [
         { name: 'Bangla', desc: 'Language, grammar, comprehension & literature' },
@@ -844,6 +854,7 @@ function renderProfileTrackCard() {
         { name: 'Mathematics', desc: 'Arithmetic, algebra, geometry & analytical reasoning' },
         { name: 'General Knowledge', desc: 'Bangladesh affairs, international relations & current events' }
       ];
+  const primaryJobSubs = rawPrimaryJobSubs.filter(p => !deletedSet.has(canonicalSubjectName(p.name).toLowerCase()));
 
   const primaryEnglishDescs = {
     'Bangla': 'Language, grammar, comprehension & literature',
@@ -852,7 +863,7 @@ function renderProfileTrackCard() {
     'General Knowledge': 'Bangladesh affairs, international relations & current events'
   };
 
-  const optionalJobSubs = (typeof BANGLADESH_CURRICULUM_DATA !== 'undefined' && BANGLADESH_CURRICULUM_DATA.jobSeeker)
+  const rawOptionalJobSubs = (typeof BANGLADESH_CURRICULUM_DATA !== 'undefined' && BANGLADESH_CURRICULUM_DATA.jobSeeker)
     ? BANGLADESH_CURRICULUM_DATA.jobSeeker.optionalSubjects
     : [
         { name: 'Computer & ICT' },
@@ -861,6 +872,7 @@ function renderProfileTrackCard() {
         { name: 'Geography & Environment' },
         { name: 'Ethics & Good Governance' }
       ];
+  const optionalJobSubs = rawOptionalJobSubs.filter(sub => !deletedSet.has(canonicalSubjectName(sub.name).toLowerCase()));
 
   // Calculate cumulative stats across all active subjects for Subject Manager tab
   let totalMinAll = 0;
@@ -875,10 +887,36 @@ function renderProfileTrackCard() {
     totalTopicsCountAll += (st.topicsCount || 0);
   });
 
+  const langSelectionBoxHtml = `
+    <div class="track-selection-box track-lang-selection-box">
+      <div class="track-row-header">
+        <div>
+          <strong class="track-section-label">Subject Display Language (বিষয় প্রদর্শনের ভাষা)</strong>
+          <p class="track-section-desc">Choose whether subject titles appear in English or বাংলা (Bangla) across curriculum, routine, and planners</p>
+        </div>
+        <span class="track-class-badge" style="display:inline-flex; align-items:center; gap:5px;">
+          <i data-lucide="languages" style="width:12px; height:12px;"></i>
+          <span>${isLangBn ? 'বাংলা (Bangla)' : 'English'}</span>
+        </span>
+      </div>
+
+      <div class="track-sector-toggle-row segmented-group track-sm-sector-group" style="display:inline-flex; width:auto; padding:3px; border-radius:10px; margin-top:6px;">
+        <button type="button" class="pill track-lang-btn ${isLangEn ? 'active solid' : ''}" data-lang="en" style="padding:5px 14px; font-size:12px; display:inline-flex; align-items:center; gap:5px;">
+          <i data-lucide="languages" style="width:13px; height:13px;"></i> <span>English</span>
+        </button>
+        <button type="button" class="pill track-lang-btn ${isLangBn ? 'active solid' : ''}" data-lang="bn" style="padding:5px 14px; font-size:12px; display:inline-flex; align-items:center; gap:5px;">
+          <span style="font-size:11.5px; font-weight:700;">বাং</span> <span>বাংলা (Bangla)</span>
+        </button>
+      </div>
+    </div>
+  `;
+
   // Build Tab 1 (Curriculum Track)
   let curriculumHtml = '';
   if (isStudent) {
     curriculumHtml = `
+      ${langSelectionBoxHtml}
+
       <div class="track-selection-box">
         <div class="track-row-header">
           <div>
@@ -916,6 +954,8 @@ function renderProfileTrackCard() {
             const canon = canonicalSubjectName(subName);
             const meta = typeof getSubjectMeta === 'function' ? getSubjectMeta(canon) : { color: '#6366f1', icon: 'book-open' };
             const isActive = activeSet.has(canon.toLowerCase());
+            const displayName = isLangBn ? (meta.bn || canon) : canon;
+            const altName = isLangBn ? '' : (meta.bn || '');
             return `
               <div class="track-subject-chip ${isActive ? 'active' : ''}">
                 <label style="display:flex; align-items:center; gap:10px; flex:1; cursor:pointer; min-width:0;">
@@ -923,16 +963,20 @@ function renderProfileTrackCard() {
                   <span class="track-chip-icon" style="color:${meta.color}; background:${meta.color}18; width:26px; height:26px; border-radius:7px; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0;">
                     <i data-lucide="${meta.icon || 'book-open'}" style="width:14px; height:14px;"></i>
                   </span>
-                  <div class="track-chip-text">
-                    <strong class="track-chip-en">${escapeHtml(canon)}</strong>
+                  <div class="track-chip-text" style="display:flex; align-items:baseline; gap:5px; flex-wrap:wrap;">
+                    <strong class="track-chip-en">${escapeHtml(displayName)}</strong>
+                    ${altName && altName !== displayName ? `<span style="font-size:11px; color:var(--text-soft); opacity:0.8;">(${escapeHtml(altName)})</span>` : ''}
                   </div>
-                  <span class="track-chip-status">${isActive ? 'Active' : 'Off'}</span>
+                  <span class="track-chip-status">${isActive ? (isLangBn ? 'সক্রিয়' : 'Active') : (isLangBn ? 'বন্ধ' : 'Off')}</span>
                 </label>
                 ${isTrackEditMode ? `
                   <button type="button" class="micro-btn edit btn-track-subj-rename" data-subject="${escapeAttr(canon)}" title="Rename ${escapeAttr(canon)}" style="margin-left:4px;">
                     <i data-lucide="edit-2" style="width:12px; height:12px;"></i>
                   </button>
                 ` : ''}
+                <button type="button" class="micro-btn danger btn-track-subj-delete" data-subject="${escapeAttr(canon)}" title="Permanently delete ${escapeAttr(canon)}" style="margin-left:4px;">
+                  <i data-lucide="trash-2" style="width:12px; height:12px;"></i>
+                </button>
               </div>
             `;
           }).join('')}
@@ -941,6 +985,8 @@ function renderProfileTrackCard() {
     `;
   } else {
     curriculumHtml = `
+      ${langSelectionBoxHtml}
+
       <div class="track-selection-box">
         <div class="track-row-header">
           <div>
@@ -974,7 +1020,9 @@ function renderProfileTrackCard() {
             const canon = canonicalSubjectName(p.name);
             const meta = typeof getSubjectMeta === 'function' ? getSubjectMeta(canon) : { color: '#f59e0b', icon: 'book-open' };
             const isActive = activeSet.has(canon.toLowerCase());
-            const desc = primaryEnglishDescs[canon] || p.desc || 'Core foundational subject';
+            const desc = isLangBn ? (p.desc || primaryEnglishDescs[canon]) : (primaryEnglishDescs[canon] || p.desc || 'Core foundational subject');
+            const displayName = isLangBn ? (meta.bn || p.bn || canon) : canon;
+            const subName = isLangBn ? '' : (meta.bn || '');
             return `
               <div class="track-primary-card ${isActive ? 'active' : ''}" style="--pillar-accent:${meta.color};">
                 <div class="track-primary-card-top">
@@ -982,9 +1030,10 @@ function renderProfileTrackCard() {
                     <i data-lucide="${meta.icon || 'book-open'}"></i>
                   </div>
                   <div class="track-primary-titles">
-                    <div style="display:flex; align-items:center; gap:6px;">
+                    <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
                       <span class="track-primary-num-badge">#${idx + 1}</span>
-                      <strong class="track-primary-name">${escapeHtml(p.name)}</strong>
+                      <strong class="track-primary-name">${escapeHtml(displayName)}</strong>
+                      ${subName && subName !== displayName ? `<span class="track-primary-alt-tag" style="font-size:11.5px; color:var(--text-soft); opacity:0.85;">(${escapeHtml(subName)})</span>` : ''}
                     </div>
                   </div>
                   <label class="track-switch-wrap" title="Toggle active status">
@@ -994,12 +1043,15 @@ function renderProfileTrackCard() {
                 </div>
                 <p class="track-primary-details">${escapeHtml(desc)}</p>
                 <div class="track-primary-footer">
-                  <span class="track-primary-status-pill ${isActive ? 'pill-active' : 'pill-off'}">${isActive ? 'Included in Planner' : 'Inactive'}</span>
+                  <span class="track-primary-status-pill ${isActive ? 'pill-active' : 'pill-off'}">${isActive ? (isLangBn ? 'পাঠ্যক্রমে অন্তর্ভুক্ত' : 'Included in Planner') : (isLangBn ? 'নিষ্ক্রিয়' : 'Inactive')}</span>
                   ${isTrackEditMode ? `
                     <button type="button" class="micro-btn edit btn-track-subj-rename" data-subject="${escapeAttr(canon)}" title="Rename ${escapeAttr(canon)}">
                       <i data-lucide="edit-2" style="width:11px; height:11px;"></i>
                     </button>
                   ` : ''}
+                  <button type="button" class="micro-btn danger btn-track-subj-delete" data-subject="${escapeAttr(canon)}" title="Permanently delete ${escapeAttr(canon)}" style="margin-left:4px;">
+                    <i data-lucide="trash-2" style="width:11px; height:11px;"></i>
+                  </button>
                 </div>
               </div>
             `;
@@ -1022,6 +1074,8 @@ function renderProfileTrackCard() {
             const canon = canonicalSubjectName(sub.name);
             const meta = typeof getSubjectMeta === 'function' ? getSubjectMeta(canon) : { color: '#38bdf8', icon: 'book-open' };
             const isActive = activeSet.has(canon.toLowerCase());
+            const displayName = isLangBn ? (meta.bn || sub.bn || canon) : canon;
+            const altName = isLangBn ? '' : (meta.bn || '');
             return `
               <div class="track-subject-chip ${isActive ? 'active' : ''}">
                 <label style="display:flex; align-items:center; gap:10px; flex:1; cursor:pointer; min-width:0;">
@@ -1029,16 +1083,20 @@ function renderProfileTrackCard() {
                   <span class="track-chip-icon" style="color:${meta.color}; background:${meta.color}18; width:26px; height:26px; border-radius:7px; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0;">
                     <i data-lucide="${meta.icon || 'book-open'}" style="width:14px; height:14px;"></i>
                   </span>
-                  <div class="track-chip-text">
-                    <strong class="track-chip-en">${escapeHtml(canon)}</strong>
+                  <div class="track-chip-text" style="display:flex; align-items:baseline; gap:5px; flex-wrap:wrap;">
+                    <strong class="track-chip-en">${escapeHtml(displayName)}</strong>
+                    ${altName && altName !== displayName ? `<span style="font-size:11px; color:var(--text-soft); opacity:0.8;">(${escapeHtml(altName)})</span>` : ''}
                   </div>
-                  <span class="track-chip-status">${isActive ? 'Active' : 'Off'}</span>
+                  <span class="track-chip-status">${isActive ? (isLangBn ? 'সক্রিয়' : 'Active') : (isLangBn ? 'বন্ধ' : 'Off')}</span>
                 </label>
                 ${isTrackEditMode ? `
                   <button type="button" class="micro-btn edit btn-track-subj-rename" data-subject="${escapeAttr(canon)}" title="Rename ${escapeAttr(canon)}" style="margin-left:4px;">
                     <i data-lucide="edit-2" style="width:12px; height:12px;"></i>
                   </button>
                 ` : ''}
+                <button type="button" class="micro-btn danger btn-track-subj-delete" data-subject="${escapeAttr(canon)}" title="Permanently delete ${escapeAttr(canon)}" style="margin-left:4px;">
+                  <i data-lucide="trash-2" style="width:12px; height:12px;"></i>
+                </button>
               </div>
             `;
           }).join('')}
@@ -1115,8 +1173,11 @@ function renderProfileTrackCard() {
     <div class="track-manager-list" id="trackManagerCardsList">
       ${activeSubjects.map(s => {
         const stats = getSubjectStats(s);
+        const canon = canonicalSubjectName(s);
         const meta = typeof getSubjectMeta === 'function' ? getSubjectMeta(s) : { color: '#6366f1', icon: 'book-open' };
-        const isCustom = (state.customSubjects || []).some(cs => canonicalSubjectName(cs).toLowerCase() === canonicalSubjectName(s).toLowerCase());
+        const isCustom = (state.customSubjects || []).some(cs => canonicalSubjectName(cs).toLowerCase() === canon.toLowerCase());
+        const displayName = typeof getSubjectDisplayName === 'function' ? getSubjectDisplayName(s, currentLang) : s;
+        const altName = isLangBn ? '' : (meta.bn || '');
         const statPills = [];
         if (stats.totalMin > 0) {
           statPills.push(`<span class="subj-stat-pill" title="Total study logged">${ICON.clock} ${fmtHM(stats.totalMin)}</span>`);
@@ -1137,22 +1198,23 @@ function renderProfileTrackCard() {
           : '<span style="font-size:11.5px; color:var(--text-soft); opacity:0.75;">No logged study activity yet</span>';
 
         return `
-          <div class="track-manager-card" data-subject-name="${escapeAttr(s)}" style="--subj-accent:${meta.color};">
+          <div class="track-manager-card" data-subject-name="${escapeAttr(canon)}" style="--subj-accent:${meta.color};">
             <div class="track-manager-card-info">
               <div class="track-manager-card-title-row">
                 <span class="track-manager-card-icon" style="color:${meta.color}; background:${meta.color}18; width:26px; height:26px; border-radius:7px; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0;">
                   <i data-lucide="${meta.icon || 'book-open'}" style="width:14px; height:14px;"></i>
                 </span>
-                <span class="track-manager-card-name">${escapeHtml(s)}</span>
+                <span class="track-manager-card-name">${escapeHtml(displayName)}</span>
+                ${altName && altName !== displayName ? `<span style="font-size:11.5px; color:var(--text-soft); font-weight:500;">(${escapeHtml(altName)})</span>` : ''}
                 ${isCustom ? '<span class="track-custom-tag">Custom</span>' : ''}
               </div>
               ${statsHtml}
             </div>
             <div class="btn-group subject-row-actions">
-              <button class="pill subtle btn-track-manager-rename" data-rename-subject="${escapeAttr(s)}" type="button" title="Rename this subject everywhere">
+              <button class="pill subtle btn-track-manager-rename" data-rename-subject="${escapeAttr(canon)}" type="button" title="Rename this subject everywhere">
                 ${ICON.edit} <span>Rename</span>
               </button>
-              <button class="pill danger btn-track-manager-delete" data-subject="${escapeAttr(s)}" type="button" title="Hide/Delete this subject">
+              <button class="pill danger btn-track-manager-delete" data-subject="${escapeAttr(canon)}" type="button" title="Hide/Delete this subject">
                 ${ICON.trash} <span>Delete</span>
               </button>
             </div>
@@ -1254,6 +1316,17 @@ function renderProfileTrackCard() {
       </div>
 
       <div class="track-header-actions">
+        <!-- Subject Display Language Toggle -->
+        <div class="track-lang-switch segmented-group" title="Subject Display Language / বিষয় প্রদর্শনের ভাষা">
+          <button type="button" class="pill track-lang-btn ${isLangEn ? 'active solid' : ''}" data-lang="en" title="English Subjects">
+            <i data-lucide="languages" style="width:13px; height:13px;"></i> <span>English</span>
+          </button>
+          <button type="button" class="pill track-lang-btn ${isLangBn ? 'active solid' : ''}" data-lang="bn" title="বাংলা বিষয়াবলী">
+            <span style="font-size:12px; font-weight:700;">বাং</span> <span>বাংলা</span>
+          </button>
+        </div>
+
+        <!-- Track Role Switcher -->
         <div class="track-role-switch segmented-group">
           <button type="button" class="pill track-role-btn ${isStudent ? 'active solid' : ''}" data-role="student">
             <i data-lucide="graduation-cap"></i> <span>Student</span>
@@ -1443,8 +1516,8 @@ function attachTrackCardListeners(container, track) {
     });
   });
 
-  // Delete / Hide Subject in Subject Manager Tab
-  container.querySelectorAll('.btn-track-manager-delete').forEach(btn => {
+  // Delete / Hide Subject in Curriculum or Subject Manager Tab
+  container.querySelectorAll('.btn-track-manager-delete, .btn-track-subj-delete').forEach(btn => {
     btn.addEventListener('click', (e) => {
       e.preventDefault();
       e.stopPropagation();
@@ -1524,19 +1597,43 @@ function attachTrackCardListeners(container, track) {
     });
   });
 
+  // Subject Display Language Switcher buttons (English vs Bangla)
+  container.querySelectorAll('.track-lang-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const lang = btn.getAttribute('data-lang');
+      if (typeof setSubjectLanguage === 'function') {
+        setSubjectLanguage(lang);
+      } else {
+        track.subjectLanguage = (lang === 'bn' || lang === 'bangla') ? 'bn' : 'en';
+        if (typeof saveUserTrack === 'function') saveUserTrack(track);
+        if (typeof syncAllSubjectSelects === 'function') syncAllSubjectSelects();
+        renderProfileTrackCard();
+        if (typeof renderProfileAspirantHub === 'function') renderProfileAspirantHub();
+        if (typeof showToast === 'function') {
+          showToast(`Subject language set to ${track.subjectLanguage === 'bn' ? 'বাংলা (Bangla)' : 'English'}`);
+        }
+      }
+    });
+  });
+
   // Role Switcher buttons
   container.querySelectorAll('.track-role-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       const role = btn.getAttribute('data-role');
       if (role === track.role) return;
       track.role = role;
+      const deletedSet = new Set((state.deletedSubjects || []).map(d => canonicalSubjectName(d).toLowerCase()));
       if (role === 'student') {
         const classObj = ((typeof BANGLADESH_CURRICULUM_DATA !== 'undefined' && BANGLADESH_CURRICULUM_DATA.classes) || []).find(c => c.id === track.studentClass) || BANGLADESH_CURRICULUM_DATA?.classes?.[3];
         if (classObj && Array.isArray(classObj.subjects)) {
-          classObj.subjects.forEach(s => addSubject(s));
+          classObj.subjects.forEach(s => {
+            if (!deletedSet.has(canonicalSubjectName(s).toLowerCase())) addSubject(s);
+          });
         }
       } else {
-        ((typeof BANGLADESH_CURRICULUM_DATA !== 'undefined' && BANGLADESH_CURRICULUM_DATA.jobSeeker?.primarySubjects) || []).forEach(p => addSubject(p.name));
+        ((typeof BANGLADESH_CURRICULUM_DATA !== 'undefined' && BANGLADESH_CURRICULUM_DATA.jobSeeker?.primarySubjects) || []).forEach(p => {
+          if (!deletedSet.has(canonicalSubjectName(p.name).toLowerCase())) addSubject(p.name);
+        });
       }
       if (typeof saveUserTrack === 'function') saveUserTrack(track);
       if (typeof syncAllSubjectSelects === 'function') syncAllSubjectSelects();
@@ -1553,7 +1650,10 @@ function attachTrackCardListeners(container, track) {
       track.studentClass = classSelect.value;
       const classObj = ((typeof BANGLADESH_CURRICULUM_DATA !== 'undefined' && BANGLADESH_CURRICULUM_DATA.classes) || []).find(c => c.id === track.studentClass);
       if (classObj && Array.isArray(classObj.subjects)) {
-        classObj.subjects.forEach(s => addSubject(s));
+        const deletedSet = new Set((state.deletedSubjects || []).map(d => canonicalSubjectName(d).toLowerCase()));
+        classObj.subjects.forEach(s => {
+          if (!deletedSet.has(canonicalSubjectName(s).toLowerCase())) addSubject(s);
+        });
       }
       if (typeof saveUserTrack === 'function') saveUserTrack(track);
       if (typeof syncAllSubjectSelects === 'function') syncAllSubjectSelects();

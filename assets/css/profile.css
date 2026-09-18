@@ -2855,6 +2855,7 @@ html[data-theme="light"] .auth-modal-card {
   flex-wrap: wrap;
 }
 
+.track-lang-switch,
 .track-role-switch {
   display: inline-flex;
   padding: 4px;
@@ -2863,6 +2864,7 @@ html[data-theme="light"] .auth-modal-card {
   border-radius: 12px;
 }
 
+.track-lang-btn,
 .track-role-btn {
   display: inline-flex;
   align-items: center;
@@ -2878,6 +2880,7 @@ html[data-theme="light"] .auth-modal-card {
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+.track-lang-btn.active.solid,
 .track-role-btn.active.solid {
   background: linear-gradient(135deg, var(--accent1), var(--accent2)) !important;
   color: #ffffff !important;
@@ -2885,9 +2888,23 @@ html[data-theme="light"] .auth-modal-card {
   box-shadow: 0 4px 14px rgba(99, 102, 241, 0.3);
 }
 
+.track-lang-btn:hover:not(.active),
 .track-role-btn:hover:not(.active) {
   color: var(--text);
   background: var(--surface-hover, rgba(255, 255, 255, 0.05)) !important;
+}
+
+.track-lang-selection-box {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 16px;
+  margin-bottom: 16px;
+  transition: border-color 0.2s ease;
+}
+
+.track-lang-selection-box:hover {
+  border-color: rgba(99, 102, 241, 0.3);
 }
 
 /* ==========================================================================

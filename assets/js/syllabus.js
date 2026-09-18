@@ -59,7 +59,9 @@ function renderCategories() {
             <span class="category-icon-badge" style="color:${meta.color}; background:${meta.color}18; border:1px solid ${meta.color}30; width:30px; height:30px; border-radius:8px; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0;">
               <i data-lucide="${meta.icon || 'book-open'}" style="width:16px; height:16px;"></i>
             </span>
-            <h3 class="category-title" data-category-title="${cat.id}" title="Double-click to edit">${escapeHtml(cat.name)}</h3>
+            <h3 class="category-title" data-category-title="${cat.id}" title="Double-click to edit">
+              ${escapeHtml(typeof getSubjectDisplayName === 'function' ? getSubjectDisplayName(cat.name) : cat.name)}
+            </h3>
           </div>
           <div class="category-head-right">
             <span class="category-progress-text">${done}/${total} • ${pct}%</span>

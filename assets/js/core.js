@@ -130,16 +130,24 @@ const DEFAULT_USER_TRACK = {
   role: 'job_seeker', // 'student' | 'job_seeker'
   studentClass: 'ssc_science',
   jobType: 'govt', // 'govt' | 'non_govt'
-  activeSubjectNames: ['Bangla', 'English', 'Mathematics', 'General Knowledge']
+  activeSubjectNames: ['Bangla', 'English', 'Mathematics', 'General Knowledge'],
+  subjectLanguage: 'en' // 'en' | 'bn'
 };
 
 function getUserTrack() {
   if (typeof state !== 'undefined' && state && state.userTrack && typeof state.userTrack === 'object') {
+    if (!state.userTrack.subjectLanguage) {
+      state.userTrack.subjectLanguage = 'en';
+    }
     return state.userTrack;
   }
   try {
     const raw = localStorage.getItem('careerdesk_user_track_v2');
-    if (raw) return JSON.parse(raw);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (!parsed.subjectLanguage) parsed.subjectLanguage = 'en';
+      return parsed;
+    }
   } catch (e) { }
   return { ...DEFAULT_USER_TRACK };
 }
@@ -147,6 +155,9 @@ function getUserTrack() {
 function saveUserTrack(track) {
   if (typeof state === 'undefined' || !state) return;
   state.userTrack = { ...track };
+  if (!state.userTrack.subjectLanguage) {
+    state.userTrack.subjectLanguage = 'en';
+  }
   try {
     localStorage.setItem('careerdesk_user_track_v2', JSON.stringify(state.userTrack));
   } catch (e) { }
@@ -778,6 +789,36 @@ function masterSubjectList(includeDeleted = false) {
   return all.filter(s => !deletedSet.has(canonicalSubjectName(s).toLowerCase()));
 }
 
+function getSubjectDisplayName(subject, lang = null) {
+  if (!subject) return '';
+  const canon = canonicalSubjectName(subject);
+  const currentLang = lang || (typeof getUserTrack === 'function' ? (getUserTrack().subjectLanguage || 'en') : 'en');
+  if (currentLang === 'bn') {
+    const meta = typeof getSubjectMeta === 'function' ? getSubjectMeta(canon) : null;
+    return (meta && meta.bn) ? meta.bn : canon;
+  }
+  return canon;
+}
+window.getSubjectDisplayName = getSubjectDisplayName;
+
+function setSubjectLanguage(lang) {
+  const cleanLang = (lang === 'bn' || lang === 'bangla') ? 'bn' : 'en';
+  const track = getUserTrack();
+  track.subjectLanguage = cleanLang;
+  saveUserTrack(track);
+  syncAllSubjectSelects();
+  if (typeof renderProfileTrackCard === 'function') renderProfileTrackCard();
+  if (typeof renderProfileAspirantHub === 'function') renderProfileAspirantHub();
+  if (typeof renderRoutine === 'function') renderRoutine();
+  if (typeof renderCategories === 'function') renderCategories();
+  if (typeof renderTrackerRoutinePreview === 'function') renderTrackerRoutinePreview();
+  if (typeof renderMCQFilterBar === 'function') renderMCQFilterBar();
+  if (typeof showToast === 'function') {
+    showToast(`Subject language set to ${cleanLang === 'bn' ? 'বাংলা (Bangla)' : 'English'}`);
+  }
+}
+window.setSubjectLanguage = setSubjectLanguage;
+
 function subjectList() {
   return masterSubjectList(false);
 }
@@ -786,10 +827,20 @@ function renderSubjectSelect() {
   const sel = document.getElementById('sessionSubject');
   const datalist = document.getElementById('appSubjectDatalist');
   const subs = subjectList();
+  const currentLang = typeof getUserTrack === 'function' ? (getUserTrack().subjectLanguage || 'en') : 'en';
 
   // 1. Sync global datalist for Routine and Syllabus
   if (datalist) {
-    datalist.innerHTML = subs.map(s => `<option value="${escapeAttr(s)}"></option>`).join('');
+    const optionsMap = new Map();
+    subs.forEach(s => {
+      const canon = canonicalSubjectName(s);
+      const display = getSubjectDisplayName(s, currentLang);
+      optionsMap.set(display.toLowerCase(), display);
+      if (display !== canon) {
+        optionsMap.set(canon.toLowerCase(), canon);
+      }
+    });
+    datalist.innerHTML = Array.from(optionsMap.values()).map(v => `<option value="${escapeAttr(v)}"></option>`).join('');
   }
 
   // 2. Populate Tracker dropdown
@@ -797,16 +848,21 @@ function renderSubjectSelect() {
     const previousValue = sel.value || (state.activeSession ? state.activeSession.subject : '') || '';
     const previousCustomValue = sessionCustomInput ? sessionCustomInput.value : '';
 
-    sel.innerHTML = subs.map(s => `<option value="${escapeAttr(s)}">${escapeHtml(s)}</option>`).join('')
+    sel.innerHTML = subs.map(s => {
+      const canon = canonicalSubjectName(s);
+      const display = getSubjectDisplayName(s, currentLang);
+      const label = display;
+      return `<option value="${escapeAttr(canon)}">${escapeHtml(label)}</option>`;
+    }).join('')
       + '<option value="__custom__">+ Add New Subject</option>';
 
     let nextValue = '';
     if (previousValue === '__custom__' || (previousCustomValue && previousValue === '')) {
       nextValue = '__custom__';
-    } else if (previousValue && subs.includes(previousValue)) {
-      nextValue = previousValue;
+    } else if (previousValue && subs.map(canonicalSubjectName).includes(canonicalSubjectName(previousValue))) {
+      nextValue = canonicalSubjectName(previousValue);
     } else if (subs.length) {
-      nextValue = subs[0];
+      nextValue = canonicalSubjectName(subs[0]);
     }
 
     if (nextValue) {
@@ -892,24 +948,32 @@ function renameSubject(oldName, newName) {
   syncAllSubjectSelects();
   renderRoutine();
   renderCategories();
-  renderFlashcards();
+  if (typeof renderFlashcards === 'function') renderFlashcards();
   renderTrackerRoutinePreview();
   showToast(`Renamed "${oldName}" to "${newName}" across all data.`);
 }
 
 function deleteSubject(subj) {
   if (!subj) return;
-  const confirmed = confirm(`Delete / hide subject "${subj}"?\n\nThis will remove it from all subject pickers (Routine, Tracker, Syllabus, Quiz). Your past study sessions and routine entries will be safely preserved.`);
+  const canonical = canonicalSubjectName(subj);
+  const confirmed = confirm(`Permanently remove subject "${subj}" for your profile?\n\nThis will remove it from all subject pickers, curriculum cards, and auto-generated lists. (Your past study sessions and routine entries will be safely preserved in history).`);
   if (!confirmed) return;
 
   if (!Array.isArray(state.deletedSubjects)) state.deletedSubjects = [];
-  const canonical = canonicalSubjectName(subj);
   if (!state.deletedSubjects.some(s => canonicalSubjectName(s).toLowerCase() === canonical.toLowerCase())) {
     state.deletedSubjects.push(canonical);
   }
+
+  // Remove from custom subjects if present
+  if (Array.isArray(state.customSubjects)) {
+    state.customSubjects = state.customSubjects.filter(c => canonicalSubjectName(c).toLowerCase() !== canonical.toLowerCase());
+  }
+
   saveData();
   syncAllSubjectSelects();
-  showToast(`"${subj}" removed from active subjects.`);
+  if (typeof renderProfileTrackCard === 'function') renderProfileTrackCard();
+  if (typeof renderProfileAspirantHub === 'function') renderProfileAspirantHub();
+  showToast(`"${subj}" permanently removed from your active curriculum.`);
 }
 
 function restoreSubject(subj) {
@@ -920,12 +984,14 @@ function restoreSubject(subj) {
   }
   saveData();
   syncAllSubjectSelects();
+  if (typeof renderProfileTrackCard === 'function') renderProfileTrackCard();
+  if (typeof renderProfileAspirantHub === 'function') renderProfileAspirantHub();
   showToast(`"${subj}" restored to active subjects.`);
 }
 
 function syncAllSubjectSelects() {
   renderSubjectSelect();
-  renderFlashCategoryOptions();
+  if (typeof renderFlashCategoryOptions === 'function') renderFlashCategoryOptions();
   renderSubjectManager();
   if (typeof renderMCQFilterBar === 'function') {
     renderMCQFilterBar();

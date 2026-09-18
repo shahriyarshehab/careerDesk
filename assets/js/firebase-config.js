@@ -22,5 +22,7 @@ window.FIREBASE_CONFIG = {
   storageBucket: "careerdesk.firebasestorage.app",
   messagingSenderId: "189177714174",
   appId: "1:189177714174:web:c79ef6afaa4e2d20849caf",
-  measurementId: "G-SXBKCRJ2ZN"
+  measurementId: "G-SXBKCRJ2ZN",
+  appCheckSiteKey: "6LenlMItAAAAAFg_0Ahb_toKI9QT5049bubC_xZ5",
+  appCheckDebugToken: "C8CBD4C9-8F4C-46B0-8270-8FC6B578BE80"
 };

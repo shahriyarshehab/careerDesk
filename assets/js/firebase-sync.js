@@ -237,23 +237,58 @@ function enableFirestoreOfflinePersistence() {
   } catch (e) { }
 }
 
+let appCheckInstance = null;
+
+/**
+ * Initializes Firebase App Check with reCAPTCHA Enterprise and local debug provider
+ */
+function initAppCheck(config) {
+  if (appCheckInstance) return appCheckInstance;
+  if (typeof firebase === 'undefined' || typeof firebase.appCheck !== 'function') return null;
+
+  try {
+    const isLocal = ['localhost', '127.0.0.1', '::1', ''].includes(window.location.hostname) || window.location.protocol === 'file:';
+    if (isLocal) {
+      self.FIREBASE_APPCHECK_DEBUG_TOKEN = (config && config.appCheckDebugToken) || "C8CBD4C9-8F4C-46B0-8270-8FC6B578BE80";
+    }
+
+    const siteKey = (config && config.appCheckSiteKey) || '6LenlMItAAAAAFg_0Ahb_toKI9QT5049bubC_xZ5';
+    if (!siteKey) return null;
+
+    const provider = (firebase.appCheck.ReCaptchaEnterpriseProvider)
+      ? new firebase.appCheck.ReCaptchaEnterpriseProvider(siteKey)
+      : siteKey;
+
+    appCheckInstance = firebase.appCheck();
+    appCheckInstance.activate(provider, true);
+    console.log('[CareerDesk Firebase] App Check activated (reCAPTCHA Enterprise)');
+    return appCheckInstance;
+  } catch (err) {
+    console.warn('[CareerDesk Firebase] App Check init warning:', err);
+    return null;
+  }
+}
+
 function initFirebaseApp() {
   if (typeof firebase === 'undefined') {
     console.warn('[CareerDesk Firebase] Firebase SDK scripts not loaded yet.');
     return false;
   }
 
+  const config = getStoredFirebaseConfig();
+
   if (firebase.apps && firebase.apps.length > 0) {
     firebaseApp = firebase.apps[0];
+    initAppCheck(config);
     enableFirestoreOfflinePersistence();
     setupAuthStateListener();
     return true;
   }
 
-  const config = getStoredFirebaseConfig();
   if (config && config.apiKey) {
     try {
       firebaseApp = firebase.initializeApp(config);
+      initAppCheck(config);
       enableFirestoreOfflinePersistence();
       setupAuthStateListener();
       console.log('[CareerDesk Firebase] Initialized with custom project:', config.projectId);

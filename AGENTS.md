@@ -36,7 +36,6 @@ CareerDesk/
 │   │   ├── tracker.css     # Timers, 24h activity log, consistency heatmap, onboarding
 │   │   ├── countdown.css   # Target exam countdown cards engine
 │   │   ├── syllabus.css    # Curriculum categories, topic checklist, progress bars
-│   │   ├── flashcards.css  # Flashcards deck, flip card animation, fullscreen exam overlay
 │   │   ├── mcq.css         # BCS MCQ engine, options, floating points, mistake bank
 │   │   ├── profile.css     # User profile card, academic track, subject manager & cloud sync
 │   │   ├── security.css    # PIN lock screen overlay, tamper indicators & crypto modal styling
@@ -54,7 +53,6 @@ CareerDesk/
 │   │   ├── tracker.js      # Focus timer, 24h activity break tracker, heatmap & goals
 │   │   ├── countdown.js    # Target exam countdown timers engine
 │   │   ├── syllabus.js     # Category & topic progress tracking, inline edit & delete mode
-│   │   ├── flashcards.js   # Deprecated flashcard stubs preserved for backwards compatibility
 │   │   ├── questions.js    # Curated question banks and BCS question pool
 │   │   ├── mcq.js          # MCQ practice engine, 20-Q exam mode, sound, mistake bank & custom question manager
 │   │   ├── security.js     # Privacy PIN lock, WebCrypto AES-GCM encryption & data integrity checks

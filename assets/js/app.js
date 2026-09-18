@@ -458,7 +458,7 @@ function initCommandPalette() {
   renderTrackerAll();
   renderCategories();
   syncAllSubjectSelects();
-  renderFlashcards();
+  if (typeof renderFlashcards === 'function') renderFlashcards();
 
   loadExams();
   renderExams();

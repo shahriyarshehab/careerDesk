@@ -259,7 +259,7 @@ function renderTrackerRoutinePreview() {
           <div class="tracker-routine-subject-row">
             <span class="tracker-routine-subject" style="display:inline-flex; align-items:center; gap:6px;">
               <span style="color:${meta.color}; display:inline-flex; align-items:center;"><i data-lucide="${meta.icon || 'book-open'}" style="width:13px; height:13px;"></i></span>
-              <span>${escapeHtml(subj)}</span>
+              <span>${escapeHtml(typeof getSubjectDisplayName === 'function' ? getSubjectDisplayName(subj) : subj)}</span>
             </span>
             <span class="tracker-routine-time">${fmtHM(min)}</span>
           </div>
@@ -538,7 +538,7 @@ function showMonthlyRoutines() {
         <tbody>
           ${rows.map(r => `<tr>
             <td style="font-family:var(--font-mono); font-size:12px; color:var(--accent2);">${escapeHtml(formatTime12(r.startTime))} – ${escapeHtml(formatTime12(r.endTime))}</td>
-            <td style="font-weight:600; color:var(--text);">${escapeHtml(r.subject || 'No Subject')}</td>
+            <td style="font-weight:600; color:var(--text);">${escapeHtml(typeof getSubjectDisplayName === 'function' ? getSubjectDisplayName(r.subject) : (r.subject || 'No Subject'))}</td>
             <td style="color:var(--text-soft);">${escapeHtml(r.task || '—')}</td>
           </tr>`).join('')}
         </tbody>

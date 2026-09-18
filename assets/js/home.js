@@ -71,30 +71,34 @@ function renderProfileAspirantHub() {
   const nearestExam = upcomingExams[0] || null;
 
   // 4. Primary Core Subject Pillars Data (Adaptive to Student vs Job Seeker)
-  const track = typeof getUserTrack === 'function' ? getUserTrack() : { role: 'job_seeker' };
+  const track = typeof getUserTrack === 'function' ? getUserTrack() : { role: 'job_seeker', subjectLanguage: 'en' };
+  const currentLang = track.subjectLanguage || 'en';
+  const deletedPillarSet = new Set((state.deletedSubjects || []).map(s => canonicalSubjectName(s).toLowerCase()));
   let primaryPillars = [];
 
   if (track.role === 'student' && typeof BANGLADESH_CURRICULUM_DATA !== 'undefined' && BANGLADESH_CURRICULUM_DATA.classes) {
     const classObj = BANGLADESH_CURRICULUM_DATA.classes.find(c => c.id === track.studentClass) || BANGLADESH_CURRICULUM_DATA.classes[3];
-    const topClassSubs = (classObj.subjects || []).slice(0, 4);
+    const topClassSubs = (classObj.subjects || []).filter(s => !deletedPillarSet.has(canonicalSubjectName(s).toLowerCase())).slice(0, 4);
     primaryPillars = topClassSubs.map(s => {
       const canon = canonicalSubjectName(s);
       const meta = typeof getSubjectMeta === 'function' ? getSubjectMeta(canon) : { bn: canon, color: '#6366f1' };
+      const displayName = typeof getSubjectDisplayName === 'function' ? getSubjectDisplayName(canon, currentLang) : (currentLang === 'bn' ? meta.bn : canon);
       return {
         name: canon,
+        displayName: displayName,
         bn: meta.bn,
         color: meta.color,
         bg: `${meta.color}1f`
       };
     });
   } else {
-    // Exactly the 4 foundational core subjects for Job Seekers
+    // Exactly the 4 foundational core subjects for Job Seekers (filtered by deletedSubjects)
     primaryPillars = [
-      { name: 'Bangla', bn: 'বাংলা', color: '#ec4899', bg: 'rgba(236, 72, 153, 0.12)' },
-      { name: 'English', bn: 'ইংরেজি', color: '#06b6d4', bg: 'rgba(6, 182, 212, 0.12)' },
-      { name: 'Mathematics', bn: 'গণিত', color: '#10b981', bg: 'rgba(16, 185, 129, 0.12)' },
-      { name: 'General Knowledge', bn: 'সাধারণ জ্ঞান', color: '#f59e0b', bg: 'rgba(245, 158, 11, 0.12)' }
-    ];
+      { name: 'Bangla', displayName: currentLang === 'bn' ? 'বাংলা' : 'Bangla', bn: 'বাংলা', color: '#ec4899', bg: 'rgba(236, 72, 153, 0.12)' },
+      { name: 'English', displayName: currentLang === 'bn' ? 'ইংরেজি' : 'English', bn: 'ইংরেজি', color: '#06b6d4', bg: 'rgba(6, 182, 212, 0.12)' },
+      { name: 'Mathematics', displayName: currentLang === 'bn' ? 'গণিত' : 'Mathematics', bn: 'গণিত', color: '#10b981', bg: 'rgba(16, 185, 129, 0.12)' },
+      { name: 'General Knowledge', displayName: currentLang === 'bn' ? 'সাধারণ জ্ঞান' : 'General Knowledge', bn: 'সাধারণ জ্ঞান', color: '#f59e0b', bg: 'rgba(245, 158, 11, 0.12)' }
+    ].filter(p => !deletedPillarSet.has(canonicalSubjectName(p.name).toLowerCase()));
   }
 
   const pillarStats = primaryPillars.map(p => {
@@ -228,7 +232,7 @@ function renderProfileAspirantHub() {
                       <span class="home-pillar-icon" style="color: ${p.color}; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0;">
                         <i data-lucide="${meta.icon || 'book-open'}" style="width:14px; height:14px;"></i>
                       </span>
-                      <span>${escapeHtml(p.name)}</span>
+                      <span>${escapeHtml(p.displayName || p.name)}</span>
                     </span>
                     <span class="home-pillar-pct">${p.syllabusPct}%</span>
                   </div>
