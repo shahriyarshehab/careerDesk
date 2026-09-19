@@ -380,7 +380,7 @@ function getCachedAuthUser() {
 /**
  * Sign In with Google
  */
-async function signInWithGoogle() {
+async function signInWithGoogle(inlineErrorEl = null) {
   isExplicitlySignedOut = false;
   if (window.location.protocol === 'file:') {
     openProtocolHelpModal('Google');
@@ -407,7 +407,11 @@ async function signInWithGoogle() {
       setTimeout(() => checkCloudInitialSync(), 600);
       return;
     } catch (err) {
-      handleAuthError(err, 'Google');
+      if (inlineErrorEl && typeof setInlineAuthMessage === 'function') {
+        setInlineAuthMessage(inlineErrorEl, 'error', err.message || 'Google sign-in failed');
+      } else {
+        handleAuthError(err, 'Google');
+      }
     }
   } else {
     openFirebaseConfigModal(true, 'Google');
@@ -417,7 +421,7 @@ async function signInWithGoogle() {
 /**
  * Sign In with GitHub
  */
-async function signInWithGithub() {
+async function signInWithGithub(inlineErrorEl = null) {
   isExplicitlySignedOut = false;
   if (window.location.protocol === 'file:') {
     openProtocolHelpModal('GitHub');
@@ -443,7 +447,11 @@ async function signInWithGithub() {
       setTimeout(() => checkCloudInitialSync(), 600);
       return;
     } catch (err) {
-      handleAuthError(err, 'GitHub');
+      if (inlineErrorEl && typeof setInlineAuthMessage === 'function') {
+        setInlineAuthMessage(inlineErrorEl, 'error', err.message || 'GitHub sign-in failed');
+      } else {
+        handleAuthError(err, 'GitHub');
+      }
     }
   } else {
     openFirebaseConfigModal(true, 'GitHub');
@@ -2211,8 +2219,8 @@ function renderUserProfileUI() {
                   <i data-lucide="arrow-right" style="width:15px; height:15px;"></i>
                 </button>
                 <div class="overlay-trust-row">
-                  <span class="overlay-trust-item"><i data-lucide="user"></i> @${escapeHtml(effectiveUsername)}</span>
-                  <span class="overlay-trust-item"><i data-lucide="cloud-off"></i> Offline ready</span>
+                  <span class="overlay-trust-item"><i data-lucide="shield-check"></i> Encrypted</span>
+                  <span class="overlay-trust-item"><i data-lucide="cloud"></i> Cloud Sync</span>
                 </div>
               </div>
             </div>
@@ -2236,15 +2244,7 @@ function renderUserProfileUI() {
               <button type="button" id="btnInlineVerificationResend" style="background:none; border:none; color:var(--accent1); font-weight:600; cursor:pointer; padding:0; text-decoration:underline;">Resend verification</button>
             </div>
             <p id="inlineVerificationResendStatus" style="font-size:12px; font-weight:600; margin:8px 0 0; min-height:16px; color:#10b981;"></p>
-          </div>
-        </div>
-
-        <div class="inline-auth-edit-link-row">
-          <button type="button" class="inline-auth-edit-link" id="btnOpenEditProfileModalGuest" title="Edit offline profile details">
-            <i data-lucide="user-cog" style="width:13px; height:13px;"></i>
-            <span>Edit offline profile</span>
-          </button>
-        </div>
+</div>
       </div>
     `;
   }
@@ -3846,11 +3846,19 @@ function initInlineAuthPanelEvents() {
 
   ['inlineBtnSignInGoogle', 'inlineBtnSignUpGoogle'].forEach((id) => {
     const btn = document.getElementById(id);
-    if (btn) btn.addEventListener('click', async () => { lastAuthSource = 'inline'; await signInWithGoogle(); });
+    if (btn) btn.addEventListener('click', async () => {
+      lastAuthSource = 'inline';
+      const errEl = document.getElementById(currentAuthModalMode === 'signup' ? 'inlineAuthSignupError' : 'inlineAuthLoginError');
+      await signInWithGoogle(errEl);
+    });
   });
   ['inlineBtnSignInGithub', 'inlineBtnSignUpGithub'].forEach((id) => {
     const btn = document.getElementById(id);
-    if (btn) btn.addEventListener('click', async () => { lastAuthSource = 'inline'; await signInWithGithub(); });
+    if (btn) btn.addEventListener('click', async () => {
+      lastAuthSource = 'inline';
+      const errEl = document.getElementById(currentAuthModalMode === 'signup' ? 'inlineAuthSignupError' : 'inlineAuthLoginError');
+      await signInWithGithub(errEl);
+    });
   });
 
   const loginForm = document.getElementById('inlineAuthLoginForm');
