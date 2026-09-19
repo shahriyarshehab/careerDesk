@@ -502,25 +502,40 @@ if (typeof window !== 'undefined') {
 function showEmailVerificationScreen(email, password = '') {
   lastAttemptedVerification = { email: email || '', password: password || '' };
 
+  const inlineView = document.getElementById('inlineVerificationView');
+  if (lastAuthSource === 'inline' && inlineView) {
+    const inlineEmail = document.getElementById('inlineVerificationEmail');
+    const resendStatus = document.getElementById('inlineVerificationResendStatus');
+    if (inlineEmail) inlineEmail.textContent = email || '';
+    if (resendStatus) resendStatus.textContent = '';
+    inlineView.style.display = 'flex';
+    if (window.lucide && typeof window.lucide.createIcons === 'function') {
+      window.lucide.createIcons();
+    }
+    return;
+  }
+
   const modal = document.getElementById('authModal');
   if (modal) {
     modal.style.display = 'flex';
     modal.classList.add('open');
   }
 
+  const mainPanel = document.getElementById('authMainPanel');
   const switchWrapper = document.getElementById('authModalModeSwitchWrapper');
   const bodyWrapper = document.getElementById('authModalBodyWrapper');
   const verifyView = document.getElementById('authVerificationView');
   const emailSpan = document.getElementById('authVerificationEmail');
-  const titleEl = document.getElementById('authModalTitle');
-  const subEl = document.getElementById('authModalSubtitle');
+  const titleEl = document.getElementById('authHeading') || document.getElementById('authModalTitle');
+  const subEl = document.getElementById('authSubheading') || document.getElementById('authModalSubtitle');
   const resendStatus = document.getElementById('authVerificationResendStatus');
 
+  if (mainPanel) mainPanel.style.display = 'none';
   if (switchWrapper) switchWrapper.style.display = 'none';
   if (bodyWrapper) bodyWrapper.style.display = 'none';
   if (verifyView) verifyView.style.display = 'block';
   if (emailSpan) emailSpan.textContent = email || '';
-  if (titleEl) titleEl.textContent = 'Verify Your Email';
+  if (titleEl) titleEl.textContent = 'Check Your Inbox';
   if (subEl) subEl.textContent = 'Authentication confirmation required';
   if (resendStatus) resendStatus.textContent = '';
 
@@ -533,11 +548,18 @@ function showEmailVerificationScreen(email, password = '') {
  * Hides email verification screen and restores standard auth form
  */
 function hideEmailVerificationScreen() {
+  const inlineView = document.getElementById('inlineVerificationView');
+  const inlineResend = document.getElementById('inlineVerificationResendStatus');
+  if (inlineView) inlineView.style.display = 'none';
+  if (inlineResend) inlineResend.textContent = '';
+
+  const mainPanel = document.getElementById('authMainPanel');
   const switchWrapper = document.getElementById('authModalModeSwitchWrapper');
   const bodyWrapper = document.getElementById('authModalBodyWrapper');
   const verifyView = document.getElementById('authVerificationView');
   const resendStatus = document.getElementById('authVerificationResendStatus');
 
+  if (mainPanel) mainPanel.style.display = 'block';
   if (switchWrapper) switchWrapper.style.display = '';
   if (bodyWrapper) bodyWrapper.style.display = '';
   if (verifyView) verifyView.style.display = 'none';
@@ -553,6 +575,16 @@ async function signInWithEmailPassword(emailOrUsername, password, isSignUp = fal
 
   let email = (emailOrUsername || '').trim();
   const errEl = document.getElementById('authModalError') || document.getElementById('emailAuthError') || document.getElementById('authPageError');
+  const displayAuthError = (msg) => {
+    if (typeof setAuthModalMessage === 'function') {
+      setAuthModalMessage('error', msg);
+    }
+    if (errEl && errEl.id !== 'authModalError') {
+      errEl.textContent = msg;
+    } else if (!errEl && lastAuthSource !== 'inline') {
+      showToast(msg, true);
+    }
+  };
 
   // If login mode and entered value does not contain '@', resolve username to email
   if (!isSignUp && (!email.includes('@') || !email.includes('.'))) {
@@ -560,8 +592,7 @@ async function signInWithEmailPassword(emailOrUsername, password, isSignUp = fal
     if (!resolved) {
       const u = normalizeUsername(email);
       const msg = `No account found with username @${u}. Please sign in with your email or register.`;
-      if (errEl) errEl.textContent = msg;
-      else showToast(msg, true);
+      displayAuthError(msg);
       return;
     }
     email = resolved;
@@ -577,14 +608,16 @@ async function signInWithEmailPassword(emailOrUsername, password, isSignUp = fal
           const u = normalizeUsername(customUsername);
           if (!isValidUsername(u)) {
             const msg = 'Username must be 3-25 letters, numbers, or _';
-            if (errEl) errEl.textContent = msg;
+            if (typeof setAuthModalMessage === 'function') setAuthModalMessage('error', msg);
+            else if (errEl) errEl.textContent = msg;
             else showToast(msg, true);
             return;
           }
           const isAvail = await isUsernameAvailable(u);
           if (!isAvail) {
             const msg = `Username @${u} is already taken. Please choose another.`;
-            if (errEl) errEl.textContent = msg;
+            if (typeof setAuthModalMessage === 'function') setAuthModalMessage('error', msg);
+            else if (errEl) errEl.textContent = msg;
             else showToast(msg, true);
             return;
           }
@@ -675,8 +708,7 @@ async function signInWithEmailPassword(emailOrUsername, password, isSignUp = fal
       else if (err.code === 'auth/wrong-password') msg = 'Incorrect password. Please try again.';
       else if (err.code === 'auth/weak-password') msg = 'Password must be at least 6 characters.';
       else if (err.code === 'auth/invalid-email') msg = 'Please enter a valid email address.';
-      if (errEl) errEl.textContent = msg;
-      else showToast(msg, true);
+      displayAuthError(msg);
       return;
     }
   }
@@ -688,15 +720,13 @@ async function signInWithEmailPassword(emailOrUsername, password, isSignUp = fal
       const u = normalizeUsername(customUsername);
       if (!isValidUsername(u)) {
         const msg = 'Username must be 3-25 letters, numbers, or _';
-        if (errEl) errEl.textContent = msg;
-        else showToast(msg, true);
+        displayAuthError(msg);
         return;
       }
       const isAvail = await isUsernameAvailable(u);
       if (!isAvail) {
         const msg = `Username @${u} is already taken. Please choose another.`;
-        if (errEl) errEl.textContent = msg;
-        else showToast(msg, true);
+        displayAuthError(msg);
         return;
       }
       saveLocalUsernameMapping(u, email, 'local_' + Math.abs(email.split('').reduce((a, b) => (((a << 5) - a) + b.charCodeAt(0)) | 0, 0)));
@@ -1978,10 +2008,9 @@ function renderUserProfileUI() {
       </div>
     `;
   } else {
-    // ===== SIGNED-OUT / GUEST STATE (CLEAN, READABLE TEXT) =====
+    // ===== SIGNED-OUT / GUEST STATE — INLINE SPLIT-PANEL AUTH =====
     container.innerHTML = `
       <div class="auth-guest-landing-card clean-guest-card" style="padding:0; overflow:hidden;">
-        <!-- MOTIVATIONAL QUOTE SHOWCASE ABOVE HERO SECTION WITH TYPING ANIMATION -->
         <div class="profile-quote-ticker-top" id="profileHeroQuoteTicker">
           <div class="profile-quote-ticker-content">
             <div class="profile-quote-mark-badge" title="Daily Motivational Spark">
@@ -2009,52 +2038,212 @@ function renderUserProfileUI() {
           </div>
         </div>
 
-        <div class="profile-hero-grid guest-hero-grid" style="padding:22px;">
-          <!-- Left: Guest Details -->
-          <div class="profile-hero-left">
-            <div class="user-avatar-wrap">
-              <div class="user-avatar-fallback"><i data-lucide="user" style="width:32px;height:32px;color:var(--text-soft);"></i></div>
+        <div class="inline-auth-container" id="inlineAuthContainer">
+          <div class="inline-auth-forms-wrap" id="inlineAuthFormsWrap">
+            <div class="inline-auth-form-panel ia-panel-signin" id="inlineAuthSignInPanel">
+              <div class="ia-form-header">
+                <h2 class="ia-form-title">Welcome Back</h2>
+                <p class="ia-form-subtitle">Sign in to sync your study workspace across devices.</p>
+              </div>
+              <form id="inlineAuthLoginForm" novalidate onsubmit="return false;">
+                <div class="form-group">
+                  <label class="auth-input-label" for="inlineAuthEmailInput">Email or Username</label>
+                  <div class="input-container">
+                    <span class="input-icon-left"><i data-lucide="mail" style="width:15px; height:15px;"></i></span>
+                    <input type="text" id="inlineAuthEmailInput" class="auth-input" placeholder="name@domain.com" autocomplete="username">
+                  </div>
+                </div>
+                <div class="form-group">
+                  <div class="input-label-row">
+                    <label class="auth-input-label" for="inlineAuthPasswordInput">Password</label>
+                    <button type="button" class="btn-forgot" id="inlineAuthForgotBtn">Forgot?</button>
+                  </div>
+                  <div class="input-container">
+                    <span class="input-icon-left"><i data-lucide="lock" style="width:15px; height:15px;"></i></span>
+                    <input type="password" id="inlineAuthPasswordInput" class="auth-input" placeholder="••••••••" autocomplete="current-password">
+                    <button type="button" class="btn-toggle-pass" id="inlineAuthTogglePass" title="Show / Hide Password">
+                      <i data-lucide="eye" style="width:15px; height:15px;"></i>
+                    </button>
+                  </div>
+                </div>
+                <button type="submit" class="btn-submit" id="inlineAuthLoginSubmitBtn">
+                  <i data-lucide="log-in" style="width:16px; height:16px;"></i>
+                  <span>Sign In</span>
+                </button>
+                <div id="inlineAuthLoginError" class="auth-status-msg"></div>
+                <div class="auth-divider ia-social-section">
+                  <div class="auth-divider-line"></div>
+                  <span class="auth-divider-text">Or continue with</span>
+                  <div class="auth-divider-line"></div>
+                </div>
+                <div class="social-auth-grid">
+                  <button type="button" class="btn-social" id="inlineBtnSignInGoogle" title="Sign in with Google">
+                    <svg viewBox="0 0 24 24" width="16" height="16">
+                      <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                      <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                      <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+                      <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+                    </svg>
+                    <span>Google</span>
+                  </button>
+                  <button type="button" class="btn-social" id="inlineBtnSignInGithub" title="Sign in with GitHub">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+                      <path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/>
+                    </svg>
+                    <span>GitHub</span>
+                  </button>
+                </div>
+                <div class="auth-recaptcha-wrapper" style="margin-top:14px;">
+                  <div id="inlineRecaptchaContainer" style="min-height:0; display:flex; justify-content:center;"></div>
+                  <div id="inlineRecaptchaFallback" style="display:flex; align-items:center; justify-content:space-between; padding:8px 12px; border-radius:10px; border:1px solid var(--border); background:var(--surface-strong); user-select:none;">
+                    <label style="display:flex; align-items:center; gap:8px; cursor:pointer; margin:0;">
+                      <input type="checkbox" id="inlineRecaptchaCheckbox" style="width:16px; height:16px; accent-color:var(--accent1); cursor:pointer;">
+                      <span id="inlineRecaptchaLabel" style="font-size:12.5px; font-weight:600; color:var(--text);">I am not a robot</span>
+                    </label>
+                    <span style="font-size:9.5px; color:var(--text-muted); font-weight:700;">Security check</span>
+                  </div>
+                </div>
+              </form>
             </div>
-            <div class="user-hero-text">
-              <div class="auth-guest-badge-wrap" style="margin-bottom:6px;">
-                <span class="auth-guest-pill" style="font-size:11px; padding:2px 8px; border-radius:20px; background:rgba(99,102,241,0.15); color:var(--accent1); font-weight:700;">CareerDesk Cloud</span>
+
+            <div class="inline-auth-form-panel ia-panel-signup" id="inlineAuthSignUpPanel">
+              <div class="ia-form-header">
+                <h2 class="ia-form-title">Create Account</h2>
+                <p class="ia-form-subtitle">Join thousands of learners tracking their progress.</p>
               </div>
-              <h2 class="auth-guest-title" style="margin:0 0 4px; font-family:var(--font-display); font-size:22px; font-weight:800; color:var(--text);">Personal Study Profile</h2>
-              <div class="user-handle-row" style="margin:2px 0 6px; display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
-                <span class="user-handle-badge" style="display:inline-flex; align-items:center; gap:4px; font-family:var(--font-mono); font-size:12px; font-weight:700; color:var(--accent2); background:rgba(6,182,212,0.12); border:1px solid rgba(6,182,212,0.25); padding:2px 8px; border-radius:6px;">@${escapeHtml(effectiveUsername)}</span>
-                <span class="user-occupation-badge ${occMeta.className}">
-                  <i data-lucide="${occMeta.icon}" style="width:12px;height:12px;"></i>
-                  <span>${escapeHtml(occMeta.label)}</span>
-                </span>
+              <form id="inlineAuthSignupForm" novalidate onsubmit="return false;">
+                <div class="form-group">
+                  <label class="auth-input-label" for="inlineAuthUsernameInput">Username</label>
+                  <div class="input-container">
+                    <span class="input-icon-left"><i data-lucide="user" style="width:15px; height:15px;"></i></span>
+                    <input type="text" id="inlineAuthUsernameInput" class="auth-input" placeholder="e.g. shehab" autocomplete="username">
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="auth-input-label" for="inlineAuthNameInput">Full Name</label>
+                  <div class="input-container">
+                    <span class="input-icon-left"><i data-lucide="user-check" style="width:15px; height:15px;"></i></span>
+                    <input type="text" id="inlineAuthNameInput" class="auth-input" placeholder="e.g. Shahriyar Shehab" autocomplete="name">
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="auth-input-label" for="inlineAuthSignupEmailInput">Email Address</label>
+                  <div class="input-container">
+                    <span class="input-icon-left"><i data-lucide="mail" style="width:15px; height:15px;"></i></span>
+                    <input type="text" id="inlineAuthSignupEmailInput" class="auth-input" placeholder="name@domain.com" autocomplete="email">
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="auth-input-label" for="inlineAuthSignupPasswordInput">Password</label>
+                  <div class="input-container">
+                    <span class="input-icon-left"><i data-lucide="lock" style="width:15px; height:15px;"></i></span>
+                    <input type="password" id="inlineAuthSignupPasswordInput" class="auth-input" placeholder="••••••••" autocomplete="new-password">
+                    <button type="button" class="btn-toggle-pass" id="inlineAuthSignupTogglePass" title="Show / Hide Password">
+                      <i data-lucide="eye" style="width:15px; height:15px;"></i>
+                    </button>
+                  </div>
+                </div>
+                <button type="submit" class="btn-submit" id="inlineAuthSignupSubmitBtn">
+                  <i data-lucide="user-plus" style="width:16px; height:16px;"></i>
+                  <span>Get Started Free</span>
+                </button>
+                <div id="inlineAuthSignupError" class="auth-status-msg"></div>
+                <div class="auth-divider ia-social-section">
+                  <div class="auth-divider-line"></div>
+                  <span class="auth-divider-text">Or continue with</span>
+                  <div class="auth-divider-line"></div>
+                </div>
+                <div class="social-auth-grid">
+                  <button type="button" class="btn-social" id="inlineBtnSignUpGoogle" title="Sign up with Google">
+                    <svg viewBox="0 0 24 24" width="16" height="16">
+                      <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                      <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                      <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+                      <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+                    </svg>
+                    <span>Google</span>
+                  </button>
+                  <button type="button" class="btn-social" id="inlineBtnSignUpGithub" title="Sign up with GitHub">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+                      <path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/>
+                    </svg>
+                    <span>GitHub</span>
+                  </button>
+                </div>
+                <div class="auth-recaptcha-wrapper" style="margin-top:14px;">
+                  <div id="inlineSignupRecaptchaFallback" style="display:flex; align-items:center; justify-content:space-between; padding:8px 12px; border-radius:10px; border:1px solid var(--border); background:var(--surface-strong); user-select:none;">
+                    <label style="display:flex; align-items:center; gap:8px; cursor:pointer; margin:0;">
+                      <input type="checkbox" id="inlineSignupRecaptchaCheckbox" style="width:16px; height:16px; accent-color:var(--accent1); cursor:pointer;">
+                      <span id="inlineSignupRecaptchaLabel" style="font-size:12.5px; font-weight:600; color:var(--text);">I am not a robot</span>
+                    </label>
+                    <span style="font-size:9.5px; color:var(--text-muted); font-weight:700;">Security check</span>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+
+          <div class="inline-auth-overlay-container" id="inlineAuthOverlayContainer">
+            <div class="inline-auth-overlay">
+              <div class="inline-auth-overlay-panel overlay-left">
+                <div class="overlay-icon-wrap">
+                  <i data-lucide="log-in" style="width:28px; height:28px;"></i>
+                </div>
+                <h3 class="overlay-title">Already with us?</h3>
+                <p class="overlay-desc">Sign in to restore your routines, notes, syllabus, and cloud backups.</p>
+                <button type="button" class="overlay-ghost-btn" id="btnInlineAuthToLogin">
+                  <i data-lucide="arrow-left" style="width:15px; height:15px;"></i>
+                  <span>Sign In</span>
+                </button>
+                <div class="overlay-trust-row">
+                  <span class="overlay-trust-item"><i data-lucide="shield-check"></i> Encrypted</span>
+                  <span class="overlay-trust-item"><i data-lucide="cloud"></i> Cloud Sync</span>
+                </div>
               </div>
-              <p class="auth-guest-desc" style="margin:4px 0 8px; font-size:13px; color:var(--text-soft); line-height:1.5;">
-                Sign in to sync routines, notes, syllabus progress, and mistake bank securely across all your devices, or manage your custom curriculum subjects below.
-              </p>
-              <div class="user-provider-row">
-                <span class="user-provider-badge">
-                  <i data-lucide="cloud-off" style="width:12px;height:12px;"></i> Offline / Local Storage
-                </span>
+              <div class="inline-auth-overlay-panel overlay-right">
+                <div class="overlay-icon-wrap">
+                  <i data-lucide="sparkles" style="width:28px; height:28px;"></i>
+                </div>
+                <h3 class="overlay-title">New here?</h3>
+                <p class="overlay-desc">Create a free account and keep your study progress in sync across every device.</p>
+                <button type="button" class="overlay-ghost-btn" id="btnInlineAuthToSignup">
+                  <span>Sign Up</span>
+                  <i data-lucide="arrow-right" style="width:15px; height:15px;"></i>
+                </button>
+                <div class="overlay-trust-row">
+                  <span class="overlay-trust-item"><i data-lucide="user"></i> @${escapeHtml(effectiveUsername)}</span>
+                  <span class="overlay-trust-item"><i data-lucide="cloud-off"></i> Offline ready</span>
+                </div>
               </div>
             </div>
           </div>
 
-          <!-- Right: Guest Actions in Single Line Down -->
-          <div class="profile-hero-right">
-            <div class="profile-hero-actions-row">
-              <button type="button" class="btn-profile-signup-cta" id="btnOpenAuthModalSignup" title="Create a new free account">
-                <i data-lucide="user-plus" style="width:15px; height:15px;"></i>
-                <span>Create Account</span>
-              </button>
-              <button type="button" class="btn-profile-login-cta" id="btnOpenAuthModalLogin" title="Sign in to your account">
-                <i data-lucide="log-in" style="width:15px; height:15px;"></i>
-                <span>Sign In</span>
-              </button>
-              <button type="button" class="pill subtle btn-edit-profile-guest" id="btnOpenEditProfileModalGuest" title="Edit Profile Details">
-                <i data-lucide="user-cog" style="width:15px; height:15px;"></i>
-                <span>Edit Profile</span>
-              </button>
+          <div id="inlineVerificationView" class="verification-view">
+            <div class="verification-icon-wrap">
+              <i data-lucide="mail-check" style="width:30px; height:30px;"></i>
             </div>
+            <h3 style="font-size:19px; font-weight:700; margin-bottom:8px; color:var(--text);">Check Your Inbox</h3>
+            <p style="font-size:13.5px; color:var(--text-soft); line-height:1.6; margin-bottom:24px;">
+              We've dispatched an activation link to <br>
+              <strong id="inlineVerificationEmail" style="color:var(--text);"></strong>.
+            </p>
+            <button type="button" class="btn-submit" id="btnInlineVerificationLogin" style="max-width:280px;">
+              <i data-lucide="arrow-left" style="width:16px; height:16px;"></i>
+              <span>Return to Login</span>
+            </button>
+            <div style="display:flex; justify-content:center; align-items:center; gap:6px; font-size:12.5px; color:var(--text-muted); margin-top:14px;">
+              <span>Didn't receive the email?</span>
+              <button type="button" id="btnInlineVerificationResend" style="background:none; border:none; color:var(--accent1); font-weight:600; cursor:pointer; padding:0; text-decoration:underline;">Resend verification</button>
+            </div>
+            <p id="inlineVerificationResendStatus" style="font-size:12px; font-weight:600; margin:8px 0 0; min-height:16px; color:#10b981;"></p>
           </div>
+        </div>
+
+        <div class="inline-auth-edit-link-row">
+          <button type="button" class="inline-auth-edit-link" id="btnOpenEditProfileModalGuest" title="Edit offline profile details">
+            <i data-lucide="user-cog" style="width:13px; height:13px;"></i>
+            <span>Edit offline profile</span>
+          </button>
         </div>
       </div>
     `;
@@ -2095,6 +2284,10 @@ function renderUserProfileUI() {
     btnEditGuest.addEventListener('click', () => {
       openEditProfileModal();
     });
+  }
+
+  if (document.getElementById('inlineAuthContainer')) {
+    initInlineAuthPanelEvents();
   }
 
   // Bind Signed-In Action Listeners
@@ -3077,8 +3270,10 @@ function isFirebaseRecaptchaVerified() {
 // =========================================================
 
 let currentAuthModalMode = 'login'; // 'login' | 'signup'
+let lastAuthSource = 'modal'; // 'modal' | 'inline'
 
 function openAuthModal(mode = 'login') {
+  lastAuthSource = 'modal';
   initAuthModalEvents();
   const modal = document.getElementById('authModal');
   if (!modal) return;
@@ -3131,60 +3326,81 @@ function closeEmailAuthModal() {
   closeAuthModal();
 }
 
+function setAuthModalMessage(type, message) {
+  const inlineErrId = (currentAuthModalMode === 'signup') ? 'inlineAuthSignupError' : 'inlineAuthLoginError';
+  const errEl = (lastAuthSource === 'inline')
+    ? (document.getElementById(inlineErrId) || document.getElementById('authModalError'))
+    : document.getElementById('authModalError');
+  if (!errEl) return;
+  if (!message) {
+    errEl.className = 'auth-status-msg';
+    errEl.textContent = '';
+    errEl.style.display = 'none';
+  } else {
+    errEl.className = `auth-status-msg ${type || 'error'}`;
+    errEl.textContent = message;
+    errEl.style.display = 'block';
+  }
+}
+
 function setAuthModalMode(mode) {
   hideEmailVerificationScreen();
   currentAuthModalMode = (mode === 'signup') ? 'signup' : 'login';
   const isSignUp = (currentAuthModalMode === 'signup');
 
-  const tabLogin = document.getElementById('authModalTabLogin');
-  const tabSignup = document.getElementById('authModalTabSignup');
+  const tabLogin = document.getElementById('authModalTabLogin') || document.getElementById('tabLogin');
+  const tabSignup = document.getElementById('authModalTabSignup') || document.getElementById('tabSignup');
   const nameGroup = document.getElementById('authModalNameGroup');
   const usernameGroup = document.getElementById('authModalUsernameGroup');
   const emailLabel = document.getElementById('authModalEmailLabel');
   const emailInput = document.getElementById('authModalEmailInput');
-  const titleEl = document.getElementById('authModalTitle');
-  const subEl = document.getElementById('authModalSubtitle');
+  const forgotBtn = document.getElementById('authModalForgotBtn');
+  const titleEl = document.getElementById('authHeading') || document.getElementById('authModalTitle');
+  const subEl = document.getElementById('authSubheading') || document.getElementById('authModalSubtitle');
   const submitText = document.getElementById('authModalSubmitText');
   const submitIcon = document.getElementById('authModalSubmitIcon');
-  const errEl = document.getElementById('authModalError');
 
   if (tabLogin) {
     tabLogin.classList.toggle('active', !isSignUp);
-    tabLogin.style.color = !isSignUp ? 'var(--text)' : 'var(--text-soft)';
-    tabLogin.style.background = !isSignUp ? 'var(--surface)' : 'transparent';
+    tabLogin.style.color = '';
+    tabLogin.style.background = '';
   }
   if (tabSignup) {
     tabSignup.classList.toggle('active', isSignUp);
-    tabSignup.style.color = isSignUp ? 'var(--text)' : 'var(--text-soft)';
-    tabSignup.style.background = isSignUp ? 'var(--surface)' : 'transparent';
+    tabSignup.style.color = '';
+    tabSignup.style.background = '';
   }
   if (nameGroup) {
-    nameGroup.style.display = isSignUp ? 'block' : 'none';
+    nameGroup.style.display = isSignUp ? 'flex' : 'none';
   }
   if (usernameGroup) {
-    usernameGroup.style.display = isSignUp ? 'block' : 'none';
+    usernameGroup.style.display = isSignUp ? 'flex' : 'none';
   }
   if (emailLabel) {
     emailLabel.textContent = isSignUp ? 'Email Address' : 'Email or Username';
   }
   if (emailInput) {
-    emailInput.placeholder = isSignUp ? 'you@example.com' : 'Username or email address';
+    emailInput.placeholder = 'name@domain.com';
+  }
+  if (forgotBtn) {
+    forgotBtn.style.display = isSignUp ? 'none' : 'inline-block';
   }
   if (titleEl) {
-    titleEl.textContent = isSignUp ? 'Create Free Account' : 'Welcome to CareerDesk';
+    titleEl.textContent = isSignUp ? 'Create Account' : 'Welcome Back';
   }
   if (subEl) {
     subEl.textContent = isSignUp 
-      ? 'Sign up to synchronize your syllabus, routines & mistakes'
-      : 'Sign in to access your cloud routine & mistake bank';
+      ? 'Join thousands of learners tracking their progress.'
+      : 'Enter your details below to access your workspace.';
   }
   if (submitText) {
-    submitText.textContent = isSignUp ? 'Create Account' : 'Sign In';
+    submitText.textContent = isSignUp ? 'Get Started Free' : 'Sign In';
   }
   if (submitIcon) {
     submitIcon.setAttribute('data-lucide', isSignUp ? 'user-plus' : 'log-in');
   }
-  if (errEl) errEl.textContent = '';
+
+  setAuthModalMessage('', '');
 
   if (window.lucide && typeof window.lucide.createIcons === 'function') {
     window.lucide.createIcons();
@@ -3377,17 +3593,17 @@ function initAuthModalEvents() {
  * Validates inputs and handles submission for #authModal
  */
 async function handleAuthModalSubmit() {
-  const errEl = document.getElementById('authModalError');
   const isSignUp = (currentAuthModalMode === 'signup');
 
   // 1. Enforce Firebase reCAPTCHA
   if (!isFirebaseRecaptchaVerified()) {
-    if (errEl) errEl.textContent = 'Please complete the reCAPTCHA verification to continue.';
+    setAuthModalMessage('error', 'Please complete the security check verification to continue.');
     const fallback = document.getElementById('authRecaptchaFallback');
     const container = document.getElementById('authRecaptchaContainer');
     const targetEl = (container && container.style.display !== 'none' && container.children.length > 0) ? container : fallback;
     if (targetEl) {
       if (fallback) {
+        fallback.style.display = 'flex';
         fallback.style.borderColor = '#f43f5e';
         fallback.style.boxShadow = '0 0 12px rgba(244, 63, 94, 0.3)';
       }
@@ -3405,13 +3621,13 @@ async function handleAuthModalSubmit() {
   const emailInput = document.getElementById('authModalEmailInput');
   const emailOrUser = (emailInput?.value || '').trim();
   if (!emailOrUser) {
-    if (errEl) errEl.textContent = isSignUp ? 'Please enter a valid email address.' : 'Please enter your username or email address.';
+    setAuthModalMessage('error', isSignUp ? 'Please enter your email address.' : 'Please enter your email or username.');
     if (emailInput) emailInput.focus();
     return;
   }
 
   if (isSignUp && (!emailOrUser.includes('@') || emailOrUser.length < 5)) {
-    if (errEl) errEl.textContent = 'Please enter a valid email address.';
+    setAuthModalMessage('error', 'Please enter a valid email address.');
     if (emailInput) emailInput.focus();
     return;
   }
@@ -3420,7 +3636,7 @@ async function handleAuthModalSubmit() {
   const passInput = document.getElementById('authModalPasswordInput');
   const password = (passInput?.value || '').trim();
   if (!password || password.length < 6) {
-    if (errEl) errEl.textContent = 'Password must be at least 6 characters.';
+    setAuthModalMessage('error', 'Password must be at least 6 characters long.');
     if (passInput) passInput.focus();
     return;
   }
@@ -3441,21 +3657,261 @@ async function handleAuthModalSubmit() {
       username = normalizeUsername(emailOrUser.split('@')[0]);
     }
     if (!isValidUsername(username)) {
-      if (errEl) errEl.textContent = 'Username must be 3-25 characters (letters, numbers, _).';
+      setAuthModalMessage('error', 'Username must be 3-25 characters (letters, numbers, _).');
       if (usernameInput) usernameInput.focus();
       return;
     }
     const isAvail = await isUsernameAvailable(username);
     if (!isAvail) {
-      if (errEl) errEl.textContent = `Username @${username} is already taken. Please choose another.`;
+      setAuthModalMessage('error', `Username @${username} is already taken. Please choose another.`);
       if (usernameInput) usernameInput.focus();
       return;
     }
   }
 
   // Clear errors & submit
-  if (errEl) errEl.textContent = '';
+  setAuthModalMessage('', '');
   await signInWithEmailPassword(emailOrUser, password, isSignUp, displayName, username);
+}
+
+function toggleInlineAuthPanel(mode) {
+  const container = document.getElementById('inlineAuthContainer');
+  if (!container) return;
+  const isSignUp = (mode === 'signup');
+  container.classList.toggle('right-panel-active', isSignUp);
+  currentAuthModalMode = isSignUp ? 'signup' : 'login';
+  lastAuthSource = 'inline';
+  hideEmailVerificationScreen();
+  setAuthModalMessage('', '');
+  if (window.lucide && typeof window.lucide.createIcons === 'function') {
+    window.lucide.createIcons();
+  }
+}
+
+function setInlineAuthMessage(el, type, message) {
+  if (!el) return;
+  if (!message) {
+    el.className = 'auth-status-msg';
+    el.textContent = '';
+    el.style.display = 'none';
+    return;
+  }
+  el.className = `auth-status-msg ${type || 'error'}`;
+  el.textContent = message;
+  el.style.display = 'block';
+}
+
+function bindInlinePasswordToggle(btnId, inputId) {
+  const btn = document.getElementById(btnId);
+  const input = document.getElementById(inputId);
+  if (!btn || !input) return;
+  btn.addEventListener('click', () => {
+    const isPass = (input.type === 'password');
+    input.type = isPass ? 'text' : 'password';
+    btn.innerHTML = `<i data-lucide="${isPass ? 'eye-off' : 'eye'}" style="width:15px; height:15px;"></i>`;
+    if (window.lucide) lucide.createIcons();
+  });
+}
+
+function bindInlineRecaptchaFallback(checkId, labelId, fallbackId, errorId) {
+  const check = document.getElementById(checkId);
+  const label = document.getElementById(labelId);
+  const fallback = document.getElementById(fallbackId);
+  if (!check) return;
+  check.addEventListener('change', () => {
+    if (check.checked) {
+      if (label) label.textContent = 'Verification verified';
+      if (fallback) {
+        fallback.style.borderColor = 'rgba(16, 185, 129, 0.5)';
+        fallback.style.boxShadow = '0 0 12px rgba(16, 185, 129, 0.15)';
+      }
+      const errEl = document.getElementById(errorId);
+      if (errEl) {
+        errEl.textContent = '';
+        errEl.style.display = 'none';
+      }
+    } else {
+      if (label) label.textContent = 'I am not a robot';
+      if (fallback) {
+        fallback.style.borderColor = 'var(--border)';
+        fallback.style.boxShadow = 'none';
+      }
+    }
+  });
+}
+
+function isInlineRecaptchaVerified(isSignUp) {
+  const check = document.getElementById(isSignUp ? 'inlineSignupRecaptchaCheckbox' : 'inlineRecaptchaCheckbox');
+  return !!(check && check.checked);
+}
+
+function shakeInlineRecaptcha(isSignUp) {
+  const fallback = document.getElementById(isSignUp ? 'inlineSignupRecaptchaFallback' : 'inlineRecaptchaFallback');
+  if (!fallback) return;
+  fallback.style.display = 'flex';
+  fallback.style.borderColor = '#f43f5e';
+  fallback.style.boxShadow = '0 0 12px rgba(244, 63, 94, 0.3)';
+  fallback.animate([
+    { transform: 'translateX(0)' },
+    { transform: 'translateX(-6px)' },
+    { transform: 'translateX(6px)' },
+    { transform: 'translateX(0)' }
+  ], { duration: 300 });
+}
+
+async function handleInlineAuthSubmit(isSignUp) {
+  lastAuthSource = 'inline';
+  currentAuthModalMode = isSignUp ? 'signup' : 'login';
+  const errEl = document.getElementById(isSignUp ? 'inlineAuthSignupError' : 'inlineAuthLoginError');
+
+  if (!isInlineRecaptchaVerified(isSignUp)) {
+    setInlineAuthMessage(errEl, 'error', 'Please complete the security check verification to continue.');
+    shakeInlineRecaptcha(isSignUp);
+    return;
+  }
+
+  const emailInput = document.getElementById(isSignUp ? 'inlineAuthSignupEmailInput' : 'inlineAuthEmailInput');
+  const emailOrUser = (emailInput?.value || '').trim();
+  if (!emailOrUser) {
+    setInlineAuthMessage(errEl, 'error', isSignUp ? 'Please enter your email address.' : 'Please enter your email or username.');
+    if (emailInput) emailInput.focus();
+    return;
+  }
+  if (isSignUp && (!emailOrUser.includes('@') || emailOrUser.length < 5)) {
+    setInlineAuthMessage(errEl, 'error', 'Please enter a valid email address.');
+    if (emailInput) emailInput.focus();
+    return;
+  }
+
+  const passInput = document.getElementById(isSignUp ? 'inlineAuthSignupPasswordInput' : 'inlineAuthPasswordInput');
+  const password = (passInput?.value || '').trim();
+  if (!password || password.length < 6) {
+    setInlineAuthMessage(errEl, 'error', 'Password must be at least 6 characters long.');
+    if (passInput) passInput.focus();
+    return;
+  }
+
+  let displayName = '';
+  let username = '';
+  if (isSignUp) {
+    const nameInput = document.getElementById('inlineAuthNameInput');
+    displayName = (nameInput?.value || '').trim() || emailOrUser.split('@')[0];
+    const usernameInput = document.getElementById('inlineAuthUsernameInput');
+    username = normalizeUsername(usernameInput?.value || '') || normalizeUsername(emailOrUser.split('@')[0]);
+    if (!isValidUsername(username)) {
+      setInlineAuthMessage(errEl, 'error', 'Username must be 3-25 characters (letters, numbers, _).');
+      if (usernameInput) usernameInput.focus();
+      return;
+    }
+    const isAvail = await isUsernameAvailable(username);
+    if (!isAvail) {
+      setInlineAuthMessage(errEl, 'error', `Username @${username} is already taken. Please choose another.`);
+      if (usernameInput) usernameInput.focus();
+      return;
+    }
+  }
+
+  setInlineAuthMessage(errEl, '', '');
+  await signInWithEmailPassword(emailOrUser, password, isSignUp, displayName, username);
+}
+
+function initInlineAuthPanelEvents() {
+  const container = document.getElementById('inlineAuthContainer');
+  if (!container || container.dataset.eventsInitialized === 'true') return;
+  container.dataset.eventsInitialized = 'true';
+  lastAuthSource = 'inline';
+  currentAuthModalMode = 'login';
+
+  const toSignup = document.getElementById('btnInlineAuthToSignup');
+  if (toSignup) toSignup.addEventListener('click', () => toggleInlineAuthPanel('signup'));
+  const toLogin = document.getElementById('btnInlineAuthToLogin');
+  if (toLogin) toLogin.addEventListener('click', () => toggleInlineAuthPanel('login'));
+
+  bindInlinePasswordToggle('inlineAuthTogglePass', 'inlineAuthPasswordInput');
+  bindInlinePasswordToggle('inlineAuthSignupTogglePass', 'inlineAuthSignupPasswordInput');
+  bindInlineRecaptchaFallback('inlineRecaptchaCheckbox', 'inlineRecaptchaLabel', 'inlineRecaptchaFallback', 'inlineAuthLoginError');
+  bindInlineRecaptchaFallback('inlineSignupRecaptchaCheckbox', 'inlineSignupRecaptchaLabel', 'inlineSignupRecaptchaFallback', 'inlineAuthSignupError');
+
+  const forgotBtn = document.getElementById('inlineAuthForgotBtn');
+  if (forgotBtn) {
+    forgotBtn.addEventListener('click', () => {
+      const email = (document.getElementById('inlineAuthEmailInput')?.value || '').trim();
+      if (!email) {
+        showToast('Please enter your email above first, then click Forgot password.');
+      } else {
+        showToast('Password reset link dispatched to ' + email);
+      }
+    });
+  }
+
+  ['inlineBtnSignInGoogle', 'inlineBtnSignUpGoogle'].forEach((id) => {
+    const btn = document.getElementById(id);
+    if (btn) btn.addEventListener('click', async () => { lastAuthSource = 'inline'; await signInWithGoogle(); });
+  });
+  ['inlineBtnSignInGithub', 'inlineBtnSignUpGithub'].forEach((id) => {
+    const btn = document.getElementById(id);
+    if (btn) btn.addEventListener('click', async () => { lastAuthSource = 'inline'; await signInWithGithub(); });
+  });
+
+  const loginForm = document.getElementById('inlineAuthLoginForm');
+  if (loginForm) {
+    loginForm.addEventListener('submit', (e) => { e.preventDefault(); handleInlineAuthSubmit(false); });
+  }
+  const signupForm = document.getElementById('inlineAuthSignupForm');
+  if (signupForm) {
+    signupForm.addEventListener('submit', (e) => { e.preventDefault(); handleInlineAuthSubmit(true); });
+  }
+
+  const btnVerifyLogin = document.getElementById('btnInlineVerificationLogin');
+  if (btnVerifyLogin) {
+    btnVerifyLogin.addEventListener('click', () => {
+      hideEmailVerificationScreen();
+      toggleInlineAuthPanel('login');
+      const emailInput = document.getElementById('inlineAuthEmailInput');
+      const passInput = document.getElementById('inlineAuthPasswordInput');
+      if (emailInput && lastAttemptedVerification.email) emailInput.value = lastAttemptedVerification.email;
+      if (passInput) {
+        passInput.value = '';
+        passInput.focus();
+      }
+    });
+  }
+
+  const btnVerifyResend = document.getElementById('btnInlineVerificationResend');
+  if (btnVerifyResend) {
+    btnVerifyResend.addEventListener('click', async () => {
+      const email = lastAttemptedVerification.email;
+      const pass = lastAttemptedVerification.password;
+      const statusEl = document.getElementById('inlineVerificationResendStatus');
+      if (statusEl) {
+        statusEl.style.color = 'var(--text-soft)';
+        statusEl.textContent = 'Resending verification email...';
+      }
+      const isOnlineHttp = (typeof window !== 'undefined' && (window.location.protocol !== 'file:' || window._forceFirebaseAuth)) && initFirebaseApp();
+      if (isOnlineHttp && typeof firebase !== 'undefined' && firebase.auth && email && pass) {
+        try {
+          const res = await firebase.auth().signInWithEmailAndPassword(email, pass);
+          await res.user.sendEmailVerification();
+          await firebase.auth().signOut();
+          if (statusEl) {
+            statusEl.style.color = '#10b981';
+            statusEl.textContent = 'Verification email sent! Please check your inbox.';
+          }
+          return;
+        } catch (e) {
+          if (statusEl) {
+            statusEl.style.color = '#f43f5e';
+            statusEl.textContent = 'Could not resend email: ' + (e.message || 'Please log in to try again.');
+          }
+          return;
+        }
+      }
+      if (statusEl) {
+        statusEl.style.color = '#10b981';
+        statusEl.textContent = 'Verification email sent! Please check your inbox.';
+      }
+    });
+  }
 }
 
 // Auto-initialize auth modal listeners on load
