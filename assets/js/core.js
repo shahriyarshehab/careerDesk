@@ -180,9 +180,11 @@ function getDefaultState() {
     quoteCarouselEnabled: true,
     quoteCarouselInterval: 300,
     deletedSubjects: [],
+    permanentlyDeletedSubjects: [],
     customSubjects: [],
     deletedQuotes: [],
-    userTrack: { ...DEFAULT_USER_TRACK }
+    userTrack: { ...DEFAULT_USER_TRACK },
+    syncMeta: {}
   };
 }
 
@@ -249,7 +251,7 @@ let state = {
   sessions: [], activeSession: null, dailyTargetMinutes: 240,
   syllabus: [], flashcards: [],
   quoteCarouselEnabled: true, quoteCarouselInterval: 300,
-  deletedSubjects: [], customSubjects: [], deletedQuotes: [],
+  deletedSubjects: [], permanentlyDeletedSubjects: [], customSubjects: [], deletedQuotes: [],
   userTrack: { ...DEFAULT_USER_TRACK }
 };
 let saveTimer = null;
@@ -290,6 +292,7 @@ async function loadData() {
       state.quoteCarouselEnabled = typeof p.quoteCarouselEnabled === 'boolean' ? p.quoteCarouselEnabled : true;
       state.quoteCarouselInterval = typeof p.quoteCarouselInterval === 'number' ? p.quoteCarouselInterval : 300;
       state.deletedSubjects = Array.isArray(p.deletedSubjects) ? p.deletedSubjects : [];
+      state.permanentlyDeletedSubjects = Array.isArray(p.permanentlyDeletedSubjects) ? p.permanentlyDeletedSubjects : [];
       state.customSubjects = Array.isArray(p.customSubjects) ? p.customSubjects : [];
       state.deletedQuotes = Array.isArray(p.deletedQuotes) ? p.deletedQuotes : [];
       state.userTrack = (p && typeof p.userTrack === 'object' && p.userTrack) ? p.userTrack : getUserTrack();
@@ -453,11 +456,37 @@ async function connectAutoSyncFile() {
 function saveData() {
   clearTimeout(saveTimer);
   const note = document.getElementById('routineSaveNote');
+  
+  // Update sync timestamps for all array/object fields
+  const syncTypes = [
+    'routine', 'notes', 'sessions', 'syllabus', 'flashcards', 
+    'customQuotes', 'customSubjects', 'deletedSubjects', 'deletedQuotes',
+    'dailyTargetMinutes', 'quoteIdx', 'quoteSource', 'theme', 
+    'quoteCarouselEnabled', 'quoteCarouselInterval', 'userTrack'
+  ];
+  
+  syncTypes.forEach(type => {
+    if (state[type] !== undefined) {
+      if (!state.syncMeta) state.syncMeta = {};
+      state.syncMeta[type] = Date.now();
+    }
+  });
+  
   saveTimer = setTimeout(async () => {
     try {
       await storageAdapter.set(STORAGE_KEY, JSON.stringify(state));
       if (note) { note.textContent = 'Changes saved ✓'; setTimeout(() => { note.textContent = 'Changes are saved automatically.'; }, 1600); }
       await writeToAutoBackupFile();
+      
+      // Broadcast changes to other tabs
+      if (typeof broadcastSyncChange === 'function') {
+        syncTypes.forEach(type => {
+          if (state[type] !== undefined) {
+            broadcastSyncChange(type, state[type]);
+          }
+        });
+      }
+      
       if (typeof window.scheduleFirestoreSync === 'function') {
         window.scheduleFirestoreSync();
       }
@@ -757,6 +786,9 @@ function addSubject(name) {
   if (Array.isArray(state.deletedSubjects)) {
     state.deletedSubjects = state.deletedSubjects.filter(s => canonicalSubjectName(s).toLowerCase() !== canonical.toLowerCase());
   }
+  if (Array.isArray(state.permanentlyDeletedSubjects)) {
+    state.permanentlyDeletedSubjects = state.permanentlyDeletedSubjects.filter(s => canonicalSubjectName(s).toLowerCase() !== canonical.toLowerCase());
+  }
   if (!Array.isArray(state.customSubjects)) state.customSubjects = [];
   if (!state.customSubjects.some(c => canonicalSubjectName(c).toLowerCase() === canonical.toLowerCase())) {
     state.customSubjects.push(canonical);
@@ -784,9 +816,12 @@ function masterSubjectList(includeDeleted = false) {
     ...(includeDeleted ? fromDeleted : [])
   ]);
 
-  if (includeDeleted) return all;
+  const permDeletedSet = new Set((state.permanentlyDeletedSubjects || []).map(s => canonicalSubjectName(s).toLowerCase()));
+  const eligibleAll = all.filter(s => !permDeletedSet.has(canonicalSubjectName(s).toLowerCase()));
+
+  if (includeDeleted) return eligibleAll;
   const deletedSet = new Set((state.deletedSubjects || []).map(s => canonicalSubjectName(s).toLowerCase()));
-  return all.filter(s => !deletedSet.has(canonicalSubjectName(s).toLowerCase()));
+  return eligibleAll.filter(s => !deletedSet.has(canonicalSubjectName(s).toLowerCase()));
 }
 
 function getSubjectDisplayName(subject, lang = null) {
@@ -956,7 +991,7 @@ function renameSubject(oldName, newName) {
 function deleteSubject(subj) {
   if (!subj) return;
   const canonical = canonicalSubjectName(subj);
-  const confirmed = confirm(`Permanently remove subject "${subj}" for your profile?\n\nThis will remove it from all subject pickers, curriculum cards, and auto-generated lists. (Your past study sessions and routine entries will be safely preserved in history).`);
+  const confirmed = confirm(`Archive and hide subject "${subj}"?\n\nThis will hide it from all active subject pickers and routine lists. Your past study sessions and routine entries will remain safely preserved in history, and you can restore it anytime from Inactive / Archived Subjects.`);
   if (!confirmed) return;
 
   if (!Array.isArray(state.deletedSubjects)) state.deletedSubjects = [];
@@ -973,20 +1008,158 @@ function deleteSubject(subj) {
   syncAllSubjectSelects();
   if (typeof renderProfileTrackCard === 'function') renderProfileTrackCard();
   if (typeof renderProfileAspirantHub === 'function') renderProfileAspirantHub();
-  showToast(`"${subj}" permanently removed from your active curriculum.`);
+  showToast(`"${subj}" archived to Inactive Subjects.`);
 }
 
 function restoreSubject(subj) {
   if (!subj) return;
-  const canonical = canonicalSubjectName(subj).toLowerCase();
+  const canonical = canonicalSubjectName(subj);
+  const canonLower = canonical.toLowerCase();
   if (Array.isArray(state.deletedSubjects)) {
-    state.deletedSubjects = state.deletedSubjects.filter(s => canonicalSubjectName(s).toLowerCase() !== canonical);
+    state.deletedSubjects = state.deletedSubjects.filter(s => canonicalSubjectName(s).toLowerCase() !== canonLower);
+  }
+  if (Array.isArray(state.permanentlyDeletedSubjects)) {
+    state.permanentlyDeletedSubjects = state.permanentlyDeletedSubjects.filter(s => canonicalSubjectName(s).toLowerCase() !== canonLower);
+  }
+  // Ensure non-default subject is restored to customSubjects so it doesn't vanish
+  const isDefault = (typeof DEFAULT_SUBJECTS !== 'undefined' ? DEFAULT_SUBJECTS : []).some(
+    d => canonicalSubjectName(d).toLowerCase() === canonLower
+  );
+  if (!isDefault) {
+    if (!Array.isArray(state.customSubjects)) state.customSubjects = [];
+    if (!state.customSubjects.some(c => canonicalSubjectName(c).toLowerCase() === canonLower)) {
+      state.customSubjects.push(canonical);
+    }
   }
   saveData();
   syncAllSubjectSelects();
   if (typeof renderProfileTrackCard === 'function') renderProfileTrackCard();
   if (typeof renderProfileAspirantHub === 'function') renderProfileAspirantHub();
-  showToast(`"${subj}" restored to active subjects.`);
+  if (typeof renderSubjectManager === 'function') renderSubjectManager();
+  showToast(`"${canonical}" restored to active subjects.`);
+}
+
+function permanentlyDeleteSubject(subj) {
+  if (!subj) return;
+  const canonical = canonicalSubjectName(subj);
+  const canonLower = canonical.toLowerCase();
+
+  const confirmed = confirm(
+    `PERMANENTLY delete subject "${subj}"?\n\n` +
+    `⚠️ WARNING: Deleted data CANNOT be restored!\n\n` +
+    `• All logged study sessions for "${subj}" will be permanently wiped.\n` +
+    `• All routine schedule blocks for "${subj}" will be removed.\n` +
+    `• All syllabus categories and topics for "${subj}" will be deleted.\n` +
+    `• All flashcards for "${subj}" will be deleted.\n\n` +
+    `Do you want to permanently delete this subject?`
+  );
+  if (!confirmed) return;
+
+  // 1. Remove from deletedSubjects
+  if (Array.isArray(state.deletedSubjects)) {
+    state.deletedSubjects = state.deletedSubjects.filter(s => canonicalSubjectName(s).toLowerCase() !== canonLower);
+  }
+
+  // 2. Remove from customSubjects
+  if (Array.isArray(state.customSubjects)) {
+    state.customSubjects = state.customSubjects.filter(s => canonicalSubjectName(s).toLowerCase() !== canonLower);
+  }
+
+  // 3. Mark in permanentlyDeletedSubjects so default lists won't re-add it
+  if (!Array.isArray(state.permanentlyDeletedSubjects)) {
+    state.permanentlyDeletedSubjects = [];
+  }
+  if (!state.permanentlyDeletedSubjects.some(s => canonicalSubjectName(s).toLowerCase() === canonLower)) {
+    state.permanentlyDeletedSubjects.push(canonical);
+  }
+
+  // 4. Purge routine
+  if (Array.isArray(state.routine)) {
+    state.routine = state.routine.filter(r => canonicalSubjectName(r.subject).toLowerCase() !== canonLower);
+  }
+
+  // 5. Purge sessions
+  if (Array.isArray(state.sessions)) {
+    state.sessions = state.sessions.filter(sess => canonicalSubjectName(sess.subject).toLowerCase() !== canonLower);
+  }
+
+  // 6. Reset activeSession if matching
+  if (state.activeSession && canonicalSubjectName(state.activeSession.subject).toLowerCase() === canonLower) {
+    state.activeSession = null;
+  }
+
+  // 7. Purge syllabus categories
+  if (Array.isArray(state.syllabus)) {
+    state.syllabus = state.syllabus.filter(c => canonicalSubjectName(c.name).toLowerCase() !== canonLower);
+  }
+
+  // 8. Purge flashcards
+  if (Array.isArray(state.flashcards)) {
+    state.flashcards = state.flashcards.filter(f => canonicalSubjectName(f.category).toLowerCase() !== canonLower);
+  }
+
+  saveData();
+  syncAllSubjectSelects();
+  renderRoutine();
+  renderCategories();
+  if (typeof renderFlashcards === 'function') renderFlashcards();
+  if (typeof renderTrackerRoutinePreview === 'function') renderTrackerRoutinePreview();
+  if (typeof renderProfileTrackCard === 'function') renderProfileTrackCard();
+  if (typeof renderProfileAspirantHub === 'function') renderProfileAspirantHub();
+  if (typeof renderSubjectManager === 'function') renderSubjectManager();
+  showToast(`"${subj}" permanently deleted. Data cannot be restored.`);
+}
+
+function permanentlyDeleteAllInactiveSubjects() {
+  if (!Array.isArray(state.deletedSubjects) || state.deletedSubjects.length === 0) return;
+  const count = state.deletedSubjects.length;
+
+  const confirmed = confirm(
+    `PERMANENTLY delete all ${count} inactive subjects?\n\n` +
+    `⚠️ WARNING: Deleted data CANNOT be restored!\n\n` +
+    `All study sessions, routine blocks, syllabus checklists, and flashcards for these subjects will be permanently wiped.\n\n` +
+    `Are you sure you want to proceed?`
+  );
+  if (!confirmed) return;
+
+  const targets = [...state.deletedSubjects];
+  targets.forEach(s => {
+    const canonLower = canonicalSubjectName(s).toLowerCase();
+    if (!Array.isArray(state.permanentlyDeletedSubjects)) state.permanentlyDeletedSubjects = [];
+    if (!state.permanentlyDeletedSubjects.some(p => canonicalSubjectName(p).toLowerCase() === canonLower)) {
+      state.permanentlyDeletedSubjects.push(canonicalSubjectName(s));
+    }
+    if (Array.isArray(state.customSubjects)) {
+      state.customSubjects = state.customSubjects.filter(cs => canonicalSubjectName(cs).toLowerCase() !== canonLower);
+    }
+    if (Array.isArray(state.routine)) {
+      state.routine = state.routine.filter(r => canonicalSubjectName(r.subject).toLowerCase() !== canonLower);
+    }
+    if (Array.isArray(state.sessions)) {
+      state.sessions = state.sessions.filter(sess => canonicalSubjectName(sess.subject).toLowerCase() !== canonLower);
+    }
+    if (state.activeSession && canonicalSubjectName(state.activeSession.subject).toLowerCase() === canonLower) {
+      state.activeSession = null;
+    }
+    if (Array.isArray(state.syllabus)) {
+      state.syllabus = state.syllabus.filter(c => canonicalSubjectName(c.name).toLowerCase() !== canonLower);
+    }
+    if (Array.isArray(state.flashcards)) {
+      state.flashcards = state.flashcards.filter(f => canonicalSubjectName(f.category).toLowerCase() !== canonLower);
+    }
+  });
+
+  state.deletedSubjects = [];
+  saveData();
+  syncAllSubjectSelects();
+  renderRoutine();
+  renderCategories();
+  if (typeof renderFlashcards === 'function') renderFlashcards();
+  if (typeof renderTrackerRoutinePreview === 'function') renderTrackerRoutinePreview();
+  if (typeof renderProfileTrackCard === 'function') renderProfileTrackCard();
+  if (typeof renderProfileAspirantHub === 'function') renderProfileAspirantHub();
+  if (typeof renderSubjectManager === 'function') renderSubjectManager();
+  showToast(`All ${count} inactive subjects permanently deleted.`);
 }
 
 function syncAllSubjectSelects() {

@@ -405,6 +405,9 @@ async function signInWithGoogle(inlineErrorEl = null) {
       showToast('Signed in with Google as ' + currentAuthUser.displayName);
       renderUserProfileUI();
       setTimeout(() => checkCloudInitialSync(), 600);
+      if (typeof initRealtimeSync === 'function') {
+        initRealtimeSync(currentAuthUser);
+      }
       return;
     } catch (err) {
       if (inlineErrorEl && typeof setInlineAuthMessage === 'function') {
@@ -445,6 +448,9 @@ async function signInWithGithub(inlineErrorEl = null) {
       showToast('Signed in with GitHub as ' + currentAuthUser.displayName);
       renderUserProfileUI();
       setTimeout(() => checkCloudInitialSync(), 600);
+      if (typeof initRealtimeSync === 'function') {
+        initRealtimeSync(currentAuthUser);
+      }
       return;
     } catch (err) {
       if (inlineErrorEl && typeof setInlineAuthMessage === 'function') {
@@ -706,6 +712,10 @@ async function signInWithEmailPassword(emailOrUsername, password, isSignUp = fal
         renderUserProfileUI();
         if (typeof collectUserDataFromFirestore === 'function') {
           await collectUserDataFromFirestore(currentAuthUser);
+        }
+        // Initialize real-time cross-tab sync
+        if (typeof initRealtimeSync === 'function') {
+          initRealtimeSync(currentAuthUser);
         }
         return;
       }
@@ -981,6 +991,11 @@ async function signOutUser() {
     _firestoreSyncTimer = null;
   }
 
+  // Cleanup real-time sync listeners
+  if (typeof cleanupRealtimeSync === 'function') {
+    cleanupRealtimeSync();
+  }
+
   // Reset in-memory state to clean default
   if (typeof getDefaultState === 'function') {
     state = getDefaultState();
@@ -1207,6 +1222,266 @@ async function collectUserDataFromFirestore(user = null) {
     showToast('Failed to load cloud data: ' + (err.message || 'Check connection'), true);
   }
 }
+
+/* ==========================================================================
+   REAL-TIME CROSS-TAB SYNC ENGINE (Firestore onSnapshot + BroadcastChannel)
+   ========================================================================== */
+
+// Sync metadata for conflict resolution
+const SYNC_TYPES = [
+  'routine', 'notes', 'sessions', 'syllabus', 'flashcards', 
+  'customQuotes', 'customSubjects', 'deletedSubjects', 'dailyTargetMinutes',
+  'quoteIdx', 'quoteSource', 'theme', 'quoteCarouselEnabled', 'quoteCarouselInterval',
+  'deletedQuotes', 'userTrack'
+];
+
+let realtimeUnsubscribers = [];
+const syncChannel = (typeof BroadcastChannel !== 'undefined') ? new BroadcastChannel('careerdesk-sync') : null;
+const TAB_ID = Math.random().toString(36).substring(2, 10);
+
+// Timestamp tracking for conflict resolution (last-write-wins)
+function updateSyncTimestamps(dataType) {
+  if (!state.syncMeta) state.syncMeta = {};
+  state.syncMeta[dataType] = Date.now();
+}
+
+function getSyncTimestamp(dataType) {
+  return state.syncMeta?.[dataType] || 0;
+}
+
+// Broadcast local changes to other tabs
+function broadcastSyncChange(dataType, payload) {
+  if (!syncChannel) return;
+  try {
+    syncChannel.postMessage({
+      type: 'SYNC_CHANGE',
+      dataType,
+      payload,
+      timestamp: Date.now(),
+      sourceTab: TAB_ID,
+      userId: currentAuthUser?.uid
+    });
+  } catch (e) {
+    console.warn('[Sync] Broadcast failed:', e);
+  }
+}
+
+// Handle incoming changes from other tabs
+function handleBroadcastMessage(event) {
+  const msg = event.data;
+  if (!msg || msg.type !== 'SYNC_CHANGE') return;
+  if (msg.sourceTab === TAB_ID) return; // Ignore own messages
+  if (msg.userId && currentAuthUser?.uid !== msg.userId) return; // Different user
+
+  const localTs = getSyncTimestamp(msg.dataType);
+  if (msg.timestamp > localTs) {
+    applyRemoteChange(msg.dataType, msg.payload, msg.timestamp);
+  }
+}
+
+if (syncChannel) {
+  syncChannel.onmessage = handleBroadcastMessage;
+}
+
+// Apply remote change with last-write-wins
+function applyRemoteChange(dataType, payload, remoteTimestamp) {
+  if (!payload) return;
+  
+  switch (dataType) {
+    case 'routine':
+      state.routine = Array.isArray(payload) ? payload : state.routine;
+      break;
+    case 'notes':
+      state.notes = Array.isArray(payload) ? payload : state.notes;
+      break;
+    case 'sessions':
+      state.sessions = Array.isArray(payload) ? payload : state.sessions;
+      break;
+    case 'syllabus':
+      state.syllabus = Array.isArray(payload) ? payload : state.syllabus;
+      break;
+    case 'flashcards':
+      state.flashcards = Array.isArray(payload) ? payload : state.flashcards;
+      break;
+    case 'customQuotes':
+      state.customQuotes = Array.isArray(payload) ? payload : state.customQuotes;
+      break;
+    case 'customSubjects':
+      state.customSubjects = Array.isArray(payload) ? payload : state.customSubjects;
+      break;
+    case 'deletedSubjects':
+      state.deletedSubjects = Array.isArray(payload) ? payload : state.deletedSubjects;
+      break;
+    case 'deletedQuotes':
+      state.deletedQuotes = Array.isArray(payload) ? payload : state.deletedQuotes;
+      break;
+    case 'dailyTargetMinutes':
+      state.dailyTargetMinutes = typeof payload === 'number' ? payload : state.dailyTargetMinutes;
+      break;
+    case 'quoteIdx':
+      state.quoteIdx = typeof payload === 'number' ? payload : state.quoteIdx;
+      break;
+    case 'quoteSource':
+      state.quoteSource = payload || state.quoteSource;
+      break;
+    case 'theme':
+      state.theme = payload || state.theme;
+      break;
+    case 'quoteCarouselEnabled':
+      state.quoteCarouselEnabled = typeof payload === 'boolean' ? payload : state.quoteCarouselEnabled;
+      break;
+    case 'quoteCarouselInterval':
+      state.quoteCarouselInterval = typeof payload === 'number' ? payload : state.quoteCarouselInterval;
+      break;
+    case 'userTrack':
+      state.userTrack = payload || state.userTrack;
+      break;
+    default:
+      return;
+  }
+  
+  // Update local timestamp to match remote (prevents re-broadcast loops)
+  if (state.syncMeta) state.syncMeta[dataType] = remoteTimestamp;
+  
+  // Persist and refresh UI
+  saveData();
+  refreshAllDashboardPanels();
+}
+
+// Initialize Firestore real-time listeners
+function initRealtimeSync(user) {
+  if (!user?.uid) return;
+  
+  // Clean up existing listeners
+  realtimeUnsubscribers.forEach(unsub => {
+    try { unsub(); } catch (e) {}
+  });
+  realtimeUnsubscribers = [];
+  
+  const isFirebaseOnline = (typeof firebase !== 'undefined' && firebase.firestore && firebase.apps && firebase.apps.length > 0 && !user.isDemo && !user.isLocalSession);
+  if (!isFirebaseOnline) return;
+  
+  try {
+    const db = firebase.firestore();
+    const userRef = db.collection('users').doc(user.uid);
+    
+    // Listen to main user document
+    const unsub = userRef.onSnapshot((docSnap) => {
+      if (!docSnap.exists) return;
+      const data = docSnap.data();
+      if (!data) return;
+      
+      // Skip if we're currently syncing to avoid loops
+      if (isCloudSyncing) return;
+      
+      // Check if remote data is newer than local
+      const remoteUpdated = data.updatedAt?.toMillis ? data.updatedAt.toMillis() : (data._syncTimestamp || 0);
+      const localUpdated = state.syncMeta?.firestore || 0;
+      
+      if (remoteUpdated > localUpdated) {
+        mergeFirestoreData(data);
+      }
+    }, (err) => {
+      console.error('[Realtime Sync] Firestore listener error:', err);
+    });
+    
+    realtimeUnsubscribers.push(unsub);
+    console.log('[Realtime Sync] Firestore listener active for user:', user.uid);
+  } catch (e) {
+    console.warn('[Realtime Sync] Failed to init:', e);
+  }
+}
+
+// Merge Firestore data into local state
+async function mergeFirestoreData(cloudData) {
+  if (!cloudData) return;
+  
+  try {
+    // Decrypt if needed
+    if (cloudData.__careerdesk_vault && typeof decryptVaultPayload === 'function') {
+      const pass = sessionStorage.getItem('careerdesk_active_vault_pass');
+      if (pass) {
+        cloudData = await decryptVaultPayload(cloudData, pass);
+      } else {
+        console.warn('[Merge] Cloud data encrypted but no passphrase in session');
+        return;
+      }
+    }
+    
+    if (typeof scrubPrototypePollution === 'function') {
+      cloudData = scrubPrototypePollution(cloudData);
+    }
+    
+    let hasChanges = false;
+    
+    // Merge state fields with timestamp comparison
+    if (cloudData.state) {
+      const remoteState = cloudData.state;
+      const localState = state;
+      
+      SYNC_TYPES.forEach(type => {
+        if (remoteState[type] !== undefined) {
+          const remoteTs = remoteState._syncMeta?.[type] || 0;
+          const localTs = localState.syncMeta?.[type] || 0;
+          
+          if (remoteTs > localTs) {
+            // Remote is newer, apply it
+            applyRemoteChange(type, remoteState[type], remoteTs);
+            hasChanges = true;
+          }
+        }
+      });
+    }
+    
+    // Merge other collections (exams, mistakes, mcqProgress, etc.)
+    if (cloudData.exams && Array.isArray(cloudData.exams)) {
+      exams = cloudData.exams;
+      if (typeof saveExams === 'function') saveExams();
+      hasChanges = true;
+    }
+    if (cloudData.mistakes && Array.isArray(cloudData.mistakes)) {
+      mistakes = cloudData.mistakes;
+      if (typeof saveMistakes === 'function') saveMistakes();
+      hasChanges = true;
+    }
+    if (cloudData.customMCQQuestions && Array.isArray(cloudData.customMCQQuestions)) {
+      if (typeof saveStoredQuestions === 'function') saveStoredQuestions(cloudData.customMCQQuestions);
+      hasChanges = true;
+    }
+    if (cloudData.mcqProgress) {
+      userMCQProgress = cloudData.mcqProgress;
+      if (typeof saveMCQProgress === 'function') saveMCQProgress();
+      hasChanges = true;
+    }
+    if (typeof cloudData.todayBreakMinutes === 'number') {
+      localStorage.setItem('jobprep_break_minutes_today', String(cloudData.todayBreakMinutes));
+      hasChanges = true;
+    }
+    
+    if (hasChanges) {
+      await storageAdapter.set(STORAGE_KEY, JSON.stringify(state));
+      localStorage.setItem('careerdesk_user_data_' + currentAuthUser.uid, JSON.stringify(cloudData));
+      showToast('🔄 Synced changes from another device', false);
+      updateCloudSyncDot(true);
+    }
+  } catch (e) {
+    console.error('[Merge] Error merging Firestore data:', e);
+  }
+}
+
+// Cleanup on sign out
+function cleanupRealtimeSync() {
+  realtimeUnsubscribers.forEach(unsub => {
+    try { unsub(); } catch (e) {}
+  });
+  realtimeUnsubscribers = [];
+  if (syncChannel) {
+    try { syncChannel.close(); } catch (e) {}
+  }
+}
+window.cleanupRealtimeSync = cleanupRealtimeSync;
+window.broadcastSyncChange = broadcastSyncChange;
+window.initRealtimeSync = initRealtimeSync;
 
 /**
  * Debounced Firestore Sync scheduler
