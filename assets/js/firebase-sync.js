@@ -247,7 +247,17 @@ function initAppCheck(config) {
   if (typeof firebase === 'undefined' || typeof firebase.appCheck !== 'function') return null;
 
   try {
-    const isLocal = ['localhost', '127.0.0.1', '::1', ''].includes(window.location.hostname) || window.location.protocol === 'file:';
+    const hostname = window.location.hostname;
+    const isLocal = ['localhost', '127.0.0.1', '::1', ''].includes(hostname) || window.location.protocol === 'file:';
+    const isFirebaseHosting = hostname.endsWith('.web.app') || hostname.endsWith('.firebaseapp.com');
+
+    // On Firebase Hosting production, skip App Check entirely to avoid reCAPTCHA errors.
+    // App Check enforcement must be turned off in the Firebase Console for this to work cleanly.
+    if (isFirebaseHosting && !isLocal) {
+      console.log('[CareerDesk Firebase] App Check skipped on production hosting (avoid reCAPTCHA errors)');
+      return null;
+    }
+
     if (isLocal) {
       self.FIREBASE_APPCHECK_DEBUG_TOKEN = (config && config.appCheckDebugToken) || "C8CBD4C9-8F4C-46B0-8270-8FC6B578BE80";
     }
@@ -2366,14 +2376,14 @@ function renderUserProfileUI() {
                     <span>Google</span>
                   </button>
                   <button type="button" class="btn-social" id="inlineBtnSignInGithub" title="Sign in with GitHub">
-                  <button type="button" class="btn-social" id="inlineBtnSignInGuest" title="Instant Offline Access" style="grid-column: span 2; border-color: rgba(99,102,241,0.25); background: rgba(99,102,241,0.06); color: var(--text); padding: 9px 12px; display: inline-flex; align-items: center; justify-content: center; gap: 8px;">
-                    <i data-lucide="zap" style="width:15px; height:15px; color:var(--accent2);"></i>
-                    <span style="font-weight:600; font-size:12.5px;">Continue as Guest (Instant Access)</span>
-                  </button>
                     <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
                       <path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/>
                     </svg>
                     <span>GitHub</span>
+                  </button>
+                  <button type="button" class="btn-social" id="inlineBtnSignInGuest" title="Instant Offline Access" style="grid-column: span 2; border-color: rgba(99,102,241,0.25); background: rgba(99,102,241,0.06); color: var(--text); padding: 9px 12px; display: inline-flex; align-items: center; justify-content: center; gap: 8px;">
+                    <i data-lucide="zap" style="width:15px; height:15px; color:var(--accent2);"></i>
+                    <span style="font-weight:600; font-size:12.5px;">Continue as Guest (Instant Access)</span>
                   </button>
                 </div>
                 <div class="auth-recaptcha-wrapper" style="margin-top:14px;">
