@@ -339,7 +339,13 @@ function setupAuthStateListener() {
 
         // Always auto-load user data from Firestore on login or page load
         if (typeof collectUserDataFromFirestore === 'function') {
-          collectUserDataFromFirestore(currentAuthUser);
+          collectUserDataFromFirestore(currentAuthUser).then(() => {
+            if (typeof initRealtimeSync === 'function') {
+              initRealtimeSync(currentAuthUser);
+            }
+          });
+        } else if (typeof initRealtimeSync === 'function') {
+          initRealtimeSync(currentAuthUser);
         }
       } else {
         if (isExplicitlySignedOut) {
@@ -1059,6 +1065,10 @@ async function syncUserDataToFirestore(user = null, silent = true) {
   try {
     const bundle = buildCloudDataBundle();
     const isFirebaseOnline = (typeof firebase !== 'undefined' && firebase.firestore && firebase.apps && firebase.apps.length > 0 && !user.isDemo && !user.isLocalSession);
+    const syncTimestamp = Date.now();
+    if (!state.syncMeta) state.syncMeta = {};
+    state.syncMeta.firestore = syncTimestamp;
+    bundle.state = state;
 
     // Always update isolated local cache for this user
     try {
@@ -1073,6 +1083,10 @@ async function syncUserDataToFirestore(user = null, silent = true) {
         uid: user.uid,
         email: user.email || '',
         displayName: user.displayName || '',
+        _syncTimestamp: syncTimestamp,
+        updatedAt: (firebase.firestore.FieldValue && typeof firebase.firestore.FieldValue.serverTimestamp === 'function')
+          ? firebase.firestore.FieldValue.serverTimestamp()
+          : nowIso,
         lastCloudSync: (firebase.firestore.FieldValue && typeof firebase.firestore.FieldValue.serverTimestamp === 'function')
           ? firebase.firestore.FieldValue.serverTimestamp()
           : nowIso
@@ -1381,10 +1395,12 @@ function initRealtimeSync(user) {
       if (isCloudSyncing) return;
       
       // Check if remote data is newer than local
-      const remoteUpdated = data.updatedAt?.toMillis ? data.updatedAt.toMillis() : (data._syncTimestamp || 0);
+      const remoteUpdated = data._syncTimestamp || (data.updatedAt?.toMillis ? data.updatedAt.toMillis() : 0);
       const localUpdated = state.syncMeta?.firestore || 0;
       
       if (remoteUpdated > localUpdated) {
+        if (!state.syncMeta) state.syncMeta = {};
+        state.syncMeta.firestore = remoteUpdated;
         mergeFirestoreData(data);
       }
     }, (err) => {
