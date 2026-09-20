@@ -3525,7 +3525,21 @@ function resetFirebaseRecaptcha() {
 /**
  * Validates whether reCAPTCHA is verified via Firebase RecaptchaVerifier or active fallback
  */
+function shouldRequireAuthSecurityCheck() {
+  if (typeof window !== 'undefined' && (window.location.protocol === 'file:' || window.location.protocol === 'about:')) {
+    return false;
+  }
+  if (!getStoredFirebaseConfig()) {
+    return false;
+  }
+  return !!(typeof firebase !== 'undefined' && firebase.auth && initFirebaseApp());
+}
+
 function isFirebaseRecaptchaVerified() {
+  if (!shouldRequireAuthSecurityCheck()) {
+    return true;
+  }
+
   if (modalRecaptchaVerifier) {
     try {
       const resp = modalRecaptchaVerifier.getResponse ? modalRecaptchaVerifier.getResponse() : null;
@@ -4058,7 +4072,20 @@ function bindInlineRecaptchaFallback(checkId, labelId, fallbackId, errorId) {
   });
 }
 
+function shouldRequireInlineAuthSecurityCheck() {
+  if (typeof window !== 'undefined' && (window.location.protocol === 'file:' || window.location.protocol === 'about:')) {
+    return false;
+  }
+  if (!getStoredFirebaseConfig()) {
+    return false;
+  }
+  return !!(typeof firebase !== 'undefined' && firebase.auth && initFirebaseApp());
+}
+
 function isInlineRecaptchaVerified(isSignUp) {
+  if (!shouldRequireInlineAuthSecurityCheck()) {
+    return true;
+  }
   const check = document.getElementById(isSignUp ? 'inlineSignupRecaptchaCheckbox' : 'inlineRecaptchaCheckbox');
   return !!(check && check.checked);
 }
