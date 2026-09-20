@@ -137,11 +137,19 @@ function renderSubjectManager() {
                 </span>
                 <span class="subject-manager-name">${escapeHtml(s)}</span>
               </div>
-              <span style="font-size:11px; color:var(--text-soft);">Hidden from subject pickers</span>
+              <span style="font-size:11px; color:var(--text-soft); display:flex; align-items:center; gap:6px; margin-top:2px;">
+                <span>Hidden from pickers</span> &bull; 
+                <span style="color:#f43f5e; font-weight:600; font-size:10.5px; background:rgba(244,63,94,0.08); padding:1px 6px; border-radius:4px; border:1px solid rgba(244,63,94,0.2);">Deleted data cannot restore</span>
+              </span>
             </div>
-            <button class="pill subject-restore-btn" data-restore-subject="${escapeAttr(s)}" type="button" title="Restore this subject">
-              ${ICON.undo} <span>Restore</span>
-            </button>
+            <div class="btn-group subject-row-actions">
+              <button class="pill subject-restore-btn" data-restore-subject="${escapeAttr(s)}" type="button" title="Restore this subject">
+                ${ICON.undo} <span>Restore</span>
+              </button>
+              <button class="pill danger subject-hard-delete-btn" data-perm-delete-subject="${escapeAttr(s)}" type="button" title="Permanently delete subject (deleted data cannot restore)">
+                ${ICON.trash} <span>Delete Permanently</span>
+              </button>
+            </div>
           </div>
         `;
       }).join('');
@@ -149,10 +157,6 @@ function renderSubjectManager() {
       deletedSection.style.display = 'none';
       deletedContainer.innerHTML = '';
     }
-  }
-
-  if (window.lucide && typeof window.lucide.createIcons === 'function') {
-    window.lucide.createIcons();
   }
 
   if (window.lucide && typeof window.lucide.createIcons === 'function') {
@@ -251,6 +255,18 @@ document.addEventListener('click', (e) => {
     }
     return;
   }
+
+  // Permanently delete subject (Modal)
+  const permDelBtn = e.target.closest('.subject-hard-delete-btn, [data-perm-delete-subject]');
+  if (permDelBtn) {
+    e.preventDefault();
+    const subj = permDelBtn.getAttribute('data-perm-delete-subject');
+    if (subj && typeof permanentlyDeleteSubject === 'function') {
+      permanentlyDeleteSubject(subj);
+      renderSubjectManager();
+    }
+    return;
+  }
 });
 
 // ESC key closes Subject Manager modal
@@ -287,10 +303,11 @@ if (modalAddSubjBtn && modalSubjInput) {
 const resetDefSubjBtn = document.getElementById('resetDefaultSubjectsBtn');
 if (resetDefSubjBtn) {
   resetDefSubjBtn.addEventListener('click', () => {
-    const ok = confirm('Reset all custom and deleted subjects to standard defaults? Existing logged study sessions and routine blocks are preserved.');
+    const ok = confirm('Reset all custom, deleted, and permanently deleted subjects to standard defaults? Existing logged study sessions and routine blocks are preserved.');
     if (!ok) return;
     state.customSubjects = [];
     state.deletedSubjects = [];
+    state.permanentlyDeletedSubjects = [];
     saveData();
     syncAllSubjectSelects();
     renderSubjectManager();
@@ -835,17 +852,22 @@ function renderProfileTrackCard() {
   const activeSet = new Set(activeSubjects.map(s => canonicalSubjectName(s).toLowerCase()));
 
   const deletedSet = new Set((state.deletedSubjects || []).map(s => canonicalSubjectName(s).toLowerCase()));
+  const permDeletedSet = new Set((state.permanentlyDeletedSubjects || []).map(s => canonicalSubjectName(s).toLowerCase()));
   const allSubjects = typeof masterSubjectList === 'function' ? masterSubjectList(true) : [];
-  const deletedSubjects = allSubjects.filter(s => deletedSet.has(canonicalSubjectName(s).toLowerCase()));
+  const rawDeleted = (state.deletedSubjects || []).filter(s => s && !permDeletedSet.has(canonicalSubjectName(s).toLowerCase()));
+  const deletedSubjects = uniqueSubjectNames([
+    ...rawDeleted,
+    ...allSubjects.filter(s => deletedSet.has(canonicalSubjectName(s).toLowerCase()) && !permDeletedSet.has(canonicalSubjectName(s).toLowerCase()))
+  ]);
 
-  // Find class curriculum data if student (filter out user-deleted subjects so auto-generated list never shows them)
+  // Find class curriculum data if student (filter out permanently deleted subjects)
   const classObj = (typeof BANGLADESH_CURRICULUM_DATA !== 'undefined' && BANGLADESH_CURRICULUM_DATA.classes)
     ? (BANGLADESH_CURRICULUM_DATA.classes.find(c => c.id === currentClassId) || BANGLADESH_CURRICULUM_DATA.classes[3])
     : { name: 'SSC Science', short: 'SSC', badge: 'Secondary Science', subjects: ['Bangla', 'English', 'Mathematics', 'Physics', 'Chemistry', 'Biology', 'Higher Mathematics', 'ICT'] };
   const rawClassSubjects = classObj.subjects || [];
-  const classSubjects = rawClassSubjects.filter(s => !deletedSet.has(canonicalSubjectName(s).toLowerCase()));
+  const classSubjects = rawClassSubjects.filter(s => !permDeletedSet.has(canonicalSubjectName(s).toLowerCase()));
 
-  // Job Seeker subjects (filter out user-deleted subjects so auto-generated list never shows them)
+  // Job Seeker subjects (filter out permanently deleted subjects)
   const rawPrimaryJobSubs = (typeof BANGLADESH_CURRICULUM_DATA !== 'undefined' && BANGLADESH_CURRICULUM_DATA.jobSeeker)
     ? BANGLADESH_CURRICULUM_DATA.jobSeeker.primarySubjects
     : [
@@ -854,7 +876,7 @@ function renderProfileTrackCard() {
         { name: 'Mathematics', desc: 'Arithmetic, algebra, geometry & analytical reasoning' },
         { name: 'General Knowledge', desc: 'Bangladesh affairs, international relations & current events' }
       ];
-  const primaryJobSubs = rawPrimaryJobSubs.filter(p => !deletedSet.has(canonicalSubjectName(p.name).toLowerCase()));
+  const primaryJobSubs = rawPrimaryJobSubs.filter(p => !permDeletedSet.has(canonicalSubjectName(p.name).toLowerCase()));
 
   const primaryEnglishDescs = {
     'Bangla': 'Language, grammar, comprehension & literature',
@@ -872,7 +894,7 @@ function renderProfileTrackCard() {
         { name: 'Geography & Environment' },
         { name: 'Ethics & Good Governance' }
       ];
-  const optionalJobSubs = rawOptionalJobSubs.filter(sub => !deletedSet.has(canonicalSubjectName(sub.name).toLowerCase()));
+  const optionalJobSubs = rawOptionalJobSubs.filter(sub => !permDeletedSet.has(canonicalSubjectName(sub.name).toLowerCase()));
 
   // Calculate cumulative stats across all active subjects for Subject Manager tab
   let totalMinAll = 0;
@@ -887,36 +909,10 @@ function renderProfileTrackCard() {
     totalTopicsCountAll += (st.topicsCount || 0);
   });
 
-  const langSelectionBoxHtml = `
-    <div class="track-selection-box track-lang-selection-box">
-      <div class="track-row-header">
-        <div>
-          <strong class="track-section-label">Subject Display Language (বিষয় প্রদর্শনের ভাষা)</strong>
-          <p class="track-section-desc">Choose whether subject titles appear in English or বাংলা (Bangla) across curriculum, routine, and planners</p>
-        </div>
-        <span class="track-class-badge" style="display:inline-flex; align-items:center; gap:5px;">
-          <i data-lucide="languages" style="width:12px; height:12px;"></i>
-          <span>${isLangBn ? 'বাংলা (Bangla)' : 'English'}</span>
-        </span>
-      </div>
-
-      <div class="track-sector-toggle-row segmented-group track-sm-sector-group" style="display:inline-flex; width:auto; padding:3px; border-radius:10px; margin-top:6px;">
-        <button type="button" class="pill track-lang-btn ${isLangEn ? 'active solid' : ''}" data-lang="en" style="padding:5px 14px; font-size:12px; display:inline-flex; align-items:center; gap:5px;">
-          <i data-lucide="languages" style="width:13px; height:13px;"></i> <span>English</span>
-        </button>
-        <button type="button" class="pill track-lang-btn ${isLangBn ? 'active solid' : ''}" data-lang="bn" style="padding:5px 14px; font-size:12px; display:inline-flex; align-items:center; gap:5px;">
-          <span style="font-size:11.5px; font-weight:700;">বাং</span> <span>বাংলা (Bangla)</span>
-        </button>
-      </div>
-    </div>
-  `;
-
   // Build Tab 1 (Curriculum Track)
   let curriculumHtml = '';
   if (isStudent) {
     curriculumHtml = `
-      ${langSelectionBoxHtml}
-
       <div class="track-selection-box">
         <div class="track-row-header">
           <div>
@@ -974,9 +970,6 @@ function renderProfileTrackCard() {
                     <i data-lucide="edit-2" style="width:12px; height:12px;"></i>
                   </button>
                 ` : ''}
-                <button type="button" class="micro-btn danger btn-track-subj-delete" data-subject="${escapeAttr(canon)}" title="Permanently delete ${escapeAttr(canon)}" style="margin-left:4px;">
-                  <i data-lucide="trash-2" style="width:12px; height:12px;"></i>
-                </button>
               </div>
             `;
           }).join('')}
@@ -985,8 +978,6 @@ function renderProfileTrackCard() {
     `;
   } else {
     curriculumHtml = `
-      ${langSelectionBoxHtml}
-
       <div class="track-selection-box">
         <div class="track-row-header">
           <div>
@@ -1049,9 +1040,6 @@ function renderProfileTrackCard() {
                       <i data-lucide="edit-2" style="width:11px; height:11px;"></i>
                     </button>
                   ` : ''}
-                  <button type="button" class="micro-btn danger btn-track-subj-delete" data-subject="${escapeAttr(canon)}" title="Permanently delete ${escapeAttr(canon)}" style="margin-left:4px;">
-                    <i data-lucide="trash-2" style="width:11px; height:11px;"></i>
-                  </button>
                 </div>
               </div>
             `;
@@ -1078,7 +1066,7 @@ function renderProfileTrackCard() {
             const altName = isLangBn ? '' : (meta.bn || '');
             return `
               <div class="track-subject-chip ${isActive ? 'active' : ''}">
-                <label style="display:flex; align-items:center; gap:10px; flex:1; cursor:pointer; min-width:0;">
+                <label style="display:flex; align-items:center; gap:10px; flex-1; cursor:pointer; min-width:0;">
                   <input type="checkbox" class="track-subject-checkbox" data-subject="${escapeAttr(canon)}" ${isActive ? 'checked' : ''}>
                   <span class="track-chip-icon" style="color:${meta.color}; background:${meta.color}18; width:26px; height:26px; border-radius:7px; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0;">
                     <i data-lucide="${meta.icon || 'book-open'}" style="width:14px; height:14px;"></i>
@@ -1094,9 +1082,6 @@ function renderProfileTrackCard() {
                     <i data-lucide="edit-2" style="width:12px; height:12px;"></i>
                   </button>
                 ` : ''}
-                <button type="button" class="micro-btn danger btn-track-subj-delete" data-subject="${escapeAttr(canon)}" title="Permanently delete ${escapeAttr(canon)}" style="margin-left:4px;">
-                  <i data-lucide="trash-2" style="width:12px; height:12px;"></i>
-                </button>
               </div>
             `;
           }).join('')}
@@ -1236,22 +1221,27 @@ function renderProfileTrackCard() {
     ${deletedSubjects.length === 0 ? `
       <div class="track-empty-box">
         <i data-lucide="check-circle-2" style="width:38px; height:38px; color:#10b981; margin:0 auto 10px; display:block;"></i>
-        <strong style="color:var(--text); font-size:15px; display:block; margin-bottom:4px;">All Subjects Active</strong>
+        <strong style="color:var(--text); font-size:15px; display:block; margin-bottom:4px;">No Inactive Subjects</strong>
         <p style="font-size:12.5px; color:var(--text-soft); margin:0; max-width:440px; margin:0 auto; line-height:1.5;">
-          You don't have any inactive or hidden subjects. When you delete a subject from your curriculum or planner, it is kept safe here and can be restored at any time without losing study history.
+          All your subjects are active. When you archive or hide a subject, it stays here safely until you choose to restore it or permanently delete it.
         </p>
       </div>
     ` : `
       <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; gap:10px; flex-wrap:wrap;">
         <div style="display:flex; align-items:center; gap:8px;">
-          <i data-lucide="info" style="color:var(--accent2); width:16px; height:16px;"></i>
+          <i data-lucide="alert-triangle" style="color:#f43f5e; width:16px; height:16px;"></i>
           <span style="font-size:12.5px; color:var(--text-soft);">
-            ${deletedSubjects.length} subjects hidden from your planner. All recorded sessions, routine blocks, and syllabus checklists remain preserved.
+            ${deletedSubjects.length} subjects archived. Restore to active planner, or delete permanently (<strong style="color:#f43f5e;">deleted data cannot restore</strong>).
           </span>
         </div>
-        <button type="button" class="pill subtle" id="btnTrackRestoreAll">
-          <i data-lucide="undo-2"></i> <span>Restore All (${deletedSubjects.length})</span>
-        </button>
+        <div class="btn-group">
+          <button type="button" class="pill subtle" id="btnTrackRestoreAll" title="Restore all inactive subjects">
+            <i data-lucide="undo-2"></i> <span>Restore All (${deletedSubjects.length})</span>
+          </button>
+          <button type="button" class="pill danger" id="btnTrackPurgeAll" title="Permanently delete all inactive subjects (deleted data cannot restore)">
+            <i data-lucide="trash-2"></i> <span>Delete All Permanently</span>
+          </button>
+        </div>
       </div>
 
       <div class="track-manager-list">
@@ -1259,22 +1249,31 @@ function renderProfileTrackCard() {
           const stats = getSubjectStats(s);
           const meta = typeof getSubjectMeta === 'function' ? getSubjectMeta(s) : { color: '#6366f1', icon: 'book-open' };
           return `
-            <div class="track-manager-card" style="opacity:0.75; border-style:dashed; background:rgba(244,63,94,0.04); border-color:rgba(244,63,94,0.25);">
+            <div class="track-manager-card" style="opacity:0.9; border-style:dashed; background:rgba(244,63,94,0.04); border-color:rgba(244,63,94,0.25);">
               <div class="track-manager-card-info">
                 <div class="track-manager-card-title-row">
                   <span class="track-manager-card-icon" style="color:var(--text-soft); opacity:0.6; background:rgba(255,255,255,0.05); width:26px; height:26px; border-radius:7px; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0;">
                     <i data-lucide="${meta.icon || 'book-open'}" style="width:14px; height:14px;"></i>
                   </span>
                   <span class="track-manager-card-name" style="text-decoration:line-through; color:var(--text-soft);">${escapeHtml(s)}</span>
-                  <span class="pill subtle" style="font-size:10px; padding:1px 6px; color:#f43f5e; border-color:rgba(244,63,94,0.3);">Hidden</span>
+                  <span class="pill subtle" style="font-size:10px; padding:1px 6px; color:#f43f5e; border-color:rgba(244,63,94,0.3); background:rgba(244,63,94,0.06); font-weight:600;">Archived</span>
                 </div>
-                <span style="font-size:11.5px; color:var(--text-soft);">
-                  ${stats.totalMin > 0 ? `${fmtHM(stats.totalMin)} study logged &bull; ` : ''}${stats.routineCount} routine blocks preserved
-                </span>
+                <div style="font-size:11.5px; color:var(--text-soft); display:flex; align-items:center; gap:6px; flex-wrap:wrap; margin-top:2px;">
+                  ${stats.totalMin > 0 ? `<span>${fmtHM(stats.totalMin)} study logged</span> &bull; ` : ''}
+                  ${stats.routineCount > 0 ? `<span>${stats.routineCount} routine blocks</span> &bull; ` : ''}
+                  <span style="color:#f43f5e; font-weight:600; font-size:10.5px; background:rgba(244,63,94,0.08); padding:1px 6px; border-radius:4px; border:1px solid rgba(244,63,94,0.2);">
+                    Deleted data cannot restore
+                  </span>
+                </div>
               </div>
-              <button type="button" class="pill subject-restore-btn btn-track-manager-restore" data-restore-subject="${escapeAttr(s)}" title="Restore to active subjects">
-                ${ICON.undo} <span>Restore</span>
-              </button>
+              <div class="btn-group subject-row-actions">
+                <button type="button" class="pill subject-restore-btn btn-track-manager-restore" data-restore-subject="${escapeAttr(s)}" title="Restore to active subjects">
+                  ${ICON.undo} <span>Restore</span>
+                </button>
+                <button type="button" class="pill danger subject-hard-delete-btn btn-track-manager-hard-delete" data-perm-delete-subject="${escapeAttr(s)}" title="Permanently delete subject (deleted data cannot restore)">
+                  ${ICON.trash} <span>Delete Permanently</span>
+                </button>
+              </div>
             </div>
           `;
         }).join('')}
@@ -1291,21 +1290,9 @@ function renderProfileTrackCard() {
         <div>
           <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
             <h3 class="track-main-title" style="margin:0;">
-              <span>Target Track &amp; Curriculum Manager</span>
+              <span>Curriculum &amp; Subjects</span>
               <span class="track-active-pill">${activeSubjects.length} Active</span>
             </h3>
-            <div class="track-header-controls" style="display:inline-flex; align-items:center; gap:6px;">
-              <button type="button" class="pill subtle btn-toggle-track" id="btnToggleTrackCard" title="${isCollapsed ? 'Open Manager' : 'Hide Manager'}" style="padding:4px 10px; font-size:12px; display:inline-flex; align-items:center; gap:5px; cursor:pointer;">
-                <i data-lucide="${isCollapsed ? 'chevron-down' : 'chevron-up'}" style="width:13px; height:13px;"></i>
-                <span>${isCollapsed ? 'Open' : 'Hide'}</span>
-              </button>
-              ${activeTab === 'curriculum' ? `
-                <button type="button" class="pill subtle btn-track-edit-toggle ${isTrackEditMode ? 'active solid' : ''}" id="btnToggleTrackEditMode" title="${isTrackEditMode ? 'Done editing' : 'Edit track subjects'}" style="padding:4px 10px; font-size:12px; display:inline-flex; align-items:center; gap:5px; cursor:pointer;">
-                  <i data-lucide="${isTrackEditMode ? 'check' : 'edit-2'}" style="width:13px; height:13px;"></i>
-                  <span>${isTrackEditMode ? 'Done' : 'Edit Track'}</span>
-                </button>
-              ` : ''}
-            </div>
           </div>
           <p class="track-main-subtitle">
             ${isStudent
@@ -1315,43 +1302,62 @@ function renderProfileTrackCard() {
         </div>
       </div>
 
-      <div class="track-header-actions">
-        <!-- Subject Display Language Toggle -->
-        <div class="track-lang-switch segmented-group" title="Subject Display Language / বিষয় প্রদর্শনের ভাষা">
-          <button type="button" class="pill track-lang-btn ${isLangEn ? 'active solid' : ''}" data-lang="en" title="English Subjects">
-            <i data-lucide="languages" style="width:13px; height:13px;"></i> <span>English</span>
-          </button>
-          <button type="button" class="pill track-lang-btn ${isLangBn ? 'active solid' : ''}" data-lang="bn" title="বাংলা বিষয়াবলী">
-            <span style="font-size:12px; font-weight:700;">বাং</span> <span>বাংলা</span>
-          </button>
-        </div>
-
-        <!-- Track Role Switcher -->
-        <div class="track-role-switch segmented-group">
-          <button type="button" class="pill track-role-btn ${isStudent ? 'active solid' : ''}" data-role="student">
-            <i data-lucide="graduation-cap"></i> <span>Student</span>
-          </button>
-          <button type="button" class="pill track-role-btn ${isJobSeeker ? 'active solid' : ''}" data-role="job_seeker">
-            <i data-lucide="briefcase"></i> <span>Job Seeker</span>
-          </button>
-        </div>
+      <!-- Header Controls: Show ONLY the Hide / Unhide trigger -->
+      <div class="track-header-controls">
+        <button type="button" class="pill subtle btn-toggle-track" id="btnToggleTrackCard" title="${isCollapsed ? 'Unhide section' : 'Hide section'}" style="padding:6px 14px; font-size:12.5px; display:inline-flex; align-items:center; gap:6px; cursor:pointer;">
+          <i data-lucide="${isCollapsed ? 'chevron-down' : 'chevron-up'}" style="width:14px; height:14px;"></i>
+          <span>${isCollapsed ? 'Unhide' : 'Hide'}</span>
+        </button>
       </div>
     </div>
 
     <div class="track-content-body" style="${isCollapsed ? 'display:none;' : ''}">
-      <!-- Modern Segmented Subnavigation Bar -->
-      <div class="track-subnav-bar segmented-group">
-        <button type="button" class="pill track-subnav-btn ${activeTab === 'curriculum' ? 'active solid' : ''}" data-track-tab="curriculum">
-          <i data-lucide="compass"></i> <span>Track Curriculum</span>
-        </button>
-        <button type="button" class="pill track-subnav-btn ${activeTab === 'subjects' ? 'active solid' : ''}" data-track-tab="subjects">
-          <i data-lucide="layers"></i> <span>Master Subject Manager</span>
-          <span class="track-tab-badge">${activeSubjects.length}</span>
-        </button>
-        <button type="button" class="pill track-subnav-btn ${activeTab === 'inactive' ? 'active solid' : ''}" data-track-tab="inactive">
-          <i data-lucide="archive"></i> <span>Inactive / Hidden</span>
-          ${deletedSubjects.length > 0 ? `<span class="track-tab-badge danger">${deletedSubjects.length}</span>` : ''}
-        </button>
+      <!-- Shifted Triggers in New Toolbar Design: Subnav, Language Switcher, Role Switcher & Edit Mode -->
+      <div class="track-toolbar-row">
+        <!-- Segmented Subnavigation Bar -->
+        <div class="track-subnav-bar segmented-group">
+          <button type="button" class="pill track-subnav-btn ${activeTab === 'curriculum' ? 'active solid' : ''}" data-track-tab="curriculum">
+            <i data-lucide="compass"></i> <span>Curriculum</span>
+          </button>
+          <button type="button" class="pill track-subnav-btn ${activeTab === 'subjects' ? 'active solid' : ''}" data-track-tab="subjects">
+            <i data-lucide="layers"></i> <span>Subject Manager</span>
+            <span class="track-tab-badge">${activeSubjects.length}</span>
+          </button>
+          <button type="button" class="pill track-subnav-btn ${activeTab === 'inactive' ? 'active solid' : ''}" data-track-tab="inactive">
+            <i data-lucide="archive"></i> <span>Inactive</span>
+            ${deletedSubjects.length > 0 ? `<span class="track-tab-badge danger">${deletedSubjects.length}</span>` : ''}
+          </button>
+        </div>
+
+        <div class="track-toolbar-actions">
+          <!-- Subject Display Language Toggle -->
+          <div class="track-lang-switch segmented-group" title="Subject Display Language / বিষয় প্রদর্শনের ভাষা">
+            <button type="button" class="pill track-lang-btn ${isLangEn ? 'active solid' : ''}" data-lang="en" title="English Subjects">
+              <i data-lucide="languages" style="width:13px; height:13px;"></i> <span>English</span>
+            </button>
+            <button type="button" class="pill track-lang-btn ${isLangBn ? 'active solid' : ''}" data-lang="bn" title="বাংলা বিষয়াবলী">
+              <span style="font-size:11.5px; font-weight:700;">বাং</span> <span>বাংলা</span>
+            </button>
+          </div>
+
+          <!-- Track Role Switcher (Student / Job Seeker) -->
+          <div class="track-role-switch segmented-group" title="Select your target academic or career track">
+            <button type="button" class="pill track-role-btn ${isStudent ? 'active solid' : ''}" data-role="student">
+              <i data-lucide="graduation-cap"></i> <span>Student</span>
+            </button>
+            <button type="button" class="pill track-role-btn ${isJobSeeker ? 'active solid' : ''}" data-role="job_seeker">
+              <i data-lucide="briefcase"></i> <span>Job Seeker</span>
+            </button>
+          </div>
+
+          <!-- Edit Track toggle button -->
+          ${activeTab === 'curriculum' ? `
+            <button type="button" class="pill subtle btn-track-edit-toggle ${isTrackEditMode ? 'active solid' : ''}" id="btnToggleTrackEditMode" title="${isTrackEditMode ? 'Done editing' : 'Edit track subjects'}" style="padding:6px 12px; font-size:12px; display:inline-flex; align-items:center; gap:5px; cursor:pointer;">
+              <i data-lucide="${isTrackEditMode ? 'check' : 'edit-2'}" style="width:13px; height:13px;"></i>
+              <span>${isTrackEditMode ? 'Done' : 'Edit Track'}</span>
+            </button>
+          ` : ''}
+        </div>
       </div>
 
       ${activeTab === 'curriculum' ? `
@@ -1378,17 +1384,6 @@ function renderProfileTrackCard() {
               <i data-lucide="plus"></i> <span>Add Subject</span>
             </button>
           </div>
-        </div>
-
-        <div class="track-jump-banner">
-          <div style="display:flex; align-items:center; gap:8px;">
-            <i data-lucide="bar-chart-2" style="color:var(--accent1); width:16px; height:16px;"></i>
-            <span style="font-size:12.5px; color:var(--text);">Want to view study time analytics, routine blocks, and syllabus counts per subject?</span>
-          </div>
-          <a href="#" class="track-jump-link" id="btnJumpToSubjectManager">
-            <span>Open Master Subject Manager</span>
-            <i data-lucide="arrow-right" style="width:14px; height:14px;"></i>
-          </a>
         </div>
       ` : activeTab === 'subjects' ? subjectsHtml : inactiveHtml}
     </div>
@@ -1485,10 +1480,11 @@ function attachTrackCardListeners(container, track) {
   const resetBtn = container.querySelector('#btnTrackManagerResetDefaults');
   if (resetBtn) {
     resetBtn.addEventListener('click', () => {
-      const ok = confirm('Reset all custom and deleted subjects to standard defaults? Existing logged study sessions and routine blocks are preserved.');
+      const ok = confirm('Reset all custom, deleted, and permanently deleted subjects to standard defaults? Existing logged study sessions and routine blocks are preserved.');
       if (!ok) return;
       state.customSubjects = [];
       state.deletedSubjects = [];
+      state.permanentlyDeletedSubjects = [];
       saveData();
       syncAllSubjectSelects();
       renderProfileTrackCard();
@@ -1516,12 +1512,12 @@ function attachTrackCardListeners(container, track) {
     });
   });
 
-  // Delete / Hide Subject in Curriculum or Subject Manager Tab
-  container.querySelectorAll('.btn-track-manager-delete, .btn-track-subj-delete').forEach(btn => {
+  // Delete / Hide Subject in Subject Manager Tab
+  container.querySelectorAll('.btn-track-manager-delete').forEach(btn => {
     btn.addEventListener('click', (e) => {
       e.preventDefault();
       e.stopPropagation();
-      const subj = btn.getAttribute('data-subject');
+      const subj = btn.getAttribute('data-subject') || btn.closest('[data-subject]')?.getAttribute('data-subject');
       if (!subj) return;
       if (typeof deleteSubject === 'function') {
         deleteSubject(subj);
@@ -1536,12 +1532,25 @@ function attachTrackCardListeners(container, track) {
     btn.addEventListener('click', (e) => {
       e.preventDefault();
       e.stopPropagation();
-      const subj = btn.getAttribute('data-restore-subject');
+      const subj = btn.getAttribute('data-restore-subject') || btn.closest('[data-restore-subject]')?.getAttribute('data-restore-subject');
       if (!subj) return;
       if (typeof restoreSubject === 'function') {
         restoreSubject(subj);
         renderProfileTrackCard();
         if (typeof renderProfileAspirantHub === 'function') renderProfileAspirantHub();
+      }
+    });
+  });
+
+  // Permanently Delete Subject in Inactive Tab
+  container.querySelectorAll('.btn-track-manager-hard-delete').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const subj = btn.getAttribute('data-perm-delete-subject') || btn.closest('[data-perm-delete-subject]')?.getAttribute('data-perm-delete-subject');
+      if (!subj) return;
+      if (typeof permanentlyDeleteSubject === 'function') {
+        permanentlyDeleteSubject(subj);
       }
     });
   });
@@ -1552,12 +1561,37 @@ function attachTrackCardListeners(container, track) {
     restoreAllBtn.addEventListener('click', () => {
       if (!Array.isArray(state.deletedSubjects) || state.deletedSubjects.length === 0) return;
       const count = state.deletedSubjects.length;
+      const subjectsToRestore = [...state.deletedSubjects];
       state.deletedSubjects = [];
+      subjectsToRestore.forEach(s => {
+        const canon = canonicalSubjectName(s);
+        const canonLower = canon.toLowerCase();
+        const isDefault = (typeof DEFAULT_SUBJECTS !== 'undefined' ? DEFAULT_SUBJECTS : []).some(
+          d => canonicalSubjectName(d).toLowerCase() === canonLower
+        );
+        if (!isDefault) {
+          if (!Array.isArray(state.customSubjects)) state.customSubjects = [];
+          if (!state.customSubjects.some(c => canonicalSubjectName(c).toLowerCase() === canonLower)) {
+            state.customSubjects.push(canon);
+          }
+        }
+      });
       saveData();
       syncAllSubjectSelects();
       renderProfileTrackCard();
       if (typeof renderProfileAspirantHub === 'function') renderProfileAspirantHub();
+      if (typeof renderSubjectManager === 'function') renderSubjectManager();
       if (typeof showToast === 'function') showToast(`Restored all ${count} subjects!`);
+    });
+  }
+
+  // Permanently Delete All in Inactive Tab
+  const purgeAllBtn = container.querySelector('#btnTrackPurgeAll');
+  if (purgeAllBtn) {
+    purgeAllBtn.addEventListener('click', () => {
+      if (typeof permanentlyDeleteAllInactiveSubjects === 'function') {
+        permanentlyDeleteAllInactiveSubjects();
+      }
     });
   }
 

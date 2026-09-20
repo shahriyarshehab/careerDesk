@@ -309,15 +309,8 @@ function setupAuthStateListener() {
   try {
     firebase.auth().onAuthStateChanged((user) => {
       if (user && !isExplicitlySignedOut) {
-        // Strict Firebase Auth check: email/password accounts must be verified
+        // Non-blocking email verification check
         const isPasswordProvider = !user.providerData || user.providerData.length === 0 || user.providerData.some(p => p.providerId === 'password');
-        if (isPasswordProvider && !user.emailVerified) {
-          // Block access if email is not verified
-          currentAuthUser = null;
-          try { localStorage.removeItem(FIREBASE_USER_CACHE_KEY); } catch (e) { }
-          renderUserProfileUI();
-          return;
-        }
 
         const prevUid = currentAuthUser?.uid;
         currentAuthUser = {
@@ -357,19 +350,13 @@ function setupAuthStateListener() {
 function getCachedAuthUser() {
   if (isExplicitlySignedOut) return null;
   if (currentAuthUser) {
-    if (currentAuthUser.providerId === 'password' && currentAuthUser.emailVerified === false) {
-      return null;
-    }
     return applyCustomProfileOverrides(currentAuthUser);
   }
   try {
     const raw = localStorage.getItem(FIREBASE_USER_CACHE_KEY);
     if (raw) {
       const parsed = JSON.parse(raw);
-      if (parsed && parsed.providerId === 'password' && parsed.emailVerified === false) {
-        localStorage.removeItem(FIREBASE_USER_CACHE_KEY);
-        return null;
-      }
+      // Allow cached password users
       currentAuthUser = parsed;
       return applyCustomProfileOverrides(currentAuthUser);
     }
@@ -654,37 +641,37 @@ async function signInWithEmailPassword(emailOrUsername, password, isSignUp = fal
           saveCustomProfile(custom);
         }
 
-        // 3. Send verification email via Firebase Auth
-        await user.sendEmailVerification();
+        // 3. Send optional verification email in background
+        try { await user.sendEmailVerification(); } catch (veErr) { console.warn('[Verification Email] Background dispatch notice:', veErr); }
 
-        // 4. Do NOT sign them in automatically -> immediately sign out!
-        await firebase.auth().signOut();
-        currentAuthUser = null;
-        try { localStorage.removeItem(FIREBASE_USER_CACHE_KEY); } catch (e) { }
+        // 4. Grant immediate access on account creation
+        currentAuthUser = {
+          uid: user.uid,
+          displayName: customDisplayName || user.displayName || email.split('@')[0],
+          email: user.email || email,
+          username: customUsername || '',
+          photoURL: user.photoURL || '',
+          providerId: 'password',
+          emailVerified: !!user.emailVerified
+        };
+        applyCustomProfileOverrides(currentAuthUser);
+        localStorage.setItem(FIREBASE_USER_CACHE_KEY, JSON.stringify(currentAuthUser));
+        showToast('Account created! Welcome, ' + currentAuthUser.displayName);
+        closeAuthModal();
         renderUserProfileUI();
-
-        // 5. Show verification screen with required message
-        showEmailVerificationScreen(email, password);
+        if (typeof collectUserDataFromFirestore === 'function') {
+          await collectUserDataFromFirestore(currentAuthUser);
+        }
+        if (typeof initRealtimeSync === 'function') {
+          initRealtimeSync(currentAuthUser);
+        }
         return;
       } else {
         // Sign in via Firebase Auth
         const result = await firebase.auth().signInWithEmailAndPassword(email, password);
         const user = result.user;
 
-        // If a user logs in and their email is not verified: block access!
-        if (!user.emailVerified) {
-          // Immediately sign out to block access
-          await firebase.auth().signOut();
-          currentAuthUser = null;
-          try { localStorage.removeItem(FIREBASE_USER_CACHE_KEY); } catch (e) { }
-          renderUserProfileUI();
-
-          // Show the same verification screen
-          showEmailVerificationScreen(email, password);
-          return;
-        }
-
-        // Email IS verified -> fetch username from Firestore
+        // Fetch username from Firestore if available
         let savedUsername = '';
         if (firebase.firestore) {
           try {
@@ -724,6 +711,10 @@ async function signInWithEmailPassword(emailOrUsername, password, isSignUp = fal
       if (err.code === 'auth/email-already-in-use') msg = 'This email is already registered. Try signing in.';
       else if (err.code === 'auth/user-not-found') msg = 'No account found with this email. Try signing up.';
       else if (err.code === 'auth/wrong-password') msg = 'Incorrect password. Please try again.';
+      else if (err.code === 'auth/invalid-credential' || err.code === 'auth/user-not-found') {
+        msg = 'No account found with this email or incorrect password. <div style="margin-top:6px;"><button type="button" class="pill subtle" id="btnErrSwitchToSignup" style="font-size:12px; padding:4px 12px; cursor:pointer; color:var(--accent1); border-color:var(--accent1); background:rgba(99,102,241,0.1);" onclick="if(typeof switchToSignupPrefilled===\'function\') switchToSignupPrefilled();">✨ Create Account with this email</button></div>';
+      }
+      else if (err.code === 'auth/too-many-requests') msg = 'Too many failed attempts. Access is temporarily disabled. Please wait a few moments or reset your password.';
       else if (err.code === 'auth/weak-password') msg = 'Password must be at least 6 characters.';
       else if (err.code === 'auth/invalid-email') msg = 'Please enter a valid email address.';
       displayAuthError(msg);
@@ -753,21 +744,25 @@ async function signInWithEmailPassword(emailOrUsername, password, isSignUp = fal
       saveCustomProfile(custom);
     }
 
-    saveSimulatedUnverifiedEmail(email);
-    currentAuthUser = null;
-    try { localStorage.removeItem(FIREBASE_USER_CACHE_KEY); } catch (e) { }
+    const effectiveName = customDisplayName || email.split('@')[0];
+    const localUid = 'local_' + Math.abs(email.split('').reduce((a, b) => (((a << 5) - a) + b.charCodeAt(0)) | 0, 0));
+    currentAuthUser = {
+      uid: localUid,
+      displayName: effectiveName,
+      email: email,
+      username: customUsername || '',
+      photoURL: '',
+      providerId: 'password',
+      emailVerified: true,
+      isLocalSession: true
+    };
+    applyCustomProfileOverrides(currentAuthUser);
+    localStorage.setItem(FIREBASE_USER_CACHE_KEY, JSON.stringify(currentAuthUser));
+    showToast('Account created! Welcome, ' + currentAuthUser.displayName);
+    closeAuthModal();
     renderUserProfileUI();
-    showEmailVerificationScreen(email, password);
     return;
   } else {
-    if (isSimulatedEmailUnverified(email)) {
-      // Block access and show verification screen
-      currentAuthUser = null;
-      try { localStorage.removeItem(FIREBASE_USER_CACHE_KEY); } catch (e) { }
-      renderUserProfileUI();
-      showEmailVerificationScreen(email, password);
-      return;
-    }
 
     const effectiveName = customDisplayName || email.split('@')[0];
     const localUid = 'local_' + Math.abs(email.split('').reduce((a, b) => (((a << 5) - a) + b.charCodeAt(0)) | 0, 0));
@@ -922,12 +917,13 @@ async function verifyPhoneOTP(otp) {
 function signInDemoUser(providerName = 'Google') {
   isExplicitlySignedOut = false;
   currentAuthUser = {
-    uid: 'demo_aspirant_' + Date.now().toString(36),
-    displayName: providerName === 'GitHub' ? 'Dev Aspirant' : 'CareerDesk Aspirant',
-    email: providerName === 'GitHub' ? 'aspirant@github.com' : 'aspirant@gmail.com',
+    uid: 'local_aspirant_' + Date.now().toString(36),
+    displayName: providerName === 'GitHub' ? 'Dev Aspirant' : (providerName === 'Local' || providerName === 'Guest' ? 'Career Aspirant' : 'CareerDesk Aspirant'),
+    email: providerName === 'GitHub' ? 'aspirant@github.com' : (providerName === 'Local' || providerName === 'Guest' ? 'aspirant@careerdesk.local' : 'aspirant@gmail.com'),
     photoURL: '',
-    providerId: providerName === 'GitHub' ? 'github.com' : 'google.com',
-    isDemo: true
+    providerId: providerName === 'GitHub' ? 'github.com' : (providerName === 'Local' || providerName === 'Guest' ? 'password' : 'google.com'),
+    isDemo: true,
+    emailVerified: true
   };
   applyCustomProfileOverrides(currentAuthUser);
   try {
@@ -2370,6 +2366,10 @@ function renderUserProfileUI() {
                     <span>Google</span>
                   </button>
                   <button type="button" class="btn-social" id="inlineBtnSignInGithub" title="Sign in with GitHub">
+                  <button type="button" class="btn-social" id="inlineBtnSignInGuest" title="Instant Offline Access" style="grid-column: span 2; border-color: rgba(99,102,241,0.25); background: rgba(99,102,241,0.06); color: var(--text); padding: 9px 12px; display: inline-flex; align-items: center; justify-content: center; gap: 8px;">
+                    <i data-lucide="zap" style="width:15px; height:15px; color:var(--accent2);"></i>
+                    <span style="font-weight:600; font-size:12.5px;">Continue as Guest (Instant Access)</span>
+                  </button>
                     <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
                       <path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/>
                     </svg>
@@ -3613,7 +3613,11 @@ function setAuthModalMessage(type, message) {
     errEl.style.display = 'none';
   } else {
     errEl.className = `auth-status-msg ${type || 'error'}`;
-    errEl.textContent = message;
+    if (message && message.includes('<')) {
+      errEl.innerHTML = message;
+    } else {
+      errEl.textContent = message;
+    }
     errEl.style.display = 'block';
   }
 }
@@ -3963,6 +3967,31 @@ function toggleInlineAuthPanel(mode) {
   }
 }
 
+
+function switchToSignupPrefilled() {
+  const loginEmail = (document.getElementById('inlineAuthEmailInput')?.value || document.getElementById('authModalEmailInput')?.value || '').trim();
+  const loginPass = (document.getElementById('inlineAuthPasswordInput')?.value || document.getElementById('authModalPasswordInput')?.value || '').trim();
+  
+  if (lastAuthSource === 'inline') {
+    toggleInlineAuthPanel('signup');
+    const signupEmail = document.getElementById('inlineAuthSignupEmailInput');
+    const signupPass = document.getElementById('inlineAuthSignupPasswordInput');
+    const signupUser = document.getElementById('inlineAuthUsernameInput');
+    if (signupEmail && loginEmail) signupEmail.value = loginEmail;
+    if (signupPass && loginPass) signupPass.value = loginPass;
+    if (signupUser && loginEmail && !signupUser.value) signupUser.value = normalizeUsername(loginEmail.split('@')[0]);
+  } else {
+    setAuthModalMode('signup');
+    const modalEmail = document.getElementById('authModalEmailInput');
+    const modalPass = document.getElementById('authModalPasswordInput');
+    const modalUser = document.getElementById('authModalUsernameInput');
+    if (modalEmail && loginEmail) modalEmail.value = loginEmail;
+    if (modalPass && loginPass) modalPass.value = loginPass;
+    if (modalUser && loginEmail && !modalUser.value) modalUser.value = normalizeUsername(loginEmail.split('@')[0]);
+  }
+}
+window.switchToSignupPrefilled = switchToSignupPrefilled;
+
 function setInlineAuthMessage(el, type, message) {
   if (!el) return;
   if (!message) {
@@ -3972,7 +4001,11 @@ function setInlineAuthMessage(el, type, message) {
     return;
   }
   el.className = `auth-status-msg ${type || 'error'}`;
-  el.textContent = message;
+  if (message && message.includes('<')) {
+    el.innerHTML = message;
+  } else {
+    el.textContent = message;
+  }
   el.style.display = 'block';
 }
 
@@ -4135,6 +4168,12 @@ function initInlineAuthPanelEvents() {
       await signInWithGithub(errEl);
     });
   });
+  const btnGuest = document.getElementById('inlineBtnSignInGuest');
+  if (btnGuest) {
+    btnGuest.addEventListener('click', () => {
+      signInDemoUser('Guest');
+    });
+  }
 
   const loginForm = document.getElementById('inlineAuthLoginForm');
   if (loginForm) {

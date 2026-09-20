@@ -5,4 +5,7 @@ scratch/
 node_modules/
 package-lock.json
 .firebase/
-
+.kilo
+firebase-debug.log
+.agents/
+skills-lock.json
