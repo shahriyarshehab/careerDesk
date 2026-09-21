@@ -1443,11 +1443,12 @@ async function mergeFirestoreData(cloudData) {
       
       SYNC_TYPES.forEach(type => {
         if (remoteState[type] !== undefined) {
-          const remoteTs = remoteState._syncMeta?.[type] || 0;
+          // Fix: Use syncMeta (not _syncMeta) - both remote and local use the same field
+          const remoteTs = remoteState.syncMeta?.[type] || remoteState._syncMeta?.[type] || 0;
           const localTs = localState.syncMeta?.[type] || 0;
           
           if (remoteTs > localTs) {
-            // Remote is newer, apply it
+            // Remote is newer, apply it (includes deletions - empty arrays from other browsers)
             applyRemoteChange(type, remoteState[type], remoteTs);
             hasChanges = true;
           }
