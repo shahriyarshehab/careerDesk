@@ -1122,7 +1122,7 @@ async function syncUserDataToFirestore(user = null, silent = true) {
     } catch (e) { }
 
     if (!silent) {
-      showToast('Cloud data synced successfully! ✓');
+      // showToast('Cloud data synced successfully! ✓'); // Suppressed: silent sync behavior
     }
   } catch (err) {
     console.error('[CareerDesk] Firestore Sync Error:', err);
@@ -1483,7 +1483,7 @@ async function mergeFirestoreData(cloudData) {
     if (hasChanges) {
       await storageAdapter.set(STORAGE_KEY, JSON.stringify(state));
       localStorage.setItem('careerdesk_user_data_' + currentAuthUser.uid, JSON.stringify(cloudData));
-      showToast('🔄 Synced changes from another device', false);
+      // showToast('🔄 Synced changes from another device', false); // Suppressed: silent sync behavior
       updateCloudSyncDot(true);
     }
   } catch (e) {

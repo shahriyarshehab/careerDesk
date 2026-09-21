@@ -306,7 +306,7 @@ function initCrossTabSync() {
           refreshAllViews(changes);
           
           // Show toast notification
-          showToast('🔄 Data synced from another tab!', false);
+          // showToast('🔄 Data synced from another tab!', false); // Suppressed: silent sync behavior
         }
       }
     } catch (err) {
