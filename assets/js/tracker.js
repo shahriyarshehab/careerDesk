@@ -15,6 +15,11 @@ const targetHoursInput = document.getElementById('targetHours');
 // FIRST-TIME USER ONBOARDING SUBJECT WIZARD
 // ==========================================
 
+// Guard: Ensure state is initialized before accessing DOM elements
+if (typeof state === 'undefined') {
+   console.warn('⚠️ State not yet initialized. Core.js must load before tracker.js');
+}
+
 const CURRICULUM_SUBJECT_CHOICES = [
   { name: 'Bangla', bn: 'বাংলা ভাষা ও সাহিত্য', desc: 'প্রাচীন, মধ্য ও আধুনিক যুগ, ব্যাকরণ ও সাহিত্য' },
   { name: 'English', bn: 'English Language & Literature', desc: 'Grammar, Vocabulary, Comprehension & Literature' },

@@ -254,6 +254,124 @@ let state = {
   deletedSubjects: [], permanentlyDeletedSubjects: [], customSubjects: [], deletedQuotes: [],
   userTrack: { ...DEFAULT_USER_TRACK }
 };
+
+// ==========================================
+// CROSS-TAB SYNC - Real-time updates between tabs
+// ==========================================
+const SYNC_BROADCAST_KEY = 'careerdesk_sync_broadcast';
+
+function initCrossTabSync() {
+  // Generate unique tab ID
+  window.tabId = 'tab-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+  
+  // Listen for storage changes from other tabs
+  window.addEventListener('storage', async (e) => {
+    if (e.key !== SYNC_BROADCAST_KEY && e.key !== STORAGE_KEY) return;
+    
+    // Ignore changes from current tab
+    const broadcastData = e.newValue ? JSON.parse(e.newValue) : null;
+    if (broadcastData && broadcastData.sourceTab === window.tabId) return;
+    
+    console.log('🔄 Cross-tab sync: Data changed in another tab');
+    
+    // Reload data from storage
+    try {
+      const res = await storageAdapter.get(STORAGE_KEY);
+      if (res && res.value) {
+        const newState = JSON.parse(res.value);
+        
+        // Detect what changed and refresh UI
+        const changes = detectStateChanges(state, newState);
+        
+        if (changes.length > 0) {
+          // Update local state
+          state.routine = newState.routine;
+          state.notes = newState.notes;
+          state.sessions = newState.sessions;
+          state.syllabus = newState.syllabus;
+          state.flashcards = newState.flashcards;
+          state.customQuotes = newState.customQuotes;
+          state.customSubjects = newState.customSubjects;
+          state.deletedSubjects = newState.deletedSubjects;
+          state.deletedQuotes = newState.deletedQuotes;
+          state.dailyTargetMinutes = newState.dailyTargetMinutes;
+          state.quoteIdx = newState.quoteIdx;
+          state.quoteSource = newState.quoteSource;
+          state.theme = newState.theme;
+          state.quoteCarouselEnabled = newState.quoteCarouselEnabled;
+          state.quoteCarouselInterval = newState.quoteCarouselInterval;
+          state.userTrack = newState.userTrack;
+          
+          // Refresh all UI components
+          refreshAllViews(changes);
+          
+          // Show toast notification
+          showToast('🔄 Data synced from another tab!', false);
+        }
+      }
+    } catch (err) {
+      console.error('Cross-tab sync error:', err);
+    }
+  });
+  
+  console.log('✅ Cross-tab sync initialized for', window.tabId);
+}
+
+function detectStateChanges(oldState, newState) {
+  const changes = [];
+  
+  const fields = [
+    { key: 'notes', label: 'Notes' },
+    { key: 'routine', label: 'Routine' },
+    { key: 'sessions', label: 'Study Sessions' },
+    { key: 'syllabus', label: 'Syllabus' },
+    { key: 'flashcards', label: 'Flashcards' },
+    { key: 'customQuotes', label: 'Quotes' },
+    { key: 'customSubjects', label: 'Subjects' },
+    { key: 'exams', label: 'Exams' }
+  ];
+  
+  fields.forEach(f => {
+    const oldLen = Array.isArray(oldState[f.key]) ? oldState[f.key].length : 0;
+    const newLen = Array.isArray(newState[f.key]) ? newState[f.key].length : 0;
+    if (oldLen !== newLen) {
+      changes.push(f.key);
+    }
+  });
+  
+  return changes;
+}
+
+function refreshAllViews(changes) {
+  // Refresh all possible views based on what changed
+  if (typeof renderNotes === 'function') renderNotes();
+  if (typeof renderRoutine === 'function') renderRoutine();
+  if (typeof renderCategories === 'function') renderCategories();
+  if (typeof renderFlashcards === 'function') renderFlashcards();
+  if (typeof renderQuotes === 'function') renderQuotes();
+  if (typeof renderSubjectSelect === 'function') renderSubjectSelect();
+  if (typeof renderTrackerAll === 'function') renderTrackerAll();
+  if (typeof renderHomeDashboard === 'function') renderHomeDashboard();
+  if (typeof renderProfileAspirantHub === 'function') renderProfileAspirantHub();
+  if (typeof renderSubjectManager === 'function') renderSubjectManager();
+  if (typeof syncAllSubjectSelects === 'function') syncAllSubjectSelects();
+  
+  // Update theme if changed
+  if (changes.includes('theme')) {
+    document.documentElement.setAttribute('data-theme', state.theme);
+    syncThemeButtons();
+  }
+}
+
+// Initialize cross-tab sync after state is defined
+if (typeof window !== 'undefined') {
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initCrossTabSync);
+  } else {
+    initCrossTabSync();
+  }
+}
+
 let saveTimer = null;
 let tickInterval = null;
 
@@ -478,14 +596,12 @@ function saveData() {
       if (note) { note.textContent = 'Changes saved ✓'; setTimeout(() => { note.textContent = 'Changes are saved automatically.'; }, 1600); }
       await writeToAutoBackupFile();
       
-      // Broadcast changes to other tabs
-      if (typeof broadcastSyncChange === 'function') {
-        syncTypes.forEach(type => {
-          if (state[type] !== undefined) {
-            broadcastSyncChange(type, state[type]);
-          }
-        });
-      }
+      // Broadcast changes to other tabs via localStorage event
+      const SYNC_BROADCAST_KEY = 'careerdesk_sync_broadcast';
+      localStorage.setItem(SYNC_BROADCAST_KEY, JSON.stringify({
+        timestamp: Date.now(),
+        sourceTab: window.tabId || 'tab-' + Date.now()
+      }));
       
       if (typeof window.scheduleFirestoreSync === 'function') {
         window.scheduleFirestoreSync();
