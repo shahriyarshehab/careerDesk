@@ -26,6 +26,7 @@
     'assets/js/firebase-sync.js',
     'assets/js/profile.js',
     'assets/js/home.js',
+    'assets/js/groupchat.js',
     'assets/js/app.js'
   ];
 

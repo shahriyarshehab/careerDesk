@@ -347,11 +347,13 @@ function setupAuthStateListener() {
         } else if (typeof initRealtimeSync === 'function') {
           initRealtimeSync(currentAuthUser);
         }
+        window.dispatchEvent(new CustomEvent('careerdesk-auth-state-changed', { detail: currentAuthUser }));
       } else {
         if (isExplicitlySignedOut) {
           currentAuthUser = null;
           try { localStorage.removeItem(FIREBASE_USER_CACHE_KEY); } catch (e) { }
         }
+        window.dispatchEvent(new CustomEvent('careerdesk-auth-state-changed', { detail: null }));
       }
       renderUserProfileUI();
     });
@@ -363,6 +365,10 @@ function setupAuthStateListener() {
 /**
  * Gets currently active user from memory or cache
  */
+function isLoggedIn() {
+  return !!getCachedAuthUser();
+}
+
 function getCachedAuthUser() {
   if (isExplicitlySignedOut) return null;
   if (currentAuthUser) {

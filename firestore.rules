@@ -43,6 +43,70 @@ service cloud.firestore {
       allow update, delete: if request.auth != null && resource.data.uid == request.auth.uid;
     }
 
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isGroupMember(groupId) {
+      return signedIn() && exists(
+        /databases/$(database)/documents/groups/$(groupId)/members/$(request.auth.uid)
+      );
+    }
+
+    function isGroupOwner(groupId) {
+      return signedIn() && get(
+        /databases/$(database)/documents/groups/$(groupId)
+      ).data.ownerId == request.auth.uid;
+    }
+
+    // Public group discovery is readable by authenticated users. Membership,
+    // messages, and mutations are restricted to the group participants.
+    match /groups/{groupId} {
+      allow read: if signedIn() && (resource.data.isPublic == true || isGroupMember(groupId));
+      allow create: if signedIn()
+        && request.resource.data.ownerId == request.auth.uid
+        && request.resource.data.name is string
+        && request.resource.data.name.size() >= 3
+        && request.resource.data.name.size() <= 80
+        && request.resource.data.description is string
+        && request.resource.data.description.size() <= 1000;
+      allow update: if isGroupOwner(groupId)
+        || (isGroupMember(groupId)
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+            'memberCount', 'updatedAt', 'lastMessageAt', 'lastMessagePreview'
+          ]));
+      allow delete: if isGroupOwner(groupId);
+
+      match /members/{uid} {
+        allow read: if isGroupMember(groupId) || isGroupOwner(groupId);
+        allow create: if signedIn() && (
+          isGroupOwner(groupId) ||
+          (uid == request.auth.uid
+            && request.resource.data.role == 'owner'
+            && getAfter(/databases/$(database)/documents/groups/$(groupId)).data.ownerId == request.auth.uid) ||
+          (uid == request.auth.uid &&
+            getAfter(/databases/$(database)/documents/groups/$(groupId)).data.isPublic == true)
+        );
+        allow update: if isGroupOwner(groupId);
+        allow delete: if signedIn() && (uid == request.auth.uid || isGroupOwner(groupId));
+      }
+
+      match /messages/{messageId} {
+        allow read: if isGroupMember(groupId);
+        allow create: if isGroupMember(groupId)
+          && request.resource.data.senderId == request.auth.uid
+          && request.resource.data.text is string
+          && request.resource.data.text.size() > 0
+          && request.resource.data.text.size() <= 4000;
+        allow update, delete: if isGroupMember(groupId)
+          && resource.data.senderId == request.auth.uid;
+      }
+    }
+
+    match /users/{uid}/groupMemberships/{groupId} {
+      allow read, write: if signedIn() && uid == request.auth.uid;
+    }
+
     // Default Deny-All: Block any access to any other collections
     match /{document=**} {
       allow read, write: if false;

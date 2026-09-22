@@ -74,6 +74,7 @@ syncWatchControls();
 function openModal(id) {
   const el = document.getElementById(id);
   if (el) {
+    el.style.display = 'flex';
     el.classList.add('open');
     if (window.lucide && typeof window.lucide.createIcons === 'function') {
       window.lucide.createIcons();
@@ -82,7 +83,10 @@ function openModal(id) {
 }
 function closeModal(id) {
   const el = document.getElementById(id);
-  if (el) el.classList.remove('open');
+  if (el) {
+    el.classList.remove('open');
+    el.style.display = 'none';
+  }
 }
 document.addEventListener('click', (e) => {
   const closeBtn = e.target.closest('[data-close]');
@@ -160,6 +164,12 @@ function activateTab(rawTabName, persist = false) {
     renderTrackerAll();
   }
 
+  if (tabName === 'groupchat' && typeof initGroupChat === 'function') {
+    initGroupChat();
+  } else if (tabName !== 'groupchat' && typeof destroyGroupChatListeners === 'function') {
+    destroyGroupChatListeners();
+  }
+
   if (tabName === 'quiz') {
     if (typeof renderMCQFilterBar === 'function') renderMCQFilterBar();
     if (typeof renderMCQQuestion === 'function') renderMCQQuestion();
@@ -209,6 +219,7 @@ function initCommandPalette() {
     { id: 'tab-countdown', category: 'Navigation', icon: 'calendar-clock', title: 'Go to Exam Targets', subtitle: 'Exam countdowns & milestones', action: () => activateTab('countdown', true) },
     { id: 'tab-syllabus', category: 'Navigation', icon: 'list-checks', title: 'Go to Syllabus', subtitle: 'BCS syllabus & topic progress', action: () => activateTab('syllabus', true) },
     { id: 'tab-profile', category: 'Navigation', icon: 'user', title: 'Go to User Profile', subtitle: 'Cloud backup, sync & settings', action: () => activateTab('profile', true) },
+    { id: 'tab-groupchat', category: 'Navigation', icon: 'messages-square', title: 'Go to Group Chat', subtitle: 'Join public study groups and chat in real time', action: () => activateTab('groupchat', true) },
     {
       id: 'act-pomodoro', category: 'Actions', icon: 'zap', title: 'Start 25m Pomodoro Focus', subtitle: 'Start 25-min deep focus session',
       action: () => {
@@ -773,4 +784,3 @@ function initMCQQuickFilter() {
     updateCountLabel('all');
   }, 400);
 }
-

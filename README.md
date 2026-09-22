@@ -132,6 +132,10 @@ All of this is delivered in a **zero-dependency, native web stack** that runs in
 
 CareerDesk incorporates a modern, privacy-first Cloud Sync & Storage architecture powered by **Firebase & Firestore**:
 
+### Group Chat
+
+Authenticated users can create public study groups, optionally provide an HTTPS group avatar URL, search and join groups, and exchange real-time messages. Group membership, message history, sender metadata, and group metadata are stored in Firestore. The feature is compatible with Firebase's free Spark plan because it does not use Cloud Storage uploads.
+
 - **Real-Time Debounced Auto-Sync:** All changes to routines, notes, syllabus checklists, and mistake banks automatically sync to your personal Firestore document (`/users/{uid}`) with offline resilience.
 - **Point-in-Time Cloud Snapshots:** Create named versioned snapshots of your complete data package and restore previous milestones directly from the cloud history drawer.
 - **1-Click JSON Cloud Backup:** Export your complete cloud dataset as a single JSON file or restore from a previously downloaded backup.

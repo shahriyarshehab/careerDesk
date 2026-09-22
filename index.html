@@ -51,6 +51,8 @@
         aria-label="Exam Targets"><i data-lucide="calendar-clock"></i><span>Exams</span></button>
       <button class="tab-btn nav-link" data-tab="syllabus" role="tab" aria-selected="false" title="Syllabus"
         aria-label="Syllabus"><i data-lucide="list-checks"></i><span>Syllabus</span></button>
+      <button class="tab-btn nav-link" data-tab="groupchat" role="tab" aria-selected="false" title="Group Chat"
+        aria-label="Group Chat"><i data-lucide="messages-square"></i><span>Chat</span></button>
       <button class="tab-btn nav-link" data-tab="profile" role="tab" aria-selected="false" title="User Profile &amp; Settings"
         aria-label="User Profile"><i data-lucide="user"></i><span>Profile</span></button>
     </nav>
@@ -635,6 +637,40 @@
         </div>
       </div>
       <div id="categoryList"></div>
+    </section>
+
+    <!-- ===== GROUP CHAT ===== -->
+    <section class="panel" id="panel-groupchat">
+      <div class="panel-header-row">
+        <div>
+          <h2 class="section-title" style="margin-bottom:4px;">Group Chat</h2>
+          <p class="panel-subtitle">Join public study groups and learn together.</p>
+        </div>
+        <button class="pill solid" id="groupchatCreateBtn" type="button"><i data-lucide="plus"></i><span>Create Group</span></button>
+      </div>
+      <div id="groupchatAuthRequired" class="groupchat-card" hidden>
+        <div class="groupchat-empty">
+          <h3>Sign in to use Group Chat</h3>
+          <p>Authenticated users can create groups, join public groups, and send messages.</p>
+          <button class="pill solid" id="groupchatLoginBtn" type="button">Sign In</button>
+        </div>
+      </div>
+      <div id="groupchatApp" class="groupchat-shell" hidden>
+        <aside class="groupchat-card groupchat-sidebar">
+          <div class="groupchat-header"><h3 class="groupchat-title">My Groups</h3><span id="groupchatUnreadBadge" class="groupchat-subtle"></span></div>
+          <input id="groupchatSearchInput" class="groupchat-input" type="search" placeholder="Search public groups" autocomplete="off">
+          <div id="groupchatSearchResults" class="groupchat-list"></div>
+          <div id="groupchatMyGroups" class="groupchat-list"></div>
+        </aside>
+        <main class="groupchat-card groupchat-main">
+          <header id="groupchatHeader" class="groupchat-header"></header>
+          <div id="groupchatMessages" class="groupchat-messages"><div class="groupchat-empty">Select a group to view its messages.</div></div>
+          <form id="groupchatComposer" class="groupchat-composer" hidden>
+            <textarea id="groupchatMessageInput" class="groupchat-textarea" maxlength="4000" placeholder="Write a message..." required></textarea>
+            <button class="pill solid" type="submit">Send</button>
+          </form>
+        </main>
+      </div>
     </section>
 
     <!-- ===== USER PROFILE & SETTINGS ===== -->
@@ -1362,6 +1398,22 @@
   <script src="assets/js/master.js"></script>
 
   
+  <div class="modal-overlay" id="groupchatCreateModal" style="display:none;" role="dialog" aria-modal="true" aria-labelledby="groupchatCreateHeading">
+    <div class="glass modal-card groupchat-create-modal">
+      <div class="groupchat-header"><h3 id="groupchatCreateHeading" class="groupchat-title">Create a public group</h3><button type="button" class="micro-btn" data-close="groupchatCreateModal" aria-label="Close"><i data-lucide="x"></i></button></div>
+      <form id="groupchatCreateForm" novalidate>
+        <label class="groupchat-label" for="groupchatNameInput">Group name</label>
+        <input id="groupchatNameInput" class="groupchat-input" maxlength="80" required>
+        <label class="groupchat-label" for="groupchatDescriptionInput">Description</label>
+        <textarea id="groupchatDescriptionInput" class="groupchat-textarea" maxlength="1000" required></textarea>
+        <label class="groupchat-label" for="groupchatAvatarInput">Optional avatar URL</label>
+        <input id="groupchatAvatarInput" class="groupchat-input" type="url" placeholder="https://example.com/group-avatar.png">
+        <p id="groupchatCreateStatus" class="groupchat-form-status" role="status" aria-live="polite"></p>
+        <div class="groupchat-modal-actions"><button type="button" class="pill" data-close="groupchatCreateModal">Cancel</button><button id="groupchatSubmitBtn" class="pill solid" type="submit">Create Group</button></div>
+      </form>
+    </div>
+  </div>
+
 </body>
 
 </html>

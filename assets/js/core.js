@@ -183,6 +183,8 @@ function getDefaultState() {
     permanentlyDeletedSubjects: [],
     customSubjects: [],
     deletedQuotes: [],
+    groups: [],
+    unreadChats: {},
     userTrack: { ...DEFAULT_USER_TRACK },
     syncMeta: {}
   };
