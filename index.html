@@ -1414,6 +1414,22 @@
     </div>
   </div>
 
+  <div class="modal-overlay" id="groupchatSettingsModal" style="display:none;" role="dialog" aria-modal="true" aria-labelledby="groupchatSettingsHeading">
+    <div class="glass modal-card groupchat-create-modal">
+      <div class="groupchat-header"><h3 id="groupchatSettingsHeading" class="groupchat-title">Group settings</h3><button type="button" class="micro-btn" data-close="groupchatSettingsModal" aria-label="Close"><i data-lucide="x"></i></button></div>
+      <form id="groupchatSettingsForm" novalidate>
+        <label class="groupchat-label" for="groupchatSettingsName">Group name</label>
+        <input id="groupchatSettingsName" class="groupchat-input" maxlength="80" required>
+        <label class="groupchat-label" for="groupchatSettingsDescription">Description</label>
+        <textarea id="groupchatSettingsDescription" class="groupchat-textarea" maxlength="1000" required></textarea>
+        <label class="groupchat-label" for="groupchatSettingsAvatar">Avatar URL</label>
+        <input id="groupchatSettingsAvatar" class="groupchat-input" type="url" placeholder="https://example.com/group-avatar.png">
+        <p id="groupchatSettingsStatus" class="groupchat-form-status" role="status" aria-live="polite"></p>
+        <div class="groupchat-modal-actions"><button type="button" class="pill" data-close="groupchatSettingsModal">Cancel</button><button id="groupchatSettingsSubmit" class="pill solid" type="submit">Save Settings</button></div>
+      </form>
+    </div>
+  </div>
+
 </body>
 
 </html>

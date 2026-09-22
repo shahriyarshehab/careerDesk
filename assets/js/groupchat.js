@@ -172,6 +172,49 @@ function closeGroupChatCreateModal() {
     modal.classList.remove('open');
     modal.style.display = 'none';
   }
+
+  function openGroupChatSettingsModal() {
+    const group = groupChatState.activeGroup;
+    if (!group || group.role !== 'owner') return;
+    document.getElementById('groupchatSettingsName').value = group.groupName || group.name || '';
+    document.getElementById('groupchatSettingsDescription').value = group.description || '';
+    document.getElementById('groupchatSettingsAvatar').value = group.groupAvatarUrl || group.avatarUrl || '';
+    document.getElementById('groupchatSettingsStatus').textContent = '';
+    openModal('groupchatSettingsModal');
+  }
+
+  async function updateGroupSettings() {
+    const user = await groupChatAuthUser();
+    const group = groupChatState.activeGroup;
+    if (!group || group.role !== 'owner' || group.id !== groupChatState.activeGroupId) throw new Error('Only the group owner can change these settings.');
+    const name = document.getElementById('groupchatSettingsName').value.trim();
+    const description = document.getElementById('groupchatSettingsDescription').value.trim();
+    const avatarUrl = document.getElementById('groupchatSettingsAvatar').value.trim();
+    if (name.length < 3 || name.length > 80) throw new Error('Group name must be between 3 and 80 characters.');
+    if (!description || description.length > 1000) throw new Error('Enter a description under 1000 characters.');
+    if (avatarUrl) {
+      const parsed = new URL(avatarUrl);
+      if (!['http:', 'https:'].includes(parsed.protocol)) throw new Error('Avatar URL must use HTTPS.');
+    }
+    const db = groupChatDb();
+    const batch = db.batch();
+    batch.update(db.collection('groups').doc(group.id), {
+      name, normalizedName: groupChatNormalize(name), description,
+      avatarUrl: avatarUrl || GROUP_CHAT_DEFAULT_AVATAR,
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    batch.update(db.collection('users').doc(user.uid).collection('groupMemberships').doc(group.id), {
+      groupName: name, groupAvatarUrl: avatarUrl || GROUP_CHAT_DEFAULT_AVATAR
+    });
+    await batch.commit();
+    group.groupName = name;
+    group.name = name;
+    group.description = description;
+    group.groupAvatarUrl = avatarUrl || GROUP_CHAT_DEFAULT_AVATAR;
+    group.avatarUrl = group.groupAvatarUrl;
+    renderMyGroups();
+    renderGroupChatHeader();
+  }
 }
 
 function groupChatInitials(name) {
@@ -368,7 +411,9 @@ function renderGroupChatHeader() {
   const group = groupChatState.activeGroup;
   if (!group) { header.innerHTML = '<span class="groupchat-subtle">Choose a group to start chatting.</span>'; return; }
   header.innerHTML = `<div class="groupchat-header-identity">${groupChatGroupAvatar(group.groupAvatarUrl || group.avatarUrl, group.groupName || group.name)}<div><h3 class="groupchat-title">${escapeHtml(group.groupName || group.name)}</h3><span class="groupchat-subtle">${escapeHtml(group.description || '')}</span></div></div>
-    <button class="pill subtle" id="groupchatLeaveBtn" type="button">${group.role === 'owner' ? 'Owner' : 'Leave'}</button>`;
+    <div class="groupchat-header-actions">${group.role === 'owner' ? '<button class="pill subtle" id="groupchatSettingsBtn" type="button"><i data-lucide="settings"></i><span>Settings</span></button>' : '<button class="pill subtle" id="groupchatLeaveBtn" type="button">Leave</button>'}</div>`;
+  const settings = document.getElementById('groupchatSettingsBtn');
+  if (settings) settings.addEventListener('click', openGroupChatSettingsModal);
   const leave = document.getElementById('groupchatLeaveBtn');
   if (leave && group.role !== 'owner') leave.addEventListener('click', async () => { try { await leaveGroup(group.id); } catch (error) { groupChatError(error, 'Unable to leave group.'); } });
 }
@@ -471,6 +516,27 @@ function initGroupChat() {
       groupChatError(error, 'Unable to create group.');
     } finally {
       if (submitButton) { submitButton.disabled = false; submitButton.textContent = 'Create Group'; }
+    }
+  });
+  const settingsForm = document.getElementById('groupchatSettingsForm');
+  if (settingsForm) settingsForm.addEventListener('submit', async event => {
+    event.preventDefault();
+    const status = document.getElementById('groupchatSettingsStatus');
+    const button = document.getElementById('groupchatSettingsSubmit');
+    try {
+      button.disabled = true;
+      button.textContent = 'Saving...';
+      status.textContent = 'Saving settings...';
+      await updateGroupSettings();
+      closeModal('groupchatSettingsModal');
+      if (typeof showToast === 'function') showToast('Group settings updated.');
+    } catch (error) {
+      status.textContent = error.message || 'Unable to update group settings.';
+      status.className = 'groupchat-form-status error';
+      groupChatError(error, 'Unable to update group settings.');
+    } finally {
+      button.disabled = false;
+      button.textContent = 'Save Settings';
     }
   });
   if (composer) composer.addEventListener('submit', async event => {
