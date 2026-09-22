@@ -3475,6 +3475,58 @@ html[data-theme="light"] .inline-auth-container {
 }
 
 /* ---- Inline Verification View (reuse existing .verification-view styles) ---- */
+.auth-recaptcha-wrapper { display: none !important; }
+.auth-modal-card {
+  width: min(900px, 94vw);
+  max-width: 900px !important;
+  display: grid;
+  grid-template-columns: minmax(250px, .86fr) minmax(360px, 1.14fr);
+  padding: 0 !important;
+  overflow: hidden;
+  background: radial-gradient(circle at 18% 12%, rgba(99,102,241,.24), transparent 34%), var(--surface-strong);
+}
+.auth-visual-panel {
+  position: relative;
+  min-height: 560px;
+  padding: 42px 34px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  background: linear-gradient(155deg, rgba(99,102,241,.7), rgba(6,182,212,.18) 54%, rgba(11,15,25,.1)), var(--surface-strong);
+}
+.auth-visual-panel::before, .auth-visual-panel::after {
+  content: "";
+  position: absolute;
+  border: 1px solid rgba(255,255,255,.16);
+  border-radius: 50%;
+  pointer-events: none;
+}
+.auth-visual-panel::before { width: 310px; height: 310px; top: -110px; right: -120px; }
+.auth-visual-panel::after { width: 220px; height: 220px; top: -64px; right: -76px; }
+.auth-visual-kicker { position: absolute; top: 28px; left: 34px; color: rgba(255,255,255,.7); font-size: 10px; font-weight: 800; letter-spacing: .16em; }
+.auth-visual-orbit { position: absolute; top: 112px; left: 34px; width: 58px; height: 58px; display: grid; place-items: center; border: 1px solid rgba(255,255,255,.35); border-radius: 18px; color: #fff; background: rgba(255,255,255,.12); box-shadow: 0 14px 40px rgba(6,182,212,.2); }
+.auth-visual-panel h3 { position: relative; margin: 0 0 14px; color: #fff; font-size: clamp(28px, 4vw, 42px); line-height: 1.04; letter-spacing: -.05em; }
+.auth-visual-panel h3 em { color: #8be9ff; font-style: normal; }
+.auth-visual-panel p { position: relative; max-width: 290px; margin: 0 0 24px; color: rgba(255,255,255,.72); font-size: 13px; line-height: 1.7; }
+.auth-visual-points { position: relative; display: grid; gap: 10px; color: rgba(255,255,255,.86); font-size: 11.5px; font-weight: 600; }
+.auth-visual-points span { display: flex; align-items: center; gap: 8px; }
+.auth-visual-points svg { width: 14px; color: #8be9ff; }
+.auth-form-panel { position: relative; padding: 38px 42px 34px; }
+.auth-form-panel .auth-modal-close-btn { top: 18px; right: 18px; }
+.auth-form-panel .auth-header { padding-right: 30px; text-align: left; }
+.auth-form-panel .auth-mode-wrapper { margin: 22px 0 20px; }
+.auth-form-panel .social-auth-grid { margin-top: 18px; }
+@media (max-width: 700px) {
+  .auth-modal-card { display: block; width: min(480px, 94vw); }
+  .auth-visual-panel { min-height: 190px; padding: 24px 24px 22px; }
+  .auth-visual-kicker { top: 20px; left: 24px; }
+  .auth-visual-orbit { display: none; }
+  .auth-visual-panel h3 { font-size: 28px; }
+  .auth-visual-panel p { display: none; }
+  .auth-visual-points { grid-template-columns: 1fr 1fr; gap: 7px; font-size: 10px; }
+  .auth-form-panel { padding: 28px 22px 24px; }
+}
 .inline-auth-container .verification-view {
   position: absolute;
   top: 0;
@@ -5179,6 +5231,5 @@ html[data-theme="light"] .subject-manager-modal-card {
 html[data-theme="light"] .subject-manager-list::-webkit-scrollbar-thumb {
   background: rgba(0, 0, 0, 0.15);
 }
-
 
 

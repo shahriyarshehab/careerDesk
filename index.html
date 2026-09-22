@@ -1194,6 +1194,17 @@
   <!-- ===== Authentication Popup Modal (Login & Sign Up) ===== -->
   <div class="modal-overlay" id="authModal" style="display:none;" role="dialog" aria-modal="true" aria-labelledby="authHeading">
     <div class="auth-card auth-modal-card">
+      <div class="auth-visual-panel">
+        <span class="auth-visual-kicker">CAREERDESK / YOUR NEXT MOVE</span>
+        <div class="auth-visual-orbit"><i data-lucide="sparkles"></i></div>
+        <h3>Turn preparation<br><em>into progress.</em></h3>
+        <p>One calm workspace for your routines, notes, quizzes, goals, and study community.</p>
+        <div class="auth-visual-points">
+          <span><i data-lucide="check"></i> Private by default</span>
+          <span><i data-lucide="check"></i> Built for focused learners</span>
+        </div>
+      </div>
+      <div class="auth-form-panel">
       <!-- Close Button -->
       <button type="button" class="auth-modal-close-btn" id="closeAuthModalBtn" title="Close (Esc)" aria-label="Close authentication modal">
         <i data-lucide="x" style="width:18px; height:18px;"></i>
@@ -1302,20 +1313,9 @@
               </button>
             </div>
 
-            <!-- Optional Firebase reCAPTCHA container & fallback -->
-            <div class="auth-recaptcha-wrapper" style="margin-top:14px;">
-              <div id="authRecaptchaContainer" style="min-height:0; display:flex; justify-content:center;"></div>
-              <div id="authRecaptchaFallback" style="display:none; align-items:center; justify-content:space-between; padding:8px 12px; border-radius:10px; border:1px solid var(--border); background:var(--surface-strong); user-select:none;">
-                <label style="display:flex; align-items:center; gap:8px; cursor:pointer; margin:0;">
-                  <input type="checkbox" id="authRecaptchaCheckbox" style="width:16px; height:16px; accent-color:var(--accent1); cursor:pointer;">
-                  <span id="authRecaptchaLabel" style="font-size:12.5px; font-weight:600; color:var(--text);">I am not a robot</span>
-                </label>
-                <span style="font-size:9.5px; color:var(--text-muted); font-weight:700;">Security check</span>
-              </div>
-            </div>
-
           </form>
         </div>
+      </div>
       </div>
 
       <!-- Screen 2: Sign-Up Verification Screen -->

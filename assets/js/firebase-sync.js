@@ -3615,14 +3615,8 @@ function openAuthModal(mode = 'login') {
   if (passInput) passInput.value = '';
   if (nameInput) nameInput.value = '';
 
-  // Reset reCAPTCHA
-  resetFirebaseRecaptcha();
-
   modal.style.display = 'flex';
   modal.classList.add('open');
-
-  // Initialize and render Firebase RecaptchaVerifier
-  setupFirebaseRecaptcha('modal');
 
   if (window.lucide && typeof window.lucide.createIcons === 'function') {
     window.lucide.createIcons();
@@ -3635,7 +3629,6 @@ function closeAuthModal() {
   modal.classList.remove('open');
   modal.style.display = 'none';
   hideEmailVerificationScreen();
-  resetFirebaseRecaptcha();
 }
 
 // Alias for backwards compatibility
@@ -3920,30 +3913,7 @@ function initAuthModalEvents() {
  */
 async function handleAuthModalSubmit() {
   const isSignUp = (currentAuthModalMode === 'signup');
-
-  // 1. Enforce Firebase reCAPTCHA
-  if (!isFirebaseRecaptchaVerified()) {
-    setAuthModalMessage('error', 'Please complete the security check verification to continue.');
-    const fallback = document.getElementById('authRecaptchaFallback');
-    const container = document.getElementById('authRecaptchaContainer');
-    const targetEl = (container && container.style.display !== 'none' && container.children.length > 0) ? container : fallback;
-    if (targetEl) {
-      if (fallback) {
-        fallback.style.display = 'flex';
-        fallback.style.borderColor = '#f43f5e';
-        fallback.style.boxShadow = '0 0 12px rgba(244, 63, 94, 0.3)';
-      }
-      targetEl.animate([
-        { transform: 'translateX(0)' },
-        { transform: 'translateX(-6px)' },
-        { transform: 'translateX(6px)' },
-        { transform: 'translateX(0)' }
-      ], { duration: 300 });
-    }
-    return;
-  }
-
-  // 2. Validate Email / Identifier
+  // Validate Email / Identifier
   const emailInput = document.getElementById('authModalEmailInput');
   const emailOrUser = (emailInput?.value || '').trim();
   if (!emailOrUser) {
@@ -4106,11 +4076,7 @@ function shouldRequireInlineAuthSecurityCheck() {
 }
 
 function isInlineRecaptchaVerified(isSignUp) {
-  if (!shouldRequireInlineAuthSecurityCheck()) {
-    return true;
-  }
-  const check = document.getElementById(isSignUp ? 'inlineSignupRecaptchaCheckbox' : 'inlineRecaptchaCheckbox');
-  return !!(check && check.checked);
+  return true;
 }
 
 function shakeInlineRecaptcha(isSignUp) {
