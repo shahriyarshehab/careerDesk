@@ -154,6 +154,26 @@ const BILINGUAL_QUOTES = [
     en: "There is no substitute for hard work.",
     bn: "কঠোর পরিশ্রমের কোনো বিকল্প নেই।",
     author: "Thomas Edison"
+  },
+  {
+    en: "Your pace is allowed to be slow. Your direction must stay clear.",
+    bn: "আপনার গতি ধীর হতে পারে, কিন্তু আপনার দিকনির্দেশনা স্পষ্ট থাকা চাই।",
+    author: "CareerDesk"
+  },
+  {
+    en: "One focused hour can change the shape of an entire day.",
+    bn: "একটি মনোযোগী ঘণ্টা পুরো দিনের গতিপথ বদলে দিতে পারে।",
+    author: "CareerDesk"
+  },
+  {
+    en: "Make progress visible, then make it repeatable.",
+    bn: "অগ্রগতিকে দৃশ্যমান করুন, তারপর সেটিকে অভ্যাসে পরিণত করুন।",
+    author: "CareerDesk"
+  },
+  {
+    en: "You do not need a perfect plan. You need the next honest step.",
+    bn: "আপনার নিখুঁত পরিকল্পনা দরকার নেই; দরকার পরবর্তী সৎ পদক্ষেপটি।",
+    author: "CareerDesk"
   }
 ];
 
@@ -550,7 +570,7 @@ function stopQuoteTypewriter() {
   }
 }
 
-function stepQuoteTypewriter() {
+function renderQuoteFrame() {
   stopQuoteTypewriter();
 
   if (quoteIsPaused) return;
@@ -571,8 +591,6 @@ function stepQuoteTypewriter() {
   // Determine current text
   const rawText = (quoteActiveLang === 'en' ? currentQuote.en : currentQuote.bn) || currentQuote.en || '';
   const cleanText = typeof cleanQuoteText === 'function' ? cleanQuoteText(rawText) : rawText.trim();
-  const graphemes = getGraphemeArray(cleanText);
-
   // Update language badge & author
   if (langTextEl) langTextEl.textContent = quoteActiveLang === 'en' ? 'EN' : 'BN';
   if (langBadgeEl) {
@@ -584,38 +602,26 @@ function stepQuoteTypewriter() {
     authorEl.textContent = `— ${authorName}`;
   }
 
-  // Typing phase
-  if (quotePhase === 'typing') {
-    if (progressFill) {
-      progressFill.style.transition = 'none';
-      progressFill.style.width = '0%';
-      progressFill.style.opacity = '1';
-    }
-
-    if (cursorEl) {
-      cursorEl.classList.remove('blinking', 'quote-cursor-hidden');
-      cursorEl.classList.add('typing');
-    }
-
-    quoteCharIndex++;
-    textEl.textContent = graphemes.slice(0, quoteCharIndex).join('');
-
-    if (quoteCharIndex < graphemes.length) {
-      const currentChar = graphemes[quoteCharIndex - 1];
-      const nextChar = graphemes[quoteCharIndex];
-      const delay = getRealisticTypingDelay(currentChar, nextChar);
-      quoteTypewriterTimeout = setTimeout(stepQuoteTypewriter, delay);
-    } else {
-      // Finished typing -> switch to holding
-      quotePhase = 'holding';
-      if (cursorEl) {
-        cursorEl.classList.remove('typing');
-        cursorEl.classList.add('blinking');
-      }
-      quoteHoldRemaining = quoteHoldDuration;
-      startQuoteHoldTimer();
-    }
+  textEl.textContent = cleanText;
+  textEl.classList.remove('quote-text-fade-out');
+  textEl.classList.remove('quote-text-reveal');
+  void textEl.offsetWidth;
+  textEl.classList.add('quote-text-reveal');
+  quotePhase = 'holding';
+  quoteCharIndex = 0;
+  if (cursorEl) cursorEl.classList.add('quote-cursor-hidden');
+  if (progressFill) {
+    progressFill.style.transition = 'none';
+    progressFill.style.width = '0%';
+    progressFill.style.opacity = '1';
   }
+  quoteHoldRemaining = quoteHoldDuration;
+  startQuoteHoldTimer();
+}
+
+// Kept as a compatibility alias for existing pause/resume callers.
+function stepQuoteTypewriter() {
+  renderQuoteFrame();
 }
 
 function startQuoteHoldTimer() {
@@ -686,7 +692,7 @@ function smoothTransitionNext(forceNextQuote = false) {
     }
 
     quoteCharIndex = 0;
-    quotePhase = 'typing';
+    quotePhase = 'holding';
 
     if (textEl) {
       textEl.textContent = '';
@@ -695,10 +701,7 @@ function smoothTransitionNext(forceNextQuote = false) {
     if (authorEl) {
       authorEl.classList.remove('quote-text-fade-out');
     }
-    if (cursorEl) {
-      cursorEl.classList.remove('quote-cursor-hidden', 'blinking');
-      cursorEl.classList.add('typing');
-    }
+    if (cursorEl) cursorEl.classList.add('quote-cursor-hidden');
 
     if (progressFill) {
       progressFill.style.transition = 'none';
@@ -706,8 +709,7 @@ function smoothTransitionNext(forceNextQuote = false) {
       progressFill.style.opacity = '1';
     }
 
-    // Brief, pleasant human pause before beginning typing
-    quoteTypewriterTimeout = setTimeout(stepQuoteTypewriter, 340);
+    quoteTypewriterTimeout = setTimeout(renderQuoteFrame, 340);
   }, 320);
 }
 
@@ -756,7 +758,7 @@ function toggleQuoteLanguageManual() {
   setTimeout(() => {
     quoteActiveLang = quoteActiveLang === 'en' ? 'bn' : 'en';
     quoteCharIndex = 0;
-    quotePhase = 'typing';
+    quotePhase = 'holding';
 
     if (textEl) {
       textEl.textContent = '';
@@ -765,9 +767,7 @@ function toggleQuoteLanguageManual() {
     if (authorEl) {
       authorEl.classList.remove('quote-text-fade-out');
     }
-    if (cursorEl) {
-      cursorEl.classList.remove('quote-cursor-hidden');
-    }
+    if (cursorEl) cursorEl.classList.add('quote-cursor-hidden');
 
     const progressFill = document.getElementById('profileQuoteProgressFill');
     if (progressFill) {
@@ -775,7 +775,7 @@ function toggleQuoteLanguageManual() {
       progressFill.style.width = '0%';
     }
 
-    quoteTypewriterTimeout = setTimeout(stepQuoteTypewriter, 260);
+    quoteTypewriterTimeout = setTimeout(renderQuoteFrame, 260);
   }, 300);
 }
 
@@ -834,15 +834,13 @@ function initProfileQuoteTypewriter() {
 
   // Start typing from beginning if fresh
   quoteCharIndex = 0;
-  quotePhase = 'typing';
+  quotePhase = 'holding';
   textEl.textContent = '';
-  stepQuoteTypewriter();
+  renderQuoteFrame();
 }
 
 window.initProfileQuoteTypewriter = initProfileQuoteTypewriter;
 window.skipToNextQuoteTypewriter = skipToNextQuoteTypewriter;
 window.toggleQuoteTypewriterPause = toggleQuoteTypewriterPause;
-
-
 
 
