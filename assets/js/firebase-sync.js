@@ -2133,6 +2133,48 @@ function renderUserProfileUI() {
     return;
   }
 
+  // Keep the Profile tab useful for signed-out visitors and route authentication
+  // through the redesigned shared auth modal.
+  if (!user) {
+    container.innerHTML = `
+      <div class="profile-login-landing">
+        <div class="profile-login-glow"></div>
+        <div class="profile-login-copy">
+          <span class="profile-login-kicker"><i data-lucide="lock-keyhole"></i> PERSONAL WORKSPACE</span>
+          <h2>Your progress deserves<br><em>a home.</em></h2>
+          <p>Sign in to manage your profile, sync study data across devices, and keep your CareerDesk workspace ready wherever you learn.</p>
+          <div class="profile-login-benefits">
+            <span><i data-lucide="cloud"></i> Secure cloud sync</span>
+            <span><i data-lucide="bar-chart-3"></i> Personal progress insights</span>
+            <span><i data-lucide="users"></i> Study community access</span>
+          </div>
+          <div class="profile-login-actions">
+            <button type="button" class="pill solid" id="btnOpenAuthModalLogin">
+              <i data-lucide="log-in"></i><span>Sign in to Profile</span>
+            </button>
+            <button type="button" class="pill subtle" id="btnOpenAuthModalSignup">
+              <i data-lucide="user-plus"></i><span>Create free account</span>
+            </button>
+          </div>
+          <small>Your local study data remains available on this device.</small>
+        </div>
+        <div class="profile-login-preview" aria-hidden="true">
+          <div class="profile-preview-orbit"><i data-lucide="sparkles"></i></div>
+          <div class="profile-preview-card preview-card-top"><i data-lucide="target"></i><span><b>Stay on track</b><small>Build your next milestone</small></span></div>
+          <div class="profile-preview-card preview-card-bottom"><i data-lucide="trending-up"></i><span><b>Progress, visualized</b><small>Every focused minute counts</small></span></div>
+        </div>
+      </div>
+    `;
+    if (window.lucide && typeof window.lucide.createIcons === 'function') {
+      window.lucide.createIcons();
+    }
+    const btnLogin = document.getElementById('btnOpenAuthModalLogin');
+    const btnSignup = document.getElementById('btnOpenAuthModalSignup');
+    if (btnLogin) btnLogin.addEventListener('click', () => openAuthModal('login'));
+    if (btnSignup) btnSignup.addEventListener('click', () => openAuthModal('signup'));
+    return;
+  }
+
   // =========================================================================
   // 2. VIEW MODE (Signed-In or Guest)
   // =========================================================================
