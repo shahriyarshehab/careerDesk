@@ -439,6 +439,89 @@ html[data-theme="light"] #homeQuoteCommand .quote-command-v2-stage {
   to { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
 }
 
+/* Quiet reading mode: no promotional heading, comfortable type scale. */
+#homeQuoteCommand.quote-command-v2 {
+  padding: 12px 14px;
+  border-radius: 18px;
+  background: color-mix(in srgb, var(--surface-strong) 88%, transparent);
+  box-shadow: 0 14px 34px rgba(2,6,23,.1), inset 0 1px 0 color-mix(in srgb, var(--text) 8%, transparent);
+}
+
+#homeQuoteCommand .quote-command-v2-stage {
+  min-height: 92px;
+  padding: 15px 16px 18px;
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--surface) 78%, transparent);
+}
+
+#homeQuoteCommand .quote-command-v2-copy .profile-quote-phrase {
+  max-width: 700px;
+  font-size: clamp(14px, 1.45vw, 18px);
+  font-weight: 550;
+  line-height: 1.5;
+  letter-spacing: -.01em;
+}
+
+#homeQuoteCommand .quote-command-v2-copy .profile-quote-author-pill {
+  font-size: 9.5px;
+  padding: 3px 8px;
+}
+
+#homeQuoteCommand .quote-command-v2-mark {
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+}
+
+#homeQuoteCommand .quote-command-v2-controls {
+  margin-left: 12px;
+  gap: 5px;
+}
+
+#homeQuoteCommand .quote-command-v2-language,
+#homeQuoteCommand .quote-command-v2-controls .profile-quote-ctrl-btn {
+  height: 28px;
+  min-height: 28px;
+  font-size: 9px;
+}
+
+#homeQuoteCommand .quote-command-v2-progress {
+  right: 16px;
+  bottom: 7px;
+  left: 16px;
+}
+
+/* Navigation stays calm on hover; active state remains unchanged. */
+.tab-btn:hover:not(.active),
+.nav-link:hover:not(.active),
+.tab-btn:hover:not(.active):focus-visible {
+  color: inherit !important;
+  background: transparent !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+  transform: none !important;
+  filter: none !important;
+}
+
+.tab-btn:hover:not(.active) i[data-lucide],
+.tab-btn:hover:not(.active) svg,
+.tab-btn:hover:not(.active) .lucide,
+.tab-btn[data-tab]:hover:not(.active) i[data-lucide],
+.tab-btn[data-tab]:hover:not(.active) svg,
+.tab-btn[data-tab]:hover:not(.active) .lucide {
+  color: inherit !important;
+  stroke: currentColor !important;
+  filter: none !important;
+  transform: none !important;
+  opacity: .78 !important;
+}
+
+@media (max-width: 680px) {
+  #homeQuoteCommand.quote-command-v2 { padding: 9px; }
+  #homeQuoteCommand .quote-command-v2-stage { min-height: 135px; padding: 13px 12px 22px; }
+  #homeQuoteCommand .quote-command-v2-copy .profile-quote-phrase { font-size: 14px; }
+}
+
 html[data-theme="light"] .user-profile-card {
   background: #ffffff;
   border-color: rgba(226,232,240,0.9);
