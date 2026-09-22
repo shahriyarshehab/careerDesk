@@ -119,6 +119,273 @@
   .preview-card-bottom { left: 4%; }
 }
 
+/* ==========================================================================
+   QUOTE COMMAND V2 — isolated component styles
+   ========================================================================== */
+#homeQuoteCommand.quote-command-v2 {
+  position: relative;
+  display: block;
+  width: 100%;
+  margin: 0 0 20px;
+  padding: 20px;
+  overflow: hidden;
+  border: 1px solid rgba(129,140,248,.28);
+  border-radius: 24px;
+  background:
+    radial-gradient(circle at 92% 6%, rgba(34,211,238,.16), transparent 24%),
+    radial-gradient(circle at 8% 100%, rgba(99,102,241,.18), transparent 28%),
+    linear-gradient(135deg, rgba(15,23,42,.96), rgba(15,23,42,.82));
+  box-shadow: 0 22px 54px rgba(2,6,23,.18), inset 0 1px 0 rgba(255,255,255,.1);
+  isolation: isolate;
+}
+
+#homeQuoteCommand.quote-command-v2::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  width: 360px;
+  height: 360px;
+  right: -180px;
+  top: -210px;
+  border: 1px solid rgba(103,232,249,.22);
+  border-radius: 50%;
+  box-shadow: 0 0 0 22px rgba(103,232,249,.035), 0 0 0 44px rgba(103,232,249,.02);
+  animation: quoteCommandOrbit 16s linear infinite;
+}
+
+#homeQuoteCommand.quote-command-v2::after {
+  content: "";
+  position: absolute;
+  inset: auto 8% 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(103,232,249,.5), transparent);
+  opacity: .45;
+}
+
+#homeQuoteCommand .quote-command-v2-head {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  margin: 0 0 16px;
+}
+
+#homeQuoteCommand .quote-command-v2-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+#homeQuoteCommand .quote-command-v2-icon {
+  width: 42px;
+  height: 42px;
+  border: 1px solid rgba(255,255,255,.2);
+  border-radius: 14px;
+  background: linear-gradient(135deg, #6366f1, #06b6d4);
+  box-shadow: 0 10px 26px rgba(6,182,212,.25);
+}
+
+#homeQuoteCommand .home-quote-command-kicker {
+  color: #67e8f9;
+  font-size: 9px;
+  letter-spacing: .16em;
+}
+
+#homeQuoteCommand .home-quote-command-title h3 {
+  color: #f8fafc;
+  font-size: 18px;
+}
+
+#homeQuoteCommand .home-quote-command-hint {
+  max-width: 220px;
+  color: rgba(226,232,240,.62);
+  font-size: 10.5px;
+  line-height: 1.45;
+  text-align: right;
+}
+
+#homeQuoteCommand .quote-command-v2-stage {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-height: 126px;
+  padding: 20px 20px 22px;
+  overflow: hidden;
+  border: 1px solid rgba(148,163,184,.18);
+  border-radius: 18px;
+  background: rgba(2,6,23,.26);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.05);
+}
+
+#homeQuoteCommand .quote-command-v2-stage::before {
+  content: "“";
+  position: absolute;
+  right: 7%;
+  top: -34px;
+  color: rgba(103,232,249,.08);
+  font-family: Georgia, serif;
+  font-size: 170px;
+  line-height: 1;
+  pointer-events: none;
+}
+
+#homeQuoteCommand .quote-command-v2-stage .profile-quote-ticker-content {
+  display: flex;
+  align-items: flex-start;
+  gap: 15px;
+  min-width: 0;
+  flex: 1;
+}
+
+#homeQuoteCommand .quote-command-v2-mark {
+  flex: 0 0 auto;
+  width: 38px;
+  height: 38px;
+  border: 1px solid rgba(103,232,249,.28);
+  border-radius: 12px;
+  color: #a5f3fc;
+  background: rgba(6,182,212,.12);
+  box-shadow: 0 0 25px rgba(6,182,212,.12);
+}
+
+#homeQuoteCommand .quote-command-v2-copy {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-width: 0;
+  gap: 9px;
+}
+
+#homeQuoteCommand .quote-command-v2-copy .profile-quote-phrase {
+  display: block;
+  max-width: 760px;
+  color: #f8fafc;
+  font-family: var(--font-display);
+  font-size: clamp(17px, 2vw, 25px);
+  font-weight: 600;
+  line-height: 1.35;
+  letter-spacing: -.025em;
+}
+
+#homeQuoteCommand .quote-command-v2-copy .profile-quote-typed-text {
+  color: inherit;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+#homeQuoteCommand .quote-command-v2-copy .profile-quote-author-pill {
+  margin: 0;
+  padding: 4px 9px;
+  color: rgba(165,243,252,.78);
+  border: 1px solid rgba(103,232,249,.16);
+  border-radius: 7px;
+  background: rgba(6,182,212,.07);
+  font-size: 10px;
+}
+
+#homeQuoteCommand .quote-command-v2-controls {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 7px;
+  margin-left: 16px;
+}
+
+#homeQuoteCommand .quote-command-v2-language {
+  display: inline-flex;
+  width: auto;
+  height: 30px;
+  padding: 0 9px;
+  gap: 6px;
+  border: 1px solid rgba(103,232,249,.22);
+  border-radius: 9px;
+  color: #a5f3fc;
+  background: rgba(6,182,212,.1);
+  font-size: 10px;
+  font-weight: 800;
+}
+
+#homeQuoteCommand .quote-command-v2-language:hover {
+  border-color: rgba(103,232,249,.55);
+  background: rgba(6,182,212,.18);
+}
+
+#homeQuoteCommand .quote-command-v2-controls .profile-quote-ctrl-btn {
+  width: 30px;
+  height: 30px;
+  border: 1px solid rgba(148,163,184,.22);
+  border-radius: 9px;
+  color: rgba(226,232,240,.78);
+  background: rgba(255,255,255,.06);
+}
+
+#homeQuoteCommand .quote-command-v2-controls .profile-quote-ctrl-btn:hover {
+  color: #fff;
+  border-color: rgba(103,232,249,.45);
+  background: rgba(6,182,212,.15);
+  transform: translateY(-2px);
+}
+
+#homeQuoteCommand .quote-command-v2-progress {
+  position: absolute;
+  right: 20px;
+  bottom: 9px;
+  left: 20px;
+  height: 2px;
+  overflow: hidden;
+  border-radius: 2px;
+  background: rgba(148,163,184,.16);
+}
+
+#homeQuoteCommand .quote-command-v2-progress .profile-quote-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #818cf8, #67e8f9);
+  box-shadow: 0 0 10px rgba(103,232,249,.8);
+}
+
+html[data-theme="light"] #homeQuoteCommand.quote-command-v2 {
+  background:
+    radial-gradient(circle at 92% 6%, rgba(34,211,238,.14), transparent 24%),
+    linear-gradient(135deg, #eef2ff, #f8fafc 70%);
+  border-color: rgba(99,102,241,.2);
+  box-shadow: 0 18px 44px rgba(30,41,59,.1), inset 0 1px 0 #fff;
+}
+
+html[data-theme="light"] #homeQuoteCommand .home-quote-command-title h3,
+html[data-theme="light"] #homeQuoteCommand .quote-command-v2-copy .profile-quote-phrase {
+  color: #172554;
+}
+
+html[data-theme="light"] #homeQuoteCommand .home-quote-command-hint {
+  color: #64748b;
+}
+
+html[data-theme="light"] #homeQuoteCommand .quote-command-v2-stage {
+  border-color: rgba(99,102,241,.15);
+  background: rgba(255,255,255,.58);
+}
+
+@keyframes quoteCommandOrbit {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@media (max-width: 680px) {
+  #homeQuoteCommand.quote-command-v2 { padding: 15px; border-radius: 20px; }
+  #homeQuoteCommand .quote-command-v2-head { align-items: flex-start; flex-direction: column; gap: 7px; }
+  #homeQuoteCommand .home-quote-command-hint { max-width: none; margin-left: 54px; text-align: left; }
+  #homeQuoteCommand .quote-command-v2-stage { display: block; min-height: 170px; padding: 17px 15px 25px; }
+  #homeQuoteCommand .quote-command-v2-stage .profile-quote-ticker-content { gap: 10px; }
+  #homeQuoteCommand .quote-command-v2-copy .profile-quote-phrase { font-size: 17px; }
+  #homeQuoteCommand .quote-command-v2-controls { justify-content: flex-end; margin: 16px 0 0; }
+  #homeQuoteCommand .quote-command-v2-progress { right: 15px; bottom: 10px; left: 15px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #homeQuoteCommand.quote-command-v2::before { animation: none; }
+}
+
 html[data-theme="light"] .user-profile-card {
   background: #ffffff;
   border-color: rgba(226,232,240,0.9);
