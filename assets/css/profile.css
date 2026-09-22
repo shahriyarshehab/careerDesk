@@ -513,6 +513,23 @@ html[data-theme="light"] .profile-quote-ctrl-btn {
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
 }
 
+.authenticated-profile-hero .profile-hero-actions-row {
+  gap: 8px !important;
+  padding: 7px;
+  border: 1px solid rgba(139,233,255,.16);
+  border-radius: 15px;
+  background: rgba(2,6,23,.25);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.06);
+  backdrop-filter: blur(14px);
+}
+
+.authenticated-profile-hero .profile-hero-actions-row button {
+  min-width: 132px;
+  height: 42px !important;
+  border-radius: 11px !important;
+  letter-spacing: -.01em;
+}
+
 .btn-edit-profile-main {
   background: linear-gradient(135deg, var(--accent1), var(--accent2)) !important;
   color: #ffffff !important;
@@ -523,6 +540,38 @@ html[data-theme="light"] .profile-quote-ctrl-btn {
 .btn-edit-profile-main:hover {
   transform: translateY(-1.5px) !important;
   box-shadow: 0 6px 18px rgba(99, 102, 241, 0.45) !important;
+}
+
+.authenticated-profile-hero .btn-edit-profile-main {
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 8px 22px rgba(99,102,241,.3) !important;
+}
+
+.authenticated-profile-hero .btn-edit-profile-main::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(110deg, transparent 30%, rgba(255,255,255,.25), transparent 70%);
+  transform: translateX(-120%);
+  transition: transform .6s ease;
+}
+
+.authenticated-profile-hero .btn-edit-profile-main:hover::after {
+  transform: translateX(120%);
+}
+
+.authenticated-profile-hero .btn-signout-modern {
+  border: 1px solid rgba(244,63,94,.28) !important;
+  background: rgba(244,63,94,.08) !important;
+  color: #fb7185 !important;
+}
+
+.authenticated-profile-hero .btn-signout-modern:hover {
+  transform: translateY(-2px) !important;
+  border-color: rgba(244,63,94,.55) !important;
+  background: rgba(244,63,94,.16) !important;
+  box-shadow: 0 8px 20px rgba(244,63,94,.16) !important;
 }
 
 .profile-hero-actions-row .btn-edit-profile-guest,
@@ -5700,12 +5749,83 @@ html[data-theme="light"] .track-toolbar-row {
     border-radius: 11px !important;
     box-shadow: 0 7px 18px rgba(99,102,241,.1);
   }
+
+  #panel-profile > #profileAspirantHub,
+  #panel-profile > .data-management-card,
+  #panel-profile > .profile-track-card,
+  #panel-profile > .glass:not(#userProfileCard) {
+    animation: profilePanelRise .7s cubic-bezier(.16,1,.3,1) both;
+  }
+
+  #panel-profile > #profileAspirantHub {
+    position: relative;
+    padding: 2px;
+    border-radius: 22px;
+  }
+
+  #panel-profile .profile-card-body,
+  #panel-profile .cloud-actions-row,
+  #panel-profile .data-management-card {
+    border-radius: 18px;
+  }
+
+  #panel-profile .profile-card-body h4,
+  #panel-profile .profile-track-card h3,
+  #panel-profile .data-management-card h3 {
+    letter-spacing: -.025em;
+  }
+
+  #panel-profile .profile-card-body h4::after,
+  #panel-profile .data-management-card h3::after {
+    content: "";
+    display: inline-block;
+    width: 28px;
+    height: 2px;
+    margin-left: 8px;
+    vertical-align: middle;
+    border-radius: 2px;
+    background: linear-gradient(90deg, var(--accent1), var(--accent2));
+  }
+
+  #panel-profile .cloud-action-card {
+    position: relative;
+    overflow: hidden;
+    border-radius: 16px;
+    border-color: rgba(148,163,184,.16);
+  }
+
+  #panel-profile .cloud-action-card::after {
+    content: "";
+    position: absolute;
+    width: 90px;
+    height: 90px;
+    right: -30px;
+    bottom: -42px;
+    border: 1px solid rgba(139,233,255,.18);
+    border-radius: 50%;
+    transition: transform .35s ease;
+  }
+
+  #panel-profile .cloud-action-card:hover::after {
+    transform: scale(1.35);
+  }
+
   @media (max-width: 640px) {
     .home-quote-command { padding: 14px; }
     .home-quote-command-head { align-items: flex-start; flex-direction: column; }
     .home-quote-command-hint { margin-left: 45px; }
     .home-quote-command .profile-quote-ticker-top { padding: 10px; }
     .subject-manager-row { padding: 12px; }
+  }
+
+  @media (max-width: 720px) {
+    .authenticated-profile-hero .profile-hero-actions-row {
+      width: 100% !important;
+    }
+    .authenticated-profile-hero .profile-hero-actions-row button {
+      flex: 1 1 120px;
+      min-width: 0;
+    }
   }
   .profile-track-card,
   .data-management-card,

@@ -88,6 +88,30 @@
     <!-- ===== HOME: DAILY STUDY ROUTINE ONLY ===== -->
     <section class="panel active" id="panel-home">
       <div class="home-container">
+        <section class="home-quote-command glass" id="homeQuoteCommand">
+          <div class="home-quote-command-head">
+            <div class="home-quote-command-title">
+              <span class="home-quote-command-icon"><i data-lucide="sparkles"></i></span>
+              <div><span class="home-quote-command-kicker">DAILY MINDSET</span><h3>Keep your reason close.</h3></div>
+            </div>
+            <span class="home-quote-command-hint">Tap EN to switch language</span>
+          </div>
+          <div class="profile-quote-ticker-top" id="profileHeroQuoteTicker">
+            <div class="profile-quote-ticker-content">
+              <div class="profile-quote-mark-badge"><i data-lucide="quote"></i></div>
+              <div class="profile-quote-lang-badge" id="profileQuoteLangBadge"><span class="lang-indicator-dot"></span><span id="profileQuoteLangText">EN</span></div>
+              <div class="profile-quote-typing-area">
+                <span class="profile-quote-phrase"><span class="profile-quote-curly-open">“</span><span class="profile-quote-typed-text" id="profileQuoteTypedText"></span><span class="profile-quote-cursor" id="profileQuoteCursor"></span><span class="profile-quote-curly-close">”</span></span>
+                <span class="profile-quote-author-pill" id="profileQuoteAuthorPill">— CareerDesk</span>
+              </div>
+            </div>
+            <div class="profile-quote-controls">
+              <button type="button" class="profile-quote-ctrl-btn" id="btnToggleQuotePause" title="Pause / Resume"><i data-lucide="pause"></i></button>
+              <button type="button" class="profile-quote-ctrl-btn btn-cycle-profile-hero-quote" title="Next quote"><i data-lucide="skip-forward"></i></button>
+            </div>
+            <div class="profile-quote-progress-bar"><div class="profile-quote-progress-fill" id="profileQuoteProgressFill"></div></div>
+          </div>
+        </section>
         <!-- Unified Full-Width Daily Study Routine Card -->
         <section class="home-routine-card glass" id="homeRoutineSection">
           <div class="routine-card-header">
@@ -159,30 +183,6 @@
           
           <!-- Hidden anchor for JS compatibility -->
           <span id="routineSaveNote" style="display:none;"></span>
-        </section>
-        <section class="home-quote-command glass" id="homeQuoteCommand">
-          <div class="home-quote-command-head">
-            <div class="home-quote-command-title">
-              <span class="home-quote-command-icon"><i data-lucide="sparkles"></i></span>
-              <div><span class="home-quote-command-kicker">DAILY MINDSET</span><h3>Keep your reason close.</h3></div>
-            </div>
-            <span class="home-quote-command-hint">Tap EN to switch language</span>
-          </div>
-          <div class="profile-quote-ticker-top" id="profileHeroQuoteTicker">
-            <div class="profile-quote-ticker-content">
-              <div class="profile-quote-mark-badge"><i data-lucide="quote"></i></div>
-              <div class="profile-quote-lang-badge" id="profileQuoteLangBadge"><span class="lang-indicator-dot"></span><span id="profileQuoteLangText">EN</span></div>
-              <div class="profile-quote-typing-area">
-                <span class="profile-quote-phrase"><span class="profile-quote-curly-open">“</span><span class="profile-quote-typed-text" id="profileQuoteTypedText"></span><span class="profile-quote-cursor" id="profileQuoteCursor"></span><span class="profile-quote-curly-close">”</span></span>
-                <span class="profile-quote-author-pill" id="profileQuoteAuthorPill">— CareerDesk</span>
-              </div>
-            </div>
-            <div class="profile-quote-controls">
-              <button type="button" class="profile-quote-ctrl-btn" id="btnToggleQuotePause" title="Pause / Resume"><i data-lucide="pause"></i></button>
-              <button type="button" class="profile-quote-ctrl-btn btn-cycle-profile-hero-quote" title="Next quote"><i data-lucide="skip-forward"></i></button>
-            </div>
-            <div class="profile-quote-progress-bar"><div class="profile-quote-progress-fill" id="profileQuoteProgressFill"></div></div>
-          </div>
         </section>
       </div>
     </section>
