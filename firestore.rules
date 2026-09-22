@@ -87,12 +87,12 @@ service cloud.firestore {
       match /members/{uid} {
         allow read: if isGroupMember(groupId) || isGroupOwner(groupId);
         allow create: if signedIn() && (
-          isGroupOwner(groupId) ||
           (uid == request.auth.uid
             && request.resource.data.role == 'owner'
             && getAfter(/databases/$(database)/documents/groups/$(groupId)).data.ownerId == request.auth.uid) ||
-          (uid == request.auth.uid &&
-            getAfter(/databases/$(database)/documents/groups/$(groupId)).data.isPublic == true)
+          (uid == request.auth.uid
+            && request.resource.data.role == 'member'
+            && get(/databases/$(database)/documents/groups/$(groupId)).data.isPublic == true)
         );
         allow update: if isGroupOwner(groupId);
         allow delete: if signedIn() && (uid == request.auth.uid || isGroupOwner(groupId));

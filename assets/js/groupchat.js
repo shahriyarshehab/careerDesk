@@ -106,12 +106,36 @@ async function groupChatAuthUser() {
     initFirebaseApp();
   }
   if (typeof firebase !== 'undefined' && firebase.auth) {
-    if (!firebase.auth().currentUser) await new Promise(resolve => setTimeout(resolve, 500));
-    if (firebase.auth().currentUser) {
-      return groupChatUser();
+    if (!firebase.auth().currentUser) {
+      await new Promise(resolve => {
+        let finished = false;
+        const unsubscribe = firebase.auth().onAuthStateChanged(user => {
+          if (finished) return;
+          finished = true;
+          unsubscribe();
+          resolve(user);
+        });
+        setTimeout(() => {
+          if (!finished) {
+            finished = true;
+            unsubscribe();
+            resolve(null);
+          }
+        }, 5000);
+      });
     }
+    if (firebase.auth().currentUser) {
+      const liveUser = firebase.auth().currentUser;
+      return {
+        uid: liveUser.uid,
+        displayName: liveUser.displayName || liveUser.email?.split('@')[0] || 'Aspirant',
+        photoURL: liveUser.photoURL || '',
+        email: liveUser.email || ''
+      };
+    }
+    throw new Error('Your Firebase login session is still loading. Refresh and sign in again.');
   }
-  return groupChatUser();
+  throw new Error('Firebase Authentication is unavailable.');
 }
 
 function groupChatDb() {
