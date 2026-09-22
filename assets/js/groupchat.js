@@ -3,6 +3,7 @@
 const GROUP_CHAT_UI_KEY = 'careerdesk-groupchat-ui-v1';
 const GROUP_CHAT_PAGE_SIZE = 50;
 const GROUP_CHAT_DEFAULT_AVATAR = 'assets/icons/people.png';
+const GROUP_CHAT_GENERAL_ID = 'general';
 let groupChatState = {
   activeGroupId: null,
   groupsUnsubscribe: null,
@@ -14,10 +15,89 @@ let groupChatState = {
   loading: false
 };
 
+let generalGroupPromise = null;
+
 function groupChatUser() {
   const user = typeof getCachedAuthUser === 'function' ? getCachedAuthUser() : null;
   if (!user) throw new Error('Please sign in to use Group Chat.');
   return user;
+}
+
+async function ensureGeneralGroup() {
+  if (generalGroupPromise) return generalGroupPromise;
+  generalGroupPromise = (async () => {
+    const user = await groupChatAuthUser();
+    const db = groupChatDb();
+    const groupRef = db.collection('groups').doc(GROUP_CHAT_GENERAL_ID);
+    const groupSnapshot = await groupRef.get();
+    if (!groupSnapshot.exists) {
+      const now = firebase.firestore.FieldValue.serverTimestamp();
+      const batch = db.batch();
+      batch.set(groupRef, {
+        name: 'General',
+        normalizedName: 'general',
+        description: 'A public study community for everyone on CareerDesk.',
+        avatarUrl: GROUP_CHAT_DEFAULT_AVATAR,
+        ownerId: user.uid,
+        ownerName: user.displayName || getEffectiveUsername(user),
+        ownerAvatarUrl: user.photoURL || null,
+        isPublic: true,
+        memberCount: 1,
+        createdAt: now,
+        updatedAt: now,
+        lastMessageAt: null,
+        lastMessagePreview: null
+      });
+      batch.set(groupRef.collection('members').doc(user.uid), {
+        uid: user.uid,
+        displayName: user.displayName || getEffectiveUsername(user),
+        photoURL: user.photoURL || null,
+        role: 'owner',
+        joinedAt: now
+      });
+      batch.set(db.collection('users').doc(user.uid).collection('groupMemberships').doc(GROUP_CHAT_GENERAL_ID), {
+        groupId: GROUP_CHAT_GENERAL_ID,
+        groupName: 'General',
+        groupAvatarUrl: GROUP_CHAT_DEFAULT_AVATAR,
+        role: 'owner',
+        joinedAt: now,
+        lastReadAt: null
+      });
+      try {
+        await batch.commit();
+      } catch (error) {
+        if (error.code !== 'already-exists' && error.code !== 'failed-precondition') throw error;
+      }
+    }
+    const memberRef = groupRef.collection('members').doc(user.uid);
+    const memberSnapshot = await memberRef.get();
+    if (!memberSnapshot.exists) {
+      const group = (await groupRef.get()).data();
+      const now = firebase.firestore.FieldValue.serverTimestamp();
+      const batch = db.batch();
+      batch.set(memberRef, {
+        uid: user.uid,
+        displayName: user.displayName || getEffectiveUsername(user),
+        photoURL: user.photoURL || null,
+        role: 'member',
+        joinedAt: now
+      });
+      batch.set(db.collection('users').doc(user.uid).collection('groupMemberships').doc(GROUP_CHAT_GENERAL_ID), {
+        groupId: GROUP_CHAT_GENERAL_ID,
+        groupName: group.name,
+        groupAvatarUrl: group.avatarUrl || GROUP_CHAT_DEFAULT_AVATAR,
+        role: 'member',
+        joinedAt: now,
+        lastReadAt: null
+      });
+      batch.update(groupRef, {
+        memberCount: firebase.firestore.FieldValue.increment(1),
+        updatedAt: now
+      });
+      await batch.commit();
+    }
+  })().finally(() => { generalGroupPromise = null; });
+  return generalGroupPromise;
 }
 
 async function groupChatAuthUser() {
@@ -125,7 +205,9 @@ function renderGroupChatAuth() {
   authRequired.hidden = !!user;
   app.hidden = !user;
   if (user && groupChatState.initialized) {
-    loadMyGroups();
+    ensureGeneralGroup()
+      .then(() => loadMyGroups())
+      .catch(error => groupChatError(error, 'Unable to initialize the General group.'));
   }
   else destroyGroupChatListeners();
 }
