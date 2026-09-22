@@ -59,13 +59,6 @@ service cloud.firestore {
       ).data.ownerId == request.auth.uid;
     }
 
-    function isGroupMemberAfter(groupId) {
-      return signedIn()
-        && getAfter(
-          /databases/$(database)/documents/groups/$(groupId)/members/$(request.auth.uid)
-        ).data.uid == request.auth.uid;
-    }
-
     // Public group discovery is readable by authenticated users. Membership,
     // messages, and mutations are restricted to the group participants.
     match /groups/{groupId} {
@@ -78,7 +71,7 @@ service cloud.firestore {
         && request.resource.data.description is string
         && request.resource.data.description.size() <= 1000;
       allow update: if isGroupOwner(groupId)
-        || ((isGroupMember(groupId) || isGroupMemberAfter(groupId))
+        || (isGroupMember(groupId)
           && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
             'memberCount', 'updatedAt', 'lastMessageAt', 'lastMessagePreview'
           ]));
@@ -89,7 +82,7 @@ service cloud.firestore {
         allow create: if signedIn() && (
           (uid == request.auth.uid
             && request.resource.data.role == 'owner'
-            && getAfter(/databases/$(database)/documents/groups/$(groupId)).data.ownerId == request.auth.uid) ||
+            && get(/databases/$(database)/documents/groups/$(groupId)).data.ownerId == request.auth.uid) ||
           (uid == request.auth.uid
             && request.resource.data.role == 'member'
             && get(/databases/$(database)/documents/groups/$(groupId)).data.isPublic == true)

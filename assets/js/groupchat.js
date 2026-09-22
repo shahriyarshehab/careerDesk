@@ -32,8 +32,7 @@ async function ensureGeneralGroup() {
     const groupSnapshot = await groupRef.get();
     if (!groupSnapshot.exists) {
       const now = firebase.firestore.FieldValue.serverTimestamp();
-      const batch = db.batch();
-      batch.set(groupRef, {
+      await groupRef.set({
         name: 'General',
         normalizedName: 'general',
         description: 'A public study community for everyone on CareerDesk.',
@@ -48,14 +47,15 @@ async function ensureGeneralGroup() {
         lastMessageAt: null,
         lastMessagePreview: null
       });
-      batch.set(groupRef.collection('members').doc(user.uid), {
+      const membershipBatch = db.batch();
+      membershipBatch.set(groupRef.collection('members').doc(user.uid), {
         uid: user.uid,
         displayName: user.displayName || getEffectiveUsername(user),
         photoURL: user.photoURL || null,
         role: 'owner',
         joinedAt: now
       });
-      batch.set(db.collection('users').doc(user.uid).collection('groupMemberships').doc(GROUP_CHAT_GENERAL_ID), {
+      membershipBatch.set(db.collection('users').doc(user.uid).collection('groupMemberships').doc(GROUP_CHAT_GENERAL_ID), {
         groupId: GROUP_CHAT_GENERAL_ID,
         groupName: 'General',
         groupAvatarUrl: GROUP_CHAT_DEFAULT_AVATAR,
@@ -64,7 +64,8 @@ async function ensureGeneralGroup() {
         lastReadAt: null
       });
       try {
-        await batch.commit();
+        await membershipBatch.commit();
+        await groupRef.update({ memberCount: 1, updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
       } catch (error) {
         if (error.code !== 'already-exists' && error.code !== 'failed-precondition') throw error;
       }
@@ -74,15 +75,15 @@ async function ensureGeneralGroup() {
     if (!memberSnapshot.exists) {
       const group = (await groupRef.get()).data();
       const now = firebase.firestore.FieldValue.serverTimestamp();
-      const batch = db.batch();
-      batch.set(memberRef, {
+      const membershipBatch = db.batch();
+      membershipBatch.set(memberRef, {
         uid: user.uid,
         displayName: user.displayName || getEffectiveUsername(user),
         photoURL: user.photoURL || null,
         role: 'member',
         joinedAt: now
       });
-      batch.set(db.collection('users').doc(user.uid).collection('groupMemberships').doc(GROUP_CHAT_GENERAL_ID), {
+      membershipBatch.set(db.collection('users').doc(user.uid).collection('groupMemberships').doc(GROUP_CHAT_GENERAL_ID), {
         groupId: GROUP_CHAT_GENERAL_ID,
         groupName: group.name,
         groupAvatarUrl: group.avatarUrl || GROUP_CHAT_DEFAULT_AVATAR,
@@ -90,11 +91,11 @@ async function ensureGeneralGroup() {
         joinedAt: now,
         lastReadAt: null
       });
-      batch.update(groupRef, {
+      await membershipBatch.commit();
+      await groupRef.update({
         memberCount: firebase.firestore.FieldValue.increment(1),
         updatedAt: now
       });
-      await batch.commit();
     }
   })().finally(() => { generalGroupPromise = null; });
   return generalGroupPromise;
@@ -196,49 +197,49 @@ function closeGroupChatCreateModal() {
     modal.classList.remove('open');
     modal.style.display = 'none';
   }
+}
 
-  function openGroupChatSettingsModal() {
-    const group = groupChatState.activeGroup;
-    if (!group || group.role !== 'owner') return;
-    document.getElementById('groupchatSettingsName').value = group.groupName || group.name || '';
-    document.getElementById('groupchatSettingsDescription').value = group.description || '';
-    document.getElementById('groupchatSettingsAvatar').value = group.groupAvatarUrl || group.avatarUrl || '';
-    document.getElementById('groupchatSettingsStatus').textContent = '';
-    openModal('groupchatSettingsModal');
-  }
+function openGroupChatSettingsModal() {
+  const group = groupChatState.activeGroup;
+  if (!group || group.role !== 'owner') return;
+  document.getElementById('groupchatSettingsName').value = group.groupName || group.name || '';
+  document.getElementById('groupchatSettingsDescription').value = group.description || '';
+  document.getElementById('groupchatSettingsAvatar').value = group.groupAvatarUrl || group.avatarUrl || '';
+  document.getElementById('groupchatSettingsStatus').textContent = '';
+  openModal('groupchatSettingsModal');
+}
 
-  async function updateGroupSettings() {
-    const user = await groupChatAuthUser();
-    const group = groupChatState.activeGroup;
-    if (!group || group.role !== 'owner' || group.id !== groupChatState.activeGroupId) throw new Error('Only the group owner can change these settings.');
-    const name = document.getElementById('groupchatSettingsName').value.trim();
-    const description = document.getElementById('groupchatSettingsDescription').value.trim();
-    const avatarUrl = document.getElementById('groupchatSettingsAvatar').value.trim();
-    if (name.length < 3 || name.length > 80) throw new Error('Group name must be between 3 and 80 characters.');
-    if (!description || description.length > 1000) throw new Error('Enter a description under 1000 characters.');
-    if (avatarUrl) {
-      const parsed = new URL(avatarUrl);
-      if (!['http:', 'https:'].includes(parsed.protocol)) throw new Error('Avatar URL must use HTTPS.');
-    }
-    const db = groupChatDb();
-    const batch = db.batch();
-    batch.update(db.collection('groups').doc(group.id), {
-      name, normalizedName: groupChatNormalize(name), description,
-      avatarUrl: avatarUrl || GROUP_CHAT_DEFAULT_AVATAR,
-      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-    });
-    batch.update(db.collection('users').doc(user.uid).collection('groupMemberships').doc(group.id), {
-      groupName: name, groupAvatarUrl: avatarUrl || GROUP_CHAT_DEFAULT_AVATAR
-    });
-    await batch.commit();
-    group.groupName = name;
-    group.name = name;
-    group.description = description;
-    group.groupAvatarUrl = avatarUrl || GROUP_CHAT_DEFAULT_AVATAR;
-    group.avatarUrl = group.groupAvatarUrl;
-    renderMyGroups();
-    renderGroupChatHeader();
+async function updateGroupSettings() {
+  const user = await groupChatAuthUser();
+  const group = groupChatState.activeGroup;
+  if (!group || group.role !== 'owner' || group.id !== groupChatState.activeGroupId) throw new Error('Only the group owner can change these settings.');
+  const name = document.getElementById('groupchatSettingsName').value.trim();
+  const description = document.getElementById('groupchatSettingsDescription').value.trim();
+  const avatarUrl = document.getElementById('groupchatSettingsAvatar').value.trim();
+  if (name.length < 3 || name.length > 80) throw new Error('Group name must be between 3 and 80 characters.');
+  if (!description || description.length > 1000) throw new Error('Enter a description under 1000 characters.');
+  if (avatarUrl) {
+    const parsed = new URL(avatarUrl);
+    if (!['http:', 'https:'].includes(parsed.protocol)) throw new Error('Avatar URL must use HTTPS.');
   }
+  const db = groupChatDb();
+  const batch = db.batch();
+  batch.update(db.collection('groups').doc(group.id), {
+    name, normalizedName: groupChatNormalize(name), description,
+    avatarUrl: avatarUrl || GROUP_CHAT_DEFAULT_AVATAR,
+    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+  });
+  batch.update(db.collection('users').doc(user.uid).collection('groupMemberships').doc(group.id), {
+    groupName: name, groupAvatarUrl: avatarUrl || GROUP_CHAT_DEFAULT_AVATAR
+  });
+  await batch.commit();
+  group.groupName = name;
+  group.name = name;
+  group.description = description;
+  group.groupAvatarUrl = avatarUrl || GROUP_CHAT_DEFAULT_AVATAR;
+  group.avatarUrl = group.groupAvatarUrl;
+  renderMyGroups();
+  renderGroupChatHeader();
 }
 
 function groupChatInitials(name) {
@@ -358,21 +359,22 @@ async function createGroup({ name, description, avatarUrl }) {
   const groupRef = db.collection('groups').doc();
   const cleanAvatarUrl = avatarUrl || GROUP_CHAT_DEFAULT_AVATAR;
   const now = firebase.firestore.FieldValue.serverTimestamp();
-  const batch = db.batch();
-  batch.set(groupRef, {
+  await groupRef.set({
     name: cleanName, normalizedName: groupChatNormalize(cleanName), description: cleanDescription,
     avatarUrl: cleanAvatarUrl, ownerId: user.uid, ownerName: user.displayName || getEffectiveUsername(user),
     ownerAvatarUrl: user.photoURL || null, isPublic: true, memberCount: 1,
     createdAt: now, updatedAt: now, lastMessageAt: null, lastMessagePreview: null
   });
-  batch.set(groupRef.collection('members').doc(user.uid), {
+  const membershipBatch = db.batch();
+  membershipBatch.set(groupRef.collection('members').doc(user.uid), {
     uid: user.uid, displayName: user.displayName || getEffectiveUsername(user), photoURL: user.photoURL || null,
     role: 'owner', joinedAt: now
   });
-  batch.set(db.collection('users').doc(user.uid).collection('groupMemberships').doc(groupRef.id), {
+  membershipBatch.set(db.collection('users').doc(user.uid).collection('groupMemberships').doc(groupRef.id), {
     groupId: groupRef.id, groupName: cleanName, groupAvatarUrl: cleanAvatarUrl, role: 'owner', joinedAt: now, lastReadAt: null
   });
-  await batch.commit();
+  await membershipBatch.commit();
+  await groupRef.update({ memberCount: 1, updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
   await loadMyGroups();
   selectGroup(groupRef.id);
 }
@@ -381,18 +383,28 @@ async function joinGroup(groupId) {
   const user = await groupChatAuthUser();
   const db = groupChatDb();
   const groupRef = db.collection('groups').doc(groupId);
-  await db.runTransaction(async transaction => {
-    const groupSnapshot = await transaction.get(groupRef);
-    if (!groupSnapshot.exists || groupSnapshot.data().isPublic !== true) throw new Error('This group is not available.');
-    const memberRef = groupRef.collection('members').doc(user.uid);
-    const memberSnapshot = await transaction.get(memberRef);
-    if (memberSnapshot.exists) return;
+  const groupSnapshot = await groupRef.get();
+  if (!groupSnapshot.exists || groupSnapshot.data().isPublic !== true) throw new Error('This group is not available.');
+  const memberRef = groupRef.collection('members').doc(user.uid);
+  const memberSnapshot = await memberRef.get();
+  if (!memberSnapshot.exists) {
     const data = groupSnapshot.data();
     const now = firebase.firestore.FieldValue.serverTimestamp();
-    transaction.set(memberRef, { uid: user.uid, displayName: user.displayName || getEffectiveUsername(user), photoURL: user.photoURL || null, role: 'member', joinedAt: now });
-    transaction.set(db.collection('users').doc(user.uid).collection('groupMemberships').doc(groupId), { groupId, groupName: data.name, groupAvatarUrl: data.avatarUrl || null, role: 'member', joinedAt: now, lastReadAt: null });
-    transaction.update(groupRef, { memberCount: firebase.firestore.FieldValue.increment(1), updatedAt: now });
-  });
+    const membershipBatch = db.batch();
+    membershipBatch.create(memberRef, {
+      uid: user.uid, displayName: user.displayName || getEffectiveUsername(user),
+      photoURL: user.photoURL || null, role: 'member', joinedAt: now
+    });
+    membershipBatch.set(db.collection('users').doc(user.uid).collection('groupMemberships').doc(groupId), {
+      groupId, groupName: data.name, groupAvatarUrl: data.avatarUrl || GROUP_CHAT_DEFAULT_AVATAR,
+      role: 'member', joinedAt: now, lastReadAt: null
+    });
+    await membershipBatch.commit();
+    await groupRef.update({
+      memberCount: firebase.firestore.FieldValue.increment(1),
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+  }
   await loadMyGroups();
   selectGroup(groupId);
   if (typeof showToast === 'function') showToast('Joined group.');
