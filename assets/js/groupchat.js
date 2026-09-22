@@ -2,6 +2,7 @@
 
 const GROUP_CHAT_UI_KEY = 'careerdesk-groupchat-ui-v1';
 const GROUP_CHAT_PAGE_SIZE = 50;
+const GROUP_CHAT_DEFAULT_AVATAR = 'assets/icons/people.png';
 let groupChatState = {
   activeGroupId: null,
   groupsUnsubscribe: null,
@@ -103,6 +104,10 @@ function groupChatAvatar(url, name, className = 'groupchat-avatar') {
     : `<span class="${className} groupchat-avatar-fallback">${escapeHtml(groupChatInitials(name))}</span>`;
 }
 
+function groupChatGroupAvatar(url, name) {
+  return groupChatAvatar(url || GROUP_CHAT_DEFAULT_AVATAR, name);
+}
+
 function groupChatFormatTime(value) {
   const date = value && typeof value.toDate === 'function' ? value.toDate() : new Date(value || Date.now());
   return date.toLocaleString([], { dateStyle: 'short', timeStyle: 'short' });
@@ -151,7 +156,7 @@ function renderMyGroups() {
   }
   list.innerHTML = groupChatState.groups.map(group => `
     <button class="groupchat-group-item ${group.id === groupChatState.activeGroupId ? 'active' : ''}" data-group-id="${escapeAttr(group.id)}" type="button">
-      ${groupChatAvatar(group.groupAvatarUrl, group.groupName)}
+      ${groupChatGroupAvatar(group.groupAvatarUrl, group.groupName)}
       <span class="groupchat-group-copy"><strong class="groupchat-group-name">${escapeHtml(group.groupName || 'Unnamed group')}</strong><span class="groupchat-group-meta">${escapeHtml(group.role || 'member')}</span></span>
     </button>`).join('');
   list.querySelectorAll('[data-group-id]').forEach(button => button.addEventListener('click', () => selectGroup(button.dataset.groupId)));
@@ -172,7 +177,7 @@ async function searchPublicGroups(query) {
     results.innerHTML = snapshot.empty ? '<div class="groupchat-empty">No public groups found.</div>' :
       snapshot.docs.map(doc => {
         const group = { id: doc.id, ...doc.data() };
-        return `<div class="groupchat-search-item">${groupChatAvatar(group.avatarUrl, group.name)}
+        return `<div class="groupchat-search-item">${groupChatGroupAvatar(group.avatarUrl, group.name)}
           <span class="groupchat-group-copy"><strong class="groupchat-group-name">${escapeHtml(group.name)}</strong><span class="groupchat-group-meta">${escapeHtml(group.description || '')}</span></span>
           ${memberIds.has(group.id) ? '<span class="groupchat-joined">Joined</span>' : `<button class="pill subtle groupchat-join-btn" data-join-id="${escapeAttr(group.id)}" type="button">Join</button>`}</div>`;
       }).join('');
@@ -202,7 +207,7 @@ async function createGroup({ name, description, avatarUrl }) {
   }
   const db = groupChatDb();
   const groupRef = db.collection('groups').doc();
-  const cleanAvatarUrl = avatarUrl || null;
+  const cleanAvatarUrl = avatarUrl || GROUP_CHAT_DEFAULT_AVATAR;
   const now = firebase.firestore.FieldValue.serverTimestamp();
   const batch = db.batch();
   batch.set(groupRef, {
@@ -280,7 +285,7 @@ function renderGroupChatHeader() {
   if (!header) return;
   const group = groupChatState.activeGroup;
   if (!group) { header.innerHTML = '<span class="groupchat-subtle">Choose a group to start chatting.</span>'; return; }
-  header.innerHTML = `<div class="groupchat-header-identity">${groupChatAvatar(group.groupAvatarUrl || group.avatarUrl, group.groupName || group.name)}<div><h3 class="groupchat-title">${escapeHtml(group.groupName || group.name)}</h3><span class="groupchat-subtle">${escapeHtml(group.description || '')}</span></div></div>
+  header.innerHTML = `<div class="groupchat-header-identity">${groupChatGroupAvatar(group.groupAvatarUrl || group.avatarUrl, group.groupName || group.name)}<div><h3 class="groupchat-title">${escapeHtml(group.groupName || group.name)}</h3><span class="groupchat-subtle">${escapeHtml(group.description || '')}</span></div></div>
     <button class="pill subtle" id="groupchatLeaveBtn" type="button">${group.role === 'owner' ? 'Owner' : 'Leave'}</button>`;
   const leave = document.getElementById('groupchatLeaveBtn');
   if (leave && group.role !== 'owner') leave.addEventListener('click', async () => { try { await leaveGroup(group.id); } catch (error) { groupChatError(error, 'Unable to leave group.'); } });
