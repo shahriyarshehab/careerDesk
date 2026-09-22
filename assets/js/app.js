@@ -142,6 +142,7 @@ function activateTab(rawTabName, persist = false) {
         if (routineSec) routineSec.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }, 120);
     }
+    if (typeof initProfileQuoteTypewriter === 'function') initProfileQuoteTypewriter();
   }
 
   if (tabName === 'profile' || tabName === 'settings') {

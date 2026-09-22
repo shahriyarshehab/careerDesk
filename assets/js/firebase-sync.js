@@ -2263,34 +2263,6 @@ function renderUserProfileUI() {
         </div>
         <div class="profile-live-state"><span></span> Workspace live</div>
       </div>
-      <!-- MOTIVATIONAL QUOTE SHOWCASE ABOVE HERO SECTION WITH TYPING ANIMATION -->
-      <div class="profile-quote-ticker-top" id="profileHeroQuoteTicker">
-        <div class="profile-quote-ticker-content">
-          <div class="profile-quote-mark-badge" title="Daily Motivational Spark">
-            <i data-lucide="quote"></i>
-          </div>
-          <div class="profile-quote-lang-badge" id="profileQuoteLangBadge" title="Language: English (Click for বাংলা)">
-            <span class="lang-indicator-dot"></span>
-            <span id="profileQuoteLangText">EN</span>
-          </div>
-          <div class="profile-quote-typing-area">
-            <span class="profile-quote-phrase"><span class="profile-quote-curly-open">“</span><span class="profile-quote-typed-text" id="profileQuoteTypedText"></span><span class="profile-quote-cursor" id="profileQuoteCursor"></span><span class="profile-quote-curly-close">”</span></span>
-            <span class="profile-quote-author-pill" id="profileQuoteAuthorPill">— Jim Rohn</span>
-          </div>
-        </div>
-        <div class="profile-quote-controls">
-          <button type="button" class="profile-quote-ctrl-btn" id="btnToggleQuotePause" title="Pause / Resume animation">
-            <i data-lucide="pause"></i>
-          </button>
-          <button type="button" class="profile-quote-ctrl-btn btn-cycle-profile-hero-quote" id="btnCycleProfileHeroQuote" title="Next motivational quote">
-            <i data-lucide="skip-forward"></i>
-          </button>
-        </div>
-        <div class="profile-quote-progress-bar">
-          <div class="profile-quote-progress-fill" id="profileQuoteProgressFill"></div>
-        </div>
-      </div>
-
       <!-- HERO BANNER -->
       <div class="profile-hero-banner authenticated-profile-hero">
         <div class="profile-hero-grid">
@@ -2375,33 +2347,6 @@ function renderUserProfileUI() {
     // ===== SIGNED-OUT / GUEST STATE — INLINE SPLIT-PANEL AUTH =====
     container.innerHTML = `
       <div class="auth-guest-landing-card clean-guest-card" style="padding:0; overflow:hidden;">
-        <div class="profile-quote-ticker-top" id="profileHeroQuoteTicker">
-          <div class="profile-quote-ticker-content">
-            <div class="profile-quote-mark-badge" title="Daily Motivational Spark">
-              <i data-lucide="quote"></i>
-            </div>
-            <div class="profile-quote-lang-badge" id="profileQuoteLangBadge" title="Language: English (Click for বাংলা)">
-              <span class="lang-indicator-dot"></span>
-              <span id="profileQuoteLangText">EN</span>
-            </div>
-            <div class="profile-quote-typing-area">
-              <span class="profile-quote-phrase"><span class="profile-quote-curly-open">“</span><span class="profile-quote-typed-text" id="profileQuoteTypedText"></span><span class="profile-quote-cursor" id="profileQuoteCursor"></span><span class="profile-quote-curly-close">”</span></span>
-              <span class="profile-quote-author-pill" id="profileQuoteAuthorPill">— Jim Rohn</span>
-            </div>
-          </div>
-          <div class="profile-quote-controls">
-            <button type="button" class="profile-quote-ctrl-btn" id="btnToggleQuotePause" title="Pause / Resume animation">
-              <i data-lucide="pause"></i>
-            </button>
-            <button type="button" class="profile-quote-ctrl-btn btn-cycle-profile-hero-quote" id="btnCycleProfileHeroQuoteGuest" title="Next motivational quote">
-              <i data-lucide="skip-forward"></i>
-            </button>
-          </div>
-          <div class="profile-quote-progress-bar">
-            <div class="profile-quote-progress-fill" id="profileQuoteProgressFill"></div>
-          </div>
-        </div>
-
         <div class="inline-auth-container" id="inlineAuthContainer">
           <div class="inline-auth-forms-wrap" id="inlineAuthFormsWrap">
             <div class="inline-auth-form-panel ia-panel-signin" id="inlineAuthSignInPanel">
