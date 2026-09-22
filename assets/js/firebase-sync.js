@@ -2253,6 +2253,16 @@ function renderUserProfileUI() {
     }
 
     container.innerHTML = `
+      <div class="profile-brand-bar">
+        <div class="profile-brand-identity">
+          <div class="profile-brand-logo"><img src="assets/icons/favicon.svg" alt="CareerDesk logo"></div>
+          <div>
+            <span class="profile-brand-eyebrow">CAREERDESK / PERSONAL COMMAND CENTER</span>
+            <strong>Welcome back, ${escapeHtml(effectiveName.split(' ')[0] || 'Aspirant')}</strong>
+          </div>
+        </div>
+        <div class="profile-live-state"><span></span> Workspace live</div>
+      </div>
       <!-- MOTIVATIONAL QUOTE SHOWCASE ABOVE HERO SECTION WITH TYPING ANIMATION -->
       <div class="profile-quote-ticker-top" id="profileHeroQuoteTicker">
         <div class="profile-quote-ticker-content">
@@ -2282,7 +2292,7 @@ function renderUserProfileUI() {
       </div>
 
       <!-- HERO BANNER -->
-      <div class="profile-hero-banner">
+      <div class="profile-hero-banner authenticated-profile-hero">
         <div class="profile-hero-grid">
           <!-- Left: Avatar & Identity Details -->
           <div class="profile-hero-left">
@@ -2336,7 +2346,7 @@ function renderUserProfileUI() {
       </div>
 
       <!-- LIFETIME STATS SUMMARY GRID -->
-      <div class="profile-card-body" style="padding:18px 22px 22px;">
+      <div class="profile-card-body authenticated-profile-stats" style="padding:18px 22px 22px;">
         <div style="margin-bottom:12px;">
           <h4 style="font-size:14px; color:var(--text); margin:0 0 2px; font-weight:700;">Lifetime Preparation Metrics</h4>
           <span style="font-size:12px; color:var(--text-soft);">Your cumulative study milestone achievements</span>
