@@ -91,6 +91,18 @@ service cloud.firestore {
         allow delete: if signedIn() && (uid == request.auth.uid || isGroupOwner(groupId));
       }
 
+      match /joinRequests/{uid} {
+        allow read: if signedIn() && (uid == request.auth.uid || isGroupOwner(groupId));
+        allow create: if signedIn() && uid == request.auth.uid
+          && get(/databases/$(database)/documents/groups/$(groupId)).data.isPublic == true
+          && !exists(/databases/$(database)/documents/groups/$(groupId)/blockedUsers/$(request.auth.uid));
+        allow update, delete: if signedIn() && (uid == request.auth.uid || isGroupOwner(groupId));
+      }
+
+      match /blockedUsers/{uid} {
+        allow read, write: if isGroupOwner(groupId);
+      }
+
       match /messages/{messageId} {
         allow read: if isGroupMember(groupId);
         allow create: if isGroupMember(groupId)
@@ -104,7 +116,8 @@ service cloud.firestore {
     }
 
     match /users/{uid}/groupMemberships/{groupId} {
-      allow read, write: if signedIn() && uid == request.auth.uid;
+      allow read: if signedIn() && (uid == request.auth.uid || isGroupOwner(groupId));
+      allow write: if signedIn() && (uid == request.auth.uid || isGroupOwner(groupId));
     }
 
     // Default Deny-All: Block any access to any other collections

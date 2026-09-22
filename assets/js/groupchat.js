@@ -41,6 +41,7 @@ async function ensureGeneralGroup() {
         ownerName: user.displayName || getEffectiveUsername(user),
         ownerAvatarUrl: user.photoURL || null,
         isPublic: true,
+        requiresApproval: false,
         memberCount: 1,
         createdAt: now,
         updatedAt: now,
@@ -207,6 +208,7 @@ function openGroupChatSettingsModal() {
   document.getElementById('groupchatSettingsAvatar').value = group.groupAvatarUrl || group.avatarUrl || '';
   document.getElementById('groupchatSettingsStatus').textContent = '';
   openModal('groupchatSettingsModal');
+  renderGroupModerationPanel().catch(error => groupChatError(error, 'Unable to load moderation tools.'));
 }
 
 async function updateGroupSettings() {
@@ -221,6 +223,72 @@ async function updateGroupSettings() {
   if (avatarUrl) {
     const parsed = new URL(avatarUrl);
     if (!['http:', 'https:'].includes(parsed.protocol)) throw new Error('Avatar URL must use HTTPS.');
+  }
+
+  async function renderGroupModerationPanel() {
+    const panel = document.getElementById('groupchatModerationPanel');
+    const group = groupChatState.activeGroup;
+    if (!panel || !group || group.role !== 'owner') return;
+    const db = groupChatDb();
+    const base = db.collection('groups').doc(group.id);
+    const [requests, members] = await Promise.all([
+      base.collection('joinRequests').get(),
+      base.collection('members').get()
+    ]);
+    panel.hidden = false;
+    panel.innerHTML = `<h4>Join requests (${requests.size})</h4>
+      <div class="groupchat-moderation-list">${requests.empty ? '<p class="groupchat-subtle">No pending requests.</p>' : requests.docs.map(doc => {
+        const data = doc.data();
+        return `<div class="groupchat-moderation-row"><span>${escapeHtml(data.displayName || doc.id)}</span><span><button class="micro-btn" data-approve-uid="${escapeAttr(doc.id)}" type="button">Approve</button><button class="micro-btn danger" data-reject-uid="${escapeAttr(doc.id)}" type="button">Reject</button></span></div>`;
+      }).join('')}</div>
+      <h4>Members (${members.size})</h4>
+      <div class="groupchat-moderation-list">${members.docs.map(doc => {
+        const data = doc.data();
+        if (data.role === 'owner') return '';
+        return `<div class="groupchat-moderation-row"><span>${escapeHtml(data.displayName || doc.id)}</span><span><button class="micro-btn danger" data-remove-uid="${escapeAttr(doc.id)}" type="button">Remove</button><button class="micro-btn danger" data-block-uid="${escapeAttr(doc.id)}" type="button">Block</button></span></div>`;
+      }).join('')}</div>`;
+    panel.querySelectorAll('[data-approve-uid]').forEach(button => button.addEventListener('click', async () => {
+      try { await moderateJoinRequest(group.id, button.dataset.approveUid, true); await renderGroupModerationPanel(); } catch (error) { groupChatError(error, 'Unable to approve request.'); }
+    }));
+    panel.querySelectorAll('[data-reject-uid]').forEach(button => button.addEventListener('click', async () => {
+      try { await moderateJoinRequest(group.id, button.dataset.rejectUid, false); await renderGroupModerationPanel(); } catch (error) { groupChatError(error, 'Unable to reject request.'); }
+    }));
+    panel.querySelectorAll('[data-remove-uid]').forEach(button => button.addEventListener('click', async () => {
+      try { await removeGroupMember(group.id, button.dataset.removeUid, false); await renderGroupModerationPanel(); } catch (error) { groupChatError(error, 'Unable to remove member.'); }
+    }));
+    panel.querySelectorAll('[data-block-uid]').forEach(button => button.addEventListener('click', async () => {
+      try { await removeGroupMember(group.id, button.dataset.blockUid, true); await renderGroupModerationPanel(); } catch (error) { groupChatError(error, 'Unable to block member.'); }
+    }));
+  }
+
+  async function moderateJoinRequest(groupId, uid, approve) {
+    const user = await groupChatAuthUser();
+    const db = groupChatDb();
+    const groupRef = db.collection('groups').doc(groupId);
+    const requestRef = groupRef.collection('joinRequests').doc(uid);
+    const requestSnapshot = await requestRef.get();
+    if (!requestSnapshot.exists) throw new Error('This request is no longer pending.');
+    const data = requestSnapshot.data();
+    const batch = db.batch();
+    if (approve) {
+      batch.set(groupRef.collection('members').doc(uid), { uid, displayName: data.displayName || 'Member', photoURL: data.photoURL || null, role: 'member', joinedAt: firebase.firestore.FieldValue.serverTimestamp() });
+      batch.set(db.collection('users').doc(uid).collection('groupMemberships').doc(groupId), { groupId, groupName: data.groupName, groupAvatarUrl: data.groupAvatarUrl || GROUP_CHAT_DEFAULT_AVATAR, role: 'member', joinedAt: firebase.firestore.FieldValue.serverTimestamp(), lastReadAt: null });
+      batch.update(groupRef, { memberCount: firebase.firestore.FieldValue.increment(1), updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
+    }
+    batch.delete(requestRef);
+    await batch.commit();
+  }
+
+  async function removeGroupMember(groupId, uid, block) {
+    await groupChatAuthUser();
+    const db = groupChatDb();
+    const groupRef = db.collection('groups').doc(groupId);
+    const batch = db.batch();
+    batch.delete(groupRef.collection('members').doc(uid));
+    batch.delete(db.collection('users').doc(uid).collection('groupMemberships').doc(groupId));
+    if (block) batch.set(groupRef.collection('blockedUsers').doc(uid), { uid, blockedAt: firebase.firestore.FieldValue.serverTimestamp() });
+    batch.update(groupRef, { memberCount: firebase.firestore.FieldValue.increment(-1), updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
+    await batch.commit();
   }
   const db = groupChatDb();
   const batch = db.batch();
@@ -362,7 +430,7 @@ async function createGroup({ name, description, avatarUrl }) {
   await groupRef.set({
     name: cleanName, normalizedName: groupChatNormalize(cleanName), description: cleanDescription,
     avatarUrl: cleanAvatarUrl, ownerId: user.uid, ownerName: user.displayName || getEffectiveUsername(user),
-    ownerAvatarUrl: user.photoURL || null, isPublic: true, memberCount: 1,
+    ownerAvatarUrl: user.photoURL || null, isPublic: true, requiresApproval: true, memberCount: 1,
     createdAt: now, updatedAt: now, lastMessageAt: null, lastMessagePreview: null
   });
   const membershipBatch = db.batch();
@@ -385,7 +453,18 @@ async function joinGroup(groupId) {
   const groupRef = db.collection('groups').doc(groupId);
   const groupSnapshot = await groupRef.get();
   if (!groupSnapshot.exists || groupSnapshot.data().isPublic !== true) throw new Error('This group is not available.');
+  const data = groupSnapshot.data();
   const memberRef = groupRef.collection('members').doc(user.uid);
+  if (data.requiresApproval === true) {
+    const requestRef = groupRef.collection('joinRequests').doc(user.uid);
+    await requestRef.set({
+      uid: user.uid, displayName: user.displayName || 'Member', photoURL: user.photoURL || null,
+      groupName: data.name, groupAvatarUrl: data.avatarUrl || GROUP_CHAT_DEFAULT_AVATAR,
+      requestedAt: firebase.firestore.FieldValue.serverTimestamp(), status: 'pending'
+    });
+    if (typeof showToast === 'function') showToast('Join request sent to the group owner.');
+    return;
+  }
   const memberSnapshot = await memberRef.get();
   if (!memberSnapshot.exists) {
     const data = groupSnapshot.data();
