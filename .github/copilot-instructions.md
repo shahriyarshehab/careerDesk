@@ -2,70 +2,61 @@
 
 ## Project overview
 
-CareerDesk is a no-build, browser-first study and career-prep SPA. The app is intentionally structured as a set of plain HTML/CSS/JS modules that run directly in the browser, with optional Firebase sync for cloud backup and multi-device access.
+CareerDesk is a zero-build, browser-first study and career-prep SPA. It runs as a set of plain HTML/CSS/JS modules in the browser, with optional Firebase sync for cloud backup and multi-device access.
 
 Key entry points:
-- `index.html` loads the app shell and includes `assets/css/master.css` and `assets/js/master.js`.
-- `assets/js/master.js` bootstraps the app by loading the feature modules.
-- `assets/js/core.js` owns the shared state model, localStorage adapter, and the unified subject-managing utilities (`masterSubjectList`, `canonicalSubjectName`, `renameSubject`, `syncAllSubjectSelects`).
-- `assets/js/app.js` handles the tab router, command palette, and startup flow.
-- The rest of the modules (`routine.js`, `tracker.js`, `syllabus.js`, `mcq.js`, `notes.js`, `profile.js`, etc.) operate on the same app state and should stay synchronized with the centralized subject system.
+- `index.html` loads the app shell and includes `assets/css/master.css` and `assets/js/app/master.js`.
+- `assets/js/app/master.js` loads the feature modules in dependency order, so most app work is coordinated through shared globals and initialization.
+- `assets/js/core/core.js` owns the shared app state, storage adapter, default state, and the unified subject system (`masterSubjectList`, `canonicalSubjectName`, `renameSubject`, `syncAllSubjectSelects`).
+- `assets/js/app/app.js` handles tab routing, modals, command palette, and app bootstrap.
+- `routine.js`, `tracker.js`, `syllabus.js`, `mcq.js`, `notes.js`, `profile.js`, and related modules all operate on the same `state` object instead of separate stores.
 
-The app persists all primary study data in browser `localStorage` using the key `jobprep-dashboard-data-v2`, with Firebase only as an optional sync layer.
+Primary persistence lives in browser `localStorage` under `jobprep-dashboard-data-v2`; Firebase is optional and should never be treated as the source of truth for local app behavior.
 
-## Build, test, and validation commands
+## Build, test, and lint commands
 
 This repo does not define a dedicated test or lint script in `package.json`.
 
 Use these commands instead:
-- `npm start` — starts the local static server (`node serve.js`) on `http://localhost:3000`.
-- `python -m http.server 8000` — alternate static-server option for quick local testing.
-- `node --check assets/js/master.js` — quick syntax validation for the main entry script.
-- `node --check assets/js/*.js` — validate all JavaScript files in the app; this is the closest equivalent to a project-wide syntax check.
-- `node --check assets/js/<module>.js` — runs a single-file validation for a specific module while iterating on one piece of code.
+- `npm start` — serves the app with `node serve.js` at `http://localhost:3000`.
+- `python -m http.server 8000` — lightweight alternative for local browser testing.
+- `node --check assets/js/app/master.js` — syntax validation for the main entry file.
+- `node --check assets/js/**/*.js` — closest equivalent to a project-wide JS validation pass.
+- `node --check assets/js/<module>.js` — targeted validation while iterating on one module; in the reorganized tree, use the real relative path under `assets/js/`.
+- `firebase login && firebase use careerdesk && firebase deploy` — only for optional Firebase deployment or sync work.
 
-If you need to deploy the optional Firebase setup, use the standard Firebase workflow described in the repo docs:
-- `firebase login`
-- `firebase use careerdesk`
-- `firebase deploy`
+When there is no test/lint script, prefer syntax validation and a quick browser smoke test over adding new tooling.
 
 ## High-level architecture
 
-This repository is organized around a single-page app, not a framework app:
+This app is a single-page app built around shared state rather than framework components:
+- UI and layout live in `index.html` and the CSS files under `assets/css/`.
+- Each feature module is independent, but they all share one app state and must stay synchronized with the global subject model.
+- `core.js` drives storage migration, default state, and subject normalization; changing a storage field or a subject rule can affect several modules at once.
+- Subject names are treated as global identifiers across routine entries, tracker sessions, syllabus topics, flashcards, and quiz categories.
+- The app is intentionally local-first and privacy-oriented: most work and historical data remain in the browser, while Firebase sync is additional backup/snapshot functionality.
+- The visual system is cross-cutting: glassmorphism cards, segmented controls, and mobile floating dock patterns are shared across modules.
 
-- UI and layout live in `index.html` plus the CSS files under `assets/css/`.
-- Each feature has a separate JS module, but they all share a single app state rather than independent stores.
-- The central data model is driven by `core.js`, which initializes defaults and preserves backward compatibility when reading older `localStorage` values.
-- Subject management is intentionally global: every subject, rename, or soft-delete must propagate across routine entries, tracker sessions, syllabus topics, flashcard categories, and quiz categories.
-- The app is local-first and privacy-focused: most data remains in the browser, while Firebase sync handles optional cloud backups and snapshots.
-- The design system is cross-cutting: several CSS files define shared glassmorphism patterns and action-group/button styles, and mobile behavior is intentionally tuned for a floating dock layout.
+When making changes, think in terms of coordinated state updates. A rename, delete/restore, or localStorage schema change can require updates in multiple modules and UI controls.
 
-When making changes, treat the app as a coordinated state machine where UI modules and persistence are tightly coupled. A subject rename, storage schema update, or tab-state change can affect multiple modules at once.
+## Important repo conventions
 
-## Key conventions specific to this codebase
+- Zero-build stack: keep it plain HTML/CSS/ES6+ JS; do not add framework tooling, bundlers, or TypeScript unless the repo explicitly adopts them.
+- Local-first persistence: keep storage keys backward compatible and avoid overwriting user data. New state fields should get safe defaults in `getDefaultState()`.
+- Standard numerals only: use `0-9` in timers, counts, dates, percentages, and stats. Bengali text is reserved for localized content and explanations, not generic counters.
+- Unified subject control: use `masterSubjectList()`, `canonicalSubjectName()`, and `syncAllSubjectSelects()` for any subject-related change. Renames and delete/restore flows should cascade across routine, tracker, syllabus, flashcards, and quizzes.
+- Preserve historical data: soft delete subjects instead of removing them from past records so old sessions and routine entries keep their meaning.
+- Use the repo’s icon conventions: inline `ICON` SVG objects for JS-generated markup and `<i data-lucide="..."></i>` for static HTML.
+- Keep mobile UI patterns intact: action button labels are hidden on small screens by default, but critical dropdown items must keep their text/icons visible. The project-specific exception is scoping span hiding to `.cat-group-btn span` instead of applying it globally.
+- Read and write `localStorage` carefully: the core app state is `jobprep-dashboard-data-v2`, and auxiliary stores such as exams, mistake banks, and custom question banks are managed separately.
+- Prefer surgical edits over broad rewrites; the app is intentionally split into feature modules and centralized state utilities.
 
-- Zero-build stack: do not introduce frameworks, bundlers, TypeScript, or extra package tooling unless the repo explicitly adds them.
-- Local-first persistence: keep `localStorage` keys backward compatible; new state fields should have safe defaults in the app's default-state initializer.
-- English-Arabic numerals only: use `0-9` digits in clocks, stats, timers, countdowns, badges, and percentages. Bengali text is reserved for language-specific content and explanations, not UI counters.
-- Unified subject control: use `masterSubjectList()`, `canonicalSubjectName()`, and `syncAllSubjectSelects()` for any subject-related change. Renames and delete/restore flows must cascade across the full app.
-- Preserve historical data: soft delete subjects rather than removing them from past records; this keeps old sessions and routine history intact.
-- Use the app's icon conventions: inline `ICON` SVG objects for dynamically generated HTML; use `<i data-lucide="..."></i>` in static markup.
-- Keep CSS/mobile behavior consistent with the project patterns: on small screens, action-button labels are hidden in grouped controls by default, but critical dropdown items must retain text and icons. The project-specific exception is to scope span hiding to `.cat-group-btn span` rather than globally affecting all button groups.
-- Read/write localStorage carefully: app data is stored under `jobprep-dashboard-data-v2`, and auxiliary keys such as exam targets, mistake banks, and custom question banks are managed separately.
-- Prefer patching the existing module structure over broad rewrites; this app is intentionally split by feature and keeps shared logic centralized.
+## Where to start for repo-specific context
 
-## Practical guidance for Copilot sessions
+- `AGENTS.md` contains the deepest repository-specific architecture and conventions.
+- `.cursorrules` reinforces the same project rules for editor-based workflows.
+- `README.md` is the user-facing overview and local setup reference.
+- `core.js` and `app.js` are foundational files before editing feature logic.
 
-- Start from `AGENTS.md` when you need repo-specific architectural context; it contains the most complete conventions for this codebase.
-- Treat `core.js` and `app.js` as foundational files before editing module-specific logic.
-- When you change a shared concept (subject names, state fields, timer logic, or cloud sync behavior), verify all dependent modules that consume it.
-- Keep UI behavior consistent with the Aurora glassmorphism design system and the repo’s existing segmented/action-button patterns.
-- If a feature interacts with persistence, validate that it does not corrupt existing user data or break migration assumptions.
-
-## Repo-specific references
-
-- `README.md` contains the end-user overview and local setup guidance.
-- `AGENTS.md` contains the detailed architecture and coding rules for AI contributors.
-- `.cursorrules` captures the same conventions for editor-specific agent behavior.
-- `package.json` defines the current runtime entry points and contains no dedicated test/lint command set.
+When a shared concept changes (subject names, timers, storage schema, or sync behavior), verify the dependent modules that consume it rather than patching only one UI surface.
 

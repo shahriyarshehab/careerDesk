@@ -11,23 +11,23 @@
   // Master module manifest in exact execution sequence
   const MODULES = [
     'assets/js/lucide.min.js',
-    'assets/js/core.js',
-    'assets/js/routine.js',
-    'assets/js/quotes.js',
-    'assets/js/notes.js',
-    'assets/js/tracker.js',
-    'assets/js/countdown.js',
-    'assets/js/syllabus.js',
-    'assets/js/flashcards.js',
-    'assets/js/questions.js',
-    'assets/js/mcq.js',
-    'assets/js/security.js',
-    'assets/js/firebase-config.js',
-    'assets/js/firebase-sync.js',
-    'assets/js/profile.js',
-    'assets/js/home.js',
-    'assets/js/groupchat.js',
-    'assets/js/app.js'
+    'assets/js/core/core.js',
+    'assets/js/features/routine.js',
+    'assets/js/features/quotes.js',
+    'assets/js/features/notes.js',
+    'assets/js/features/tracker.js',
+    'assets/js/features/countdown.js',
+    'assets/js/features/syllabus.js',
+    'assets/js/features/flashcards.js',
+    'assets/js/features/questions.js',
+    'assets/js/features/mcq.js',
+    'assets/js/integrations/security.js',
+    'assets/js/integrations/firebase-config.js',
+    'assets/js/integrations/firebase-sync.js',
+    'assets/js/features/profile.js',
+    'assets/js/features/home.js',
+    'assets/js/features/groupchat.js',
+    'assets/js/app/app.js'
   ];
 
   // Write script tags into document stream to ensure 100% synchronous order
