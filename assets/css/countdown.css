@@ -124,6 +124,65 @@
     border-color: var(--accent1);
   }
 
+/* ================================================================
+   Countdown V2 — milestone board
+   ================================================================ */
+#panel-countdown {
+  position: relative;
+}
+
+#panel-countdown::before {
+  content: 'Plan the finish line. Own the preparation.';
+  display: block;
+  padding: 28px 30px;
+  margin-bottom: 22px;
+  border-radius: 26px;
+  color: #e0f2fe;
+  font: 800 clamp(24px, 4vw, 38px)/1.05 var(--font-display);
+  letter-spacing: -.045em;
+  background:
+    linear-gradient(120deg, rgba(30,41,59,.95), rgba(49,46,129,.72)),
+    radial-gradient(circle at 90% 10%, rgba(34,211,238,.25), transparent 35%);
+  border: 1px solid rgba(129,140,248,.3);
+  box-shadow: 0 22px 58px rgba(2,6,23,.24);
+}
+
+#panel-countdown .panel-header-row {
+  padding: 16px 18px;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: rgba(255,255,255,.025);
+}
+
+#panel-countdown .countdown-grid {
+  gap: 20px;
+}
+
+#panel-countdown .countdown-card {
+  min-height: 210px;
+  border-radius: 22px;
+  border-color: rgba(148,163,184,.2);
+  background: linear-gradient(145deg, rgba(255,255,255,.06), rgba(255,255,255,.018));
+  box-shadow: 0 15px 34px rgba(2,6,23,.14);
+}
+
+#panel-countdown .countdown-card:hover {
+  transform: translateY(-6px);
+  border-color: rgba(103,232,249,.5);
+  box-shadow: 0 24px 48px rgba(2,6,23,.22);
+}
+
+#panel-countdown .countdown-timer-row {
+  padding: 14px 8px;
+  border-radius: 16px;
+  background: rgba(6,182,212,.055);
+}
+
+#panel-countdown .countdown-unit strong {
+  font-size: 30px;
+  letter-spacing: -.06em;
+}
+
   .countdown-head {
     display: flex;
     align-items: center;

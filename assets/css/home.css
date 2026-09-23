@@ -43,6 +43,56 @@ html[data-theme="light"] .home-hero {
   box-shadow: 0 12px 32px rgba(15, 23, 42, 0.08), inset 0 1px 0 rgba(255, 255, 255, 1);
 }
 
+/* ================================================================
+   V2 command-center treatment
+   ================================================================ */
+#panel-home .home-container {
+  gap: 24px;
+}
+
+#panel-home .home-hero {
+  padding: 32px;
+  border-radius: 28px;
+  background:
+    linear-gradient(115deg, rgba(15, 23, 42, .96), rgba(30, 41, 59, .84)),
+    radial-gradient(circle at 85% 20%, rgba(6,182,212,.25), transparent 35%);
+  border-color: rgba(129, 140, 248, .28);
+  box-shadow: 0 24px 70px rgba(2, 6, 23, .34), inset 0 1px rgba(255,255,255,.14);
+}
+
+#panel-home .home-hero::after {
+  content: '';
+  position: absolute;
+  width: 180px;
+  height: 180px;
+  right: 12%;
+  bottom: -110px;
+  border: 1px solid rgba(103,232,249,.24);
+  transform: rotate(32deg);
+  pointer-events: none;
+}
+
+#panel-home .home-user-command-row {
+  border-bottom-color: rgba(148,163,184,.2);
+}
+
+#panel-home .glass,
+#panel-home .home-card,
+#panel-home .review-card {
+  border-radius: 22px;
+  border-color: rgba(148,163,184,.18);
+  box-shadow: 0 14px 34px rgba(2, 6, 23, .13);
+  transition: transform .22s ease, border-color .22s ease, box-shadow .22s ease;
+}
+
+#panel-home .glass:hover,
+#panel-home .home-card:hover,
+#panel-home .review-card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(103,232,249,.38);
+  box-shadow: 0 20px 42px rgba(2, 6, 23, .2);
+}
+
 .home-hero::before {
   content: '';
   position: absolute;

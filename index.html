@@ -182,8 +182,19 @@
 
     <!-- ===== NOTES ===== -->
     <section class="panel" id="panel-notes">
-      <div class="panel-header-row">
-        <h2 class="section-title" style="margin:0;">Smart Notes</h2>
+      <div class="notes-v2-hero">
+        <div>
+          <span class="notes-v2-eyebrow"><i data-lucide="sparkles"></i> Your second brain</span>
+          <h2 class="section-title notes-v2-title">Smart Notes</h2>
+          <p class="notes-v2-subtitle">Capture the ideas, formulas, and reflections worth remembering.</p>
+        </div>
+        <div class="notes-v2-hero-icon"><i data-lucide="notebook-pen"></i></div>
+      </div>
+      <div class="notes-v2-toolbar">
+        <div class="notes-v2-toolbar-copy">
+          <span class="notes-v2-kicker">Knowledge library</span>
+          <strong>Keep your best thinking close</strong>
+        </div>
         <div class="btn-group">
           <button class="pill subtle" id="toggleJournalBtn" type="button" title="Daily Reflection Journal">
             <i data-lucide="book-open"></i> <span>Journal</span>
@@ -452,9 +463,16 @@
 
     <!-- ===== BCS & GOVT MCQ PRACTICE & MISTAKE BANK ===== -->
     <section class="panel" id="panel-quiz">
-      <div class="panel-header-row" style="margin-bottom:16px;">
+      <div class="mcq-v2-hero">
+        <div>
+          <span class="mcq-v2-eyebrow"><i data-lucide="sparkles"></i> Practice with purpose</span>
+          <h2 class="section-title mcq-v2-title">BCS &amp; Govt Job MCQs</h2>
+          <p class="mcq-v2-subtitle">Build exam confidence with focused practice, instant feedback, and targeted revision.</p>
+        </div>
+        <div class="mcq-v2-hero-icon"><i data-lucide="brain"></i></div>
+      </div>
+      <div class="panel-header-row mcq-v2-switch-row" style="margin-bottom:16px;">
         <div style="display:flex; align-items:center; gap:10px;">
-          <h2 class="section-title" style="margin:0;">BCS &amp; Govt Job MCQs</h2>
           <span class="badge" style="font-size:11.5px; padding:3px 10px; border-radius:12px; background:rgba(99,102,241,0.12); color:var(--accent1); font-weight:700; border:1px solid rgba(99,102,241,0.25);">1,000 Questions Bank</span>
         </div>
         <div class="segmented-toggle-group" id="quizFlashSwitch">
@@ -638,19 +656,62 @@
 
     <!-- ===== SYLLABUS ===== -->
     <section class="panel" id="panel-syllabus">
-      <h2 class="section-title">Syllabus Tracker</h2>
-      <div class="syllabus-overall glass">
-        <div class="overall-label"><span id="syllabusOverallLabel">0 / 0 topics completed</span><span
-            id="syllabusOverallPct">0%</span></div>
-        <div class="progress-track">
-          <div class="progress-fill" id="syllabusOverallFill" style="width:0%"></div>
+      <div class="syllabus-page-head">
+        <div>
+          <span class="syllabus-eyebrow"><i data-lucide="sparkles"></i> Your learning command center</span>
+          <h2 class="section-title syllabus-page-title">Syllabus Tracker</h2>
+          <p class="syllabus-page-subtitle">Turn your curriculum into a clear, measurable path from first topic to exam-ready.</p>
+        </div>
+        <div class="syllabus-head-mark" aria-hidden="true">
+          <i data-lucide="route"></i>
         </div>
       </div>
+
+      <div class="syllabus-overview-grid">
+        <div class="syllabus-overall glass">
+          <div class="syllabus-progress-heading">
+            <div>
+              <span class="syllabus-card-kicker">Overall progress</span>
+              <strong id="syllabusOverallLabel">0 / 0 topics completed</strong>
+            </div>
+            <span class="syllabus-progress-percent" id="syllabusOverallPct">0%</span>
+          </div>
+          <div class="progress-track syllabus-progress-track">
+            <div class="progress-fill" id="syllabusOverallFill" style="width:0%"></div>
+          </div>
+          <div class="syllabus-progress-foot">
+            <span><i data-lucide="check-circle-2"></i> Keep building your streak</span>
+            <span class="syllabus-status-dot"><span></span> Live</span>
+          </div>
+        </div>
+        <div class="syllabus-tip-card">
+          <div class="syllabus-tip-icon"><i data-lucide="lightbulb"></i></div>
+          <div>
+            <span class="syllabus-card-kicker">Small steps, big wins</span>
+            <strong>Finish one topic today</strong>
+            <p>Mark topics complete as you learn. Your progress is saved automatically.</p>
+          </div>
+        </div>
+      </div>
+
       <div class="entry-form syllabus-entry-form">
+        <div class="syllabus-form-heading">
+          <div class="syllabus-form-icon"><i data-lucide="plus"></i></div>
+          <div>
+            <strong>Build your curriculum</strong>
+            <span>Add a subject and its first topic to get started.</span>
+          </div>
+        </div>
         <div class="syllabus-form-row">
-          <input type="text" id="newCategoryInput" list="appSubjectDatalist" placeholder="Category / Subject Name (Choose or type)" class="syllabus-subject-input">
-          <input type="text" id="newTopicInput" placeholder="First Topic (Optional)" class="syllabus-topic-input">
-          <button class="pill solid" id="addCategoryBtn" type="button"><i data-lucide="plus"></i> <span>Add Category</span></button>
+          <label class="syllabus-field">
+            <span>Subject or category</span>
+            <input type="text" id="newCategoryInput" list="appSubjectDatalist" placeholder="e.g. English Grammar" class="syllabus-subject-input">
+          </label>
+          <label class="syllabus-field">
+            <span>First topic <em>optional</em></span>
+            <input type="text" id="newTopicInput" placeholder="e.g. Parts of speech" class="syllabus-topic-input">
+          </label>
+          <button class="pill solid" id="addCategoryBtn" type="button"><i data-lucide="plus"></i> <span>Add Subject</span></button>
         </div>
       </div>
       <div id="categoryList"></div>

@@ -353,6 +353,87 @@
     margin-bottom: 22px;
   }
 
+/* ================================================================
+   Tracker V2 — focus cockpit
+   ================================================================ */
+#panel-tracker {
+  position: relative;
+}
+
+#panel-tracker > .section-title {
+  font-size: clamp(24px, 3vw, 34px);
+  letter-spacing: -.04em;
+  margin-bottom: 20px;
+}
+
+#panel-tracker > .section-title::after {
+  content: 'Build consistency, one focused session at a time.';
+  display: block;
+  margin-top: 8px;
+  color: var(--text-soft);
+  font: 500 13px/1.5 var(--font-sans);
+  letter-spacing: 0;
+}
+
+#panel-tracker .session-card,
+#panel-tracker .target-card,
+#panel-tracker > .glass {
+  border-radius: 24px;
+  border-color: rgba(148,163,184,.18);
+  box-shadow: 0 16px 38px rgba(2,6,23,.14), inset 0 1px rgba(255,255,255,.06);
+}
+
+#panel-tracker .session-card {
+  padding: 26px;
+  background:
+    radial-gradient(circle at 50% 22%, rgba(99,102,241,.13), transparent 36%),
+    var(--surface);
+}
+
+#panel-tracker .target-card {
+  padding: 26px;
+  background: linear-gradient(145deg, rgba(6,182,212,.10), var(--surface) 54%);
+}
+
+#panel-tracker .timer-mode-selector,
+#panel-tracker .timer-duration-selector {
+  padding: 5px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: rgba(255,255,255,.025);
+}
+
+#panel-tracker .clock-orb {
+  width: min(260px, 70vw);
+  height: min(260px, 70vw);
+  margin-inline: auto;
+  border: 1px solid rgba(103,232,249,.3);
+  box-shadow: 0 0 0 12px rgba(6,182,212,.035), 0 0 60px rgba(6,182,212,.14);
+}
+
+#panel-tracker .timer-display {
+  font-size: clamp(32px, 5vw, 48px);
+  letter-spacing: -.06em;
+}
+
+#panel-tracker .activity-box,
+#panel-tracker .heatmap-stat-pill {
+  border-radius: 16px;
+  border-color: rgba(148,163,184,.18);
+  background: rgba(255,255,255,.035);
+}
+
+#panel-tracker .progress-track {
+  height: 10px;
+  border-radius: 99px;
+}
+
+@media (max-width: 700px) {
+  #panel-tracker .session-card,
+  #panel-tracker .target-card,
+  #panel-tracker > .glass { padding: 18px; border-radius: 18px; }
+}
+
   @media (max-width:850px) {
     .tracker-top {
       grid-template-columns: 1fr;
@@ -1024,4 +1105,3 @@
       width: 96%;
     }
   }
-

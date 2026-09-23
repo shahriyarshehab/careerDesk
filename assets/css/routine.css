@@ -323,6 +323,57 @@
   transform: translateY(-1px);
 }
 
+/* ================================================================
+   Routine V2 — daily execution board
+   ================================================================ */
+#homeRoutineSection,
+#routineCardWrap {
+  border-radius: 24px;
+  border-color: rgba(148,163,184,.2);
+  box-shadow: 0 16px 38px rgba(2,6,23,.14);
+}
+
+#homeRoutineSection {
+  padding: 24px;
+  background:
+    linear-gradient(145deg, rgba(99,102,241,.08), transparent 45%),
+    var(--surface);
+}
+
+#homeRoutineSection .routine-card-header {
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--border);
+}
+
+#homeRoutineSection .routine-card-header h2,
+#homeRoutineSection .routine-title-box h2 {
+  font-size: clamp(22px, 3vw, 30px);
+  letter-spacing: -.04em;
+}
+
+#homeRoutineSection .routine-table-container {
+  margin-top: 18px;
+  border-radius: 18px;
+  border-color: rgba(148,163,184,.18);
+  overflow: hidden;
+}
+
+#homeRoutineSection table thead th {
+  background: rgba(99,102,241,.08);
+  color: var(--text-soft);
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  font-size: 10px;
+}
+
+#homeRoutineSection tbody tr {
+  transition: background .18s ease, transform .18s ease;
+}
+
+#homeRoutineSection tbody tr:hover {
+  background: rgba(6,182,212,.06);
+}
+
 html[data-theme="light"] .routine-table-reset-btn {
   background: #f8fafc;
   border-color: #cbd5e1;
