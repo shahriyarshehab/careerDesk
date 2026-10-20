@@ -216,6 +216,72 @@ function openGroupChatSettingsModal() {
   renderGroupModerationPanel().catch(error => groupChatError(error, 'Unable to load moderation tools.'));
 }
 
+async function renderGroupModerationPanel() {
+  const panel = document.getElementById('groupchatModerationPanel');
+  const group = groupChatState.activeGroup;
+  if (!panel || !group || group.role !== 'owner') return;
+  const db = groupChatDb();
+  const base = db.collection('groups').doc(group.id);
+  const [requests, members] = await Promise.all([
+    base.collection('joinRequests').get(),
+    base.collection('members').get()
+  ]);
+  panel.hidden = false;
+  panel.innerHTML = `<h4>Join requests (${requests.size})</h4>
+    <div class="groupchat-moderation-list">${requests.empty ? '<p class="groupchat-subtle">No pending requests.</p>' : requests.docs.map(doc => {
+      const data = doc.data();
+      return `<div class="groupchat-moderation-row"><span>${escapeHtml(data.displayName || doc.id)}</span><span><button class="micro-btn" data-approve-uid="${escapeAttr(doc.id)}" type="button">Approve</button><button class="micro-btn danger" data-reject-uid="${escapeAttr(doc.id)}" type="button">Reject</button></span></div>`;
+    }).join('')}</div>
+    <h4>Members (${members.size})</h4>
+    <div class="groupchat-moderation-list">${members.docs.map(doc => {
+      const data = doc.data();
+      if (data.role === 'owner') return '';
+      return `<div class="groupchat-moderation-row"><span>${escapeHtml(data.displayName || doc.id)}</span><span><button class="micro-btn danger" data-remove-uid="${escapeAttr(doc.id)}" type="button">Remove</button><button class="micro-btn danger" data-block-uid="${escapeAttr(doc.id)}" type="button">Block</button></span></div>`;
+    }).join('')}</div>`;
+  panel.querySelectorAll('[data-approve-uid]').forEach(button => button.addEventListener('click', async () => {
+    try { await moderateJoinRequest(group.id, button.dataset.approveUid, true); await renderGroupModerationPanel(); } catch (error) { groupChatError(error, 'Unable to approve request.'); }
+  }));
+  panel.querySelectorAll('[data-reject-uid]').forEach(button => button.addEventListener('click', async () => {
+    try { await moderateJoinRequest(group.id, button.dataset.rejectUid, false); await renderGroupModerationPanel(); } catch (error) { groupChatError(error, 'Unable to reject request.'); }
+  }));
+  panel.querySelectorAll('[data-remove-uid]').forEach(button => button.addEventListener('click', async () => {
+    try { await removeGroupMember(group.id, button.dataset.removeUid, false); await renderGroupModerationPanel(); } catch (error) { groupChatError(error, 'Unable to remove member.'); }
+  }));
+  panel.querySelectorAll('[data-block-uid]').forEach(button => button.addEventListener('click', async () => {
+    try { await removeGroupMember(group.id, button.dataset.blockUid, true); await renderGroupModerationPanel(); } catch (error) { groupChatError(error, 'Unable to block member.'); }
+  }));
+}
+
+async function moderateJoinRequest(groupId, uid, approve) {
+  await groupChatAuthUser();
+  const db = groupChatDb();
+  const groupRef = db.collection('groups').doc(groupId);
+  const requestRef = groupRef.collection('joinRequests').doc(uid);
+  const requestSnapshot = await requestRef.get();
+  if (!requestSnapshot.exists) throw new Error('This request is no longer pending.');
+  const data = requestSnapshot.data();
+  const batch = db.batch();
+  if (approve) {
+    batch.set(groupRef.collection('members').doc(uid), { uid, displayName: data.displayName || 'Member', photoURL: data.photoURL || null, role: 'member', joinedAt: firebase.firestore.FieldValue.serverTimestamp() });
+    batch.set(db.collection('users').doc(uid).collection('groupMemberships').doc(groupId), { groupId, groupName: data.groupName, groupAvatarUrl: data.groupAvatarUrl || GROUP_CHAT_DEFAULT_AVATAR, role: 'member', joinedAt: firebase.firestore.FieldValue.serverTimestamp(), lastReadAt: null });
+    batch.update(groupRef, { memberCount: firebase.firestore.FieldValue.increment(1), updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
+  }
+  batch.delete(requestRef);
+  await batch.commit();
+}
+
+async function removeGroupMember(groupId, uid, block) {
+  await groupChatAuthUser();
+  const db = groupChatDb();
+  const groupRef = db.collection('groups').doc(groupId);
+  const batch = db.batch();
+  batch.delete(groupRef.collection('members').doc(uid));
+  batch.delete(db.collection('users').doc(uid).collection('groupMemberships').doc(groupId));
+  if (block) batch.set(groupRef.collection('blockedUsers').doc(uid), { uid, blockedAt: firebase.firestore.FieldValue.serverTimestamp() });
+  batch.update(groupRef, { memberCount: firebase.firestore.FieldValue.increment(-1), updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
+  await batch.commit();
+}
+
 async function updateGroupSettings() {
   const user = await groupChatAuthUser();
   const group = groupChatState.activeGroup;
@@ -228,72 +294,6 @@ async function updateGroupSettings() {
   if (avatarUrl) {
     const parsed = new URL(avatarUrl);
     if (!['http:', 'https:'].includes(parsed.protocol)) throw new Error('Avatar URL must use HTTPS.');
-  }
-
-  async function renderGroupModerationPanel() {
-    const panel = document.getElementById('groupchatModerationPanel');
-    const group = groupChatState.activeGroup;
-    if (!panel || !group || group.role !== 'owner') return;
-    const db = groupChatDb();
-    const base = db.collection('groups').doc(group.id);
-    const [requests, members] = await Promise.all([
-      base.collection('joinRequests').get(),
-      base.collection('members').get()
-    ]);
-    panel.hidden = false;
-    panel.innerHTML = `<h4>Join requests (${requests.size})</h4>
-      <div class="groupchat-moderation-list">${requests.empty ? '<p class="groupchat-subtle">No pending requests.</p>' : requests.docs.map(doc => {
-        const data = doc.data();
-        return `<div class="groupchat-moderation-row"><span>${escapeHtml(data.displayName || doc.id)}</span><span><button class="micro-btn" data-approve-uid="${escapeAttr(doc.id)}" type="button">Approve</button><button class="micro-btn danger" data-reject-uid="${escapeAttr(doc.id)}" type="button">Reject</button></span></div>`;
-      }).join('')}</div>
-      <h4>Members (${members.size})</h4>
-      <div class="groupchat-moderation-list">${members.docs.map(doc => {
-        const data = doc.data();
-        if (data.role === 'owner') return '';
-        return `<div class="groupchat-moderation-row"><span>${escapeHtml(data.displayName || doc.id)}</span><span><button class="micro-btn danger" data-remove-uid="${escapeAttr(doc.id)}" type="button">Remove</button><button class="micro-btn danger" data-block-uid="${escapeAttr(doc.id)}" type="button">Block</button></span></div>`;
-      }).join('')}</div>`;
-    panel.querySelectorAll('[data-approve-uid]').forEach(button => button.addEventListener('click', async () => {
-      try { await moderateJoinRequest(group.id, button.dataset.approveUid, true); await renderGroupModerationPanel(); } catch (error) { groupChatError(error, 'Unable to approve request.'); }
-    }));
-    panel.querySelectorAll('[data-reject-uid]').forEach(button => button.addEventListener('click', async () => {
-      try { await moderateJoinRequest(group.id, button.dataset.rejectUid, false); await renderGroupModerationPanel(); } catch (error) { groupChatError(error, 'Unable to reject request.'); }
-    }));
-    panel.querySelectorAll('[data-remove-uid]').forEach(button => button.addEventListener('click', async () => {
-      try { await removeGroupMember(group.id, button.dataset.removeUid, false); await renderGroupModerationPanel(); } catch (error) { groupChatError(error, 'Unable to remove member.'); }
-    }));
-    panel.querySelectorAll('[data-block-uid]').forEach(button => button.addEventListener('click', async () => {
-      try { await removeGroupMember(group.id, button.dataset.blockUid, true); await renderGroupModerationPanel(); } catch (error) { groupChatError(error, 'Unable to block member.'); }
-    }));
-  }
-
-  async function moderateJoinRequest(groupId, uid, approve) {
-    const user = await groupChatAuthUser();
-    const db = groupChatDb();
-    const groupRef = db.collection('groups').doc(groupId);
-    const requestRef = groupRef.collection('joinRequests').doc(uid);
-    const requestSnapshot = await requestRef.get();
-    if (!requestSnapshot.exists) throw new Error('This request is no longer pending.');
-    const data = requestSnapshot.data();
-    const batch = db.batch();
-    if (approve) {
-      batch.set(groupRef.collection('members').doc(uid), { uid, displayName: data.displayName || 'Member', photoURL: data.photoURL || null, role: 'member', joinedAt: firebase.firestore.FieldValue.serverTimestamp() });
-      batch.set(db.collection('users').doc(uid).collection('groupMemberships').doc(groupId), { groupId, groupName: data.groupName, groupAvatarUrl: data.groupAvatarUrl || GROUP_CHAT_DEFAULT_AVATAR, role: 'member', joinedAt: firebase.firestore.FieldValue.serverTimestamp(), lastReadAt: null });
-      batch.update(groupRef, { memberCount: firebase.firestore.FieldValue.increment(1), updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
-    }
-    batch.delete(requestRef);
-    await batch.commit();
-  }
-
-  async function removeGroupMember(groupId, uid, block) {
-    await groupChatAuthUser();
-    const db = groupChatDb();
-    const groupRef = db.collection('groups').doc(groupId);
-    const batch = db.batch();
-    batch.delete(groupRef.collection('members').doc(uid));
-    batch.delete(db.collection('users').doc(uid).collection('groupMemberships').doc(groupId));
-    if (block) batch.set(groupRef.collection('blockedUsers').doc(uid), { uid, blockedAt: firebase.firestore.FieldValue.serverTimestamp() });
-    batch.update(groupRef, { memberCount: firebase.firestore.FieldValue.increment(-1), updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
-    await batch.commit();
   }
   const db = groupChatDb();
   const batch = db.batch();
@@ -516,52 +516,260 @@ async function leaveGroup(groupId) {
   await loadMyGroups();
 }
 
+async function deleteGroup(groupId) {
+  const user = await groupChatAuthUser();
+  const group = groupChatState.groups.find(g => g.id === groupId);
+  if (!group || group.role !== 'owner') throw new Error('Only the group owner can delete this group.');
+  const db = groupChatDb();
+  const groupRef = db.collection('groups').doc(groupId);
+
+  // Delete all documents in each subcollection in batches
+  async function deleteSubcollection(collRef) {
+    let snap;
+    do {
+      snap = await collRef.limit(400).get();
+      if (snap.empty) break;
+      const batch = db.batch();
+      snap.docs.forEach(doc => batch.delete(doc.ref));
+      await batch.commit();
+    } while (!snap.empty);
+  }
+
+  await deleteSubcollection(groupRef.collection('members'));
+  await deleteSubcollection(groupRef.collection('messages'));
+  await deleteSubcollection(groupRef.collection('joinRequests'));
+  await deleteSubcollection(groupRef.collection('blockedUsers'));
+
+  // Delete the group doc itself and the owner's own membership record
+  const finalBatch = db.batch();
+  finalBatch.delete(groupRef);
+  finalBatch.delete(db.collection('users').doc(user.uid).collection('groupMemberships').doc(groupId));
+  await finalBatch.commit();
+
+  // Reset UI
+  destroyMessageListener();
+  if (groupChatState.activeGroupId === groupId) {
+    groupChatState.activeGroupId = null;
+    groupChatState.activeGroup = null;
+  }
+  await loadMyGroups();
+  renderGroupChatHeader();
+  const composer = document.getElementById('groupchatComposer');
+  if (composer) composer.hidden = true;
+}
+
 async function selectGroup(groupId) {
   destroyMessageListener();
   groupChatState.activeGroupId = groupId;
   groupChatState.activeGroup = groupChatState.groups.find(group => group.id === groupId) || null;
   renderMyGroups();
   renderGroupChatHeader();
+  hideMembersPanel();
+  renderPinnedBanner(null); // clear while loading
   const composer = document.getElementById('groupchatComposer');
   if (!groupId) { if (composer) composer.hidden = true; return; }
   if (composer) composer.hidden = false;
   saveGroupChatUiState();
   subscribeToMessages(groupId);
+  // Load pinned message for this group
+  try {
+    const snap = await groupChatDb().collection('groups').doc(groupId).get();
+    if (snap.exists) renderPinnedBanner(snap.data().pinnedMessage || null);
+  } catch (e) { /* non-critical */ }
 }
 
 function renderGroupChatHeader() {
   const header = document.getElementById('groupchatHeader');
   if (!header) return;
   const group = groupChatState.activeGroup;
-  if (!group) { header.innerHTML = '<span class="groupchat-subtle">Choose a group to start chatting.</span>'; return; }
-  header.innerHTML = `<div class="groupchat-header-identity">${groupChatGroupAvatar(group.groupAvatarUrl || group.avatarUrl, group.groupName || group.name)}<div><h3 class="groupchat-title">${escapeHtml(group.groupName || group.name)}</h3><span class="groupchat-subtle">${escapeHtml(group.description || '')}</span></div></div>
-    <div class="groupchat-header-actions">${group.role === 'owner' ? '<button class="pill subtle" id="groupchatSettingsBtn" type="button"><i data-lucide="settings"></i><span>Settings</span></button>' : '<button class="pill subtle" id="groupchatLeaveBtn" type="button">Leave</button>'}</div>`;
-  const settings = document.getElementById('groupchatSettingsBtn');
-  if (settings) settings.addEventListener('click', openGroupChatSettingsModal);
-  const leave = document.getElementById('groupchatLeaveBtn');
-  if (leave && group.role !== 'owner') leave.addEventListener('click', async () => { try { await leaveGroup(group.id); } catch (error) { groupChatError(error, 'Unable to leave group.'); } });
+  if (!group) {
+    header.innerHTML = '<span class="groupchat-subtle">Choose a group to start chatting.</span>';
+    return;
+  }
+  const isOwner = group.role === 'owner';
+  const memberCount = group.memberCount || '';
+  header.innerHTML = `
+    <div class="groupchat-header-identity">
+      ${groupChatGroupAvatar(group.groupAvatarUrl || group.avatarUrl, group.groupName || group.name)}
+      <div>
+        <h3 class="groupchat-title">${escapeHtml(group.groupName || group.name)}</h3>
+        <span class="groupchat-member-count-badge">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          ${escapeHtml(String(memberCount))} members
+        </span>
+      </div>
+    </div>
+    <div class="groupchat-header-actions">
+      <button class="pill subtle" id="groupchatInviteBtn" type="button" title="Copy invite">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+        <span>Invite</span>
+      </button>
+      <button class="pill subtle" id="groupchatMembersBtn" type="button">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        <span>Members</span>
+      </button>
+      ${isOwner
+        ? `<button class="pill subtle" id="groupchatSettingsBtn" type="button">
+             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+             <span>Settings</span>
+           </button>`
+        : `<button class="pill subtle danger" id="groupchatLeaveBtn" type="button">
+             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+             <span>Leave</span>
+           </button>`
+      }
+    </div>`;
+
+  document.getElementById('groupchatMembersBtn')?.addEventListener('click', toggleMembersPanel);
+  document.getElementById('groupchatInviteBtn')?.addEventListener('click', () => groupChatCopyInvite(group));
+  document.getElementById('groupchatSettingsBtn')?.addEventListener('click', openGroupChatSettingsModal);
+  document.getElementById('groupchatLeaveBtn')?.addEventListener('click', async () => {
+    try { await leaveGroup(group.id); } catch (error) { groupChatError(error, 'Unable to leave group.'); }
+  });
+  document.getElementById('groupchatMembersPanelClose')?.addEventListener('click', hideMembersPanel);
 }
 
-async function subscribeToMessages(groupId) {
+/* ── Members Panel ── */
+function toggleMembersPanel() {
+  const panel = document.getElementById('groupchatMembersPanel');
+  if (!panel) return;
+  if (panel.hidden) {
+    panel.hidden = false;
+    renderMembersPanel();
+  } else {
+    hideMembersPanel();
+  }
+}
+
+function hideMembersPanel() {
+  const panel = document.getElementById('groupchatMembersPanel');
+  if (panel) panel.hidden = true;
+}
+
+async function renderMembersPanel() {
+  const list = document.getElementById('groupchatMembersList');
+  const group = groupChatState.activeGroup;
+  if (!list || !group) return;
+  list.innerHTML = '<div class="groupchat-empty" style="padding:12px 4px">Loading…</div>';
   try {
-    const user = await groupChatAuthUser();
-    groupChatState.messagesUnsubscribe = groupChatDb().collection('groups').doc(groupId).collection('messages')
-      .orderBy('createdAt', 'asc').limitToLast(GROUP_CHAT_PAGE_SIZE).onSnapshot(snapshot => {
-        groupChatState.messages = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        renderMessages(user.uid);
-        saveGroupChatUiState();
-      }, error => groupChatError(error, 'Unable to load group messages.'));
-  } catch (error) { groupChatError(error, 'Unable to open this group.'); }
+    const snapshot = await groupChatDb().collection('groups').doc(group.id).collection('members').get();
+    const isOwner = group.role === 'owner';
+    if (snapshot.empty) { list.innerHTML = '<div class="groupchat-empty" style="padding:12px 4px">No members found.</div>'; return; }
+    // Owner first
+    const docs = snapshot.docs.slice().sort((a, b) => {
+      if (a.data().role === 'owner') return -1;
+      if (b.data().role === 'owner') return 1;
+      return (a.data().displayName || '').localeCompare(b.data().displayName || '');
+    });
+    list.innerHTML = docs.map(doc => {
+      const m = doc.data();
+      const isThisOwner = m.role === 'owner';
+      const actions = isOwner && !isThisOwner
+        ? `<div class="groupchat-member-actions">
+             <button class="micro-btn danger" data-remove-uid="${escapeAttr(doc.id)}" type="button" title="Remove">✕</button>
+           </div>`
+        : '';
+      return `<div class="groupchat-member-row">
+        ${groupChatAvatar(m.photoURL, m.displayName)}
+        <div class="groupchat-member-info">
+          <div class="groupchat-member-name">${escapeHtml(m.displayName || 'Member')}</div>
+          <span class="groupchat-role-badge ${m.role === 'owner' ? 'owner' : 'member'}">${m.role === 'owner' ? '👑 Owner' : 'Member'}</span>
+        </div>
+        ${actions}
+      </div>`;
+    }).join('');
+    // Wire remove buttons
+    list.querySelectorAll('[data-remove-uid]').forEach(btn => btn.addEventListener('click', async () => {
+      if (!confirm(`Remove this member?`)) return;
+      try {
+        await removeGroupMember(group.id, btn.dataset.removeUid, false);
+        if (typeof showToast === 'function') showToast('Member removed.');
+        renderMembersPanel();
+      } catch (e) { groupChatError(e, 'Unable to remove member.'); }
+    }));
+  } catch (e) { list.innerHTML = '<div class="groupchat-empty" style="padding:12px 4px">Failed to load members.</div>'; }
+}
+
+/* ── Pinned Message ── */
+function renderPinnedBanner(pinnedMessage) {
+  const banner = document.getElementById('groupchatPinnedBanner');
+  if (!banner) return;
+  if (!pinnedMessage || !pinnedMessage.text) { banner.hidden = true; banner.innerHTML = ''; return; }
+  const isOwner = groupChatState.activeGroup?.role === 'owner';
+  banner.hidden = false;
+  banner.innerHTML = `
+    <span class="groupchat-pinned-icon">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="17" x2="12" y2="22"/><path d="M5 17H19V15L17 11V6H18V4H6V6H7V11L5 15V17Z"/></svg>
+    </span>
+    <div class="groupchat-pinned-content">
+      <div class="groupchat-pinned-label">📌 Pinned · ${escapeHtml(pinnedMessage.senderName || '')}</div>
+      <div class="groupchat-pinned-text">${escapeHtml(pinnedMessage.text)}</div>
+    </div>
+    ${isOwner ? `<button class="micro-btn groupchat-pinned-unpin" id="groupchatUnpinBtn" type="button" title="Unpin">Unpin</button>` : ''}`;
+  if (isOwner) {
+    banner.querySelector('#groupchatUnpinBtn')?.addEventListener('click', async () => {
+      try { await unpinMessage(); } catch (e) { groupChatError(e, 'Unable to unpin.'); }
+    });
+  }
+}
+
+async function pinMessage(messageId, text, senderName) {
+  const group = groupChatState.activeGroup;
+  if (!group || group.role !== 'owner') return;
+  const pinnedMessage = { messageId, text: text.slice(0, 200), senderName };
+  await groupChatDb().collection('groups').doc(group.id).update({ pinnedMessage });
+  renderPinnedBanner(pinnedMessage);
+  if (typeof showToast === 'function') showToast('Message pinned.');
+}
+
+async function unpinMessage() {
+  const group = groupChatState.activeGroup;
+  if (!group || group.role !== 'owner') return;
+  await groupChatDb().collection('groups').doc(group.id).update({ pinnedMessage: firebase.firestore.FieldValue.delete() });
+  renderPinnedBanner(null);
+  if (typeof showToast === 'function') showToast('Message unpinned.');
+}
+
+/* ── Invite / Share ── */
+function groupChatCopyInvite(group) {
+  const name = group.groupName || group.name || 'this group';
+  const text = `Join "${name}" study group on CareerDesk! Search for it in the Group Chat tab.`;
+  navigator.clipboard?.writeText(text).then(() => {
+    const btn = document.getElementById('groupchatInviteBtn');
+    if (!btn) return;
+    btn.classList.add('groupchat-invite-copied');
+    const span = btn.querySelector('span');
+    if (span) { span.textContent = 'Copied!'; }
+    setTimeout(() => {
+      btn.classList.remove('groupchat-invite-copied');
+      if (span) span.textContent = 'Invite';
+    }, 2200);
+  }).catch(() => { if (typeof showToast === 'function') showToast('Copy failed — try manually.', true); });
 }
 
 function renderMessages(uid) {
   const container = document.getElementById('groupchatMessages');
   if (!container) return;
-  if (!groupChatState.messages.length) { container.innerHTML = '<div class="groupchat-empty">No messages yet. Start the conversation.</div>'; return; }
-  container.innerHTML = groupChatState.messages.map(message => `<article class="chat-bubble ${message.senderId === uid ? 'me' : ''}">
-    <div class="chat-sender">${groupChatAvatar(message.senderAvatarUrl, message.senderName, 'groupchat-avatar small')}<span>${escapeHtml(message.senderName || 'Member')}</span><time>${escapeHtml(groupChatFormatTime(message.createdAt))}</time></div>
-    <div class="text">${escapeHtml(message.text || '')}</div>
-  </article>`).join('');
+  const isOwner = groupChatState.activeGroup?.role === 'owner';
+  if (!groupChatState.messages.length) {
+    container.innerHTML = '<div class="groupchat-empty">No messages yet. Start the conversation.</div>';
+    return;
+  }
+  container.innerHTML = groupChatState.messages.map(message => {
+    const isMine = message.senderId === uid;
+    const pinBtn = isOwner
+      ? `<div class="chat-bubble-actions"><button class="micro-btn" data-pin-id="${escapeAttr(message.id)}" data-pin-text="${escapeAttr(message.text || '')}" data-pin-sender="${escapeAttr(message.senderName || '')}" type="button" title="Pin this message">📌</button></div>`
+      : '';
+    return `<article class="chat-bubble ${isMine ? 'me' : ''}">
+      ${pinBtn}
+      <div class="chat-sender">${groupChatAvatar(message.senderAvatarUrl, message.senderName, 'groupchat-avatar small')}<span>${escapeHtml(message.senderName || 'Member')}</span><time>${escapeHtml(groupChatFormatTime(message.createdAt))}</time></div>
+      <div class="text">${escapeHtml(message.text || '')}</div>
+    </article>`;
+  }).join('');
+  // Wire pin buttons
+  container.querySelectorAll('[data-pin-id]').forEach(btn => btn.addEventListener('click', async () => {
+    try { await pinMessage(btn.dataset.pinId, btn.dataset.pinText, btn.dataset.pinSender); } catch (e) { groupChatError(e, 'Unable to pin message.'); }
+  }));
   container.scrollTop = container.scrollHeight;
 }
 
@@ -661,6 +869,25 @@ function initGroupChat() {
     } finally {
       button.disabled = false;
       button.textContent = 'Save Settings';
+    }
+  });
+  const deleteGroupBtn = document.getElementById('groupchatDeleteGroupBtn');
+  if (deleteGroupBtn) deleteGroupBtn.addEventListener('click', async () => {
+    const group = groupChatState.activeGroup;
+    if (!group) return;
+    const confirmed = window.confirm(`Are you sure you want to permanently delete "${group.groupName || group.name}"?\n\nAll messages and members will be removed. This cannot be undone.`);
+    if (!confirmed) return;
+    deleteGroupBtn.disabled = true;
+    deleteGroupBtn.textContent = 'Deleting...';
+    try {
+      await deleteGroup(group.id);
+      closeModal('groupchatSettingsModal');
+      if (typeof showToast === 'function') showToast('Group deleted.');
+    } catch (error) {
+      groupChatError(error, 'Unable to delete group.');
+      deleteGroupBtn.disabled = false;
+      deleteGroupBtn.innerHTML = '<i data-lucide="trash-2"></i><span>Delete Group</span>';
+      if (window.lucide) window.lucide.createIcons({ el: deleteGroupBtn });
     }
   });
   if (composer) composer.addEventListener('submit', async event => {

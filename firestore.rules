@@ -80,12 +80,19 @@ service cloud.firestore {
       match /members/{uid} {
         allow read: if isGroupMember(groupId) || isGroupOwner(groupId);
         allow create: if signedIn() && (
+          // Owner creating their own owner-role membership when creating the group
           (uid == request.auth.uid
             && request.resource.data.role == 'owner'
             && get(/databases/$(database)/documents/groups/$(groupId)).data.ownerId == request.auth.uid) ||
+          // Any authenticated user joining a public group that does NOT require approval
           (uid == request.auth.uid
             && request.resource.data.role == 'member'
-            && get(/databases/$(database)/documents/groups/$(groupId)).data.isPublic == true)
+            && get(/databases/$(database)/documents/groups/$(groupId)).data.isPublic == true
+            && get(/databases/$(database)/documents/groups/$(groupId)).data.requiresApproval == false
+            && !exists(/databases/$(database)/documents/groups/$(groupId)/blockedUsers/$(request.auth.uid))) ||
+          // Group owner approving a join request — writes the approved user's member doc
+          (isGroupOwner(groupId)
+            && request.resource.data.role == 'member')
         );
         allow update: if isGroupOwner(groupId);
         allow delete: if signedIn() && (uid == request.auth.uid || isGroupOwner(groupId));
@@ -117,6 +124,7 @@ service cloud.firestore {
 
     match /users/{uid}/groupMemberships/{groupId} {
       allow read: if signedIn() && (uid == request.auth.uid || isGroupOwner(groupId));
+      // User writes their own membership; owner writes another user's membership on approval
       allow write: if signedIn() && (uid == request.auth.uid || isGroupOwner(groupId));
     }
 
