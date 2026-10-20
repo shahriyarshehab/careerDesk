@@ -743,8 +743,11 @@
             </div>
           </div>
           <input id="groupchatSearchInput" class="groupchat-input" type="search" placeholder="Search public groups" autocomplete="off">
-          <div id="groupchatSearchResults" class="groupchat-list"></div>
-          <div id="groupchatMyGroups" class="groupchat-list"></div>
+          <div id="groupchatSearchResults" class="groupchat-search-results"></div>
+          <div class="groupchat-my-groups-section">
+            <span class="groupchat-section-label">My Groups</span>
+            <div id="groupchatMyGroups" class="groupchat-list"></div>
+          </div>
         </aside>
         <div class="groupchat-card groupchat-main">
           <header id="groupchatHeader" class="groupchat-header groupchat-header-v2"></header>
@@ -1511,8 +1514,18 @@
         <input id="groupchatNameInput" class="groupchat-input" maxlength="80" required>
         <label class="groupchat-label" for="groupchatDescriptionInput">Description</label>
         <textarea id="groupchatDescriptionInput" class="groupchat-textarea" maxlength="1000" required></textarea>
-        <label class="groupchat-label" for="groupchatAvatarInput">Optional avatar URL</label>
-        <input id="groupchatAvatarInput" class="groupchat-input" type="url" placeholder="https://example.com/group-avatar.png">
+        <label class="groupchat-label">Choose Group Icon</label>
+        <div class="groupchat-preset-icons-grid" id="groupchatCreatePresetIcons"></div>
+
+        <label class="groupchat-label" for="groupchatAvatarInput">Or Custom Image URL <span class="groupchat-label-hint">(optional)</span></label>
+        <input id="groupchatAvatarInput" class="groupchat-input" type="text" inputmode="url" placeholder="https://example.com/custom-avatar.png" autocomplete="off">
+        <div class="groupchat-avatar-preview-row">
+          <img id="groupchatAvatarPreview" class="groupchat-avatar-preview-img" src="" alt="Avatar preview">
+          <div class="groupchat-avatar-preview-copy">
+            <span class="groupchat-avatar-preview-name" id="groupchatAvatarPreviewName">Study & BCS</span>
+            <span class="groupchat-avatar-preview-hint">Pick an icon above or paste a custom link</span>
+          </div>
+        </div>
         <label class="groupchat-label" for="groupchatJoinPolicyInput">Who can join this chat?</label>
         <select id="groupchatJoinPolicyInput" class="groupchat-input">
           <option value="anyone" selected>Anyone (Anyone can join and chat directly)</option>
@@ -1532,8 +1545,18 @@
         <input id="groupchatSettingsName" class="groupchat-input" maxlength="80" required>
         <label class="groupchat-label" for="groupchatSettingsDescription">Description</label>
         <textarea id="groupchatSettingsDescription" class="groupchat-textarea" maxlength="1000" required></textarea>
-        <label class="groupchat-label" for="groupchatSettingsAvatar">Avatar URL</label>
-        <input id="groupchatSettingsAvatar" class="groupchat-input" type="url" placeholder="https://example.com/group-avatar.png">
+        <label class="groupchat-label">Choose Group Icon</label>
+        <div class="groupchat-preset-icons-grid" id="groupchatSettingsPresetIcons"></div>
+
+        <label class="groupchat-label" for="groupchatSettingsAvatar">Or Custom Image URL <span class="groupchat-label-hint">(optional)</span></label>
+        <input id="groupchatSettingsAvatar" class="groupchat-input" type="text" inputmode="url" placeholder="https://example.com/custom-avatar.png" autocomplete="off">
+        <div class="groupchat-avatar-preview-row">
+          <img id="groupchatSettingsAvatarPreview" class="groupchat-avatar-preview-img" src="" alt="Avatar preview">
+          <div class="groupchat-avatar-preview-copy">
+            <span class="groupchat-avatar-preview-name" id="groupchatSettingsAvatarPreviewName">Current Avatar</span>
+            <span class="groupchat-avatar-preview-hint">Pick an icon above or paste a custom link</span>
+          </div>
+        </div>
         <label class="groupchat-label" for="groupchatSettingsJoinPolicy">Who can join this chat?</label>
         <select id="groupchatSettingsJoinPolicy" class="groupchat-input">
           <option value="anyone">Anyone (Anyone can join and chat directly)</option>

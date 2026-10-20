@@ -2,8 +2,28 @@
 
 const GROUP_CHAT_UI_KEY = 'careerdesk-groupchat-ui-v1';
 const GROUP_CHAT_PAGE_SIZE = 50;
-const GROUP_CHAT_DEFAULT_AVATAR = 'assets/icons/people.png';
-const GROUP_CHAT_GENERAL_ID = 'general';
+
+const PRESET_GROUP_ICONS = [
+  { id: 'study', label: 'Study & BCS', color1: '#6366f1', color2: '#4338ca', path: '<path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/><path d="M6 2v20"/>' },
+  { id: 'target', label: 'Exam Target', color1: '#f43f5e', color2: '#be123c', path: '<circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>' },
+  { id: 'quiz', label: 'Quiz & Brain', color1: '#f59e0b', color2: '#b45309', path: '<path d="M12 2a7 7 0 0 1 7 7c0 2.38-1.19 4.47-3 5.74V17a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2v-2.26C6.19 13.47 5 11.38 5 9a7 7 0 0 1 7-7Z"/><path d="M9 21h6"/>' },
+  { id: 'tech', label: 'Tech & ICT', color1: '#06b6d4', color2: '#0e7490', path: '<polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>' },
+  { id: 'gk', label: 'World & GK', color1: '#10b981', color2: '#047857', path: '<circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1 4-10z"/>' },
+  { id: 'math', label: 'Math & Logic', color1: '#8b5cf6', color2: '#6d28d9', path: '<rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="16" y1="14" x2="16" y2="18"/><path d="M8 10h.01"/><path d="M12 10h.01"/><path d="M16 10h.01"/><path d="M8 14h.01"/><path d="M12 14h.01"/><path d="M8 18h.01"/><path d="M12 18h.01"/>' },
+  { id: 'lang', label: 'English & Verbal', color1: '#14b8a6', color2: '#0f766e', path: '<path d="m5 8 6 6"/><path d="m4 14 6-6 2-3"/><path d="M2 5h12"/><path d="M7 2h1"/><path d="m22 22-5-10-5 10"/><path d="M14 18h6"/>' },
+  { id: 'trophy', label: 'Rank & Club', color1: '#eab308', color2: '#a16207', path: '<path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.45 1-1 1H7v4h10v-4h-2c-.55 0-1-.45-1-1v-2.34"/><path d="M18 4H6v7a6 6 0 0 0 12 0V4Z"/>' },
+  { id: 'community', label: 'Community', color1: '#3b82f6', color2: '#1d4ed8', path: '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>' },
+  { id: 'sprint', label: 'Quick Sprint', color1: '#f97316', color2: '#c2410c', path: '<polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>' },
+  { id: 'science', label: 'Science & Lab', color1: '#ec4899', color2: '#be185d', path: '<path d="M10 2v7.31"/><path d="M14 2v7.31"/><path d="M8.5 2h7"/><path d="M14 9.3 18.2 16c1.1 1.7.3 4-1.7 4H7.5c-2 0-2.8-2.3-1.7-4L10 9.3"/><line x1="7" y1="15" x2="17" y2="15"/>' },
+  { id: 'ethics', label: 'Law & Ethics', color1: '#64748b', color2: '#334155', path: '<path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="M7 21h10"/><path d="M12 3v18"/><path d="M3 7h18"/>' }
+];
+
+PRESET_GROUP_ICONS.forEach(item => {
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100"><defs><linearGradient id="g_${item.id}" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="${item.color1}"/><stop offset="100%" stop-color="${item.color2}"/></linearGradient></defs><rect width="100" height="100" rx="50" fill="url(#g_${item.id})"/><g transform="translate(26, 26) scale(2)" stroke="#ffffff" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">${item.path}</g></svg>`;
+  item.uri = 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
+});
+
+const GROUP_CHAT_DEFAULT_AVATAR = PRESET_GROUP_ICONS[0].uri;
 let groupChatState = {
   activeGroupId: null,
   groupsUnsubscribe: null,
@@ -19,91 +39,10 @@ let groupChatState = {
   loading: false
 };
 
-let generalGroupPromise = null;
-
 function groupChatUser() {
   const user = typeof getCachedAuthUser === 'function' ? getCachedAuthUser() : null;
   if (!user) throw new Error('Please sign in to use Group Chat.');
   return user;
-}
-
-async function ensureGeneralGroup() {
-  if (generalGroupPromise) return generalGroupPromise;
-  generalGroupPromise = (async () => {
-    const user = await groupChatAuthUser();
-    const db = groupChatDb();
-    const groupRef = db.collection('groups').doc(GROUP_CHAT_GENERAL_ID);
-    const groupSnapshot = await groupRef.get();
-    if (!groupSnapshot.exists) {
-      const now = firebase.firestore.FieldValue.serverTimestamp();
-      await groupRef.set({
-        name: 'General',
-        normalizedName: 'general',
-        description: 'A public study community for everyone on CareerDesk.',
-        avatarUrl: GROUP_CHAT_DEFAULT_AVATAR,
-        ownerId: user.uid,
-        ownerName: user.displayName || getEffectiveUsername(user),
-        ownerAvatarUrl: user.photoURL || null,
-        isPublic: true,
-        requiresApproval: false,
-        memberCount: 1,
-        createdAt: now,
-        updatedAt: now,
-        lastMessageAt: null,
-        lastMessagePreview: null
-      });
-      const membershipBatch = db.batch();
-      membershipBatch.set(groupRef.collection('members').doc(user.uid), {
-        uid: user.uid,
-        displayName: user.displayName || getEffectiveUsername(user),
-        photoURL: user.photoURL || null,
-        role: 'owner',
-        joinedAt: now
-      });
-      membershipBatch.set(db.collection('users').doc(user.uid).collection('groupMemberships').doc(GROUP_CHAT_GENERAL_ID), {
-        groupId: GROUP_CHAT_GENERAL_ID,
-        groupName: 'General',
-        groupAvatarUrl: GROUP_CHAT_DEFAULT_AVATAR,
-        role: 'owner',
-        joinedAt: now,
-        lastReadAt: null
-      });
-      try {
-        await membershipBatch.commit();
-        await groupRef.update({ memberCount: 1, updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
-      } catch (error) {
-        if (error.code !== 'already-exists' && error.code !== 'failed-precondition') throw error;
-      }
-    }
-    const memberRef = groupRef.collection('members').doc(user.uid);
-    const memberSnapshot = await memberRef.get();
-    if (!memberSnapshot.exists) {
-      const group = (await groupRef.get()).data();
-      const now = firebase.firestore.FieldValue.serverTimestamp();
-      const membershipBatch = db.batch();
-      membershipBatch.set(memberRef, {
-        uid: user.uid,
-        displayName: user.displayName || getEffectiveUsername(user),
-        photoURL: user.photoURL || null,
-        role: 'member',
-        joinedAt: now
-      });
-      membershipBatch.set(db.collection('users').doc(user.uid).collection('groupMemberships').doc(GROUP_CHAT_GENERAL_ID), {
-        groupId: GROUP_CHAT_GENERAL_ID,
-        groupName: group.name,
-        groupAvatarUrl: group.avatarUrl || GROUP_CHAT_DEFAULT_AVATAR,
-        role: 'member',
-        joinedAt: now,
-        lastReadAt: null
-      });
-      await membershipBatch.commit();
-      await groupRef.update({
-        memberCount: firebase.firestore.FieldValue.increment(1),
-        updatedAt: now
-      });
-    }
-  })().finally(() => { generalGroupPromise = null; });
-  return generalGroupPromise;
 }
 
 async function groupChatAuthUser() {
@@ -184,12 +123,95 @@ function groupChatError(error, fallback) {
   }
 }
 
+function renderPresetIconPicker({ gridId, inputId, previewId, previewNameId, currentUri = '', onSelect }) {
+  const grid = document.getElementById(gridId);
+  const input = document.getElementById(inputId);
+  const preview = document.getElementById(previewId);
+  const previewName = document.getElementById(previewNameId);
+  if (!grid || !input || !preview) return;
+
+  const targetUri = (currentUri || input.value || '').trim();
+  let matchedIcon = PRESET_GROUP_ICONS.find(i => i.uri === targetUri);
+  if (!matchedIcon && (!targetUri || targetUri === 'assets/icons/people.png')) {
+    matchedIcon = PRESET_GROUP_ICONS[0];
+  }
+
+  grid.innerHTML = PRESET_GROUP_ICONS.map(item => {
+    const isSelected = matchedIcon && matchedIcon.id === item.id && (!input.value.trim() || input.value.trim() === item.uri);
+    return `
+      <button type="button" class="groupchat-preset-icon-btn ${isSelected ? 'selected' : ''}" data-icon-id="${item.id}" title="${escapeAttr(item.label)}" aria-label="${escapeAttr(item.label)}">
+        <img src="${escapeAttr(item.uri)}" alt="${escapeAttr(item.label)}">
+      </button>`;
+  }).join('');
+
+  const syncState = (icon, isCustom = false) => {
+    grid.querySelectorAll('.groupchat-preset-icon-btn').forEach(btn => {
+      btn.classList.toggle('selected', !isCustom && !!icon && btn.dataset.iconId === icon.id);
+    });
+    if (!isCustom && icon) {
+      grid.dataset.selectedUri = icon.uri;
+      preview.src = icon.uri;
+      if (previewName) previewName.textContent = icon.label;
+    } else {
+      grid.dataset.selectedUri = '';
+      if (previewName) previewName.textContent = 'Custom Image';
+    }
+  };
+
+  if (matchedIcon && (!input.value.trim() || input.value.trim() === matchedIcon.uri)) {
+    syncState(matchedIcon, false);
+  } else if (input.value.trim()) {
+    syncState(null, true);
+    preview.src = input.value.trim();
+  } else {
+    syncState(PRESET_GROUP_ICONS[0], false);
+  }
+
+  grid.querySelectorAll('.groupchat-preset-icon-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const icon = PRESET_GROUP_ICONS.find(i => i.id === btn.dataset.iconId);
+      if (!icon) return;
+      input.value = '';
+      syncState(icon, false);
+      if (typeof onSelect === 'function') onSelect(icon);
+    });
+  });
+
+  input.oninput = () => {
+    const val = input.value.trim();
+    if (!val) {
+      const activeBtn = grid.querySelector('.groupchat-preset-icon-btn.selected');
+      const icon = activeBtn ? PRESET_GROUP_ICONS.find(i => i.id === activeBtn.dataset.iconId) : PRESET_GROUP_ICONS[0];
+      syncState(icon, false);
+      return;
+    }
+    const matchingPreset = PRESET_GROUP_ICONS.find(i => i.uri === val);
+    if (matchingPreset) {
+      syncState(matchingPreset, false);
+    } else {
+      syncState(null, true);
+      let isValidUrl = false;
+      try { isValidUrl = ['http:', 'https:'].includes(new URL(val).protocol); } catch (e) {}
+      preview.src = isValidUrl ? val : PRESET_GROUP_ICONS[0].uri;
+      preview.onerror = () => { preview.src = PRESET_GROUP_ICONS[0].uri; };
+    }
+  };
+}
+
 function openGroupChatCreateModal() {
   const modal = document.getElementById('groupchatCreateModal');
   if (!modal) {
     groupChatError(new Error('Create Group dialog is missing from the page.'), 'Unable to open Create Group.');
     return;
   }
+  document.getElementById('groupchatCreateForm')?.reset();
+  renderPresetIconPicker({
+    gridId: 'groupchatCreatePresetIcons',
+    inputId: 'groupchatAvatarInput',
+    previewId: 'groupchatAvatarPreview',
+    previewNameId: 'groupchatAvatarPreviewName',
+    currentUri: PRESET_GROUP_ICONS[0].uri
+  });
   modal.style.display = 'flex';
   modal.classList.add('open');
   document.getElementById('groupchatNameInput')?.focus();
@@ -209,8 +231,19 @@ function openGroupChatSettingsModal() {
   if (!group || group.role !== 'owner') return;
   document.getElementById('groupchatSettingsName').value = group.groupName || group.name || '';
   document.getElementById('groupchatSettingsDescription').value = group.description || '';
-  document.getElementById('groupchatSettingsAvatar').value = group.groupAvatarUrl || group.avatarUrl || '';
+  const currentAvatar = group.groupAvatarUrl || group.avatarUrl || '';
+  const isCustomUrl = currentAvatar && !currentAvatar.startsWith('assets/') && !currentAvatar.startsWith('data:image/svg+xml');
+  document.getElementById('groupchatSettingsAvatar').value = isCustomUrl ? currentAvatar : '';
   document.getElementById('groupchatSettingsStatus').textContent = '';
+
+  renderPresetIconPicker({
+    gridId: 'groupchatSettingsPresetIcons',
+    inputId: 'groupchatSettingsAvatar',
+    previewId: 'groupchatSettingsAvatarPreview',
+    previewNameId: 'groupchatSettingsAvatarPreviewName',
+    currentUri: currentAvatar
+  });
+
   // Populate join policy from Firestore (membership doc may not carry requiresApproval)
   groupChatDb().collection('groups').doc(group.id).get().then(snap => {
     const joinPolicySel = document.getElementById('groupchatSettingsJoinPolicy');
@@ -262,12 +295,19 @@ async function updateGroupSettings() {
   if (!group || group.role !== 'owner' || group.id !== groupChatState.activeGroupId) throw new Error('Only the group owner can change these settings.');
   const name = document.getElementById('groupchatSettingsName').value.trim();
   const description = document.getElementById('groupchatSettingsDescription').value.trim();
-  const avatarUrl = document.getElementById('groupchatSettingsAvatar').value.trim();
+  const customAvatar = document.getElementById('groupchatSettingsAvatar')?.value.trim() || '';
+  const selectedPreset = document.getElementById('groupchatSettingsPresetIcons')?.dataset.selectedUri || '';
+  const avatarUrl = customAvatar || selectedPreset || group.groupAvatarUrl || group.avatarUrl || GROUP_CHAT_DEFAULT_AVATAR;
+
   if (name.length < 3 || name.length > 80) throw new Error('Group name must be between 3 and 80 characters.');
   if (!description || description.length > 1000) throw new Error('Enter a description under 1000 characters.');
-  if (avatarUrl) {
-    const parsed = new URL(avatarUrl);
-    if (!['http:', 'https:'].includes(parsed.protocol)) throw new Error('Avatar URL must use HTTPS.');
+  if (avatarUrl && !avatarUrl.startsWith('data:image/svg+xml') && !avatarUrl.startsWith('assets/')) {
+    try {
+      const parsed = new URL(avatarUrl);
+      if (!['http:', 'https:'].includes(parsed.protocol)) throw new Error();
+    } catch (e) {
+      throw new Error('Avatar URL must be a valid HTTPS image URL or preset icon.');
+    }
   }
   const db = groupChatDb();
   const batch = db.batch();
@@ -275,17 +315,17 @@ async function updateGroupSettings() {
   const requiresApproval = joinPolicySel ? joinPolicySel.value === 'approval' : false;
   batch.update(db.collection('groups').doc(group.id), {
     name, normalizedName: groupChatNormalize(name), description,
-    avatarUrl: avatarUrl || GROUP_CHAT_DEFAULT_AVATAR, requiresApproval,
+    avatarUrl, requiresApproval,
     updatedAt: firebase.firestore.FieldValue.serverTimestamp()
   });
   batch.update(db.collection('users').doc(user.uid).collection('groupMemberships').doc(group.id), {
-    groupName: name, groupAvatarUrl: avatarUrl || GROUP_CHAT_DEFAULT_AVATAR
+    groupName: name, groupAvatarUrl: avatarUrl
   });
   await batch.commit();
   group.groupName = name;
   group.name = name;
   group.description = description;
-  group.groupAvatarUrl = avatarUrl || GROUP_CHAT_DEFAULT_AVATAR;
+  group.groupAvatarUrl = avatarUrl;
   group.avatarUrl = group.groupAvatarUrl;
   renderMyGroups();
   renderGroupChatHeader();
@@ -322,9 +362,7 @@ function renderGroupChatAuth() {
   authRequired.hidden = !!user;
   app.hidden = !user;
   if (user && groupChatState.initialized) {
-    ensureGeneralGroup()
-      .then(() => loadMyGroups())
-      .catch(error => groupChatError(error, 'Unable to initialize the General group.'));
+    loadMyGroups().catch(error => groupChatError(error, 'Unable to load your groups.'));
   }
   else destroyGroupChatListeners();
 }
@@ -399,12 +437,12 @@ async function createGroup({ name, description, avatarUrl }) {
   const cleanDescription = String(description || '').trim();
   if (cleanName.length < 3 || cleanName.length > 80) throw new Error('Group name must be between 3 and 80 characters.');
   if (cleanDescription.length > 1000) throw new Error('Description cannot exceed 1000 characters.');
-  if (avatarUrl) {
+  if (avatarUrl && !avatarUrl.startsWith('data:image/svg+xml') && !avatarUrl.startsWith('assets/')) {
     try {
       const parsedUrl = new URL(avatarUrl);
       if (!['http:', 'https:'].includes(parsedUrl.protocol)) throw new Error();
     } catch (error) {
-      throw new Error('Avatar URL must be a valid HTTPS image URL.');
+      throw new Error('Avatar URL must be a valid HTTPS image URL or preset icon.');
     }
   }
   const db = groupChatDb();
@@ -456,10 +494,10 @@ async function joinGroup(groupId) {
     const data = groupSnapshot.data();
     const now = firebase.firestore.FieldValue.serverTimestamp();
     const membershipBatch = db.batch();
-    membershipBatch.create(memberRef, {
+    membershipBatch.set(memberRef, {
       uid: user.uid, displayName: user.displayName || getEffectiveUsername(user),
       photoURL: user.photoURL || null, role: 'member', joinedAt: now
-    });
+    }, { merge: true });
     membershipBatch.set(db.collection('users').doc(user.uid).collection('groupMemberships').doc(groupId), {
       groupId, groupName: data.name, groupAvatarUrl: data.avatarUrl || GROUP_CHAT_DEFAULT_AVATAR,
       role: 'member', joinedAt: now, lastReadAt: null
@@ -1102,6 +1140,7 @@ function initGroupChat() {
   const loginButton = document.getElementById('groupchatLoginBtn');
   const createForm = document.getElementById('groupchatCreateForm');
   const composer = document.getElementById('groupchatComposer');
+
   if (search) {
     let timer;
     search.addEventListener('input', () => { clearTimeout(timer); timer = setTimeout(() => searchPublicGroups(search.value), 250); });
@@ -1127,7 +1166,10 @@ function initGroupChat() {
     try {
       const name = document.getElementById('groupchatNameInput').value.trim();
       const description = document.getElementById('groupchatDescriptionInput').value.trim();
-      const avatarUrl = document.getElementById('groupchatAvatarInput').value.trim();
+      const customAvatar = document.getElementById('groupchatAvatarInput')?.value.trim() || '';
+      const selectedPreset = document.getElementById('groupchatCreatePresetIcons')?.dataset.selectedUri || '';
+      const avatarUrl = customAvatar || selectedPreset || GROUP_CHAT_DEFAULT_AVATAR;
+
       if (name.length < 3 || name.length > 80) throw new Error('Group name must be between 3 and 80 characters.');
       if (!description) throw new Error('Please enter a group description.');
       if (description.length > 1000) throw new Error('Description cannot exceed 1000 characters.');

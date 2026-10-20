@@ -185,18 +185,52 @@ select.groupchat-input option {
   box-shadow: 0 0 0 3px rgba(99,102,241,0.12);
 }
 
+/* Search results: compact, capped height, does NOT push My Groups out */
+.groupchat-search-results {
+  flex-shrink: 0;
+  max-height: 220px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-right: 2px;
+  margin-top: 8px;
+}
+
+/* My Groups section: fills remaining sidebar space */
+.groupchat-my-groups-section {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  margin-top: 10px;
+  gap: 6px;
+}
+
+.groupchat-section-label {
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  color: var(--text-soft);
+  padding: 0 4px;
+  flex-shrink: 0;
+}
+
 .groupchat-list {
   flex: 1;
   min-height: 0;
   overflow-y: auto;
   overscroll-behavior: contain;
   scrollbar-width: thin;
-  margin-top: 10px;
   display: flex;
   flex-direction: column;
   gap: 6px;
   padding-right: 2px;
 }
+
 
 .groupchat-group-item {
   width: 100%;
@@ -396,25 +430,30 @@ select.groupchat-input option {
 /* Webkit Scrollbars for chat elements */
 .groupchat-messages::-webkit-scrollbar,
 .groupchat-sidebar .groupchat-list::-webkit-scrollbar,
+.groupchat-search-results::-webkit-scrollbar,
 .groupchat-members-panel::-webkit-scrollbar {
   width: 5px;
 }
 .groupchat-messages::-webkit-scrollbar-track,
 .groupchat-sidebar .groupchat-list::-webkit-scrollbar-track,
+.groupchat-search-results::-webkit-scrollbar-track,
 .groupchat-members-panel::-webkit-scrollbar-track {
   background: transparent;
 }
 .groupchat-messages::-webkit-scrollbar-thumb,
 .groupchat-sidebar .groupchat-list::-webkit-scrollbar-thumb,
+.groupchat-search-results::-webkit-scrollbar-thumb,
 .groupchat-members-panel::-webkit-scrollbar-thumb {
   background: rgba(255, 255, 255, 0.16);
   border-radius: 5px;
 }
 .groupchat-messages::-webkit-scrollbar-thumb:hover,
 .groupchat-sidebar .groupchat-list::-webkit-scrollbar-thumb:hover,
+.groupchat-search-results::-webkit-scrollbar-thumb:hover,
 .groupchat-members-panel::-webkit-scrollbar-thumb:hover {
   background: rgba(255, 255, 255, 0.3);
 }
+
 
 /* ================================================================
    Chat Bubbles (Telegram / WhatsApp styling)
@@ -849,6 +888,121 @@ html[data-theme="light"] .chat-bubble:not(.me) {
    Modals & Danger Zone
    ================================================================ */
 .groupchat-label { display: block; margin: 12px 0 6px; color: var(--text-soft); font-size: 12.5px; font-weight: 600; }
+.groupchat-label-hint { font-weight: 400; opacity: .7; }
+
+.groupchat-preset-icons-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 6px 0 10px;
+  padding: 8px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+}
+
+.groupchat-preset-icon-btn {
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  background: transparent;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  transition: transform .18s cubic-bezier(0.16, 1, 0.3, 1), border-color .18s ease, box-shadow .18s ease;
+  flex-shrink: 0;
+  outline: none;
+}
+
+.groupchat-preset-icon-btn img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  pointer-events: none;
+  display: block;
+}
+
+.groupchat-preset-icon-btn:hover {
+  transform: scale(1.12);
+  border-color: rgba(99, 102, 241, 0.6);
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.28);
+  z-index: 2;
+}
+
+.groupchat-preset-icon-btn.selected {
+  border-color: #6366f1;
+  box-shadow: 0 0 0 2px #6366f1, 0 4px 14px rgba(99, 102, 241, 0.45);
+  transform: scale(1.1);
+  z-index: 3;
+}
+
+.groupchat-preset-icon-btn.selected::after {
+  content: '✓';
+  position: absolute;
+  bottom: -2px;
+  right: -2px;
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  background: #6366f1;
+  color: #ffffff;
+  font-size: 9px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1.5px solid var(--surface);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+}
+
+.groupchat-avatar-preview-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 8px;
+  padding: 6px 10px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--border);
+}
+.groupchat-avatar-preview-img {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--border);
+  background: linear-gradient(135deg, var(--accent1), var(--accent2));
+  flex-shrink: 0;
+}
+.groupchat-avatar-preview-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.groupchat-avatar-preview-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.groupchat-avatar-preview-hint {
+  font-size: 11px;
+  color: var(--text-soft);
+  line-height: 1.35;
+}
+
+.groupchat-modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px; }
+.groupchat-form-status { min-height: 18px; margin: 10px 0 0; color: var(--text-soft); font-size: 12px; }
+.groupchat-form-status.error { color: #fb7185; }
+
 .groupchat-create-modal {
   width: min(500px, 94vw);
   max-height: 86vh;
@@ -863,9 +1017,6 @@ html[data-theme="light"] .chat-bubble:not(.me) {
 .groupchat-create-modal::-webkit-scrollbar { width: 6px; }
 .groupchat-create-modal::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); border-radius: 6px; }
 
-.groupchat-modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px; }
-.groupchat-form-status { min-height: 18px; margin: 10px 0 0; color: var(--text-soft); font-size: 12px; }
-.groupchat-form-status.error { color: #fb7185; }
 
 .groupchat-danger-zone { margin-top: 18px; padding: 14px 14px 16px; border: 1px solid rgba(251, 113, 133, 0.35); border-radius: 11px; background: rgba(251, 113, 133, 0.05); }
 .groupchat-danger-zone-title { display: flex; align-items: center; gap: 6px; margin: 0 0 6px; font-size: 12.5px; font-weight: 600; color: #fb7185; }
