@@ -28,6 +28,7 @@ let groupChatState = {
   activeGroupId: null,
   groupsUnsubscribe: null,
   messagesUnsubscribe: null,
+  activeGroupUnsubscribe: null,
   groups: [],
   activeGroup: null,
   recentMessages: [],
@@ -342,7 +343,8 @@ function groupChatAvatar(url, name, className = 'groupchat-avatar') {
 }
 
 function groupChatGroupAvatar(url, name) {
-  return groupChatAvatar(url || GROUP_CHAT_DEFAULT_AVATAR, name);
+  const effectiveUrl = (!url || url === 'assets/icons/people.png') ? GROUP_CHAT_DEFAULT_AVATAR : url;
+  return groupChatAvatar(effectiveUrl, name);
 }
 
 function groupChatFormatTime(value) {
@@ -371,10 +373,56 @@ async function loadMyGroups() {
   if (!groupChatState.initialized) return;
   try {
     const user = await groupChatAuthUser();
-    const snapshot = await groupChatDb().collection('users').doc(user.uid)
+    const db = groupChatDb();
+    const snapshot = await db.collection('users').doc(user.uid)
       .collection('groupMemberships').orderBy('joinedAt', 'desc').limit(100).get();
     groupChatState.groups = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
     renderMyGroups();
+
+    // Enrich all joined groups with the latest group metadata (avatar, name, memberCount) from groups collection
+    if (groupChatState.groups.length > 0) {
+      const enrichPromises = groupChatState.groups.map(async (membership) => {
+        try {
+          const groupSnap = await db.collection('groups').doc(membership.id).get();
+          if (groupSnap.exists) {
+            const gData = groupSnap.data();
+            const latestAvatar = gData.avatarUrl || gData.groupAvatarUrl;
+            const latestName = gData.name || gData.groupName;
+            let needsUpdate = false;
+
+            if (latestAvatar && latestAvatar !== membership.groupAvatarUrl) {
+              membership.groupAvatarUrl = latestAvatar;
+              needsUpdate = true;
+            }
+            if (latestName && latestName !== membership.groupName) {
+              membership.groupName = latestName;
+              needsUpdate = true;
+            }
+            if (gData.description !== undefined) membership.description = gData.description;
+            if (gData.memberCount !== undefined) membership.memberCount = gData.memberCount;
+
+            // Self-heal: synchronize user's membership doc with the latest group metadata
+            if (needsUpdate) {
+              db.collection('users').doc(user.uid).collection('groupMemberships').doc(membership.id).update({
+                groupAvatarUrl: membership.groupAvatarUrl,
+                groupName: membership.groupName
+              }).catch(() => {});
+            }
+          }
+        } catch (e) { /* non-critical */ }
+      });
+      await Promise.all(enrichPromises);
+      renderMyGroups();
+
+      if (groupChatState.activeGroupId) {
+        const activeItem = groupChatState.groups.find(g => g.id === groupChatState.activeGroupId);
+        if (activeItem && groupChatState.activeGroup) {
+          Object.assign(groupChatState.activeGroup, activeItem);
+          renderGroupChatHeader();
+        }
+      }
+    }
+
     const isMobile = window.innerWidth <= 768;
     const savedId = groupChatUiState().activeGroupId;
     if (savedId && groupChatState.groups.some(group => group.id === savedId)) {
@@ -614,20 +662,52 @@ async function selectGroup(groupId) {
   if (composer) composer.hidden = false;
   saveGroupChatUiState();
   subscribeToMessages(groupId);
-  // Load pinned message and fresh group details
-  try {
-    const snap = await groupChatDb().collection('groups').doc(groupId).get();
-    if (snap.exists) {
-      const data = snap.data();
-      if (groupChatState.activeGroup) {
-        Object.assign(groupChatState.activeGroup, data);
-      } else {
-        groupChatState.activeGroup = { id: groupId, ...data };
-      }
-      renderGroupChatHeader();
-      renderPinnedBanner(data.pinnedMessage || null);
+  // Subscribe to real-time group details (for dynamic avatar/name updates from owner and pinned messages)
+  groupChatState.activeGroupUnsubscribe = groupChatDb().collection('groups').doc(groupId).onSnapshot(snap => {
+    if (!snap.exists) return;
+    const data = snap.data();
+    const latestAvatar = data.avatarUrl || data.groupAvatarUrl;
+    const latestName = data.name || data.groupName;
+
+    if (groupChatState.activeGroup) {
+      Object.assign(groupChatState.activeGroup, data);
+      if (latestAvatar) groupChatState.activeGroup.groupAvatarUrl = latestAvatar;
+      if (latestName) groupChatState.activeGroup.groupName = latestName;
+    } else {
+      groupChatState.activeGroup = { id: groupId, ...data, groupAvatarUrl: latestAvatar, groupName: latestName };
     }
-  } catch (e) { /* non-critical */ }
+
+    // Sync active group's latest avatar and name to the sidebar item as well
+    const listGroup = groupChatState.groups.find(g => g.id === groupId);
+    if (listGroup) {
+      let changed = false;
+      if (latestAvatar && listGroup.groupAvatarUrl !== latestAvatar) {
+        listGroup.groupAvatarUrl = latestAvatar;
+        changed = true;
+      }
+      if (latestName && listGroup.groupName !== latestName) {
+        listGroup.groupName = latestName;
+        changed = true;
+      }
+      if (data.memberCount !== undefined && listGroup.memberCount !== data.memberCount) {
+        listGroup.memberCount = data.memberCount;
+        changed = true;
+      }
+      if (changed) {
+        renderMyGroups();
+        const curUser = typeof getCachedAuthUser === 'function' ? getCachedAuthUser() : null;
+        if (curUser) {
+          groupChatDb().collection('users').doc(curUser.uid).collection('groupMemberships').doc(groupId).update({
+            groupAvatarUrl: latestAvatar,
+            groupName: latestName
+          }).catch(() => {});
+        }
+      }
+    }
+
+    renderGroupChatHeader();
+    renderPinnedBanner(data.pinnedMessage || null);
+  }, err => { /* non-critical */ });
 }
 
 function renderGroupChatHeader() {
@@ -1119,6 +1199,8 @@ async function sendGroupChatMessage(text) {
 function destroyMessageListener() {
   if (groupChatState.messagesUnsubscribe) groupChatState.messagesUnsubscribe();
   groupChatState.messagesUnsubscribe = null;
+  if (groupChatState.activeGroupUnsubscribe) groupChatState.activeGroupUnsubscribe();
+  groupChatState.activeGroupUnsubscribe = null;
   groupChatState.recentMessages = [];
   groupChatState.olderMessages = [];
   groupChatState.messages = [];
