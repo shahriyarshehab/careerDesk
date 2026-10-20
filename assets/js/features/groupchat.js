@@ -213,43 +213,13 @@ function openGroupChatSettingsModal() {
     if (joinPolicySel) joinPolicySel.value = (snap.exists && snap.data().requiresApproval === true) ? 'approval' : 'anyone';
   }).catch(() => {});
   openModal('groupchatSettingsModal');
-  renderGroupModerationPanel().catch(error => groupChatError(error, 'Unable to load moderation tools.'));
 }
 
-async function renderGroupModerationPanel() {
-  const panel = document.getElementById('groupchatModerationPanel');
-  const group = groupChatState.activeGroup;
-  if (!panel || !group || group.role !== 'owner') return;
+async function unblockGroupUser(groupId, uid) {
+  await groupChatAuthUser();
   const db = groupChatDb();
-  const base = db.collection('groups').doc(group.id);
-  const [requests, members] = await Promise.all([
-    base.collection('joinRequests').get(),
-    base.collection('members').get()
-  ]);
-  panel.hidden = false;
-  panel.innerHTML = `<h4>Join requests (${requests.size})</h4>
-    <div class="groupchat-moderation-list">${requests.empty ? '<p class="groupchat-subtle">No pending requests.</p>' : requests.docs.map(doc => {
-      const data = doc.data();
-      return `<div class="groupchat-moderation-row"><span>${escapeHtml(data.displayName || doc.id)}</span><span><button class="micro-btn" data-approve-uid="${escapeAttr(doc.id)}" type="button">Approve</button><button class="micro-btn danger" data-reject-uid="${escapeAttr(doc.id)}" type="button">Reject</button></span></div>`;
-    }).join('')}</div>
-    <h4>Members (${members.size})</h4>
-    <div class="groupchat-moderation-list">${members.docs.map(doc => {
-      const data = doc.data();
-      if (data.role === 'owner') return '';
-      return `<div class="groupchat-moderation-row"><span>${escapeHtml(data.displayName || doc.id)}</span><span><button class="micro-btn danger" data-remove-uid="${escapeAttr(doc.id)}" type="button">Remove</button><button class="micro-btn danger" data-block-uid="${escapeAttr(doc.id)}" type="button">Block</button></span></div>`;
-    }).join('')}</div>`;
-  panel.querySelectorAll('[data-approve-uid]').forEach(button => button.addEventListener('click', async () => {
-    try { await moderateJoinRequest(group.id, button.dataset.approveUid, true); await renderGroupModerationPanel(); } catch (error) { groupChatError(error, 'Unable to approve request.'); }
-  }));
-  panel.querySelectorAll('[data-reject-uid]').forEach(button => button.addEventListener('click', async () => {
-    try { await moderateJoinRequest(group.id, button.dataset.rejectUid, false); await renderGroupModerationPanel(); } catch (error) { groupChatError(error, 'Unable to reject request.'); }
-  }));
-  panel.querySelectorAll('[data-remove-uid]').forEach(button => button.addEventListener('click', async () => {
-    try { await removeGroupMember(group.id, button.dataset.removeUid, false); await renderGroupModerationPanel(); } catch (error) { groupChatError(error, 'Unable to remove member.'); }
-  }));
-  panel.querySelectorAll('[data-block-uid]').forEach(button => button.addEventListener('click', async () => {
-    try { await removeGroupMember(group.id, button.dataset.blockUid, true); await renderGroupModerationPanel(); } catch (error) { groupChatError(error, 'Unable to block member.'); }
-  }));
+  await db.collection('groups').doc(groupId).collection('blockedUsers').doc(uid).delete();
+  if (typeof showToast === 'function') showToast('User unblocked.');
 }
 
 async function moderateJoinRequest(groupId, uid, approve) {
@@ -658,47 +628,162 @@ function hideMembersPanel() {
 }
 
 async function renderMembersPanel() {
-  const list = document.getElementById('groupchatMembersList');
+  const container = document.getElementById('groupchatMembersList');
   const group = groupChatState.activeGroup;
-  if (!list || !group) return;
-  list.innerHTML = '<div class="groupchat-empty" style="padding:12px 4px">Loading…</div>';
+  if (!container || !group) return;
+  container.innerHTML = '<div class="groupchat-empty" style="padding:14px 4px">Loading…</div>';
   try {
-    const snapshot = await groupChatDb().collection('groups').doc(group.id).collection('members').get();
+    const db = groupChatDb();
+    const groupRef = db.collection('groups').doc(group.id);
     const isOwner = group.role === 'owner';
-    if (snapshot.empty) { list.innerHTML = '<div class="groupchat-empty" style="padding:12px 4px">No members found.</div>'; return; }
-    // Owner first
-    const docs = snapshot.docs.slice().sort((a, b) => {
+
+    // Fetch members and if owner, also joinRequests and blockedUsers
+    const promises = [groupRef.collection('members').get()];
+    if (isOwner) {
+      promises.push(groupRef.collection('joinRequests').get());
+      promises.push(groupRef.collection('blockedUsers').get());
+    }
+
+    const [membersSnap, requestsSnap, blockedSnap] = await Promise.all(promises);
+
+    let html = '';
+
+    // 1. Join Requests (for Group Owner)
+    if (isOwner && requestsSnap && !requestsSnap.empty) {
+      html += `
+        <div class="groupchat-panel-section">
+          <div class="groupchat-panel-section-title">
+            <span>Join Requests</span>
+            <span class="groupchat-badge alert">${requestsSnap.size}</span>
+          </div>
+          <div class="groupchat-moderation-list">
+            ${requestsSnap.docs.map(doc => {
+              const req = doc.data();
+              return `<div class="groupchat-moderation-row">
+                <div class="groupchat-moderation-user">
+                  ${groupChatAvatar(req.photoURL, req.displayName || 'Applicant', 'groupchat-avatar small')}
+                  <span class="groupchat-moderation-name" title="${escapeAttr(req.displayName || doc.id)}">${escapeHtml(req.displayName || 'Applicant')}</span>
+                </div>
+                <div class="groupchat-moderation-actions">
+                  <button class="micro-btn" data-approve-uid="${escapeAttr(doc.id)}" type="button" title="Approve Request">✓</button>
+                  <button class="micro-btn danger" data-reject-uid="${escapeAttr(doc.id)}" type="button" title="Reject Request">✕</button>
+                </div>
+              </div>`;
+            }).join('')}
+          </div>
+        </div>`;
+    }
+
+    // 2. Members List
+    const membersDocs = membersSnap.docs.slice().sort((a, b) => {
       if (a.data().role === 'owner') return -1;
       if (b.data().role === 'owner') return 1;
       return (a.data().displayName || '').localeCompare(b.data().displayName || '');
     });
-    list.innerHTML = docs.map(doc => {
-      const m = doc.data();
-      const isThisOwner = m.role === 'owner';
-      const actions = isOwner && !isThisOwner
-        ? `<div class="groupchat-member-actions">
-             <button class="micro-btn danger" data-remove-uid="${escapeAttr(doc.id)}" type="button" title="Remove">✕</button>
-           </div>`
-        : '';
-      return `<div class="groupchat-member-row">
-        ${groupChatAvatar(m.photoURL, m.displayName)}
-        <div class="groupchat-member-info">
-          <div class="groupchat-member-name">${escapeHtml(m.displayName || 'Member')}</div>
-          <span class="groupchat-role-badge ${m.role === 'owner' ? 'owner' : 'member'}">${m.role === 'owner' ? '👑 Owner' : 'Member'}</span>
+
+    html += `
+      <div class="groupchat-panel-section">
+        <div class="groupchat-panel-section-title">
+          <span>Members</span>
+          <span class="groupchat-badge">${membersDocs.length}</span>
         </div>
-        ${actions}
+        <div class="groupchat-members-list">
+          ${membersDocs.length === 0 ? '<div class="groupchat-empty" style="padding:10px 4px">No members found.</div>' :
+            membersDocs.map(doc => {
+              const m = doc.data();
+              const isThisOwner = m.role === 'owner';
+              const actions = isOwner && !isThisOwner
+                ? `<div class="groupchat-member-actions">
+                     <button class="micro-btn danger" data-remove-uid="${escapeAttr(doc.id)}" type="button" title="Remove member">✕</button>
+                     <button class="micro-btn danger" data-block-uid="${escapeAttr(doc.id)}" type="button" title="Block member">🚫</button>
+                   </div>`
+                : '';
+              return `<div class="groupchat-member-row">
+                ${groupChatAvatar(m.photoURL, m.displayName, 'groupchat-avatar small')}
+                <div class="groupchat-member-info">
+                  <div class="groupchat-member-name">${escapeHtml(m.displayName || 'Member')}</div>
+                  <span class="groupchat-role-badge ${isThisOwner ? 'owner' : 'member'}">${isThisOwner ? '👑 Owner' : 'Member'}</span>
+                </div>
+                ${actions}
+              </div>`;
+            }).join('')}
+        </div>
       </div>`;
-    }).join('');
-    // Wire remove buttons
-    list.querySelectorAll('[data-remove-uid]').forEach(btn => btn.addEventListener('click', async () => {
-      if (!confirm(`Remove this member?`)) return;
+
+    // 3. Blocked Users (for Group Owner)
+    if (isOwner && blockedSnap && !blockedSnap.empty) {
+      html += `
+        <div class="groupchat-panel-section">
+          <div class="groupchat-panel-section-title">
+            <span>Blocked Users</span>
+            <span class="groupchat-badge">${blockedSnap.size}</span>
+          </div>
+          <div class="groupchat-moderation-list">
+            ${blockedSnap.docs.map(doc => {
+              return `<div class="groupchat-moderation-row">
+                <span class="groupchat-moderation-name">ID: ${escapeHtml(doc.id.slice(0, 8))}…</span>
+                <button class="micro-btn" data-unblock-uid="${escapeAttr(doc.id)}" type="button" title="Unblock user">Unblock</button>
+              </div>`;
+            }).join('')}
+          </div>
+        </div>`;
+    }
+
+    container.innerHTML = html;
+
+    // Wire Join Request buttons
+    container.querySelectorAll('[data-approve-uid]').forEach(btn => btn.addEventListener('click', async () => {
+      btn.disabled = true;
+      try {
+        await moderateJoinRequest(group.id, btn.dataset.approveUid, true);
+        if (typeof showToast === 'function') showToast('Request approved.');
+        renderMembersPanel();
+      } catch (e) {
+        btn.disabled = false;
+        groupChatError(e, 'Unable to approve request.');
+      }
+    }));
+    container.querySelectorAll('[data-reject-uid]').forEach(btn => btn.addEventListener('click', async () => {
+      btn.disabled = true;
+      try {
+        await moderateJoinRequest(group.id, btn.dataset.rejectUid, false);
+        if (typeof showToast === 'function') showToast('Request rejected.');
+        renderMembersPanel();
+      } catch (e) {
+        btn.disabled = false;
+        groupChatError(e, 'Unable to reject request.');
+      }
+    }));
+
+    // Wire Member remove & block buttons
+    container.querySelectorAll('[data-remove-uid]').forEach(btn => btn.addEventListener('click', async () => {
+      if (!confirm('Remove this member from the group?')) return;
       try {
         await removeGroupMember(group.id, btn.dataset.removeUid, false);
         if (typeof showToast === 'function') showToast('Member removed.');
         renderMembersPanel();
       } catch (e) { groupChatError(e, 'Unable to remove member.'); }
     }));
-  } catch (e) { list.innerHTML = '<div class="groupchat-empty" style="padding:12px 4px">Failed to load members.</div>'; }
+    container.querySelectorAll('[data-block-uid]').forEach(btn => btn.addEventListener('click', async () => {
+      if (!confirm('Block this member? They will be removed and cannot request to join again.')) return;
+      try {
+        await removeGroupMember(group.id, btn.dataset.blockUid, true);
+        if (typeof showToast === 'function') showToast('Member blocked.');
+        renderMembersPanel();
+      } catch (e) { groupChatError(e, 'Unable to block member.'); }
+    }));
+
+    // Wire Unblock buttons
+    container.querySelectorAll('[data-unblock-uid]').forEach(btn => btn.addEventListener('click', async () => {
+      try {
+        await unblockGroupUser(group.id, btn.dataset.unblockUid);
+        renderMembersPanel();
+      } catch (e) { groupChatError(e, 'Unable to unblock user.'); }
+    }));
+
+  } catch (e) {
+    container.innerHTML = '<div class="groupchat-empty" style="padding:12px 4px">Failed to load members.</div>';
+  }
 }
 
 /* ── Pinned Message ── */

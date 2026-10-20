@@ -388,6 +388,9 @@
     opacity: 0;
     pointer-events: none;
     transition: opacity .25s ease;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
   }
 
   .modal-overlay.open {
@@ -402,6 +405,12 @@
   }
 
   .modal-card {
+    max-height: calc(100vh - 40px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    box-sizing: border-box;
+    margin: auto;
     transform: translateY(20px) scale(0.95);
     transition: transform .25s ease;
   }
