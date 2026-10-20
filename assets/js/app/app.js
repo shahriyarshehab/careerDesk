@@ -122,6 +122,7 @@ function activateTab(rawTabName, persist = false) {
     const isTarget = p === targetPanel;
     p.classList.toggle('active', isTarget);
   });
+  document.body.classList.toggle('tab-groupchat-active', tabName === 'groupchat');
 
   if (rawTabName !== 'routine') {
     window.scrollTo({ top: 0, left: 0, behavior: 'instant' });

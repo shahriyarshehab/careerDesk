@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover, interactive-widget=resizes-content">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <title>CareerDesk</title>
   <link rel="icon" type="image/svg+xml" href="assets/icons/favicon.svg">
@@ -735,20 +735,35 @@
       </div>
       <div id="groupchatApp" class="groupchat-shell" hidden>
         <aside class="groupchat-card groupchat-sidebar">
-          <div class="groupchat-header"><h3 class="groupchat-title">My Groups</h3><span id="groupchatUnreadBadge" class="groupchat-subtle"></span></div>
+          <div class="groupchat-header">
+            <h3 class="groupchat-title">My Groups</h3>
+            <div class="groupchat-sidebar-actions">
+              <span id="groupchatUnreadBadge" class="groupchat-subtle"></span>
+              <button class="pill subtle groupchat-sidebar-create-btn" id="groupchatSidebarCreateBtn" type="button" title="Create Group"><i data-lucide="plus"></i><span>New</span></button>
+            </div>
+          </div>
           <input id="groupchatSearchInput" class="groupchat-input" type="search" placeholder="Search public groups" autocomplete="off">
           <div id="groupchatSearchResults" class="groupchat-list"></div>
           <div id="groupchatMyGroups" class="groupchat-list"></div>
         </aside>
-        <main class="groupchat-card groupchat-main">
+        <div class="groupchat-card groupchat-main">
           <header id="groupchatHeader" class="groupchat-header groupchat-header-v2"></header>
           <div id="groupchatPinnedBanner" class="groupchat-pinned-banner" hidden></div>
           <div class="groupchat-workspace">
             <div class="groupchat-chat-area">
-              <div id="groupchatMessages" class="groupchat-messages"><div class="groupchat-empty">Select a group to view its messages.</div></div>
+              <div class="groupchat-messages-container">
+                <div id="groupchatMessages" class="groupchat-messages"><div class="groupchat-empty">Select a group to view its messages.</div></div>
+                <button id="groupchatScrollBottomBtn" class="groupchat-scroll-bottom-btn" type="button" aria-label="Scroll to bottom" hidden title="Scroll to bottom">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+                </button>
+              </div>
               <form id="groupchatComposer" class="groupchat-composer" hidden>
-                <textarea id="groupchatMessageInput" class="groupchat-textarea" maxlength="4000" placeholder="Write a message..." required></textarea>
-                <button class="pill solid" type="submit"><i data-lucide="send"></i><span>Send</span></button>
+                <div class="groupchat-composer-inner">
+                  <textarea id="groupchatMessageInput" class="groupchat-textarea" rows="1" maxlength="4000" placeholder="Write a message... (Enter to send, Shift+Enter for newline)" required></textarea>
+                  <button class="groupchat-send-btn" type="submit" title="Send message" aria-label="Send message">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
+                  </button>
+                </div>
               </form>
             </div>
             <aside id="groupchatMembersPanel" class="groupchat-members-panel" hidden>
@@ -759,7 +774,7 @@
               <div id="groupchatMembersList" class="groupchat-members-list"></div>
             </aside>
           </div>
-        </main>
+        </div>
       </div>
     </section>
 

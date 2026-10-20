@@ -14,6 +14,9 @@ service cloud.firestore {
     // 3. Username Registry:
     //    Allow lookup of usernames for uniqueness verification.
     //    Users can only claim or update their own username.
+    // 4. Group Discussions & Direct Messaging:
+    //    Group access is restricted to verified members / owners.
+    //    1-on-1 direct messaging is strictly restricted to the 2 participants.
     // =========================================================================
 
     // User Profile Document & Private Subcollections (Backups, Snapshots, Settings)
@@ -57,6 +60,12 @@ service cloud.firestore {
       return signedIn() && get(
         /databases/$(database)/documents/groups/$(groupId)
       ).data.ownerId == request.auth.uid;
+    }
+
+    function isDirectChatParticipant(chatId) {
+      return signedIn() && request.auth.uid in get(
+        /databases/$(database)/documents/directChats/$(chatId)
+      ).data.participants;
     }
 
     // Public group discovery is readable by authenticated users. Membership,
@@ -126,6 +135,52 @@ service cloud.firestore {
       allow read: if signedIn() && (uid == request.auth.uid || isGroupOwner(groupId));
       // User writes their own membership; owner writes another user's membership on approval
       allow write: if signedIn() && (uid == request.auth.uid || isGroupOwner(groupId));
+    }
+
+    // 1-on-1 Direct Messaging (Person-to-Person)
+    // Document contains: participants ([uidA, uidB]), participantData (map),
+    // createdAt, updatedAt, lastMessageAt, lastMessagePreview
+    match /directChats/{chatId} {
+      // Read: allowed if user is authenticated and is one of the participants
+      allow read: if signedIn() && request.auth.uid in resource.data.participants;
+
+      // Create: user must be authenticated, in participants, participants must be a list of 2 UIDs
+      allow create: if signedIn()
+        && request.resource.data.participants is list
+        && request.resource.data.participants.size() == 2
+        && request.auth.uid in request.resource.data.participants;
+
+      // Update: only participants can update timestamps, preview, and participant profiles
+      allow update: if signedIn()
+        && request.auth.uid in resource.data.participants
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          'updatedAt', 'lastMessageAt', 'lastMessagePreview', 'participantData'
+        ]);
+
+      // Delete: allowed if user is authenticated and is one of the participants
+      allow delete: if signedIn() && request.auth.uid in resource.data.participants;
+
+      // Subcollection: messages inside direct chat
+      match /messages/{messageId} {
+        // Read: allowed if user is authenticated and is a participant of this direct chat
+        allow read: if isDirectChatParticipant(chatId);
+
+        // Create: authenticated participant sending a message with validated text size
+        allow create: if isDirectChatParticipant(chatId)
+          && request.resource.data.senderId == request.auth.uid
+          && request.resource.data.text is string
+          && request.resource.data.text.size() > 0
+          && request.resource.data.text.size() <= 4000;
+
+        // Update: sender can edit or mark soft-deleted; ownership is protected
+        allow update: if isDirectChatParticipant(chatId)
+          && resource.data.senderId == request.auth.uid
+          && request.resource.data.senderId == request.auth.uid;
+
+        // Delete: sender can delete their own message
+        allow delete: if isDirectChatParticipant(chatId)
+          && resource.data.senderId == request.auth.uid;
+      }
     }
 
     // Default Deny-All: Block any access to any other collections

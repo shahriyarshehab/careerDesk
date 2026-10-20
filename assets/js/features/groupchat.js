@@ -337,10 +337,11 @@ async function loadMyGroups() {
       .collection('groupMemberships').orderBy('joinedAt', 'desc').limit(100).get();
     groupChatState.groups = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
     renderMyGroups();
+    const isMobile = window.innerWidth <= 768;
     const savedId = groupChatUiState().activeGroupId;
     if (savedId && groupChatState.groups.some(group => group.id === savedId)) {
       selectGroup(savedId);
-    } else if (!groupChatState.activeGroupId && groupChatState.groups.length > 0) {
+    } else if (!isMobile && !groupChatState.activeGroupId && groupChatState.groups.length > 0) {
       selectGroup(groupChatState.groups[0].id);
     }
   } catch (error) {
@@ -534,16 +535,44 @@ async function deleteGroup(groupId) {
   if (composer) composer.hidden = true;
 }
 
+function renderEmptyMessagesSplash() {
+  const container = document.getElementById('groupchatMessages');
+  if (!container) return;
+  container.innerHTML = `
+    <div class="groupchat-empty-splash">
+      <div class="groupchat-empty-icon-wrap">
+        <svg xmlns="http://www.w3.org/2000/svg" width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/><path d="M8 12h.01"/><path d="M12 12h.01"/><path d="M16 12h.01"/></svg>
+      </div>
+      <h3>CareerDesk Study Chat</h3>
+      <p>Select a group from the list to collaborate with fellow aspirants, share preparation notes, and solve problems together.</p>
+      <div class="groupchat-empty-tip">
+        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+        <span>Press <strong>Enter</strong> to send messages, <strong>Shift + Enter</strong> for a new line</span>
+      </div>
+    </div>`;
+}
+
 async function selectGroup(groupId) {
   destroyMessageListener();
   groupChatState.activeGroupId = groupId;
   groupChatState.activeGroup = groupChatState.groups.find(group => group.id === groupId) || null;
+  const appShell = document.getElementById('groupchatApp');
+  if (groupId) {
+    appShell?.classList.add('groupchat-chat-active');
+  } else {
+    appShell?.classList.remove('groupchat-chat-active');
+  }
   renderMyGroups();
   renderGroupChatHeader();
   hideMembersPanel();
   renderPinnedBanner(null); // clear while loading
   const composer = document.getElementById('groupchatComposer');
-  if (!groupId) { if (composer) composer.hidden = true; return; }
+  if (!groupId) {
+    if (composer) composer.hidden = true;
+    renderEmptyMessagesSplash();
+    saveGroupChatUiState();
+    return;
+  }
   if (composer) composer.hidden = false;
   saveGroupChatUiState();
   subscribeToMessages(groupId);
@@ -575,12 +604,15 @@ function renderGroupChatHeader() {
   const memberCount = group.memberCount || '';
   header.innerHTML = `
     <div class="groupchat-header-identity">
+      <button class="groupchat-mobile-back-btn" id="groupchatMobileBackBtn" type="button" title="Back to groups" aria-label="Back to groups">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+      </button>
       ${groupChatGroupAvatar(group.groupAvatarUrl || group.avatarUrl, group.groupName || group.name)}
-      <div>
+      <div class="groupchat-header-titles">
         <h3 class="groupchat-title">${escapeHtml(group.groupName || group.name)}</h3>
         <span class="groupchat-member-count-badge">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-          ${escapeHtml(String(memberCount))} members
+          ${escapeHtml(String(memberCount || '1'))} members
         </span>
       </div>
     </div>
@@ -589,21 +621,23 @@ function renderGroupChatHeader() {
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
         <span>Invite</span>
       </button>
-      <button class="pill subtle" id="groupchatMembersBtn" type="button">
+      <button class="pill subtle" id="groupchatMembersBtn" type="button" title="View members">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
         <span>Members</span>
       </button>
       ${isOwner
-        ? `<button class="pill subtle" id="groupchatSettingsBtn" type="button">
+        ? `<button class="pill subtle" id="groupchatSettingsBtn" type="button" title="Group settings">
              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
              <span>Settings</span>
            </button>`
-        : `<button class="pill subtle danger" id="groupchatLeaveBtn" type="button">
+        : `<button class="pill subtle danger" id="groupchatLeaveBtn" type="button" title="Leave group">
              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
              <span>Leave</span>
            </button>`
       }
     </div>`;
+
+  document.getElementById('groupchatMobileBackBtn')?.addEventListener('click', () => selectGroup(null));
 
   document.getElementById('groupchatMembersBtn')?.addEventListener('click', toggleMembersPanel);
   document.getElementById('groupchatInviteBtn')?.addEventListener('click', () => groupChatCopyInvite(group));
@@ -945,13 +979,32 @@ async function loadOlderMessages() {
   }
 }
 
+function groupChatFormatDateBadge(createdAt) {
+  if (!createdAt) return 'Recent';
+  const date = createdAt.toDate ? createdAt.toDate() : (createdAt instanceof Date ? createdAt : new Date(createdAt));
+  if (isNaN(date.getTime())) return '';
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const msgDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  const diffTime = today.getTime() - msgDate.getTime();
+  const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
+  if (diffDays === 0) return 'Today';
+  if (diffDays === 1) return 'Yesterday';
+  const sameYear = date.getFullYear() === now.getFullYear();
+  return date.toLocaleDateString(undefined, {
+    month: 'short',
+    day: 'numeric',
+    ...(sameYear ? {} : { year: 'numeric' })
+  });
+}
+
 function renderMessages(uid) {
   const container = document.getElementById('groupchatMessages');
   if (!container) return;
   const isOwner = groupChatState.activeGroup?.role === 'owner';
 
   if (!groupChatState.messages.length) {
-    container.innerHTML = '<div class="groupchat-empty">No messages yet. Start the conversation.</div>';
+    container.innerHTML = '<div class="groupchat-empty">No messages yet. Start the conversation!</div>';
     return;
   }
 
@@ -968,17 +1021,24 @@ function renderMessages(uid) {
     headerHtml = `<div class="groupchat-history-start">— Start of message history —</div>`;
   }
 
-  const messagesHtml = groupChatState.messages.map(message => {
+  let lastDateBadge = '';
+  let messagesHtml = '';
+  for (const message of groupChatState.messages) {
     const isMine = message.senderId === uid;
+    const dateBadge = groupChatFormatDateBadge(message.createdAt);
+    if (dateBadge && dateBadge !== lastDateBadge) {
+      messagesHtml += `<div class="groupchat-date-separator"><span>${escapeHtml(dateBadge)}</span></div>`;
+      lastDateBadge = dateBadge;
+    }
     const pinBtn = isOwner
       ? `<div class="chat-bubble-actions"><button class="micro-btn" data-pin-id="${escapeAttr(message.id)}" type="button" title="Pin this message">📌</button></div>`
       : '';
-    return `<article class="chat-bubble ${isMine ? 'me' : ''}">
+    messagesHtml += `<article class="chat-bubble ${isMine ? 'me' : ''}">
       ${pinBtn}
       <div class="chat-sender">${groupChatAvatar(message.senderAvatarUrl, message.senderName, 'groupchat-avatar small')}<span>${escapeHtml(message.senderName || 'Member')}</span><time>${escapeHtml(groupChatFormatTime(message.createdAt))}</time></div>
       <div class="text">${escapeHtml(message.text || '')}</div>
     </article>`;
-  }).join('');
+  }
 
   container.innerHTML = headerHtml + messagesHtml;
 
@@ -1013,7 +1073,9 @@ async function sendGroupChatMessage(text) {
     transaction.update(groupRef, { updatedAt: now, lastMessageAt: now, lastMessagePreview: cleanText.slice(0, 120) });
   });
   const container = document.getElementById('groupchatMessages');
-  if (container) container.scrollTop = container.scrollHeight;
+  if (container) {
+    container.scrollTo({ top: container.scrollHeight, behavior: 'smooth' });
+  }
 }
 
 function destroyMessageListener() {
@@ -1119,21 +1181,61 @@ function initGroupChat() {
       if (window.lucide) window.lucide.createIcons({ el: deleteGroupBtn });
     }
   });
-  if (composer) composer.addEventListener('submit', async event => {
-    event.preventDefault();
-    const input = document.getElementById('groupchatMessageInput');
-    try { await sendGroupChatMessage(input.value); input.value = ''; } catch (error) { groupChatError(error, 'Unable to send message.'); }
-  });
-  const messagesBox = document.getElementById('groupchatMessages');
-  if (messagesBox) {
-    messagesBox.addEventListener('scroll', () => {
-      if (messagesBox.scrollTop <= 15 && groupChatState.hasMoreOlder && !groupChatState.loadingOlder) {
-        loadOlderMessages();
+  const composerInput = document.getElementById('groupchatMessageInput');
+  if (composer) {
+    composer.addEventListener('submit', async event => {
+      event.preventDefault();
+      if (!composerInput || !composerInput.value.trim()) return;
+      const text = composerInput.value;
+      composerInput.value = '';
+      composerInput.style.height = 'auto';
+      try {
+        await sendGroupChatMessage(text);
+      } catch (error) {
+        composerInput.value = text;
+        composerInput.style.height = 'auto';
+        groupChatError(error, 'Unable to send message.');
       }
     });
   }
+
+  if (composerInput) {
+    const resizeInput = () => {
+      composerInput.style.height = 'auto';
+      const h = Math.min(composerInput.scrollHeight, 120);
+      composerInput.style.height = Math.max(24, h) + 'px';
+    };
+    composerInput.addEventListener('input', resizeInput);
+    composerInput.addEventListener('keydown', event => {
+      if (event.key === 'Enter' && !event.shiftKey) {
+        event.preventDefault();
+        if (composer) composer.requestSubmit();
+      }
+    });
+  }
+
+  const messagesBox = document.getElementById('groupchatMessages');
+  const scrollBottomBtn = document.getElementById('groupchatScrollBottomBtn');
+  if (messagesBox) {
+    const onMessagesScroll = () => {
+      if (messagesBox.scrollTop <= 15 && groupChatState.hasMoreOlder && !groupChatState.loadingOlder) {
+        loadOlderMessages();
+      }
+      if (scrollBottomBtn) {
+        const distFromBottom = messagesBox.scrollHeight - messagesBox.scrollTop - messagesBox.clientHeight;
+        scrollBottomBtn.hidden = distFromBottom <= 140;
+      }
+    };
+    messagesBox.addEventListener('scroll', onMessagesScroll, { passive: true });
+    if (scrollBottomBtn) {
+      scrollBottomBtn.addEventListener('click', () => {
+        messagesBox.scrollTo({ top: messagesBox.scrollHeight, behavior: 'smooth' });
+      });
+    }
+  }
+
   document.addEventListener('click', async event => {
-    const createTrigger = event.target.closest('#groupchatCreateBtn');
+    const createTrigger = event.target.closest('#groupchatCreateBtn, #groupchatSidebarCreateBtn');
     if (createTrigger && !createTrigger.dataset.groupchatBound) {
       event.preventDefault();
       try {
