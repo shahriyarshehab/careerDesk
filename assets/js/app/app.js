@@ -474,7 +474,6 @@ function initCommandPalette() {
 
   loadExams();
   renderExams();
-  setInterval(renderExams, 1000);
   update24hActivityUI();
   loadMistakes();
 
@@ -484,7 +483,11 @@ function initCommandPalette() {
   renderStudyHeatmap();
   syncMiniTimerWidget();
 
-  tickInterval = setInterval(() => { tickTimer(); }, 1000);
+  // Unified application 1-second heartbeat (synchronizes study timer and target countdowns)
+  tickInterval = setInterval(() => {
+    tickTimer();
+    renderExams();
+  }, 1000);
 
   if (typeof renderHomeDashboard === 'function') {
     renderHomeDashboard();

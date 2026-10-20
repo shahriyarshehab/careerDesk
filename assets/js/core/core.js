@@ -99,23 +99,45 @@ const ICON = {
   clock: '<svg class="btn-icon-svg" xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>',
 };
 
-// window.storage only exists inside the Claude.ai artifact viewer.
-// When this file runs as a standalone app (opened directly or via a local server),
-// fall back to localStorage so data still persists across reloads.
+// Universal Type-Safe Storage Helper
+const Store = {
+  get(key, fallback = null) {
+    try {
+      const raw = localStorage.getItem(key);
+      return raw !== null ? JSON.parse(raw) : fallback;
+    } catch {
+      return fallback;
+    }
+  },
+  set(key, value) {
+    try {
+      localStorage.setItem(key, JSON.stringify(value));
+      return true;
+    } catch {
+      return false;
+    }
+  },
+  remove(key) {
+    try { localStorage.removeItem(key); } catch {}
+  }
+};
+window.Store = Store;
+
+// Backward-compatible flashcard stubs
+window.renderFlashCategoryOptions = () => {};
+window.renderFlashcards = () => {};
+window.openFlashcardExam = () => {};
+window.exitFlashcardExam = () => {};
+
+// Central storage adapter for dashboard data
 const storageAdapter = {
   async get(key) {
-    if (window.storage) {
-      try { return await window.storage.get(key); } catch (e) { /* fall through to localStorage */ }
-    }
     try {
       const v = localStorage.getItem(key);
       return v !== null ? { key, value: v } : null;
     } catch (e) { return null; }
   },
   async set(key, value) {
-    if (window.storage) {
-      try { return await window.storage.set(key, value); } catch (e) { /* fall through to localStorage */ }
-    }
     try {
       localStorage.setItem(key, value);
       if (key === STORAGE_KEY && typeof window.scheduleFirestoreSync === 'function') {
@@ -136,31 +158,22 @@ const DEFAULT_USER_TRACK = {
 
 function getUserTrack() {
   if (typeof state !== 'undefined' && state && state.userTrack && typeof state.userTrack === 'object') {
-    if (!state.userTrack.subjectLanguage) {
-      state.userTrack.subjectLanguage = 'en';
-    }
+    if (!state.userTrack.subjectLanguage) state.userTrack.subjectLanguage = 'en';
     return state.userTrack;
   }
-  try {
-    const raw = localStorage.getItem('careerdesk_user_track_v2');
-    if (raw) {
-      const parsed = JSON.parse(raw);
-      if (!parsed.subjectLanguage) parsed.subjectLanguage = 'en';
-      return parsed;
-    }
-  } catch (e) { }
+  const parsed = Store.get('careerdesk_user_track_v2');
+  if (parsed) {
+    if (!parsed.subjectLanguage) parsed.subjectLanguage = 'en';
+    return parsed;
+  }
   return { ...DEFAULT_USER_TRACK };
 }
 
 function saveUserTrack(track) {
   if (typeof state === 'undefined' || !state) return;
   state.userTrack = { ...track };
-  if (!state.userTrack.subjectLanguage) {
-    state.userTrack.subjectLanguage = 'en';
-  }
-  try {
-    localStorage.setItem('careerdesk_user_track_v2', JSON.stringify(state.userTrack));
-  } catch (e) { }
+  if (!state.userTrack.subjectLanguage) state.userTrack.subjectLanguage = 'en';
+  Store.set('careerdesk_user_track_v2', state.userTrack);
   saveData();
 }
 

@@ -470,3 +470,145 @@
     border-color: rgba(239, 68, 68, 0.4) !important;
     color: #f87171 !important;
   }
+
+/* ==========================================================================
+   CareerDesk — Home Mindset Quote Command & Ticker Component
+   ========================================================================== */
+#homeQuoteCommand.quote-command-v2 {
+  position: relative;
+  display: block;
+  width: 100%;
+  margin: 0 0 20px;
+  padding: 12px 14px;
+  border-radius: 18px;
+  border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--surface-strong) 88%, transparent);
+  box-shadow: 0 14px 34px rgba(2,6,23,.1), inset 0 1px 0 color-mix(in srgb, var(--text) 8%, transparent);
+  box-sizing: border-box;
+}
+
+#homeQuoteCommand .quote-command-v2-stage {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 92px;
+  padding: 15px 16px 18px;
+  border-radius: 14px;
+  border: 1px solid color-mix(in srgb, var(--accent2) 20%, var(--border));
+  background: color-mix(in srgb, var(--surface) 78%, transparent);
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+#homeQuoteCommand .profile-quote-ticker-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  min-width: 0;
+}
+
+#homeQuoteCommand .quote-command-v2-mark {
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  background: rgba(99, 102, 241, 0.12);
+  border: 1px solid rgba(99, 102, 241, 0.25);
+  color: var(--accent1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+#homeQuoteCommand .quote-command-v2-copy .profile-quote-phrase {
+  max-width: 700px;
+  font-size: clamp(14px, 1.45vw, 18px);
+  font-weight: 550;
+  line-height: 1.5;
+  letter-spacing: -.01em;
+  color: var(--text);
+}
+
+#homeQuoteCommand .quote-command-v2-copy .profile-quote-curly-open,
+#homeQuoteCommand .quote-command-v2-copy .profile-quote-curly-close,
+#homeQuoteCommand .quote-command-v2-copy .profile-quote-cursor {
+  color: var(--accent2);
+}
+
+#homeQuoteCommand .quote-command-v2-copy .profile-quote-author-pill {
+  display: inline-block;
+  font-size: 9.5px;
+  padding: 3px 8px;
+  border-radius: 8px;
+  background: rgba(99, 102, 241, 0.12);
+  color: var(--accent2);
+  font-weight: 600;
+  margin-left: 6px;
+}
+
+#homeQuoteCommand .quote-command-v2-controls {
+  display: flex;
+  align-items: center;
+  margin-left: 12px;
+  gap: 5px;
+  flex-shrink: 0;
+}
+
+#homeQuoteCommand .quote-command-v2-language,
+#homeQuoteCommand .quote-command-v2-controls .profile-quote-ctrl-btn {
+  height: 28px;
+  min-height: 28px;
+  padding: 0 9px;
+  font-size: 9px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--surface-hover) 70%, transparent);
+  color: var(--text-soft);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+#homeQuoteCommand .quote-command-v2-language:hover,
+#homeQuoteCommand .quote-command-v2-controls .profile-quote-ctrl-btn:hover {
+  border-color: var(--accent2);
+  color: var(--text);
+  background: var(--surface-hover);
+}
+
+#homeQuoteCommand .quote-command-v2-progress {
+  position: absolute;
+  right: 16px;
+  bottom: 7px;
+  left: 16px;
+  height: 2px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+}
+
+#homeQuoteCommand .profile-quote-progress-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, var(--accent1), var(--accent2));
+  transition: width 0.3s linear;
+}
+
+@media (max-width: 680px) {
+  #homeQuoteCommand.quote-command-v2 { padding: 9px; }
+  #homeQuoteCommand .quote-command-v2-stage {
+    min-height: 135px;
+    padding: 13px 12px 22px;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  #homeQuoteCommand .quote-command-v2-copy .profile-quote-phrase { font-size: 14px; }
+  #homeQuoteCommand .quote-command-v2-controls { align-self: flex-end; margin: 8px 0 0; }
+}
+

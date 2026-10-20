@@ -8,27 +8,17 @@
 let exams = [];
 
 function loadExams() {
-  try {
-    const data = localStorage.getItem(EXAMS_KEY);
-    if (data) {
-      const parsed = JSON.parse(data);
-      // Filter out legacy mock exam targets with small numeric IDs (1-5) if present
-      exams = Array.isArray(parsed)
-        ? parsed.filter(e => e && !(typeof e.id === 'number' && e.id >= 1 && e.id <= 5))
-        : [];
-    } else {
-      exams = [];
-    }
-  } catch (e) { exams = []; }
+  const parsed = Store.get(EXAMS_KEY, []);
+  exams = Array.isArray(parsed)
+    ? parsed.filter(e => e && !(typeof e.id === 'number' && e.id >= 1 && e.id <= 5))
+    : [];
 }
 
 function saveExams() {
-  try {
-    localStorage.setItem(EXAMS_KEY, JSON.stringify(exams));
-    if (typeof window.scheduleFirestoreSync === 'function') {
-      window.scheduleFirestoreSync();
-    }
-  } catch (e) { }
+  Store.set(EXAMS_KEY, exams);
+  if (typeof window.scheduleFirestoreSync === 'function') {
+    window.scheduleFirestoreSync();
+  }
 }
 
 function parseExamTargetMs(target) {

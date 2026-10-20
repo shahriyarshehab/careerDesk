@@ -18,7 +18,6 @@
     'assets/js/features/tracker.js',
     'assets/js/features/countdown.js',
     'assets/js/features/syllabus.js',
-    'assets/js/features/flashcards.js',
     'assets/js/features/questions.js',
     'assets/js/features/mcq.js',
     'assets/js/integrations/security.js',
@@ -30,9 +29,11 @@
     'assets/js/app/app.js'
   ];
 
-  // Write script tags into document stream to ensure 100% synchronous order
-  // Works seamlessly on local filesystem (file:///), localhost, and production hosting
+  // Modern synchronous ordered script injection (HTML5 standard, eliminates document.write)
   MODULES.forEach(function (src) {
-    document.write('<script src="' + src + '"><\/script>');
+    const s = document.createElement('script');
+    s.src = src;
+    s.async = false;
+    (document.body || document.head).appendChild(s);
   });
 })();

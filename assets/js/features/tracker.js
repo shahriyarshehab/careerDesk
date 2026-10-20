@@ -20,7 +20,7 @@ if (typeof state === 'undefined') {
    console.warn('⚠️ State not yet initialized. Core.js must load before tracker.js');
 }
 
-const CURRICULUM_SUBJECT_CHOICES = [
+const CURRICULUM_SUBJECT_CHOICES = (typeof BANGLADESH_CURRICULUM_DATA !== 'undefined' && BANGLADESH_CURRICULUM_DATA.jobSeeker && BANGLADESH_CURRICULUM_DATA.jobSeeker.primarySubjects) || [
   { name: 'Bangla', bn: 'বাংলা ভাষা ও সাহিত্য', desc: 'প্রাচীন, মধ্য ও আধুনিক যুগ, ব্যাকরণ ও সাহিত্য' },
   { name: 'English', bn: 'English Language & Literature', desc: 'Grammar, Vocabulary, Comprehension & Literature' },
   { name: 'Mathematics', bn: 'গণিত ও গাণিতিক যুক্তি', desc: 'পাটিগণিত, বীজগণিত, জ্যামিতি ও বিশ্লেষণ' },
