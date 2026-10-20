@@ -111,13 +111,13 @@ service cloud.firestore {
       }
 
       match /messages/{messageId} {
-        allow read: if isGroupMember(groupId);
-        allow create: if isGroupMember(groupId)
+        allow read: if isGroupMember(groupId) || isGroupOwner(groupId);
+        allow create: if (isGroupMember(groupId) || isGroupOwner(groupId))
           && request.resource.data.senderId == request.auth.uid
           && request.resource.data.text is string
           && request.resource.data.text.size() > 0
           && request.resource.data.text.size() <= 4000;
-        allow update, delete: if isGroupMember(groupId)
+        allow update, delete: if (isGroupMember(groupId) || isGroupOwner(groupId))
           && resource.data.senderId == request.auth.uid;
       }
     }

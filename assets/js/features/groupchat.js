@@ -364,8 +364,10 @@ async function loadMyGroups() {
     groupChatState.groups = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
     renderMyGroups();
     const savedId = groupChatUiState().activeGroupId;
-    if (!groupChatState.activeGroupId && savedId && groupChatState.groups.some(group => group.id === savedId)) {
+    if (savedId && groupChatState.groups.some(group => group.id === savedId)) {
       selectGroup(savedId);
+    } else if (!groupChatState.activeGroupId && groupChatState.groups.length > 0) {
+      selectGroup(groupChatState.groups[0].id);
     }
   } catch (error) {
     groupChatError(error, 'Unable to load your groups.');
@@ -571,10 +573,19 @@ async function selectGroup(groupId) {
   if (composer) composer.hidden = false;
   saveGroupChatUiState();
   subscribeToMessages(groupId);
-  // Load pinned message for this group
+  // Load pinned message and fresh group details
   try {
     const snap = await groupChatDb().collection('groups').doc(groupId).get();
-    if (snap.exists) renderPinnedBanner(snap.data().pinnedMessage || null);
+    if (snap.exists) {
+      const data = snap.data();
+      if (groupChatState.activeGroup) {
+        Object.assign(groupChatState.activeGroup, data);
+      } else {
+        groupChatState.activeGroup = { id: groupId, ...data };
+      }
+      renderGroupChatHeader();
+      renderPinnedBanner(data.pinnedMessage || null);
+    }
   } catch (e) { /* non-critical */ }
 }
 
@@ -747,6 +758,22 @@ function groupChatCopyInvite(group) {
   }).catch(() => { if (typeof showToast === 'function') showToast('Copy failed — try manually.', true); });
 }
 
+async function subscribeToMessages(groupId) {
+  try {
+    const user = await groupChatAuthUser();
+    const container = document.getElementById('groupchatMessages');
+    if (container && !groupChatState.messages.length) {
+      container.innerHTML = '<div class="groupchat-empty">Loading messages...</div>';
+    }
+    groupChatState.messagesUnsubscribe = groupChatDb().collection('groups').doc(groupId).collection('messages')
+      .orderBy('createdAt', 'asc').limitToLast(GROUP_CHAT_PAGE_SIZE).onSnapshot(snapshot => {
+        groupChatState.messages = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        renderMessages(user.uid);
+        saveGroupChatUiState();
+      }, error => groupChatError(error, 'Unable to load group messages.'));
+  } catch (error) { groupChatError(error, 'Unable to open this group.'); }
+}
+
 function renderMessages(uid) {
   const container = document.getElementById('groupchatMessages');
   if (!container) return;
@@ -758,7 +785,7 @@ function renderMessages(uid) {
   container.innerHTML = groupChatState.messages.map(message => {
     const isMine = message.senderId === uid;
     const pinBtn = isOwner
-      ? `<div class="chat-bubble-actions"><button class="micro-btn" data-pin-id="${escapeAttr(message.id)}" data-pin-text="${escapeAttr(message.text || '')}" data-pin-sender="${escapeAttr(message.senderName || '')}" type="button" title="Pin this message">📌</button></div>`
+      ? `<div class="chat-bubble-actions"><button class="micro-btn" data-pin-id="${escapeAttr(message.id)}" type="button" title="Pin this message">📌</button></div>`
       : '';
     return `<article class="chat-bubble ${isMine ? 'me' : ''}">
       ${pinBtn}
@@ -768,7 +795,9 @@ function renderMessages(uid) {
   }).join('');
   // Wire pin buttons
   container.querySelectorAll('[data-pin-id]').forEach(btn => btn.addEventListener('click', async () => {
-    try { await pinMessage(btn.dataset.pinId, btn.dataset.pinText, btn.dataset.pinSender); } catch (e) { groupChatError(e, 'Unable to pin message.'); }
+    const msg = groupChatState.messages.find(m => m.id === btn.dataset.pinId);
+    if (!msg) return;
+    try { await pinMessage(msg.id, msg.text || '', msg.senderName || 'Member'); } catch (e) { groupChatError(e, 'Unable to pin message.'); }
   }));
   container.scrollTop = container.scrollHeight;
 }
