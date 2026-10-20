@@ -633,3 +633,47 @@ select.groupchat-input option {
     padding-top: 12px;
   }
 }
+
+/* ================================================================
+   Load Older Messages / Pagination
+   ================================================================ */
+.groupchat-load-older-wrap {
+  display: flex;
+  justify-content: center;
+  padding: 6px 0 10px;
+}
+.groupchat-load-older-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11.5px;
+  font-weight: 500;
+  padding: 5px 14px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border);
+  color: var(--text-soft);
+  cursor: pointer;
+  transition: all .18s ease;
+}
+.groupchat-load-older-btn:hover {
+  background: rgba(99, 102, 241, 0.15);
+  border-color: rgba(99, 102, 241, 0.35);
+  color: var(--text);
+  transform: translateY(-1px);
+}
+.groupchat-load-older-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+}
+.groupchat-load-older-btn svg {
+  flex-shrink: 0;
+}
+.groupchat-history-start {
+  text-align: center;
+  font-size: 11px;
+  color: var(--text-soft);
+  padding: 8px 0 12px;
+  opacity: 0.7;
+}

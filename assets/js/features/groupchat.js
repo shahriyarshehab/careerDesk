@@ -10,7 +10,11 @@ let groupChatState = {
   messagesUnsubscribe: null,
   groups: [],
   activeGroup: null,
+  recentMessages: [],
+  olderMessages: [],
   messages: [],
+  hasMoreOlder: true,
+  loadingOlder: false,
   initialized: false,
   loading: false
 };
@@ -850,24 +854,121 @@ async function subscribeToMessages(groupId) {
     if (container && !groupChatState.messages.length) {
       container.innerHTML = '<div class="groupchat-empty">Loading messages...</div>';
     }
+    groupChatState.hasMoreOlder = true;
+    groupChatState.olderMessages = [];
+    groupChatState.recentMessages = [];
+    let isInitialLoad = true;
+
     groupChatState.messagesUnsubscribe = groupChatDb().collection('groups').doc(groupId).collection('messages')
       .orderBy('createdAt', 'asc').limitToLast(GROUP_CHAT_PAGE_SIZE).onSnapshot(snapshot => {
-        groupChatState.messages = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        renderMessages(user.uid);
+        groupChatState.recentMessages = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        if (snapshot.size < GROUP_CHAT_PAGE_SIZE && !groupChatState.olderMessages.length) {
+          groupChatState.hasMoreOlder = false;
+        }
+        recombineMessages(user.uid, isInitialLoad);
+        isInitialLoad = false;
         saveGroupChatUiState();
       }, error => groupChatError(error, 'Unable to load group messages.'));
   } catch (error) { groupChatError(error, 'Unable to open this group.'); }
+}
+
+function recombineMessages(uid, scrollToBottom = false) {
+  const container = document.getElementById('groupchatMessages');
+  const wasAtBottom = container ? (container.scrollHeight - container.scrollTop <= container.clientHeight + 80) : true;
+
+  // Combine older + recent, deduplicated by id
+  const map = new Map();
+  groupChatState.olderMessages.forEach(m => map.set(m.id, m));
+  groupChatState.recentMessages.forEach(m => map.set(m.id, m));
+  groupChatState.messages = Array.from(map.values()).sort((a, b) => {
+    const tA = a.createdAt?.toMillis ? a.createdAt.toMillis() : (a.createdAt || 0);
+    const tB = b.createdAt?.toMillis ? b.createdAt.toMillis() : (b.createdAt || 0);
+    return tA - tB;
+  });
+
+  renderMessages(uid);
+
+  if (container && (scrollToBottom || wasAtBottom)) {
+    container.scrollTop = container.scrollHeight;
+  }
+}
+
+async function loadOlderMessages() {
+  if (groupChatState.loadingOlder || !groupChatState.hasMoreOlder || !groupChatState.activeGroupId) return;
+  const oldest = groupChatState.olderMessages[0] || groupChatState.recentMessages[0];
+  if (!oldest || !oldest.createdAt) {
+    groupChatState.hasMoreOlder = false;
+    const user = typeof getCachedAuthUser === 'function' ? getCachedAuthUser() : null;
+    if (user) renderMessages(user.uid);
+    return;
+  }
+
+  groupChatState.loadingOlder = true;
+  const loadBtn = document.getElementById('groupchatLoadOlderBtn');
+  if (loadBtn) {
+    loadBtn.disabled = true;
+    loadBtn.innerHTML = '<span>Loading older messages…</span>';
+  }
+
+  try {
+    const user = await groupChatAuthUser();
+    const container = document.getElementById('groupchatMessages');
+    const prevScrollHeight = container ? container.scrollHeight : 0;
+    const prevScrollTop = container ? container.scrollTop : 0;
+
+    const snap = await groupChatDb().collection('groups').doc(groupChatState.activeGroupId).collection('messages')
+      .orderBy('createdAt', 'desc')
+      .startAfter(oldest.createdAt)
+      .limit(30)
+      .get();
+
+    if (snap.empty || snap.size < 30) {
+      groupChatState.hasMoreOlder = false;
+    }
+
+    if (!snap.empty) {
+      const fetched = snap.docs.map(doc => ({ id: doc.id, ...doc.data() })).reverse();
+      groupChatState.olderMessages = fetched.concat(groupChatState.olderMessages);
+    }
+
+    recombineMessages(user.uid, false);
+
+    // Anchor scroll position so view doesn't jump
+    if (container) {
+      const newScrollHeight = container.scrollHeight;
+      container.scrollTop = prevScrollTop + (newScrollHeight - prevScrollHeight);
+    }
+  } catch (error) {
+    groupChatError(error, 'Unable to load older messages.');
+  } finally {
+    groupChatState.loadingOlder = false;
+  }
 }
 
 function renderMessages(uid) {
   const container = document.getElementById('groupchatMessages');
   if (!container) return;
   const isOwner = groupChatState.activeGroup?.role === 'owner';
+
   if (!groupChatState.messages.length) {
     container.innerHTML = '<div class="groupchat-empty">No messages yet. Start the conversation.</div>';
     return;
   }
-  container.innerHTML = groupChatState.messages.map(message => {
+
+  let headerHtml = '';
+  if (groupChatState.hasMoreOlder) {
+    headerHtml = `
+      <div class="groupchat-load-older-wrap">
+        <button id="groupchatLoadOlderBtn" class="groupchat-load-older-btn" type="button">
+          <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/></svg>
+          <span>Load older messages</span>
+        </button>
+      </div>`;
+  } else if (groupChatState.messages.length >= 10) {
+    headerHtml = `<div class="groupchat-history-start">— Start of message history —</div>`;
+  }
+
+  const messagesHtml = groupChatState.messages.map(message => {
     const isMine = message.senderId === uid;
     const pinBtn = isOwner
       ? `<div class="chat-bubble-actions"><button class="micro-btn" data-pin-id="${escapeAttr(message.id)}" type="button" title="Pin this message">📌</button></div>`
@@ -878,13 +979,21 @@ function renderMessages(uid) {
       <div class="text">${escapeHtml(message.text || '')}</div>
     </article>`;
   }).join('');
+
+  container.innerHTML = headerHtml + messagesHtml;
+
+  // Wire load older button
+  const loadBtn = document.getElementById('groupchatLoadOlderBtn');
+  if (loadBtn) {
+    loadBtn.addEventListener('click', loadOlderMessages);
+  }
+
   // Wire pin buttons
   container.querySelectorAll('[data-pin-id]').forEach(btn => btn.addEventListener('click', async () => {
     const msg = groupChatState.messages.find(m => m.id === btn.dataset.pinId);
     if (!msg) return;
     try { await pinMessage(msg.id, msg.text || '', msg.senderName || 'Member'); } catch (e) { groupChatError(e, 'Unable to pin message.'); }
   }));
-  container.scrollTop = container.scrollHeight;
 }
 
 async function sendGroupChatMessage(text) {
@@ -903,12 +1012,18 @@ async function sendGroupChatMessage(text) {
     transaction.set(messageRef, { senderId: user.uid, senderName: user.displayName || getEffectiveUsername(user), senderAvatarUrl: user.photoURL || null, text: cleanText, createdAt: now, editedAt: null, deletedAt: null });
     transaction.update(groupRef, { updatedAt: now, lastMessageAt: now, lastMessagePreview: cleanText.slice(0, 120) });
   });
+  const container = document.getElementById('groupchatMessages');
+  if (container) container.scrollTop = container.scrollHeight;
 }
 
 function destroyMessageListener() {
   if (groupChatState.messagesUnsubscribe) groupChatState.messagesUnsubscribe();
   groupChatState.messagesUnsubscribe = null;
+  groupChatState.recentMessages = [];
+  groupChatState.olderMessages = [];
   groupChatState.messages = [];
+  groupChatState.hasMoreOlder = true;
+  groupChatState.loadingOlder = false;
 }
 
 function destroyGroupChatListeners() {
@@ -1009,6 +1124,14 @@ function initGroupChat() {
     const input = document.getElementById('groupchatMessageInput');
     try { await sendGroupChatMessage(input.value); input.value = ''; } catch (error) { groupChatError(error, 'Unable to send message.'); }
   });
+  const messagesBox = document.getElementById('groupchatMessages');
+  if (messagesBox) {
+    messagesBox.addEventListener('scroll', () => {
+      if (messagesBox.scrollTop <= 15 && groupChatState.hasMoreOlder && !groupChatState.loadingOlder) {
+        loadOlderMessages();
+      }
+    });
+  }
   document.addEventListener('click', async event => {
     const createTrigger = event.target.closest('#groupchatCreateBtn');
     if (createTrigger && !createTrigger.dataset.groupchatBound) {
