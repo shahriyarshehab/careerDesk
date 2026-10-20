@@ -207,6 +207,11 @@ function openGroupChatSettingsModal() {
   document.getElementById('groupchatSettingsDescription').value = group.description || '';
   document.getElementById('groupchatSettingsAvatar').value = group.groupAvatarUrl || group.avatarUrl || '';
   document.getElementById('groupchatSettingsStatus').textContent = '';
+  // Populate join policy from Firestore (membership doc may not carry requiresApproval)
+  groupChatDb().collection('groups').doc(group.id).get().then(snap => {
+    const joinPolicySel = document.getElementById('groupchatSettingsJoinPolicy');
+    if (joinPolicySel) joinPolicySel.value = (snap.exists && snap.data().requiresApproval === true) ? 'approval' : 'anyone';
+  }).catch(() => {});
   openModal('groupchatSettingsModal');
   renderGroupModerationPanel().catch(error => groupChatError(error, 'Unable to load moderation tools.'));
 }
@@ -292,9 +297,11 @@ async function updateGroupSettings() {
   }
   const db = groupChatDb();
   const batch = db.batch();
+  const joinPolicySel = document.getElementById('groupchatSettingsJoinPolicy');
+  const requiresApproval = joinPolicySel ? joinPolicySel.value === 'approval' : false;
   batch.update(db.collection('groups').doc(group.id), {
     name, normalizedName: groupChatNormalize(name), description,
-    avatarUrl: avatarUrl || GROUP_CHAT_DEFAULT_AVATAR,
+    avatarUrl: avatarUrl || GROUP_CHAT_DEFAULT_AVATAR, requiresApproval,
     updatedAt: firebase.firestore.FieldValue.serverTimestamp()
   });
   batch.update(db.collection('users').doc(user.uid).collection('groupMemberships').doc(group.id), {
@@ -427,10 +434,12 @@ async function createGroup({ name, description, avatarUrl }) {
   const groupRef = db.collection('groups').doc();
   const cleanAvatarUrl = avatarUrl || GROUP_CHAT_DEFAULT_AVATAR;
   const now = firebase.firestore.FieldValue.serverTimestamp();
+  const joinPolicySel = document.getElementById('groupchatJoinPolicyInput');
+  const requiresApproval = joinPolicySel ? joinPolicySel.value === 'approval' : false;
   await groupRef.set({
     name: cleanName, normalizedName: groupChatNormalize(cleanName), description: cleanDescription,
     avatarUrl: cleanAvatarUrl, ownerId: user.uid, ownerName: user.displayName || getEffectiveUsername(user),
-    ownerAvatarUrl: user.photoURL || null, isPublic: true, requiresApproval: true, memberCount: 1,
+    ownerAvatarUrl: user.photoURL || null, isPublic: true, requiresApproval, memberCount: 1,
     createdAt: now, updatedAt: now, lastMessageAt: null, lastMessagePreview: null
   });
   const membershipBatch = db.batch();
