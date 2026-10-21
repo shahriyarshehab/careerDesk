@@ -81,6 +81,65 @@ main:has(#panel-groupchat.active) {
   display: none !important;
 }
 
+.groupchat-invite-landing[hidden] { display: none !important; }
+.groupchat-invite-landing {
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 9px;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface);
+  box-shadow: 0 8px 24px rgba(2, 6, 23, .12);
+}
+.groupchat-invite-mark {
+  width: 38px;
+  height: 38px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 11px;
+  background: linear-gradient(135deg, var(--accent1), var(--accent2));
+  color: #fff;
+}
+.groupchat-invite-mark svg { width: 19px; height: 19px; }
+.groupchat-invite-copy { min-width: 0; }
+.groupchat-invite-eyebrow {
+  display: block;
+  margin-bottom: 2px;
+  color: var(--accent2);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: .08em;
+}
+.groupchat-invite-copy h3 {
+  margin: 0;
+  color: var(--text);
+  font-size: 14px;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+.groupchat-invite-copy p {
+  margin: 2px 0 0;
+  color: var(--text-soft);
+  font-size: 11px;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+.groupchat-invite-action { flex-shrink: 0; }
+
+@media (max-width: 560px) {
+  .groupchat-invite-landing {
+    grid-template-columns: 38px minmax(0, 1fr);
+    gap: 10px;
+    padding: 11px;
+  }
+  .groupchat-invite-mark { width: 36px; height: 36px; }
+  .groupchat-invite-action { grid-column: 1 / -1; width: 100%; justify-content: center; }
+}
+
 /* ================================================================
    Main Shell & Cards
    ================================================================ */
@@ -1596,7 +1655,40 @@ html[data-theme="light"] .chat-bubble:not(.me) {
   color: var(--text-soft);
   border: 1px solid var(--border);
 }
-.groupchat-member-actions { display: flex; gap: 4px; }
+.groupchat-member-actions {
+  display: flex;
+  gap: 5px;
+  flex-shrink: 0;
+}
+.groupchat-member-actions .micro-btn {
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--text-soft);
+  cursor: pointer;
+  transition: background .16s ease, border-color .16s ease, color .16s ease, transform .16s ease;
+}
+.groupchat-member-actions .micro-btn svg {
+  width: 14px;
+  height: 14px;
+  stroke-width: 2;
+}
+.groupchat-member-actions .micro-btn.danger:hover {
+  border-color: rgba(239, 68, 68, .42);
+  background: rgba(239, 68, 68, .12);
+  color: #f87171;
+}
+.groupchat-member-actions .micro-btn:focus-visible {
+  outline: 2px solid var(--accent2);
+  outline-offset: 2px;
+}
+.groupchat-member-actions .micro-btn:active { transform: scale(.94); }
 
 .groupchat-moderation-list {
   display: flex;

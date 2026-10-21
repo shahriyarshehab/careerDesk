@@ -209,30 +209,22 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    min-height: 168px;
-    margin: -8px -4px 16px;
-    padding: 28px 32px;
+    gap: 16px;
+    min-height: 84px;
+    margin: 0 0 14px;
+    padding: 14px 18px;
     overflow: hidden;
-    border: 1px solid rgba(6, 182, 212, .24);
-    border-radius: 26px;
-    background:
-      linear-gradient(110deg, rgba(6, 182, 212, .20), rgba(99, 102, 241, .13) 50%, transparent 82%),
-      radial-gradient(circle at 84% 15%, rgba(16, 185, 129, .18), transparent 28%),
-      var(--surface-strong);
-    box-shadow: 0 22px 60px rgba(0, 0, 0, .16);
+    border: 1px solid rgba(6, 182, 212, .2);
+    border-left: 3px solid #06b6d4;
+    border-radius: 12px;
+    background: linear-gradient(100deg, rgba(6, 182, 212, .09), var(--surface-strong) 72%);
   }
 
   .mcq-v2-hero::before,
   .mcq-v2-hero::after {
-    content: "";
-    position: absolute;
-    border: 1px solid rgba(255, 255, 255, .12);
-    border-radius: 50%;
-    pointer-events: none;
+    display: none;
   }
 
-  .mcq-v2-hero::before { width: 280px; height: 280px; right: 70px; top: -182px; }
-  .mcq-v2-hero::after { width: 170px; height: 170px; right: -35px; bottom: -110px; }
   .mcq-v2-hero > div:first-child,
   .mcq-v2-hero-icon { position: relative; z-index: 1; }
 
@@ -240,34 +232,30 @@
     display: inline-flex;
     align-items: center;
     gap: 7px;
-    padding: 5px 9px;
-    border: 1px solid rgba(103, 232, 249, .28);
-    border-radius: 999px;
     color: #67e8f9;
-    background: rgba(6, 182, 212, .12);
     font-size: 10px;
     font-weight: 800;
-    letter-spacing: .12em;
+    letter-spacing: 0;
     text-transform: uppercase;
   }
 
   .mcq-v2-eyebrow svg { width: 13px; height: 13px; }
-  .mcq-v2-title { margin: 11px 0 6px; font-size: clamp(30px, 5vw, 45px); line-height: .98; letter-spacing: -.04em; }
-  .mcq-v2-subtitle { margin: 0; max-width: 550px; color: var(--text-soft); font-size: 13px; line-height: 1.55; }
+  .mcq-v2-title { margin: 3px 0 2px; font-size: 23px; line-height: 1.2; letter-spacing: 0; }
+  .mcq-v2-subtitle { margin: 0; max-width: 550px; color: var(--text-soft); font-size: 12px; line-height: 1.45; }
 
   .mcq-v2-hero-icon {
     display: grid;
     place-items: center;
-    width: 86px;
-    height: 86px;
-    border: 1px solid rgba(255, 255, 255, .22);
-    border-radius: 26px;
-    color: #fff;
-    background: linear-gradient(145deg, rgba(255, 255, 255, .18), rgba(255, 255, 255, .04));
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .18), 0 18px 40px rgba(0, 0, 0, .18);
+    width: 48px;
+    height: 48px;
+    flex: 0 0 48px;
+    border: 1px solid rgba(6, 182, 212, .22);
+    border-radius: 12px;
+    color: #67e8f9;
+    background: rgba(6, 182, 212, .1);
   }
 
-  .mcq-v2-hero-icon svg { width: 38px; height: 38px; }
+  .mcq-v2-hero-icon svg { width: 22px; height: 22px; }
 
   .mcq-v2-switch-row {
     padding: 10px 14px;
@@ -407,11 +395,11 @@
   }
 
   @media (max-width: 600px) {
-    .mcq-v2-hero { min-height: 145px; padding: 22px 20px; border-radius: 20px; }
-    .mcq-v2-hero-icon { position: absolute; right: 18px; top: 18px; width: 48px; height: 48px; border-radius: 15px; }
-    .mcq-v2-hero-icon svg { width: 23px; height: 23px; }
-    .mcq-v2-title { max-width: 245px; font-size: 30px; }
-    .mcq-v2-subtitle { max-width: 275px; font-size: 12px; }
+    .mcq-v2-hero { min-height: 76px; padding: 12px 14px; }
+    .mcq-v2-hero-icon { width: 40px; height: 40px; flex-basis: 40px; }
+    .mcq-v2-hero-icon svg { width: 20px; height: 20px; }
+    .mcq-v2-title { font-size: 21px; }
+    .mcq-v2-subtitle { font-size: 11px; }
     .mcq-v2-switch-row { align-items: stretch; flex-direction: column; }
     #panel-quiz .mcq-top-bar { padding: 17px; }
     #panel-quiz .mcq-title-group { align-items: flex-start; }

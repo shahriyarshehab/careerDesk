@@ -601,14 +601,52 @@
 }
 
 @media (max-width: 680px) {
-  #homeQuoteCommand.quote-command-v2 { padding: 9px; }
+  #homeQuoteCommand.quote-command-v2 {
+    margin-bottom: 12px;
+    padding: 7px;
+    border-radius: 14px;
+  }
   #homeQuoteCommand .quote-command-v2-stage {
-    min-height: 135px;
-    padding: 13px 12px 22px;
+    min-height: 0;
+    padding: 10px 10px 18px;
     flex-direction: column;
     align-items: flex-start;
+    gap: 5px;
+    border-radius: 11px;
   }
-  #homeQuoteCommand .quote-command-v2-copy .profile-quote-phrase { font-size: 14px; }
-  #homeQuoteCommand .quote-command-v2-controls { align-self: flex-end; margin: 8px 0 0; }
+  #homeQuoteCommand .profile-quote-ticker-content {
+    gap: 8px;
+    width: 100%;
+  }
+  #homeQuoteCommand .quote-command-v2-mark {
+    width: 28px;
+    height: 28px;
+    flex-basis: 28px;
+    border-radius: 8px;
+  }
+  #homeQuoteCommand .quote-command-v2-copy .profile-quote-phrase {
+    font-size: 12.5px;
+    line-height: 1.4;
+  }
+  #homeQuoteCommand .quote-command-v2-copy .profile-quote-author-pill {
+    margin-left: 4px;
+    font-size: 9px;
+  }
+  #homeQuoteCommand .quote-command-v2-controls {
+    align-self: flex-end;
+    margin: 2px 0 0;
+    gap: 4px;
+  }
+  #homeQuoteCommand .quote-command-v2-language,
+  #homeQuoteCommand .quote-command-v2-controls .profile-quote-ctrl-btn {
+    height: 26px;
+    min-height: 26px;
+    padding: 0 8px;
+  }
+  #homeQuoteCommand .quote-command-v2-progress {
+    right: 10px;
+    bottom: 6px;
+    left: 10px;
+  }
 }
 

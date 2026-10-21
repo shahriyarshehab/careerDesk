@@ -371,12 +371,16 @@ function renderGroupChatAuth() {
   const authRequired = document.getElementById('groupchatAuthRequired');
   const app = document.getElementById('groupchatApp');
   if (!authRequired || !app) return;
-  authRequired.hidden = !!user;
+  const hasInvite = !!groupChatInviteId();
+  authRequired.hidden = !!user || hasInvite;
   app.hidden = !user;
   if (user && groupChatState.initialized) {
-    loadMyGroups().catch(error => groupChatError(error, 'Unable to load your groups.'));
+    loadMyGroups()
+      .then(() => renderGroupChatInvite())
+      .catch(error => groupChatError(error, 'Unable to load your groups.'));
   }
   else destroyGroupChatListeners();
+  renderGroupChatInvite();
 }
 
 async function loadMyGroups() {
@@ -798,7 +802,7 @@ async function renderMembersPanel() {
   if (descEl) descEl.textContent = group.description || 'Public study group for BCS & career aspirants.';
 
   const inviteLinkEl = document.getElementById('groupchatInfoInviteLink');
-  if (inviteLinkEl) inviteLinkEl.textContent = `careerdesk.app/g/${group.id}`;
+  if (inviteLinkEl) inviteLinkEl.textContent = groupChatInviteUrl(group.id);
 
   // 2. Wire Quick Actions & Invite
   const copyInvite = () => {
@@ -809,7 +813,7 @@ async function renderMembersPanel() {
   const quickInvite = document.getElementById('groupchatQuickInviteBtn');
   if (quickInvite) quickInvite.onclick = copyInvite;
   const quickShare = document.getElementById('groupchatQuickShareBtn');
-  if (quickShare) quickShare.onclick = copyInvite;
+  if (quickShare) quickShare.onclick = () => groupChatShareInvite(group);
 
   // 3. Notifications Toggle & Quick Mute
   const notifToggle = document.getElementById('groupchatNotifToggle');
@@ -835,6 +839,8 @@ async function renderMembersPanel() {
   // 4. Edit Settings & Leave buttons
   const editBtn = document.getElementById('groupchatPanelEditBtn');
   const settingsBtn = document.getElementById('groupchatInfoSettingsBtn');
+  if (editBtn) editBtn.hidden = !isOwner;
+  if (settingsBtn) settingsBtn.hidden = !isOwner;
   const onSettings = () => {
     if (isOwner) {
       openGroupChatSettingsModal();
@@ -1010,34 +1016,26 @@ async function renderMembersPanel() {
       return (a.data().displayName || '').localeCompare(b.data().displayName || '');
     });
 
-    html += `
-      <div class="groupchat-panel-section">
-        <div class="groupchat-panel-section-title">
-          <span>Members</span>
-          <span class="groupchat-badge">${membersDocs.length}</span>
-        </div>
-        <div class="groupchat-members-list">
-          ${membersDocs.length === 0 ? '<div class="groupchat-empty" style="padding:10px 4px">No members found.</div>' :
-            membersDocs.map(doc => {
-              const m = doc.data();
-              const isThisOwner = m.role === 'owner';
-              const actions = isOwner && !isThisOwner
-                ? `<div class="groupchat-member-actions">
-                     <button class="micro-btn danger" data-remove-uid="${escapeAttr(doc.id)}" type="button" title="Remove member">✕</button>
-                     <button class="micro-btn danger" data-block-uid="${escapeAttr(doc.id)}" type="button" title="Block member">🚫</button>
-                   </div>`
-                : '';
-              return `<div class="groupchat-member-row">
-                ${groupChatAvatar(m.photoURL, m.displayName, 'groupchat-avatar small')}
-                <div class="groupchat-member-info">
-                  <div class="groupchat-member-name">${escapeHtml(m.displayName || 'Member')}</div>
-                  <span class="groupchat-role-badge ${isThisOwner ? 'owner' : 'member'}">${isThisOwner ? '👑 Owner' : 'Member'}</span>
-                </div>
-                ${actions}
-              </div>`;
-            }).join('')}
-        </div>
-      </div>`;
+    html += membersDocs.length === 0
+      ? '<div class="groupchat-empty" style="padding:10px 4px">No members found.</div>'
+      : membersDocs.map(doc => {
+        const m = doc.data();
+        const isThisOwner = m.role === 'owner';
+        const actions = isOwner && !isThisOwner
+          ? `<div class="groupchat-member-actions">
+               <button class="micro-btn danger" data-remove-uid="${escapeAttr(doc.id)}" type="button" title="Remove member" aria-label="Remove ${escapeAttr(m.displayName || 'member')}"><i data-lucide="user-minus"></i></button>
+               <button class="micro-btn danger" data-block-uid="${escapeAttr(doc.id)}" type="button" title="Block member" aria-label="Block ${escapeAttr(m.displayName || 'member')}"><i data-lucide="ban"></i></button>
+             </div>`
+          : '';
+        return `<div class="groupchat-member-row">
+          ${groupChatAvatar(m.photoURL, m.displayName, 'groupchat-avatar small')}
+          <div class="groupchat-member-info">
+            <div class="groupchat-member-name">${escapeHtml(m.displayName || 'Member')}</div>
+            <span class="groupchat-role-badge ${isThisOwner ? 'owner' : 'member'}">${isThisOwner ? '👑 Owner' : 'Member'}</span>
+          </div>
+          ${actions}
+        </div>`;
+      }).join('');
 
     // Blocked Users (for Group Owner)
     if (isOwner && blockedSnap && !blockedSnap.empty) {
@@ -1169,20 +1167,141 @@ async function unpinMessage() {
 }
 
 /* ── Invite / Share ── */
-function groupChatCopyInvite(group) {
+function groupChatInviteId() {
+  return new URLSearchParams(window.location.search).get('groupInvite')?.trim() || '';
+}
+
+function groupChatInviteUrl(groupId) {
+  const url = new URL(window.location.href);
+  url.searchParams.set('groupInvite', groupId);
+  url.hash = 'groupchat';
+  return url.toString();
+}
+
+function clearGroupChatInvite() {
+  const url = new URL(window.location.href);
+  url.searchParams.delete('groupInvite');
+  history.replaceState(null, '', `${url.pathname}${url.search}${url.hash}`);
+}
+
+async function renderGroupChatInvite() {
+  const landing = document.getElementById('groupchatInviteLanding');
+  const title = document.getElementById('groupchatInviteTitle');
+  const description = document.getElementById('groupchatInviteDescription');
+  const action = document.getElementById('groupchatInviteActionBtn');
+  if (!landing || !title || !description || !action) return;
+
+  const inviteId = groupChatInviteId();
+  landing.hidden = !inviteId;
+  if (!inviteId) return;
+
+  title.textContent = 'You have been invited to a study group';
+  description.textContent = 'Sign in to view the group and join the conversation.';
+  action.hidden = false;
+  action.disabled = false;
+
+  const user = typeof getCachedAuthUser === 'function' ? getCachedAuthUser() : null;
+  if (!user) {
+    action.textContent = 'Sign in to continue';
+    action.onclick = () => {
+      if (typeof openAuthModal === 'function') openAuthModal('login');
+      else document.getElementById('groupchatLoginBtn')?.click();
+    };
+    return;
+  }
+
+  action.disabled = true;
+  action.textContent = 'Loading invite...';
+  try {
+    const db = groupChatDb();
+    const groupRef = db.collection('groups').doc(inviteId);
+    const groupSnapshot = await groupRef.get();
+    if (!groupSnapshot.exists || groupSnapshot.data().isPublic !== true) {
+      title.textContent = 'Invite unavailable';
+      description.textContent = 'This group invite is invalid or the group is no longer available.';
+      action.hidden = true;
+      return;
+    }
+
+    const group = groupSnapshot.data();
+    const groupName = group.name || group.groupName || 'Study group';
+    title.textContent = `Join ${groupName}`;
+    description.textContent = group.description || 'Join this CareerDesk study group.';
+    const membership = await db.collection('users').doc(user.uid)
+      .collection('groupMemberships').doc(inviteId).get();
+
+    if (membership.exists) {
+      action.textContent = 'Open group';
+      action.disabled = false;
+      action.onclick = async () => {
+        await loadMyGroups();
+        selectGroup(inviteId);
+        clearGroupChatInvite();
+        landing.hidden = true;
+      };
+      return;
+    }
+
+    const request = group.requiresApproval === true
+      ? await groupRef.collection('joinRequests').doc(user.uid).get()
+      : null;
+    if (request?.exists) {
+      description.textContent = 'Your request is waiting for approval from the group owner.';
+      action.textContent = 'Request sent';
+      action.disabled = true;
+      return;
+    }
+
+    const requiresApproval = group.requiresApproval === true;
+    if (requiresApproval) description.textContent += ' The owner must approve your request to join.';
+    action.textContent = requiresApproval ? 'Request to join' : 'Join group';
+    action.disabled = false;
+    action.onclick = async () => {
+      action.disabled = true;
+      try {
+        await joinGroup(inviteId);
+        if (requiresApproval) {
+          await renderGroupChatInvite();
+        } else {
+          clearGroupChatInvite();
+          landing.hidden = true;
+        }
+      } catch (error) {
+        action.disabled = false;
+        groupChatError(error, 'Unable to join this group.');
+      }
+    };
+  } catch (error) {
+    title.textContent = 'Unable to open invite';
+    description.textContent = error.message || 'Check your connection and try again.';
+    action.hidden = true;
+  }
+}
+
+async function groupChatCopyInvite(group) {
   const name = group.groupName || group.name || 'this group';
-  const text = `Join "${name}" study group on CareerDesk! Search for it in the Group Chat tab.`;
-  navigator.clipboard?.writeText(text).then(() => {
-    const btn = document.getElementById('groupchatInviteBtn');
-    if (!btn) return;
-    btn.classList.add('groupchat-invite-copied');
-    const span = btn.querySelector('span');
-    if (span) { span.textContent = 'Copied!'; }
-    setTimeout(() => {
-      btn.classList.remove('groupchat-invite-copied');
-      if (span) span.textContent = 'Invite';
-    }, 2200);
-  }).catch(() => { if (typeof showToast === 'function') showToast('Copy failed — try manually.', true); });
+  const inviteUrl = groupChatInviteUrl(group.id);
+  try {
+    if (!navigator.clipboard?.writeText) throw new Error('Clipboard unavailable');
+    await navigator.clipboard.writeText(`Join "${name}" on CareerDesk:\n${inviteUrl}`);
+    if (typeof showToast === 'function') showToast('Group invite link copied.');
+  } catch (error) {
+    window.prompt('Copy this group invite link', inviteUrl);
+  }
+}
+
+async function groupChatShareInvite(group) {
+  const name = group.groupName || group.name || 'this group';
+  const inviteUrl = groupChatInviteUrl(group.id);
+  if (navigator.share) {
+    try {
+      await navigator.share({ title: `Join ${name}`, text: `You are invited to ${name} on CareerDesk.`, url: inviteUrl });
+      return;
+    } catch (error) {
+      if (error.name === 'AbortError') return;
+    }
+  }
+  await groupChatCopyInvite(group);
 }
 
 async function subscribeToMessages(groupId) {

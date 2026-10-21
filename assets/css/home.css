@@ -1133,6 +1133,10 @@ html[data-theme="light"] .home-mistake-item {
 }
 
 @media (max-width: 768px) {
+  #panel-home .home-container {
+    gap: 12px;
+  }
+
   .home-hero {
     padding: 18px 16px;
     border-radius: 16px;
@@ -1156,8 +1160,29 @@ html[data-theme="light"] .home-mistake-item {
   .routine-card-header {
     flex-direction: column;
     align-items: flex-start;
-    gap: 12px;
-    padding: 14px 14px;
+    gap: 9px;
+    padding: 0 0 12px;
+  }
+
+  #panel-home .home-routine-card {
+    padding: 14px;
+    border-radius: 16px;
+  }
+
+  #panel-home .routine-title-icon {
+    width: 34px;
+    height: 34px;
+    flex: 0 0 34px;
+    border-radius: 10px;
+  }
+
+  #panel-home .routine-title-box h2 {
+    font-size: 18px;
+    letter-spacing: 0;
+  }
+
+  #panel-home .routine-autosave-lead {
+    font-size: 10px;
   }
 
   .routine-top-actions {
@@ -1168,8 +1193,33 @@ html[data-theme="light"] .home-mistake-item {
     padding-bottom: 2px;
   }
 
+  #panel-home .routine-mode-toggle-group {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    width: min(100%, 220px);
+    flex: 0 0 auto;
+  }
+
+  #panel-home .routine-mode-toggle-group .pill,
+  #panel-home .routine-top-actions #monthlyRoutineBtn {
+    width: 100% !important;
+    min-width: 0 !important;
+    min-height: 36px;
+    height: 36px !important;
+    flex: 1 1 0 !important;
+    justify-content: center;
+    gap: 5px;
+    padding: 0 8px !important;
+    font-size: 11px !important;
+    white-space: nowrap;
+  }
+
+  #panel-home .routine-mode-toggle-group .pill span {
+    display: inline !important;
+  }
+
   .home-routine-card .date-slider-row {
-    padding: 8px 12px;
+    padding: 8px 0;
   }
 
   .home-routine-card .routine-card {
