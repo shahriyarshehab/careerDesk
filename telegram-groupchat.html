@@ -1,0 +1,1475 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Telegram Web — Group Chat & Group Info</title>
+  
+  <!-- Tailwind CSS CDN with arbitrary value support -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            tg: {
+              dark: '#0e1621',         // Chat pane dark background
+              sidebar: '#17212b',      // Sidebar & right info panel background
+              surface: '#202b36',      // Hover / elevated surface
+              surfaceActive: '#2b5278',// Selected chat / active item
+              border: '#0f1722',       // Structural border
+              bubbleIn: '#182533',     // Incoming message bubble
+              bubbleOut: '#2b5278',    // Outgoing message bubble
+              accent: '#2AABEE',       // Telegram signature blue
+              accentHover: '#229ed9',
+              textPrimary: '#f5f5f5',  // Primary high-contrast text
+              textSecondary: '#7f91a4',// Subtitle & snippet text
+              textMuted: '#687a8e',    // Timestamps and metadata
+              badge: '#2481cc',        // Unread badge blue
+              reactionBg: '#1f2e3d',   // Reaction emoji capsule
+              reactionActive: '#2a4b6e'
+            }
+          },
+          fontFamily: {
+            sans: ['-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Roboto', 'Helvetica', 'Arial', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <style>
+    /* Custom Scrollbar styled for Telegram Web Dark */
+    ::-webkit-scrollbar {
+      width: 5px;
+      height: 5px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(255, 255, 255, 0.28);
+    }
+
+    /* Telegram Web chat background subtle pattern */
+    .tg-chat-bg {
+      background-color: #0e1621;
+      background-image: 
+        radial-gradient(circle at 25px 25px, rgba(255, 255, 255, 0.02) 2%, transparent 0%),
+        radial-gradient(circle at 75px 75px, rgba(255, 255, 255, 0.015) 2%, transparent 0%);
+      background-size: 100px 100px;
+    }
+
+    /* Message bubble tail pseudo elements */
+    .bubble-incoming {
+      position: relative;
+      border-bottom-left-radius: 4px !important;
+    }
+    .bubble-outgoing {
+      position: relative;
+      border-bottom-right-radius: 4px !important;
+    }
+    
+    /* Smooth slide transitions */
+    .slide-transition {
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* Toggle switch styles */
+    .toggle-checkbox:checked {
+      right: 0;
+      border-color: #2AABEE;
+      background-color: #2AABEE;
+    }
+    .toggle-checkbox:checked + .toggle-label {
+      background-color: #2b5278;
+    }
+  </style>
+</head>
+
+<body class="bg-tg-dark text-tg-textPrimary h-screen w-screen overflow-hidden flex select-none antialiased relative">
+
+  <!-- ================================================================= -->
+  <!-- 1. LEFT SIDEBAR: Search, Filter Pills, Chat Previews              -->
+  <!-- ================================================================= -->
+  <aside id="sidebarPane" class="w-full md:w-[350px] lg:w-[390px] flex-shrink-0 bg-tg-sidebar border-r border-tg-border flex flex-col h-full z-20 absolute md:static inset-0 slide-transition">
+    
+    <!-- Top Header & Search Bar -->
+    <div class="p-3 pb-2 space-y-3 bg-tg-sidebar border-b border-tg-border/50">
+      <div class="flex items-center justify-between">
+        <button id="menuBtn" class="p-2 -ml-1 text-tg-textSecondary hover:text-white hover:bg-tg-surface rounded-full transition-colors" title="Main Menu">
+          <i data-lucide="menu" class="w-5 h-5"></i>
+        </button>
+        
+        <!-- Search Input -->
+        <div class="relative flex-1 mx-2">
+          <i data-lucide="search" class="w-4 h-4 text-tg-textSecondary absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none"></i>
+          <input 
+            type="text" 
+            id="chatSearchInput"
+            placeholder="Search" 
+            class="w-full bg-[#242f3d] text-sm text-tg-textPrimary placeholder-tg-textSecondary pl-9 pr-8 py-2 rounded-full outline-none focus:ring-1 focus:ring-tg-accent transition-all"
+          />
+          <button id="clearSearchBtn" class="hidden absolute right-2.5 top-1/2 -translate-y-1/2 text-tg-textSecondary hover:text-white">
+            <i data-lucide="x" class="w-3.5 h-3.5"></i>
+          </button>
+        </div>
+
+        <button class="p-2 -mr-1 text-tg-textSecondary hover:text-white hover:bg-tg-surface rounded-full transition-colors" title="New Message">
+          <i data-lucide="edit-3" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- Filter Pills (Folders) -->
+      <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-1" id="filterPillsContainer">
+        <button data-filter="all" class="filter-pill active px-3.5 py-1 text-xs font-medium rounded-full bg-tg-accent text-white transition-all shadow-sm">
+          All
+        </button>
+        <button data-filter="groups" class="filter-pill px-3.5 py-1 text-xs font-medium rounded-full bg-tg-surface text-tg-textSecondary hover:text-white hover:bg-[#283647] transition-all flex items-center gap-1.5">
+          Groups <span class="bg-[#242f3d] text-[10px] text-white px-1.5 py-0.2 rounded-full">12</span>
+        </button>
+        <button data-filter="unread" class="filter-pill px-3.5 py-1 text-xs font-medium rounded-full bg-tg-surface text-tg-textSecondary hover:text-white hover:bg-[#283647] transition-all flex items-center gap-1.5">
+          Unread <span class="bg-tg-badge text-[10px] text-white px-1.5 py-0.2 rounded-full">5</span>
+        </button>
+        <button data-filter="channels" class="filter-pill px-3.5 py-1 text-xs font-medium rounded-full bg-tg-surface text-tg-textSecondary hover:text-white hover:bg-[#283647] transition-all">
+          Channels
+        </button>
+        <button data-filter="work" class="filter-pill px-3.5 py-1 text-xs font-medium rounded-full bg-tg-surface text-tg-textSecondary hover:text-white hover:bg-[#283647] transition-all">
+          Work
+        </button>
+      </div>
+    </div>
+
+    <!-- Scrollable Chat List -->
+    <div id="chatList" class="flex-1 overflow-y-auto divide-y divide-transparent">
+      
+      <!-- Chat Item 1 (Active Group Chat) -->
+      <div class="chat-item active flex items-center gap-3 px-3 py-2.5 bg-tg-surfaceActive cursor-pointer transition-colors relative" data-chat-id="1" data-category="groups work">
+        <div class="relative flex-shrink-0">
+          <div class="w-12 h-12 rounded-full bg-gradient-to-tr from-cyan-600 via-blue-600 to-indigo-500 flex items-center justify-center font-bold text-white text-base shadow-inner">
+            TL
+          </div>
+          <span class="absolute bottom-0 right-0 w-3.5 h-3.5 bg-emerald-500 border-2 border-tg-sidebar rounded-full"></span>
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center justify-between mb-0.5">
+            <h3 class="text-sm font-semibold text-white truncate flex items-center gap-1">
+              <span>🚀 Tech Leads & Founders</span>
+              <i data-lucide="users" class="w-3.5 h-3.5 text-tg-textSecondary inline"></i>
+            </h3>
+            <span class="text-xs text-tg-textSecondary whitespace-nowrap">10:48 AM</span>
+          </div>
+          <div class="flex items-center justify-between">
+            <p class="text-xs text-tg-textSecondary truncate">
+              <span class="text-cyan-400 font-medium">Sarah:</span> Just pushed the latest deployment to staging! 🚀
+            </p>
+            <span class="ml-2 flex-shrink-0 bg-tg-badge text-white text-[11px] font-semibold px-1.5 py-0.5 rounded-full min-w-[20px] text-center">
+              4
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Chat Item 2 -->
+      <div class="chat-item flex items-center gap-3 px-3 py-2.5 hover:bg-tg-surface cursor-pointer transition-colors" data-chat-id="2" data-category="groups unread">
+        <div class="relative flex-shrink-0">
+          <div class="w-12 h-12 rounded-full bg-gradient-to-tr from-purple-600 to-pink-500 flex items-center justify-center font-bold text-white text-base shadow-inner">
+            FG
+          </div>
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center justify-between mb-0.5">
+            <h3 class="text-sm font-semibold text-white truncate flex items-center gap-1">
+              <span>Frontend Guild (UI/UX)</span>
+              <i data-lucide="users" class="w-3.5 h-3.5 text-tg-textSecondary inline"></i>
+            </h3>
+            <span class="text-xs text-tg-textMuted whitespace-nowrap">10:32 AM</span>
+          </div>
+          <div class="flex items-center justify-between">
+            <p class="text-xs text-tg-textSecondary truncate">
+              <span class="text-purple-400 font-medium">Elena:</span> Check out the new dark mode theme tokens.
+            </p>
+            <span class="ml-2 flex-shrink-0 bg-tg-badge text-white text-[11px] font-semibold px-1.5 py-0.5 rounded-full min-w-[20px] text-center">
+              2
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Chat Item 3 -->
+      <div class="chat-item flex items-center gap-3 px-3 py-2.5 hover:bg-tg-surface cursor-pointer transition-colors" data-chat-id="3" data-category="groups">
+        <div class="relative flex-shrink-0">
+          <div class="w-12 h-12 rounded-full bg-gradient-to-tr from-emerald-600 to-teal-400 flex items-center justify-center font-bold text-white text-base shadow-inner">
+            AI
+          </div>
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center justify-between mb-0.5">
+            <h3 class="text-sm font-semibold text-white truncate flex items-center gap-1">
+              <span>AI & Agents Research</span>
+              <i data-lucide="users" class="w-3.5 h-3.5 text-tg-textSecondary inline"></i>
+            </h3>
+            <span class="text-xs text-tg-textMuted whitespace-nowrap">09:15 AM</span>
+          </div>
+          <div class="flex items-center justify-between">
+            <p class="text-xs text-tg-textSecondary truncate">
+              <span class="text-emerald-400 font-medium">David:</span> Evaluating the benchmark latencies across models.
+            </p>
+            <i data-lucide="check-check" class="w-4 h-4 text-tg-accent flex-shrink-0 ml-1"></i>
+          </div>
+        </div>
+      </div>
+
+      <!-- Chat Item 4 -->
+      <div class="chat-item flex items-center gap-3 px-3 py-2.5 hover:bg-tg-surface cursor-pointer transition-colors" data-chat-id="4" data-category="channels">
+        <div class="relative flex-shrink-0">
+          <div class="w-12 h-12 rounded-full bg-gradient-to-tr from-amber-600 to-orange-400 flex items-center justify-center font-bold text-white text-base shadow-inner">
+            📢
+          </div>
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center justify-between mb-0.5">
+            <h3 class="text-sm font-semibold text-white truncate flex items-center gap-1">
+              <span>Official Release Updates</span>
+              <i data-lucide="megaphone" class="w-3.5 h-3.5 text-tg-textSecondary inline"></i>
+            </h3>
+            <span class="text-xs text-tg-textMuted whitespace-nowrap">Yesterday</span>
+          </div>
+          <div class="flex items-center justify-between">
+            <p class="text-xs text-tg-textSecondary truncate">
+              Version 2.4 is live with zero-dependency architecture!
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Chat Item 5 -->
+      <div class="chat-item flex items-center gap-3 px-3 py-2.5 hover:bg-tg-surface cursor-pointer transition-colors" data-chat-id="5" data-category="groups work">
+        <div class="relative flex-shrink-0">
+          <div class="w-12 h-12 rounded-full bg-gradient-to-tr from-rose-600 to-red-400 flex items-center justify-center font-bold text-white text-base shadow-inner">
+            DO
+          </div>
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center justify-between mb-0.5">
+            <h3 class="text-sm font-semibold text-white truncate flex items-center gap-1">
+              <span>DevOps Incident Response</span>
+              <i data-lucide="shield-alert" class="w-3.5 h-3.5 text-rose-400 inline"></i>
+            </h3>
+            <span class="text-xs text-tg-textMuted whitespace-nowrap">Oct 19</span>
+          </div>
+          <div class="flex items-center justify-between">
+            <p class="text-xs text-tg-textSecondary truncate">
+              <span class="text-rose-400 font-medium">OpsBot:</span> All Kubernetes clusters healthy.
+            </p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </aside>
+
+
+  <!-- ================================================================= -->
+  <!-- 2. CENTER MAIN CHAT PANE: Header, Pinned, Messages, Input         -->
+  <!-- ================================================================= -->
+  <main id="chatPane" class="flex-1 flex flex-col h-full bg-tg-dark relative overflow-hidden min-w-0">
+    
+    <!-- TOP GROUP HEADER (Clicking name or avatar triggers right panel!) -->
+    <header class="h-14 px-4 bg-tg-sidebar border-b border-tg-border flex items-center justify-between z-10 select-none shadow-sm flex-shrink-0">
+      
+      <!-- Group Info Trigger Area -->
+      <div id="chatHeaderGroupInfo" class="flex items-center gap-3 min-w-0 cursor-pointer p-1 -ml-1 rounded-xl hover:bg-tg-surface/60 transition-all group" title="Click to view Group Info & Settings">
+        <!-- Mobile back to sidebar button -->
+        <button id="mobileBackBtn" class="md:hidden p-1.5 -ml-1 text-tg-textSecondary hover:text-white rounded-full transition-colors" title="Back to Chats">
+          <i data-lucide="arrow-left" class="w-5 h-5"></i>
+        </button>
+
+        <!-- Group Avatar with tooltip badge -->
+        <div class="relative flex-shrink-0">
+          <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-cyan-600 via-blue-600 to-indigo-500 flex items-center justify-center font-bold text-white text-sm shadow-md group-hover:scale-105 transition-transform">
+            TL
+          </div>
+        </div>
+
+        <!-- Group Metadata -->
+        <div class="min-w-0">
+          <h2 class="text-sm font-semibold text-white truncate flex items-center gap-1.5 group-hover:text-cyan-300 transition-colors">
+            <span>🚀 Tech Leads & Founders</span>
+            <i data-lucide="badge-check" class="w-4 h-4 text-tg-accent fill-tg-accent/20"></i>
+          </h2>
+          <p class="text-xs text-tg-textSecondary truncate flex items-center gap-1.5">
+            <span>1,428 members</span>
+            <span class="inline-block w-1 h-1 rounded-full bg-tg-textMuted"></span>
+            <span class="text-emerald-400 font-medium flex items-center gap-1">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+              84 online
+            </span>
+            <span class="text-[11px] text-tg-textMuted opacity-0 group-hover:opacity-100 transition-opacity ml-1 hidden sm:inline">(view info)</span>
+          </p>
+        </div>
+      </div>
+
+    </header>
+
+    <!-- PINNED MESSAGE BANNER -->
+    <div id="pinnedBanner" class="bg-[#1e2c3a] border-b border-tg-border/60 px-4 py-2 flex items-center justify-between cursor-pointer hover:bg-[#233344] transition-colors z-10 flex-shrink-0 shadow-sm">
+      <div class="flex items-center gap-3 min-w-0">
+        <div class="w-0.5 h-8 bg-tg-accent rounded-full flex-shrink-0"></div>
+        <i data-lucide="pin" class="w-4 h-4 text-tg-accent flex-shrink-0 rotate-45"></i>
+        <div class="min-w-0">
+          <div class="flex items-center gap-2">
+            <span class="text-xs font-semibold text-tg-accent">Pinned Message #3</span>
+            <span class="text-[10px] text-tg-textMuted">• by David (Admin)</span>
+          </div>
+          <p class="text-xs text-tg-textSecondary truncate">
+            📌 Sprint Q4 Goals: Stage deployment verified. Production rollout window is scheduled for Saturday 02:00 UTC.
+          </p>
+        </div>
+      </div>
+      <button id="dismissPinBtn" class="text-tg-textSecondary hover:text-white p-1 rounded-full hover:bg-white/5 transition-colors" title="Dismiss">
+        <i data-lucide="x" class="w-4 h-4"></i>
+      </button>
+    </div>
+
+    <!-- SCROLLABLE MESSAGE STREAM -->
+    <div id="messageStream" class="flex-1 overflow-y-auto px-4 py-4 space-y-3 tg-chat-bg relative">
+      
+      <!-- Date Separator Badge -->
+      <div class="flex justify-center my-3">
+        <span class="bg-[#17212b]/85 backdrop-blur-sm text-tg-textSecondary text-[11px] font-medium px-3 py-1 rounded-full shadow-sm border border-white/5">
+          Today
+        </span>
+      </div>
+
+      <!-- System Notification -->
+      <div class="flex justify-center my-2">
+        <span class="bg-[#17212b]/70 text-tg-textMuted text-[11px] px-3 py-0.5 rounded-full flex items-center gap-1.5">
+          <i data-lucide="user-plus" class="w-3 h-3 text-emerald-400"></i>
+          <span>Alex Rivera joined the group via invite link</span>
+        </span>
+      </div>
+
+      <!-- Message 1: Incoming from David -->
+      <div class="flex items-start gap-2 max-w-[85%] md:max-w-[70%] group">
+        <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-emerald-600 to-teal-500 flex items-center justify-center font-bold text-white text-xs flex-shrink-0 mt-auto">
+          DC
+        </div>
+        <div class="bg-tg-bubbleIn p-2.5 rounded-2xl rounded-bl-sm text-sm shadow-md border border-white/5 space-y-1 relative">
+          <div class="flex items-center gap-1.5">
+            <span class="text-xs font-semibold text-emerald-400 cursor-pointer hover:underline">David Chen</span>
+            <span class="text-[9px] bg-emerald-500/20 text-emerald-300 px-1 rounded uppercase tracking-wider font-bold">Admin</span>
+          </div>
+          <p class="text-tg-textPrimary leading-relaxed">
+            Good morning everyone! Quick reminder: sync standup is in 20 minutes. Please make sure your PR branches are rebased on <code class="bg-[#101822] text-amber-300 px-1 py-0.5 rounded text-xs">main</code>.
+          </p>
+          <div class="flex items-center justify-between pt-1 gap-4">
+            <div class="flex flex-wrap items-center gap-1">
+              <button class="reaction-badge active flex items-center gap-1 bg-tg-reactionActive hover:bg-opacity-90 px-2 py-0.5 rounded-full text-xs transition-all border border-tg-accent/40" data-emoji="👍" data-count="6">
+                <span>👍</span>
+                <span class="count text-[11px] text-tg-accent font-semibold">6</span>
+              </button>
+              <button class="reaction-badge flex items-center gap-1 bg-tg-reactionBg hover:bg-tg-surface px-2 py-0.5 rounded-full text-xs transition-all border border-white/5" data-emoji="🙌" data-count="2">
+                <span>🙌</span>
+                <span class="count text-[11px] text-tg-textSecondary">2</span>
+              </button>
+            </div>
+            <div class="text-[10px] text-tg-textMuted whitespace-nowrap ml-auto">10:14 AM</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Message 2: Incoming with Quoted Reply & Reactions from Sarah -->
+      <div class="flex items-start gap-2 max-w-[85%] md:max-w-[70%] group">
+        <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-cyan-600 to-blue-500 flex items-center justify-center font-bold text-white text-xs flex-shrink-0 mt-auto">
+          SL
+        </div>
+        <div class="bg-tg-bubbleIn p-2.5 rounded-2xl rounded-bl-sm text-sm shadow-md border border-white/5 space-y-1.5 relative">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-semibold text-cyan-400 cursor-pointer hover:underline">Sarah Lin</span>
+            <button class="text-tg-textMuted hover:text-white opacity-0 group-hover:opacity-100 transition-opacity reply-btn" data-author="Sarah Lin" data-snippet="Just pushed the latest deployment to staging! 🚀" title="Reply">
+              <i data-lucide="reply" class="w-3.5 h-3.5"></i>
+            </button>
+          </div>
+
+          <!-- Quoted Message Box -->
+          <div class="border-l-2 border-emerald-400 bg-[#121c27] px-2.5 py-1.5 rounded-r text-xs space-y-0.5 cursor-pointer hover:bg-[#162230] transition-colors">
+            <div class="font-semibold text-emerald-400 text-[11px]">David Chen</div>
+            <p class="text-tg-textSecondary truncate text-[11px]">Please make sure your PR branches are rebased on main.</p>
+          </div>
+
+          <p class="text-tg-textPrimary leading-relaxed">
+            All set on our end! Just pushed the latest deployment to staging. Microservices health dashboard is all green:
+          </p>
+
+          <!-- Inline Code / Log Snippet Box -->
+          <div class="bg-[#0f1722] border border-white/5 p-2 rounded-lg font-mono text-xs text-emerald-400 space-y-1">
+            <div class="flex items-center justify-between text-tg-textMuted text-[10px] pb-1 border-b border-white/5">
+              <span>deploy-verify.sh</span>
+              <span class="text-emerald-400">● 200 OK</span>
+            </div>
+            <div class="text-[11px] text-gray-300">
+              <span class="text-cyan-400">$</span> ./scripts/verify_cluster.sh --env=staging<br>
+              <span class="text-emerald-400">✓ Auth service: 12ms</span><br>
+              <span class="text-emerald-400">✓ Chat websocket broker: connected</span>
+            </div>
+          </div>
+
+          <div class="flex items-center justify-between pt-1 gap-4">
+            <div class="flex flex-wrap items-center gap-1">
+              <button class="reaction-badge flex items-center gap-1 bg-tg-reactionBg hover:bg-tg-surface px-2 py-0.5 rounded-full text-xs transition-all border border-white/5" data-emoji="🚀" data-count="14">
+                <span>🚀</span>
+                <span class="count text-[11px] text-tg-textSecondary">14</span>
+              </button>
+              <button class="reaction-badge flex items-center gap-1 bg-tg-reactionBg hover:bg-tg-surface px-2 py-0.5 rounded-full text-xs transition-all border border-white/5" data-emoji="🔥" data-count="5">
+                <span>🔥</span>
+                <span class="count text-[11px] text-tg-textSecondary">5</span>
+              </button>
+            </div>
+            <div class="text-[10px] text-tg-textMuted whitespace-nowrap ml-auto">10:22 AM</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Message 3: Outgoing from Current User (You) -->
+      <div class="flex justify-end group">
+        <div class="max-w-[85%] md:max-w-[70%] bg-tg-bubbleOut p-2.5 rounded-2xl rounded-br-sm text-sm shadow-md space-y-1.5 relative">
+          <div class="border-l-2 border-cyan-300 bg-[#203e5c] px-2.5 py-1.5 rounded-r text-xs space-y-0.5 cursor-pointer hover:bg-[#254668] transition-colors">
+            <div class="font-semibold text-cyan-300 text-[11px]">Sarah Lin</div>
+            <p class="text-blue-100/75 truncate text-[11px]">All set on our end! Just pushed the latest deployment to staging...</p>
+          </div>
+
+          <p class="text-white leading-relaxed">
+            Tested the auth flow and WebSocket ping listeners on staging — everything responds in under 40ms with zero memory leaks. Ready for QA sign-off! 👏
+          </p>
+
+          <div class="flex items-center justify-between pt-1 gap-3">
+            <div class="flex items-center gap-1">
+              <button class="reaction-badge flex items-center gap-1 bg-[#203e5c] hover:bg-[#284c70] px-2 py-0.5 rounded-full text-xs transition-all" data-emoji="❤️" data-count="3">
+                <span>❤️</span>
+                <span class="count text-[11px] text-blue-200">3</span>
+              </button>
+            </div>
+            <div class="flex items-center gap-1 text-[10px] text-blue-200 ml-auto">
+              <span>10:30 AM</span>
+              <i data-lucide="check-check" class="w-3.5 h-3.5 text-cyan-300"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Message 4: Incoming from Elena with attachment preview -->
+      <div class="flex items-start gap-2 max-w-[85%] md:max-w-[70%] group">
+        <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-purple-600 to-pink-500 flex items-center justify-center font-bold text-white text-xs flex-shrink-0 mt-auto">
+          ER
+        </div>
+        <div class="bg-tg-bubbleIn p-2.5 rounded-2xl rounded-bl-sm text-sm shadow-md border border-white/5 space-y-1.5 relative">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-semibold text-purple-400 cursor-pointer hover:underline">Elena Rostova</span>
+            <button class="text-tg-textMuted hover:text-white opacity-0 group-hover:opacity-100 transition-opacity reply-btn" data-author="Elena Rostova" data-snippet="Here is the UX audit & color tokens summary" title="Reply">
+              <i data-lucide="reply" class="w-3.5 h-3.5"></i>
+            </button>
+          </div>
+          <p class="text-tg-textPrimary leading-relaxed">
+            Here is the design review document with the high-contrast Telegram dark theme tokens:
+          </p>
+
+          <!-- Attachment card preview -->
+          <div class="flex items-center gap-3 bg-[#111a24] p-2.5 rounded-xl border border-white/5 hover:border-tg-accent/40 transition-colors cursor-pointer group/file" onclick="openFilePreview('DarkTheme_Tokens_v2.pdf')">
+            <div class="w-10 h-10 rounded-lg bg-rose-500/15 flex items-center justify-center text-rose-400 flex-shrink-0">
+              <i data-lucide="file-text" class="w-5 h-5"></i>
+            </div>
+            <div class="min-w-0 flex-1">
+              <div class="text-xs font-semibold text-white truncate group-hover/file:text-cyan-300 transition-colors">DarkTheme_Tokens_v2.pdf</div>
+              <div class="text-[10px] text-tg-textMuted">1.4 MB • PDF Document</div>
+            </div>
+            <button class="text-tg-textSecondary hover:text-tg-accent p-1.5 rounded-full hover:bg-white/5 transition-colors" title="Download">
+              <i data-lucide="download" class="w-4 h-4"></i>
+            </button>
+          </div>
+
+          <div class="flex items-center justify-between pt-1 gap-4">
+            <div class="flex flex-wrap items-center gap-1">
+              <button class="reaction-badge flex items-center gap-1 bg-tg-reactionBg hover:bg-tg-surface px-2 py-0.5 rounded-full text-xs transition-all border border-white/5" data-emoji="⚡" data-count="7">
+                <span>⚡</span>
+                <span class="count text-[11px] text-tg-textSecondary">7</span>
+              </button>
+              <button class="reaction-badge flex items-center gap-1 bg-tg-reactionBg hover:bg-tg-surface px-2 py-0.5 rounded-full text-xs transition-all border border-white/5" data-emoji="🎉" data-count="4">
+                <span>🎉</span>
+                <span class="count text-[11px] text-tg-textSecondary">4</span>
+              </button>
+            </div>
+            <div class="text-[10px] text-tg-textMuted whitespace-nowrap ml-auto">10:41 AM</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- BOTTOM MESSAGE INPUT FOOTER -->
+    <footer class="bg-tg-sidebar border-t border-tg-border flex flex-col z-20 flex-shrink-0">
+      
+      <!-- Replying Banner -->
+      <div id="replyingBanner" class="hidden bg-[#1e2a38] px-4 py-2 border-b border-tg-border/60 flex items-center justify-between">
+        <div class="flex items-center gap-3 min-w-0">
+          <div class="w-0.5 h-8 bg-tg-accent rounded-full flex-shrink-0"></div>
+          <i data-lucide="reply" class="w-4 h-4 text-tg-accent flex-shrink-0"></i>
+          <div class="min-w-0">
+            <div class="text-xs font-semibold text-tg-accent" id="replyAuthor">Replying to Sarah Lin</div>
+            <p class="text-xs text-tg-textSecondary truncate" id="replySnippet">Just pushed the latest deployment to staging! 🚀</p>
+          </div>
+        </div>
+        <button id="cancelReplyBtn" class="text-tg-textSecondary hover:text-white p-1 rounded-full hover:bg-white/5 transition-colors">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <!-- Main Input Bar -->
+      <div class="p-3 flex items-end gap-2 max-w-5xl mx-auto w-full">
+        <button id="attachBtn" class="p-2.5 text-tg-textSecondary hover:text-white hover:bg-tg-surface rounded-full transition-colors flex-shrink-0" title="Attach file">
+          <i data-lucide="paperclip" class="w-5 h-5"></i>
+        </button>
+
+        <div class="flex-1 bg-[#242f3d] rounded-2xl px-3.5 py-2 flex items-center gap-2 border border-transparent focus-within:border-tg-accent/50 transition-colors shadow-inner">
+          <textarea 
+            id="messageInput"
+            rows="1" 
+            placeholder="Write a message..." 
+            class="flex-1 bg-transparent text-sm text-tg-textPrimary placeholder-tg-textSecondary outline-none resize-none max-h-32 min-h-[24px] leading-5 custom-scrollbar"
+          ></textarea>
+
+          <button id="emojiBtn" class="text-tg-textSecondary hover:text-white transition-colors p-1" title="Emojis & Stickers">
+            <i data-lucide="smile" class="w-5 h-5"></i>
+          </button>
+        </div>
+
+        <button id="actionBtn" class="p-2.5 bg-tg-accent hover:bg-tg-accentHover text-white rounded-full transition-transform active:scale-95 shadow-md flex-shrink-0" title="Voice Message">
+          <i id="actionIcon" data-lucide="mic" class="w-5 h-5"></i>
+        </button>
+      </div>
+    </footer>
+
+  </main>
+
+
+  <!-- ================================================================= -->
+  <!-- 3. RIGHT SIDE PANEL: Telegram Web Group Info & Settings Drawer    -->
+  <!-- ================================================================= -->
+  <aside id="groupInfoPanel" class="w-full md:w-[360px] lg:w-[390px] flex-shrink-0 bg-tg-sidebar border-l border-tg-border flex flex-col h-full z-30 fixed md:static inset-y-0 right-0 transform translate-x-full md:translate-x-0 hidden slide-transition overflow-hidden shadow-2xl">
+    
+    <!-- Top Header of Right Panel -->
+    <div class="h-14 px-4 bg-tg-sidebar border-b border-tg-border flex items-center justify-between flex-shrink-0">
+      <div class="flex items-center gap-2">
+        <h3 class="text-base font-semibold text-white">Group Info</h3>
+      </div>
+      <div class="flex items-center gap-1 text-tg-textSecondary">
+        <button id="editGroupBtn" class="p-2 hover:text-white hover:bg-tg-surface rounded-full transition-colors" title="Edit Group">
+          <i data-lucide="pencil" class="w-4 h-4"></i>
+        </button>
+        <button id="closeInfoPanelBtn" class="p-2 hover:text-white hover:bg-tg-surface rounded-full transition-colors" title="Close Panel">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Scrollable Panel Body -->
+    <div class="flex-1 overflow-y-auto space-y-4 pb-6 custom-scrollbar">
+      
+      <!-- Group Hero Card -->
+      <div class="flex flex-col items-center pt-5 pb-2 px-4 text-center border-b border-tg-border/50 bg-[#16202a]">
+        <div class="relative mb-3 group cursor-pointer">
+          <div class="w-24 h-24 rounded-full bg-gradient-to-tr from-cyan-600 via-blue-600 to-indigo-500 flex items-center justify-center font-bold text-white text-3xl shadow-lg ring-4 ring-white/5">
+            TL
+          </div>
+          <div class="absolute inset-0 rounded-full bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+            <i data-lucide="camera" class="w-6 h-6 text-white"></i>
+          </div>
+        </div>
+
+        <h2 class="text-lg font-bold text-white flex items-center gap-1.5 justify-center">
+          <span>🚀 Tech Leads & Founders</span>
+          <i data-lucide="badge-check" class="w-4 h-4 text-tg-accent fill-tg-accent/20"></i>
+        </h2>
+        <p class="text-xs text-tg-textSecondary mt-0.5">
+          1,428 members, <span class="text-emerald-400 font-medium">84 online</span>
+        </p>
+
+        <!-- Quick Action Icon Capsules -->
+        <div class="flex items-center justify-center gap-5 mt-4">
+          <button id="muteBtn" class="flex flex-col items-center gap-1 text-xs text-tg-textSecondary hover:text-white transition-colors group">
+            <div class="w-10 h-10 rounded-full bg-tg-surface group-hover:bg-[#2b3a4a] flex items-center justify-center text-tg-accent transition-colors shadow-sm">
+              <i data-lucide="bell" id="muteIcon" class="w-5 h-5"></i>
+            </div>
+            <span class="text-[11px]" id="muteText">Mute</span>
+          </button>
+
+          <button class="flex flex-col items-center gap-1 text-xs text-tg-textSecondary hover:text-white transition-colors group">
+            <div class="w-10 h-10 rounded-full bg-tg-surface group-hover:bg-[#2b3a4a] flex items-center justify-center text-tg-accent transition-colors shadow-sm">
+              <i data-lucide="search" class="w-5 h-5"></i>
+            </div>
+            <span class="text-[11px]">Search</span>
+          </button>
+
+          <button id="addMemberQuickBtn" class="flex flex-col items-center gap-1 text-xs text-tg-textSecondary hover:text-white transition-colors group">
+            <div class="w-10 h-10 rounded-full bg-tg-surface group-hover:bg-[#2b3a4a] flex items-center justify-center text-tg-accent transition-colors shadow-sm">
+              <i data-lucide="user-plus" class="w-5 h-5"></i>
+            </div>
+            <span class="text-[11px]">Add</span>
+          </button>
+
+          <button id="shareLinkQuickBtn" class="flex flex-col items-center gap-1 text-xs text-tg-textSecondary hover:text-white transition-colors group">
+            <div class="w-10 h-10 rounded-full bg-tg-surface group-hover:bg-[#2b3a4a] flex items-center justify-center text-tg-accent transition-colors shadow-sm">
+              <i data-lucide="share-2" class="w-5 h-5"></i>
+            </div>
+            <span class="text-[11px]">Share</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Description & Group Meta Information -->
+      <div class="px-4 space-y-3">
+        <!-- Bio / Description -->
+        <div class="space-y-1">
+          <div class="text-[11px] font-semibold text-tg-accent uppercase tracking-wider">About</div>
+          <p class="text-xs text-tg-textPrimary leading-relaxed">
+            The official community for engineering leads, startup founders, and software architects. Daily discussions, code reviews, and architectural patterns.
+          </p>
+        </div>
+
+        <!-- Invite Link with Copy button -->
+        <div class="flex items-center justify-between p-2.5 rounded-xl bg-tg-surface/70 hover:bg-tg-surface cursor-pointer border border-white/5 transition-colors group" id="copyInviteBox">
+          <div class="flex items-center gap-3 min-w-0">
+            <div class="w-8 h-8 rounded-lg bg-tg-accent/15 flex items-center justify-center text-tg-accent flex-shrink-0">
+              <i data-lucide="link" class="w-4 h-4"></i>
+            </div>
+            <div class="min-w-0">
+              <div class="text-xs font-semibold text-white group-hover:text-cyan-300 transition-colors truncate">t.me/techleads_founders</div>
+              <div class="text-[10px] text-tg-textMuted">Invite link</div>
+            </div>
+          </div>
+          <button class="p-1.5 text-tg-textSecondary group-hover:text-white rounded-lg hover:bg-white/10 transition-colors" title="Copy link">
+            <i data-lucide="copy" class="w-4 h-4"></i>
+          </button>
+        </div>
+
+        <!-- Notification Toggle Switch -->
+        <div class="flex items-center justify-between p-2.5 rounded-xl bg-tg-surface/70 border border-white/5">
+          <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-lg bg-indigo-500/15 flex items-center justify-center text-indigo-400 flex-shrink-0">
+              <i data-lucide="bell" class="w-4 h-4"></i>
+            </div>
+            <div>
+              <div class="text-xs font-semibold text-white">Notifications</div>
+              <div class="text-[10px] text-tg-textMuted" id="notificationStatusText">Enabled</div>
+            </div>
+          </div>
+          <!-- Toggle checkbox -->
+          <label class="relative inline-flex items-center cursor-pointer">
+            <input type="checkbox" id="notificationToggle" class="sr-only peer" checked>
+            <div class="w-10 h-5 bg-tg-surface peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-tg-accent"></div>
+          </label>
+        </div>
+      </div>
+
+      <!-- Segmented Navigation Tabs: Members, Files, Media, Links -->
+      <div class="px-3 pt-2">
+        <div class="flex items-center bg-[#131b24] p-1 rounded-xl border border-white/5" id="infoTabNav">
+          <button data-tab="members" class="info-tab flex-1 py-1.5 text-xs font-medium rounded-lg text-center transition-all bg-tg-accent text-white shadow-sm flex items-center justify-center gap-1">
+            <i data-lucide="users" class="w-3.5 h-3.5"></i>
+            <span>Members</span>
+          </button>
+          <button data-tab="files" class="info-tab flex-1 py-1.5 text-xs font-medium rounded-lg text-center transition-all text-tg-textSecondary hover:text-white flex items-center justify-center gap-1">
+            <i data-lucide="file-text" class="w-3.5 h-3.5"></i>
+            <span>Files</span>
+          </button>
+          <button data-tab="media" class="info-tab flex-1 py-1.5 text-xs font-medium rounded-lg text-center transition-all text-tg-textSecondary hover:text-white flex items-center justify-center gap-1">
+            <i data-lucide="image" class="w-3.5 h-3.5"></i>
+            <span>Media</span>
+          </button>
+          <button data-tab="links" class="info-tab flex-1 py-1.5 text-xs font-medium rounded-lg text-center transition-all text-tg-textSecondary hover:text-white flex items-center justify-center gap-1">
+            <i data-lucide="link-2" class="w-3.5 h-3.5"></i>
+            <span>Links</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- TAB CONTENT CONTAINER -->
+      <div class="px-3">
+        
+        <!-- ================= MEMBERS TAB ================= -->
+        <div id="tabContent-members" class="tab-pane space-y-2">
+          
+          <!-- Members Search Bar -->
+          <div class="relative">
+            <i data-lucide="search" class="w-3.5 h-3.5 text-tg-textSecondary absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none"></i>
+            <input 
+              type="text" 
+              id="memberSearchInput"
+              placeholder="Search members..." 
+              class="w-full bg-[#1b2633] text-xs text-tg-textPrimary placeholder-tg-textSecondary pl-8 pr-3 py-1.5 rounded-lg outline-none focus:ring-1 focus:ring-tg-accent border border-white/5 transition-all"
+            />
+          </div>
+
+          <!-- Add Member Row -->
+          <button class="w-full flex items-center gap-3 px-2 py-2 rounded-xl hover:bg-tg-surface text-tg-accent text-xs font-semibold transition-colors">
+            <div class="w-9 h-9 rounded-full bg-tg-accent/15 flex items-center justify-center">
+              <i data-lucide="user-plus" class="w-4 h-4"></i>
+            </div>
+            <span>Add Member</span>
+          </button>
+
+          <!-- Members List -->
+          <div class="space-y-1 pt-1" id="membersListContainer">
+            
+            <!-- Member 1: Owner / Admin -->
+            <div class="member-item flex items-center justify-between p-2 rounded-xl hover:bg-tg-surface transition-colors cursor-pointer group">
+              <div class="flex items-center gap-3 min-w-0">
+                <div class="relative flex-shrink-0">
+                  <div class="w-9 h-9 rounded-full bg-gradient-to-tr from-emerald-600 to-teal-500 flex items-center justify-center font-bold text-white text-xs">
+                    DC
+                  </div>
+                  <span class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 border-2 border-tg-sidebar rounded-full"></span>
+                </div>
+                <div class="min-w-0">
+                  <div class="text-xs font-semibold text-white group-hover:text-emerald-400 transition-colors flex items-center gap-1.5 truncate">
+                    <span>David Chen</span>
+                    <span class="text-[9px] bg-emerald-500/20 text-emerald-300 px-1 py-0.2 rounded font-bold uppercase">Owner</span>
+                  </div>
+                  <div class="text-[10px] text-emerald-400">online</div>
+                </div>
+              </div>
+              <button class="text-tg-textSecondary hover:text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
+                <i data-lucide="more-vertical" class="w-4 h-4"></i>
+              </button>
+            </div>
+
+            <!-- Member 2: Admin -->
+            <div class="member-item flex items-center justify-between p-2 rounded-xl hover:bg-tg-surface transition-colors cursor-pointer group">
+              <div class="flex items-center gap-3 min-w-0">
+                <div class="relative flex-shrink-0">
+                  <div class="w-9 h-9 rounded-full bg-gradient-to-tr from-cyan-600 to-blue-500 flex items-center justify-center font-bold text-white text-xs">
+                    SL
+                  </div>
+                  <span class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 border-2 border-tg-sidebar rounded-full"></span>
+                </div>
+                <div class="min-w-0">
+                  <div class="text-xs font-semibold text-white group-hover:text-cyan-400 transition-colors flex items-center gap-1.5 truncate">
+                    <span>Sarah Lin</span>
+                    <span class="text-[9px] bg-cyan-500/20 text-cyan-300 px-1 py-0.2 rounded font-bold uppercase">Admin</span>
+                  </div>
+                  <div class="text-[10px] text-emerald-400">online</div>
+                </div>
+              </div>
+              <button class="text-tg-textSecondary hover:text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
+                <i data-lucide="more-vertical" class="w-4 h-4"></i>
+              </button>
+            </div>
+
+            <!-- Member 3: Admin -->
+            <div class="member-item flex items-center justify-between p-2 rounded-xl hover:bg-tg-surface transition-colors cursor-pointer group">
+              <div class="flex items-center gap-3 min-w-0">
+                <div class="relative flex-shrink-0">
+                  <div class="w-9 h-9 rounded-full bg-gradient-to-tr from-purple-600 to-pink-500 flex items-center justify-center font-bold text-white text-xs">
+                    ER
+                  </div>
+                </div>
+                <div class="min-w-0">
+                  <div class="text-xs font-semibold text-white group-hover:text-purple-400 transition-colors flex items-center gap-1.5 truncate">
+                    <span>Elena Rostova</span>
+                    <span class="text-[9px] bg-purple-500/20 text-purple-300 px-1 py-0.2 rounded font-bold uppercase">Admin</span>
+                  </div>
+                  <div class="text-[10px] text-tg-textMuted">last seen 5 min ago</div>
+                </div>
+              </div>
+              <button class="text-tg-textSecondary hover:text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
+                <i data-lucide="more-vertical" class="w-4 h-4"></i>
+              </button>
+            </div>
+
+            <!-- Member 4: Regular Member -->
+            <div class="member-item flex items-center justify-between p-2 rounded-xl hover:bg-tg-surface transition-colors cursor-pointer group">
+              <div class="flex items-center gap-3 min-w-0">
+                <div class="relative flex-shrink-0">
+                  <div class="w-9 h-9 rounded-full bg-gradient-to-tr from-amber-600 to-orange-400 flex items-center justify-center font-bold text-white text-xs">
+                    AR
+                  </div>
+                  <span class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 border-2 border-tg-sidebar rounded-full"></span>
+                </div>
+                <div class="min-w-0">
+                  <div class="text-xs font-semibold text-white group-hover:text-amber-400 transition-colors truncate">
+                    Alex Rivera
+                  </div>
+                  <div class="text-[10px] text-emerald-400">online</div>
+                </div>
+              </div>
+              <button class="text-tg-textSecondary hover:text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
+                <i data-lucide="more-vertical" class="w-4 h-4"></i>
+              </button>
+            </div>
+
+            <!-- Member 5: Regular Member -->
+            <div class="member-item flex items-center justify-between p-2 rounded-xl hover:bg-tg-surface transition-colors cursor-pointer group">
+              <div class="flex items-center gap-3 min-w-0">
+                <div class="relative flex-shrink-0">
+                  <div class="w-9 h-9 rounded-full bg-gradient-to-tr from-rose-600 to-pink-500 flex items-center justify-center font-bold text-white text-xs">
+                    MP
+                  </div>
+                </div>
+                <div class="min-w-0">
+                  <div class="text-xs font-semibold text-white group-hover:text-rose-400 transition-colors truncate">
+                    Maya Patel
+                  </div>
+                  <div class="text-[10px] text-tg-textMuted">last seen 2 hours ago</div>
+                </div>
+              </div>
+              <button class="text-tg-textSecondary hover:text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
+                <i data-lucide="more-vertical" class="w-4 h-4"></i>
+              </button>
+            </div>
+
+            <!-- Member 6: Bot -->
+            <div class="member-item flex items-center justify-between p-2 rounded-xl hover:bg-tg-surface transition-colors cursor-pointer group">
+              <div class="flex items-center gap-3 min-w-0">
+                <div class="relative flex-shrink-0">
+                  <div class="w-9 h-9 rounded-full bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center font-bold text-white text-xs">
+                    🤖
+                  </div>
+                </div>
+                <div class="min-w-0">
+                  <div class="text-xs font-semibold text-white flex items-center gap-1.5 truncate">
+                    <span>OpsBot</span>
+                    <span class="text-[9px] bg-blue-500/20 text-blue-300 px-1 py-0.2 rounded font-bold uppercase">Bot</span>
+                  </div>
+                  <div class="text-[10px] text-tg-textMuted">bot • automated alerts</div>
+                </div>
+              </div>
+              <button class="text-tg-textSecondary hover:text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
+                <i data-lucide="more-vertical" class="w-4 h-4"></i>
+              </button>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- ================= FILES TAB ================= -->
+        <div id="tabContent-files" class="tab-pane hidden space-y-2">
+          
+          <div class="flex items-center justify-between text-xs text-tg-textSecondary px-1 pt-1 pb-1">
+            <span class="font-medium">18 Shared Files</span>
+            <span class="text-[10px] text-tg-accent hover:underline cursor-pointer">Filter by format</span>
+          </div>
+
+          <!-- Files List -->
+          <div class="space-y-1.5" id="filesListContainer">
+            
+            <!-- File 1: PDF -->
+            <div class="flex items-center gap-3 p-2.5 rounded-xl bg-tg-surface/60 hover:bg-tg-surface cursor-pointer border border-white/5 transition-all group" onclick="downloadSimulation('DarkTheme_Tokens_v2.pdf')">
+              <div class="w-10 h-10 rounded-lg bg-rose-500/15 flex items-center justify-center text-rose-400 flex-shrink-0">
+                <i data-lucide="file-text" class="w-5 h-5"></i>
+              </div>
+              <div class="min-w-0 flex-1">
+                <div class="text-xs font-semibold text-white group-hover:text-cyan-300 transition-colors truncate">DarkTheme_Tokens_v2.pdf</div>
+                <div class="text-[10px] text-tg-textMuted flex items-center gap-1.5">
+                  <span>1.4 MB</span>
+                  <span>•</span>
+                  <span>Elena Rostova</span>
+                  <span>•</span>
+                  <span>Today</span>
+                </div>
+              </div>
+              <button class="text-tg-textSecondary hover:text-tg-accent p-1.5 rounded-full hover:bg-white/10 transition-colors" title="Download">
+                <i data-lucide="download" class="w-4 h-4"></i>
+              </button>
+            </div>
+
+            <!-- File 2: Excel / Spreadsheet -->
+            <div class="flex items-center gap-3 p-2.5 rounded-xl bg-tg-surface/60 hover:bg-tg-surface cursor-pointer border border-white/5 transition-all group" onclick="downloadSimulation('Sprint_Q4_Roadmap.xlsx')">
+              <div class="w-10 h-10 rounded-lg bg-emerald-500/15 flex items-center justify-center text-emerald-400 flex-shrink-0">
+                <i data-lucide="file-spreadsheet" class="w-5 h-5"></i>
+              </div>
+              <div class="min-w-0 flex-1">
+                <div class="text-xs font-semibold text-white group-hover:text-cyan-300 transition-colors truncate">Sprint_Q4_Roadmap.xlsx</div>
+                <div class="text-[10px] text-tg-textMuted flex items-center gap-1.5">
+                  <span>840 KB</span>
+                  <span>•</span>
+                  <span>David Chen</span>
+                  <span>•</span>
+                  <span>Yesterday</span>
+                </div>
+              </div>
+              <button class="text-tg-textSecondary hover:text-tg-accent p-1.5 rounded-full hover:bg-white/10 transition-colors" title="Download">
+                <i data-lucide="download" class="w-4 h-4"></i>
+              </button>
+            </div>
+
+            <!-- File 3: YAML Config -->
+            <div class="flex items-center gap-3 p-2.5 rounded-xl bg-tg-surface/60 hover:bg-tg-surface cursor-pointer border border-white/5 transition-all group" onclick="downloadSimulation('Production_Cluster_Configs.yaml')">
+              <div class="w-10 h-10 rounded-lg bg-amber-500/15 flex items-center justify-center text-amber-400 flex-shrink-0">
+                <i data-lucide="file-code" class="w-5 h-5"></i>
+              </div>
+              <div class="min-w-0 flex-1">
+                <div class="text-xs font-semibold text-white group-hover:text-cyan-300 transition-colors truncate">Production_Cluster_Configs.yaml</div>
+                <div class="text-[10px] text-tg-textMuted flex items-center gap-1.5">
+                  <span>12 KB</span>
+                  <span>•</span>
+                  <span>OpsBot</span>
+                  <span>•</span>
+                  <span>Oct 19</span>
+                </div>
+              </div>
+              <button class="text-tg-textSecondary hover:text-tg-accent p-1.5 rounded-full hover:bg-white/10 transition-colors" title="Download">
+                <i data-lucide="download" class="w-4 h-4"></i>
+              </button>
+            </div>
+
+            <!-- File 4: Figma / Design file -->
+            <div class="flex items-center gap-3 p-2.5 rounded-xl bg-tg-surface/60 hover:bg-tg-surface cursor-pointer border border-white/5 transition-all group" onclick="downloadSimulation('Architecture_Diagram_2026.fig')">
+              <div class="w-10 h-10 rounded-lg bg-purple-500/15 flex items-center justify-center text-purple-400 flex-shrink-0">
+                <i data-lucide="box" class="w-5 h-5"></i>
+              </div>
+              <div class="min-w-0 flex-1">
+                <div class="text-xs font-semibold text-white group-hover:text-cyan-300 transition-colors truncate">Architecture_Diagram_2026.fig</div>
+                <div class="text-[10px] text-tg-textMuted flex items-center gap-1.5">
+                  <span>18.6 MB</span>
+                  <span>•</span>
+                  <span>Sarah Lin</span>
+                  <span>•</span>
+                  <span>Oct 17</span>
+                </div>
+              </div>
+              <button class="text-tg-textSecondary hover:text-tg-accent p-1.5 rounded-full hover:bg-white/10 transition-colors" title="Download">
+                <i data-lucide="download" class="w-4 h-4"></i>
+              </button>
+            </div>
+
+            <!-- File 5: CSV benchmark -->
+            <div class="flex items-center gap-3 p-2.5 rounded-xl bg-tg-surface/60 hover:bg-tg-surface cursor-pointer border border-white/5 transition-all group" onclick="downloadSimulation('Auth_Service_Benchmark.csv')">
+              <div class="w-10 h-10 rounded-lg bg-blue-500/15 flex items-center justify-center text-blue-400 flex-shrink-0">
+                <i data-lucide="table" class="w-5 h-5"></i>
+              </div>
+              <div class="min-w-0 flex-1">
+                <div class="text-xs font-semibold text-white group-hover:text-cyan-300 transition-colors truncate">Auth_Service_Benchmark.csv</div>
+                <div class="text-[10px] text-tg-textMuted flex items-center gap-1.5">
+                  <span>245 KB</span>
+                  <span>•</span>
+                  <span>Sarah Lin</span>
+                  <span>•</span>
+                  <span>Oct 15</span>
+                </div>
+              </div>
+              <button class="text-tg-textSecondary hover:text-tg-accent p-1.5 rounded-full hover:bg-white/10 transition-colors" title="Download">
+                <i data-lucide="download" class="w-4 h-4"></i>
+              </button>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- ================= MEDIA TAB ================= -->
+        <div id="tabContent-media" class="tab-pane hidden space-y-2">
+          <div class="text-xs text-tg-textSecondary px-1 pt-1">42 Photos & Screenshots</div>
+          <!-- 3x3 Media Grid -->
+          <div class="grid grid-cols-3 gap-1.5 pt-1">
+            <div class="aspect-square bg-gradient-to-tr from-cyan-900 to-blue-800 rounded-lg overflow-hidden relative group cursor-pointer border border-white/5">
+              <div class="w-full h-full flex items-center justify-center text-cyan-300 text-xs font-mono font-bold">STAGE</div>
+              <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white">
+                <i data-lucide="eye" class="w-4 h-4"></i>
+              </div>
+            </div>
+            <div class="aspect-square bg-gradient-to-tr from-purple-900 to-pink-800 rounded-lg overflow-hidden relative group cursor-pointer border border-white/5">
+              <div class="w-full h-full flex items-center justify-center text-pink-300 text-xs font-mono font-bold">UI TOKEN</div>
+              <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white">
+                <i data-lucide="eye" class="w-4 h-4"></i>
+              </div>
+            </div>
+            <div class="aspect-square bg-gradient-to-tr from-emerald-900 to-teal-800 rounded-lg overflow-hidden relative group cursor-pointer border border-white/5">
+              <div class="w-full h-full flex items-center justify-center text-emerald-300 text-xs font-mono font-bold">ARCH</div>
+              <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white">
+                <i data-lucide="eye" class="w-4 h-4"></i>
+              </div>
+            </div>
+            <div class="aspect-square bg-gradient-to-tr from-amber-900 to-orange-800 rounded-lg overflow-hidden relative group cursor-pointer border border-white/5">
+              <div class="w-full h-full flex items-center justify-center text-amber-300 text-xs font-mono font-bold">METRICS</div>
+              <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white">
+                <i data-lucide="eye" class="w-4 h-4"></i>
+              </div>
+            </div>
+            <div class="aspect-square bg-gradient-to-tr from-rose-900 to-red-800 rounded-lg overflow-hidden relative group cursor-pointer border border-white/5">
+              <div class="w-full h-full flex items-center justify-center text-rose-300 text-xs font-mono font-bold">INCIDENT</div>
+              <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white">
+                <i data-lucide="eye" class="w-4 h-4"></i>
+              </div>
+            </div>
+            <div class="aspect-square bg-gradient-to-tr from-indigo-900 to-blue-900 rounded-lg overflow-hidden relative group cursor-pointer border border-white/5">
+              <div class="w-full h-full flex items-center justify-center text-indigo-300 text-xs font-mono font-bold">BENCH</div>
+              <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white">
+                <i data-lucide="eye" class="w-4 h-4"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ================= LINKS TAB ================= -->
+        <div id="tabContent-links" class="tab-pane hidden space-y-2">
+          <div class="text-xs text-tg-textSecondary px-1 pt-1">9 Shared Links</div>
+          <div class="space-y-1.5 pt-1">
+            
+            <a href="https://docs.acme.dev/roadmap-q4" target="_blank" class="flex items-center gap-3 p-2 rounded-xl bg-tg-surface/60 hover:bg-tg-surface border border-white/5 transition-colors group">
+              <div class="w-9 h-9 rounded-lg bg-tg-accent/15 flex items-center justify-center text-tg-accent flex-shrink-0">
+                <i data-lucide="globe" class="w-4 h-4"></i>
+              </div>
+              <div class="min-w-0 flex-1">
+                <div class="text-xs font-semibold text-white group-hover:text-cyan-300 transition-colors truncate">Sprint Roadmap Q4 Documentation</div>
+                <div class="text-[10px] text-tg-textMuted truncate">docs.acme.dev/roadmap-q4</div>
+              </div>
+              <i data-lucide="external-link" class="w-3.5 h-3.5 text-tg-textSecondary group-hover:text-white"></i>
+            </a>
+
+            <a href="https://github.com/careerdesk/core" target="_blank" class="flex items-center gap-3 p-2 rounded-xl bg-tg-surface/60 hover:bg-tg-surface border border-white/5 transition-colors group">
+              <div class="w-9 h-9 rounded-lg bg-gray-500/15 flex items-center justify-center text-gray-300 flex-shrink-0">
+                <i data-lucide="git-branch" class="w-4 h-4"></i>
+              </div>
+              <div class="min-w-0 flex-1">
+                <div class="text-xs font-semibold text-white group-hover:text-cyan-300 transition-colors truncate">CareerDesk Core Repository</div>
+                <div class="text-[10px] text-tg-textMuted truncate">github.com/careerdesk/core</div>
+              </div>
+              <i data-lucide="external-link" class="w-3.5 h-3.5 text-tg-textSecondary group-hover:text-white"></i>
+            </a>
+
+            <a href="https://figma.com/file/telegram-dark" target="_blank" class="flex items-center gap-3 p-2 rounded-xl bg-tg-surface/60 hover:bg-tg-surface border border-white/5 transition-colors group">
+              <div class="w-9 h-9 rounded-lg bg-pink-500/15 flex items-center justify-center text-pink-400 flex-shrink-0">
+                <i data-lucide="layout" class="w-4 h-4"></i>
+              </div>
+              <div class="min-w-0 flex-1">
+                <div class="text-xs font-semibold text-white group-hover:text-cyan-300 transition-colors truncate">Figma UI Design System & Tokens</div>
+                <div class="text-[10px] text-tg-textMuted truncate">figma.com/@telegram/design-tokens</div>
+              </div>
+              <i data-lucide="external-link" class="w-3.5 h-3.5 text-tg-textSecondary group-hover:text-white"></i>
+            </a>
+
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Group Settings / Permissions / Danger Zone -->
+      <div class="px-4 pt-3 border-t border-tg-border/50 space-y-1">
+        <button class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-tg-surface text-tg-textSecondary hover:text-white text-xs font-medium transition-colors text-left">
+          <i data-lucide="shield" class="w-4 h-4 text-tg-accent"></i>
+          <span>Group Permissions & Admin Roles</span>
+        </button>
+        <button class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-tg-surface text-tg-textSecondary hover:text-white text-xs font-medium transition-colors text-left">
+          <i data-lucide="history" class="w-4 h-4 text-tg-accent"></i>
+          <span>Recent Actions & Admin Log</span>
+        </button>
+        <button id="leaveGroupBtn" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-rose-500/15 text-rose-400 hover:text-rose-300 text-xs font-medium transition-colors text-left mt-2">
+          <i data-lucide="log-out" class="w-4 h-4"></i>
+          <span>Leave Group</span>
+        </button>
+      </div>
+
+    </div>
+  </aside>
+
+  <!-- ================================================================= -->
+  <!-- FLOATING TOAST NOTIFICATION                                       -->
+  <!-- ================================================================= -->
+  <div id="toastNotification" class="fixed bottom-6 left-1/2 -translate-x-1/2 bg-[#1e2c3a]/95 backdrop-blur-md border border-white/10 text-white text-xs px-4 py-2 rounded-full shadow-2xl z-50 flex items-center gap-2 transform translate-y-20 opacity-0 pointer-events-none transition-all duration-300">
+    <i data-lucide="check" class="w-4 h-4 text-emerald-400"></i>
+    <span id="toastMessage">Action completed</span>
+  </div>
+
+
+  <!-- ================================================================= -->
+  <!-- JAVASCRIPT: Full Interactivity & Telegram Behavior                -->
+  <!-- ================================================================= -->
+  <script>
+    // Initialize Lucide Icons
+    lucide.createIcons();
+
+    // DOM Elements
+    const sidebarPane = document.getElementById('sidebarPane');
+    const chatPane = document.getElementById('chatPane');
+    const groupInfoPanel = document.getElementById('groupInfoPanel');
+    const mobileBackBtn = document.getElementById('mobileBackBtn');
+    const chatItems = document.querySelectorAll('.chat-item');
+    const messageInput = document.getElementById('messageInput');
+    const actionBtn = document.getElementById('actionBtn');
+    const actionIcon = document.getElementById('actionIcon');
+    const messageStream = document.getElementById('messageStream');
+    const chatSearchInput = document.getElementById('chatSearchInput');
+    const clearSearchBtn = document.getElementById('clearSearchBtn');
+    const filterPills = document.querySelectorAll('.filter-pill');
+    const replyingBanner = document.getElementById('replyingBanner');
+    const replyAuthor = document.getElementById('replyAuthor');
+    const replySnippet = document.getElementById('replySnippet');
+    const cancelReplyBtn = document.getElementById('cancelReplyBtn');
+    const dismissPinBtn = document.getElementById('dismissPinBtn');
+    const pinnedBanner = document.getElementById('pinnedBanner');
+
+    // Right Panel Elements
+    const chatHeaderGroupInfo = document.getElementById('chatHeaderGroupInfo');
+    const closeInfoPanelBtn = document.getElementById('closeInfoPanelBtn');
+    const copyInviteBox = document.getElementById('copyInviteBox');
+    const notificationToggle = document.getElementById('notificationToggle');
+    const notificationStatusText = document.getElementById('notificationStatusText');
+    const muteBtn = document.getElementById('muteBtn');
+    const muteIcon = document.getElementById('muteIcon');
+    const muteText = document.getElementById('muteText');
+    const leaveGroupBtn = document.getElementById('leaveGroupBtn');
+    const memberSearchInput = document.getElementById('memberSearchInput');
+    const membersListContainer = document.getElementById('membersListContainer');
+
+    // Tabs
+    const infoTabs = document.querySelectorAll('.info-tab');
+    const tabPanes = document.querySelectorAll('.tab-pane');
+
+    // Toast
+    const toastEl = document.getElementById('toastNotification');
+    const toastMsgEl = document.getElementById('toastMessage');
+
+    let currentReply = null;
+    let isInfoPanelOpen = false;
+
+    // Toast Trigger
+    function showToast(message) {
+      toastMsgEl.textContent = message;
+      toastEl.classList.remove('translate-y-20', 'opacity-0', 'pointer-events-none');
+      toastEl.classList.add('translate-y-0', 'opacity-100');
+      setTimeout(() => {
+        toastEl.classList.add('translate-y-20', 'opacity-0', 'pointer-events-none');
+        toastEl.classList.remove('translate-y-0', 'opacity-100');
+      }, 2500);
+    }
+
+    // 1. Right Info Panel Toggle Mechanics
+    function openGroupInfoPanel() {
+      groupInfoPanel.classList.remove('hidden');
+      // trigger transition next frame
+      requestAnimationFrame(() => {
+        groupInfoPanel.classList.remove('translate-x-full');
+      });
+      isInfoPanelOpen = true;
+    }
+
+    function closeGroupInfoPanel() {
+      groupInfoPanel.classList.add('translate-x-full');
+      setTimeout(() => {
+        groupInfoPanel.classList.add('hidden');
+      }, 250);
+      isInfoPanelOpen = false;
+    }
+
+    function toggleGroupInfoPanel() {
+      if (isInfoPanelOpen) {
+        closeGroupInfoPanel();
+      } else {
+        openGroupInfoPanel();
+      }
+    }
+
+    // Trigger on Group Header click to open/toggle right side panel
+    chatHeaderGroupInfo.addEventListener('click', toggleGroupInfoPanel);
+    closeInfoPanelBtn.addEventListener('click', closeGroupInfoPanel);
+
+    // 2. Tab Switcher inside Right Info Panel (Members, Files, Media, Links)
+    infoTabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        infoTabs.forEach(t => {
+          t.classList.remove('active', 'bg-tg-accent', 'text-white', 'shadow-sm');
+          t.classList.add('text-tg-textSecondary');
+        });
+        tab.classList.add('active', 'bg-tg-accent', 'text-white', 'shadow-sm');
+        tab.classList.remove('text-tg-textSecondary');
+
+        const targetTab = tab.dataset.tab;
+        tabPanes.forEach(pane => {
+          if (pane.id === `tabContent-${targetTab}`) {
+            pane.classList.remove('hidden');
+          } else {
+            pane.classList.add('hidden');
+          }
+        });
+      });
+    });
+
+    // 3. Copy Invite Link
+    copyInviteBox.addEventListener('click', () => {
+      navigator.clipboard?.writeText('https://t.me/techleads_founders');
+      showToast('Invite link copied to clipboard!');
+    });
+
+    document.getElementById('shareLinkQuickBtn').addEventListener('click', () => {
+      navigator.clipboard?.writeText('https://t.me/techleads_founders');
+      showToast('Invite link copied to clipboard!');
+    });
+
+    // 4. Notifications Toggle & Mute Button
+    notificationToggle.addEventListener('change', (e) => {
+      const enabled = e.target.checked;
+      notificationStatusText.textContent = enabled ? 'Enabled' : 'Muted';
+      muteText.textContent = enabled ? 'Mute' : 'Unmute';
+      showToast(enabled ? 'Notifications enabled' : 'Notifications muted');
+    });
+
+    muteBtn.addEventListener('click', () => {
+      notificationToggle.checked = !notificationToggle.checked;
+      notificationToggle.dispatchEvent(new Event('change'));
+    });
+
+    // 5. Member Search in Group Info
+    memberSearchInput.addEventListener('input', () => {
+      const q = memberSearchInput.value.toLowerCase().trim();
+      const memberItems = membersListContainer.querySelectorAll('.member-item');
+      memberItems.forEach(item => {
+        const text = item.innerText.toLowerCase();
+        item.style.display = text.includes(q) ? 'flex' : 'none';
+      });
+    });
+
+    // 6. File Download Simulation
+    function downloadSimulation(filename) {
+      showToast(`Downloading ${filename}...`);
+    }
+
+    function openFilePreview(filename) {
+      // Also opens info panel and switches directly to Files tab!
+      openGroupInfoPanel();
+      const filesTab = document.querySelector('.info-tab[data-tab="files"]');
+      if (filesTab) filesTab.click();
+    }
+
+    // 7. Leave Group Simulation
+    leaveGroupBtn.addEventListener('click', () => {
+      if (confirm('Are you sure you want to leave "🚀 Tech Leads & Founders"?')) {
+        showToast('You have left the group.');
+        closeGroupInfoPanel();
+      }
+    });
+
+    // 8. Mobile Navigation Toggle
+    function openChatOnMobile() {
+      if (window.innerWidth < 768) {
+        sidebarPane.classList.add('-translate-x-full');
+      }
+    }
+
+    function closeChatOnMobile() {
+      if (window.innerWidth < 768) {
+        sidebarPane.classList.remove('-translate-x-full');
+        closeGroupInfoPanel();
+      }
+    }
+
+    mobileBackBtn.addEventListener('click', closeChatOnMobile);
+
+    // Chat Item Selection
+    chatItems.forEach(item => {
+      item.addEventListener('click', () => {
+        chatItems.forEach(i => {
+          i.classList.remove('active', 'bg-tg-surfaceActive');
+          i.classList.add('hover:bg-tg-surface');
+        });
+        item.classList.add('active', 'bg-tg-surfaceActive');
+        item.classList.remove('hover:bg-tg-surface');
+        
+        const badge = item.querySelector('.bg-tg-badge');
+        if (badge) badge.remove();
+
+        openChatOnMobile();
+      });
+    });
+
+    // 9. Input & Auto-grow + Dynamic Send Icon
+    messageInput.addEventListener('input', () => {
+      messageInput.style.height = 'auto';
+      messageInput.style.height = Math.min(messageInput.scrollHeight, 120) + 'px';
+
+      const hasText = messageInput.value.trim().length > 0;
+      if (hasText) {
+        actionBtn.setAttribute('title', 'Send message');
+        actionBtn.innerHTML = '<i data-lucide="send" class="w-5 h-5 ml-0.5"></i>';
+      } else {
+        actionBtn.setAttribute('title', 'Voice Message');
+        actionBtn.innerHTML = '<i data-lucide="mic" class="w-5 h-5"></i>';
+      }
+      lucide.createIcons();
+    });
+
+    // 10. Send Message
+    function sendMessage() {
+      const text = messageInput.value.trim();
+      if (!text) return;
+
+      const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+      let quoteHtml = '';
+      if (currentReply) {
+        quoteHtml = `
+          <div class="border-l-2 border-cyan-300 bg-[#203e5c] px-2.5 py-1.5 rounded-r text-xs space-y-0.5 cursor-pointer hover:bg-[#254668] transition-colors mb-1.5">
+            <div class="font-semibold text-cyan-300 text-[11px]">${escapeHtml(currentReply.author)}</div>
+            <p class="text-blue-100/75 truncate text-[11px]">${escapeHtml(currentReply.snippet)}</p>
+          </div>
+        `;
+      }
+
+      const msgEl = document.createElement('div');
+      msgEl.className = 'flex justify-end group animate-in fade-in slide-in-from-bottom-2 duration-200';
+      msgEl.innerHTML = `
+        <div class="max-w-[85%] md:max-w-[70%] bg-tg-bubbleOut p-2.5 rounded-2xl rounded-br-sm text-sm shadow-md space-y-1.5 relative">
+          ${quoteHtml}
+          <p class="text-white leading-relaxed break-words">${escapeHtml(text)}</p>
+          <div class="flex items-center justify-end gap-1 text-[10px] text-blue-200 pt-0.5">
+            <span>${timeStr}</span>
+            <i data-lucide="check" class="w-3.5 h-3.5 text-cyan-300"></i>
+          </div>
+        </div>
+      `;
+
+      messageStream.appendChild(msgEl);
+      lucide.createIcons();
+
+      messageInput.value = '';
+      messageInput.style.height = 'auto';
+      actionBtn.setAttribute('title', 'Voice Message');
+      actionBtn.innerHTML = '<i data-lucide="mic" class="w-5 h-5"></i>';
+      lucide.createIcons();
+      clearReply();
+
+      messageStream.scrollTo({
+        top: messageStream.scrollHeight,
+        behavior: 'smooth'
+      });
+    }
+
+    actionBtn.addEventListener('click', () => {
+      if (messageInput.value.trim().length > 0) {
+        sendMessage();
+      } else {
+        showToast('Hold to record voice message (Simulation)');
+      }
+    });
+
+    messageInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+      }
+    });
+
+    // 11. Quoted Reply
+    document.addEventListener('click', (e) => {
+      const replyBtn = e.target.closest('.reply-btn');
+      if (replyBtn) {
+        const author = replyBtn.dataset.author || 'User';
+        const snippet = replyBtn.dataset.snippet || '';
+        setReply(author, snippet);
+      }
+    });
+
+    function setReply(author, snippet) {
+      currentReply = { author, snippet };
+      replyAuthor.textContent = `Replying to ${author}`;
+      replySnippet.textContent = snippet;
+      replyingBanner.classList.remove('hidden');
+      messageInput.focus();
+    }
+
+    function clearReply() {
+      currentReply = null;
+      replyingBanner.classList.add('hidden');
+    }
+
+    cancelReplyBtn.addEventListener('click', clearReply);
+
+    // 12. Interactive Emoji Reactions
+    document.addEventListener('click', (e) => {
+      const badge = e.target.closest('.reaction-badge');
+      if (badge) {
+        const countSpan = badge.querySelector('.count');
+        let count = parseInt(countSpan.textContent, 10);
+        const isActive = badge.classList.contains('active');
+
+        if (isActive) {
+          badge.classList.remove('active', 'bg-tg-reactionActive', 'border-tg-accent/40');
+          badge.classList.add('bg-tg-reactionBg', 'border-white/5');
+          countSpan.classList.remove('text-tg-accent', 'font-semibold');
+          countSpan.classList.add('text-tg-textSecondary');
+          countSpan.textContent = count - 1;
+        } else {
+          badge.classList.add('active', 'bg-tg-reactionActive', 'border-tg-accent/40');
+          badge.classList.remove('bg-tg-reactionBg', 'border-white/5');
+          countSpan.classList.add('text-tg-accent', 'font-semibold');
+          countSpan.classList.remove('text-tg-textSecondary');
+          countSpan.textContent = count + 1;
+        }
+      }
+    });
+
+    // 13. Filter Pills
+    filterPills.forEach(pill => {
+      pill.addEventListener('click', () => {
+        filterPills.forEach(p => {
+          p.classList.remove('active', 'bg-tg-accent', 'text-white');
+          p.classList.add('bg-tg-surface', 'text-tg-textSecondary');
+        });
+        pill.classList.add('active', 'bg-tg-accent', 'text-white');
+        pill.classList.remove('bg-tg-surface', 'text-tg-textSecondary');
+
+        const filter = pill.dataset.filter;
+        chatItems.forEach(item => {
+          const category = item.dataset.category || '';
+          if (filter === 'all' || category.includes(filter)) {
+            item.style.display = 'flex';
+          } else {
+            item.style.display = 'none';
+          }
+        });
+      });
+    });
+
+    // 14. Search in Chat Previews
+    chatSearchInput.addEventListener('input', () => {
+      const query = chatSearchInput.value.toLowerCase().trim();
+      clearSearchBtn.classList.toggle('hidden', query.length === 0);
+
+      chatItems.forEach(item => {
+        const text = item.innerText.toLowerCase();
+        item.style.display = text.includes(query) ? 'flex' : 'none';
+      });
+    });
+
+    clearSearchBtn.addEventListener('click', () => {
+      chatSearchInput.value = '';
+      clearSearchBtn.classList.add('hidden');
+      chatItems.forEach(item => item.style.display = 'flex');
+      chatSearchInput.focus();
+    });
+
+    // 15. Dismiss Pin
+    dismissPinBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      pinnedBanner.classList.add('hidden');
+    });
+
+    // Utility: HTML Escaping
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+  </script>
+</body>
+</html>

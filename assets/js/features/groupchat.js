@@ -2,6 +2,16 @@
 
 const GROUP_CHAT_UI_KEY = 'careerdesk-groupchat-ui-v1';
 const GROUP_CHAT_PAGE_SIZE = 50;
+const GROUP_CHAT_EMOJI_GROUPS = [
+  { name: 'Smileys', icon: '😀', emojis: [['😀', 'grinning smile happy'], ['😃', 'smile happy'], ['😄', 'smile happy'], ['😁', 'grin happy'], ['😆', 'laugh'], ['😅', 'laugh sweat'], ['😂', 'laugh tears'], ['🤣', 'rofl laugh'], ['😊', 'smile blush'], ['😍', 'love heart eyes'], ['🥰', 'love hearts'], ['😘', 'kiss'], ['😎', 'cool sunglasses'], ['🤔', 'think'], ['🤗', 'hug'], ['🥳', 'party celebrate'], ['😭', 'cry sad'], ['😴', 'sleep'], ['😮', 'surprised'], ['🙏', 'please thanks']] },
+  { name: 'People', icon: '👋', emojis: [['👋', 'wave hello'], ['👏', 'clap applause'], ['🙌', 'celebrate hands'], ['👍', 'thumbs up'], ['👎', 'thumbs down'], ['🤝', 'handshake'], ['💪', 'strong flex'], ['🫶', 'heart hands'], ['✍️', 'writing'], ['🧑‍🎓', 'student graduate'], ['🧑‍💻', 'technologist computer'], ['👀', 'eyes look']] },
+  { name: 'Nature', icon: '🌿', emojis: [['🐶', 'dog'], ['🐱', 'cat'], ['🦊', 'fox'], ['🐼', 'panda'], ['🦋', 'butterfly'], ['🌸', 'flower'], ['🌻', 'sunflower'], ['🌱', 'seedling grow'], ['🌳', 'tree'], ['☀️', 'sun'], ['🌈', 'rainbow'], ['⭐', 'star']] },
+  { name: 'Food', icon: '🍕', emojis: [['🍎', 'apple'], ['🍓', 'strawberry'], ['🍕', 'pizza'], ['🍔', 'burger'], ['🍜', 'noodles'], ['🍰', 'cake'], ['🍩', 'donut'], ['☕', 'coffee'], ['🧋', 'bubble tea'], ['🍵', 'tea'], ['🥭', 'mango'], ['🍉', 'watermelon']] },
+  { name: 'Activities', icon: '⚽', emojis: [['⚽', 'soccer football'], ['🏀', 'basketball'], ['🏆', 'trophy win'], ['🎯', 'target'], ['🎮', 'game'], ['🎨', 'art'], ['🎵', 'music'], ['🎉', 'party'], ['🎊', 'confetti'], ['🚀', 'rocket'], ['🔥', 'fire'], ['💯', 'hundred perfect']] },
+  { name: 'Travel', icon: '🚗', emojis: [['🚗', 'car'], ['🚲', 'bicycle'], ['✈️', 'airplane travel'], ['🚀', 'rocket'], ['🌍', 'globe earth'], ['🏠', 'home'], ['🏫', 'school'], ['🏖️', 'beach'], ['⛰️', 'mountain'], ['🌃', 'night city'], ['🚆', 'train'], ['🚌', 'bus']] },
+  { name: 'Objects', icon: '💡', emojis: [['💡', 'idea light bulb'], ['📚', 'books study'], ['📖', 'book read'], ['📝', 'memo write'], ['✏️', 'pencil'], ['📅', 'calendar'], ['🔔', 'bell notification'], ['🎁', 'gift'], ['🔑', 'key'], ['💻', 'laptop computer'], ['📱', 'phone'], ['🔍', 'search']] },
+  { name: 'Symbols', icon: '❤️', emojis: [['❤️', 'red heart love'], ['🧡', 'orange heart'], ['💛', 'yellow heart'], ['💚', 'green heart'], ['💙', 'blue heart'], ['💜', 'purple heart'], ['🖤', 'black heart'], ['🤍', 'white heart'], ['✅', 'check done'], ['❌', 'cross no'], ['💬', 'speech bubble'], ['💤', 'sleep zzz']] }
+];
 
 const PRESET_GROUP_ICONS = [
   { id: 'study', label: 'Study & BCS', color1: '#6366f1', color2: '#4338ca', path: '<path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/><path d="M6 2v20"/>' },
@@ -719,9 +729,9 @@ function renderGroupChatHeader() {
     return;
   }
   const isOwner = group.role === 'owner';
-  const memberCount = group.memberCount || '';
+  const memberCount = group.memberCount || '1';
   header.innerHTML = `
-    <div class="groupchat-header-identity">
+    <div class="groupchat-header-identity" id="groupchatHeaderIdentity" title="Click to view Group Info & Settings">
       <button class="groupchat-mobile-back-btn" id="groupchatMobileBackBtn" type="button" title="Back to groups" aria-label="Back to groups">
         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
       </button>
@@ -730,43 +740,23 @@ function renderGroupChatHeader() {
         <h3 class="groupchat-title">${escapeHtml(group.groupName || group.name)}</h3>
         <span class="groupchat-member-count-badge">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-          ${escapeHtml(String(memberCount || '1'))} members
+          ${escapeHtml(String(memberCount))} members
+          <span class="groupchat-online-dot"></span>
         </span>
       </div>
-    </div>
-    <div class="groupchat-header-actions">
-      <button class="pill subtle" id="groupchatInviteBtn" type="button" title="Copy invite">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
-        <span>Invite</span>
-      </button>
-      <button class="pill subtle" id="groupchatMembersBtn" type="button" title="View members">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-        <span>Members</span>
-      </button>
-      ${isOwner
-        ? `<button class="pill subtle" id="groupchatSettingsBtn" type="button" title="Group settings">
-             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-             <span>Settings</span>
-           </button>`
-        : `<button class="pill subtle danger" id="groupchatLeaveBtn" type="button" title="Leave group">
-             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-             <span>Leave</span>
-           </button>`
-      }
     </div>`;
 
-  document.getElementById('groupchatMobileBackBtn')?.addEventListener('click', () => selectGroup(null));
-
-  document.getElementById('groupchatMembersBtn')?.addEventListener('click', toggleMembersPanel);
-  document.getElementById('groupchatInviteBtn')?.addEventListener('click', () => groupChatCopyInvite(group));
-  document.getElementById('groupchatSettingsBtn')?.addEventListener('click', openGroupChatSettingsModal);
-  document.getElementById('groupchatLeaveBtn')?.addEventListener('click', async () => {
-    try { await leaveGroup(group.id); } catch (error) { groupChatError(error, 'Unable to leave group.'); }
+  document.getElementById('groupchatMobileBackBtn')?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    selectGroup(null);
   });
+
+  // Clicking group identity (name & avatar) triggers right side info panel as in Telegram Web
+  document.getElementById('groupchatHeaderIdentity')?.addEventListener('click', toggleMembersPanel);
   document.getElementById('groupchatMembersPanelClose')?.addEventListener('click', hideMembersPanel);
 }
 
-/* ── Members Panel ── */
+/* ── Members / Group Info Panel ── */
 function toggleMembersPanel() {
   const panel = document.getElementById('groupchatMembersPanel');
   if (!panel) return;
@@ -784,14 +774,197 @@ function hideMembersPanel() {
 }
 
 async function renderMembersPanel() {
-  const container = document.getElementById('groupchatMembersList');
+  const panel = document.getElementById('groupchatMembersPanel');
   const group = groupChatState.activeGroup;
-  if (!container || !group) return;
+  if (!panel || !group) return;
+
+  const isOwner = group.role === 'owner';
+  const groupName = group.groupName || group.name || 'Group';
+  const groupAvatar = group.groupAvatarUrl || group.avatarUrl || '';
+  const memberCount = group.memberCount || 1;
+
+  // 1. Populate Hero Profile
+  const avatarEl = document.getElementById('groupchatInfoAvatar');
+  if (avatarEl) {
+    avatarEl.innerHTML = groupChatGroupAvatar(groupAvatar, groupName);
+  }
+  const nameEl = document.getElementById('groupchatInfoName');
+  if (nameEl) nameEl.textContent = groupName;
+
+  const memberCountEl = document.getElementById('groupchatInfoMemberCount');
+  if (memberCountEl) memberCountEl.textContent = `${memberCount} members`;
+
+  const descEl = document.getElementById('groupchatInfoDesc');
+  if (descEl) descEl.textContent = group.description || 'Public study group for BCS & career aspirants.';
+
+  const inviteLinkEl = document.getElementById('groupchatInfoInviteLink');
+  if (inviteLinkEl) inviteLinkEl.textContent = `careerdesk.app/g/${group.id}`;
+
+  // 2. Wire Quick Actions & Invite
+  const copyInvite = () => {
+    groupChatCopyInvite(group);
+  };
+  const inviteCard = document.getElementById('groupchatInfoInviteCard');
+  if (inviteCard) inviteCard.onclick = copyInvite;
+  const quickInvite = document.getElementById('groupchatQuickInviteBtn');
+  if (quickInvite) quickInvite.onclick = copyInvite;
+  const quickShare = document.getElementById('groupchatQuickShareBtn');
+  if (quickShare) quickShare.onclick = copyInvite;
+
+  // 3. Notifications Toggle & Quick Mute
+  const notifToggle = document.getElementById('groupchatNotifToggle');
+  const notifStatus = document.getElementById('groupchatNotifStatus');
+  const muteText = document.getElementById('groupchatQuickMuteText');
+  const muteBtn = document.getElementById('groupchatQuickMuteBtn');
+
+  if (notifToggle) {
+    notifToggle.onchange = () => {
+      const enabled = notifToggle.checked;
+      if (notifStatus) notifStatus.textContent = enabled ? 'Enabled' : 'Muted';
+      if (muteText) muteText.textContent = enabled ? 'Mute' : 'Unmute';
+      if (typeof showToast === 'function') showToast(enabled ? 'Notifications enabled.' : 'Notifications muted.');
+    };
+  }
+  if (muteBtn && notifToggle) {
+    muteBtn.onclick = () => {
+      notifToggle.checked = !notifToggle.checked;
+      notifToggle.dispatchEvent(new Event('change'));
+    };
+  }
+
+  // 4. Edit Settings & Leave buttons
+  const editBtn = document.getElementById('groupchatPanelEditBtn');
+  const settingsBtn = document.getElementById('groupchatInfoSettingsBtn');
+  const onSettings = () => {
+    if (isOwner) {
+      openGroupChatSettingsModal();
+    } else {
+      if (typeof showToast === 'function') showToast('Only the group owner can modify group settings.');
+    }
+  };
+  if (editBtn) editBtn.onclick = onSettings;
+  if (settingsBtn) settingsBtn.onclick = onSettings;
+
+  const inviteActionBtn = document.getElementById('groupchatInfoInviteActionBtn');
+  if (inviteActionBtn) inviteActionBtn.onclick = copyInvite;
+
+  const leaveBtn = document.getElementById('groupchatInfoLeaveBtn');
+  if (leaveBtn) {
+    leaveBtn.onclick = async () => {
+      try {
+        await leaveGroup(group.id);
+        hideMembersPanel();
+      } catch (err) {
+        groupChatError(err, 'Unable to leave group.');
+      }
+    };
+  }
+
+  // 5. Wire Segmented Tabs (Members, Files, Media, Links)
+  const tabButtons = document.querySelectorAll('.groupchat-info-tab');
+  const tabPanes = {
+    members: document.getElementById('groupchatPaneMembers'),
+    files: document.getElementById('groupchatPaneFiles'),
+    media: document.getElementById('groupchatPaneMedia'),
+    links: document.getElementById('groupchatPaneLinks')
+  };
+
+  tabButtons.forEach(btn => {
+    btn.onclick = () => {
+      tabButtons.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const target = btn.dataset.tab;
+      Object.keys(tabPanes).forEach(k => {
+        if (tabPanes[k]) tabPanes[k].hidden = (k !== target);
+      });
+      if (window.lucide) window.lucide.createIcons();
+    };
+  });
+
+  // 6. Populate Files Tab
+  const filesContainer = document.getElementById('groupchatFilesList');
+  if (filesContainer) {
+    filesContainer.innerHTML = `
+      <div class="groupchat-file-item" data-filename="${escapeAttr(groupName)}_Syllabus_Guide.pdf">
+        <div class="groupchat-file-icon pdf">PDF</div>
+        <div class="groupchat-file-info">
+          <div class="groupchat-file-name">${escapeHtml(groupName)}_Syllabus_Guide.pdf</div>
+          <div class="groupchat-file-meta">1.8 MB • Official Guide • Oct 2026</div>
+        </div>
+        <button class="micro-btn" type="button" title="Download"><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg></button>
+      </div>
+      <div class="groupchat-file-item" data-filename="BCS_High_Yield_Question_Bank.docx">
+        <div class="groupchat-file-icon doc">DOC</div>
+        <div class="groupchat-file-info">
+          <div class="groupchat-file-name">BCS_High_Yield_Question_Bank.docx</div>
+          <div class="groupchat-file-meta">940 KB • Study Notes • Today</div>
+        </div>
+        <button class="micro-btn" type="button" title="Download"><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg></button>
+      </div>
+      <div class="groupchat-file-item" data-filename="Weekly_Study_Tracker.xlsx">
+        <div class="groupchat-file-icon sheet">XLS</div>
+        <div class="groupchat-file-info">
+          <div class="groupchat-file-name">Weekly_Study_Tracker.xlsx</div>
+          <div class="groupchat-file-meta">450 KB • Spreadsheet • Yesterday</div>
+        </div>
+        <button class="micro-btn" type="button" title="Download"><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg></button>
+      </div>
+    `;
+
+    filesContainer.querySelectorAll('.groupchat-file-item').forEach(item => {
+      item.onclick = () => {
+        const fn = item.dataset.filename || 'File';
+        if (typeof showToast === 'function') showToast(`Downloading ${fn}...`);
+      };
+    });
+  }
+
+  // 7. Populate Media Tab
+  const mediaContainer = document.getElementById('groupchatMediaGrid');
+  if (mediaContainer) {
+    const subjects = ['MATH', 'GK', 'BANGLA', 'ENGLISH', 'SCIENCE', 'ICT'];
+    mediaContainer.innerHTML = subjects.map(sub => `
+      <div class="groupchat-media-thumb" title="${sub} Topic Summary">
+        <span>${sub}</span>
+      </div>
+    `).join('');
+
+    mediaContainer.querySelectorAll('.groupchat-media-thumb').forEach(thumb => {
+      thumb.onclick = () => {
+        if (typeof showToast === 'function') showToast('Viewing media attachment preview...');
+      };
+    });
+  }
+
+  // 8. Populate Links Tab
+  const linksContainer = document.getElementById('groupchatLinksList');
+  if (linksContainer) {
+    linksContainer.innerHTML = `
+      <a href="#panel-syllabus" class="groupchat-link-item" onclick="if(typeof activateTab==='function') activateTab('syllabus');">
+        <div class="groupchat-link-icon"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></div>
+        <div class="groupchat-link-text">CareerDesk Curriculum & Syllabus</div>
+        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="opacity:0.6;"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>
+      </a>
+      <a href="#panel-routine" class="groupchat-link-item" onclick="if(typeof activateTab==='function') activateTab('routine');">
+        <div class="groupchat-link-icon"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/></svg></div>
+        <div class="groupchat-link-text">Daily Study Routine Schedule</div>
+        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="opacity:0.6;"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>
+      </a>
+      <a href="https://bpsc.gov.bd" target="_blank" rel="noopener" class="groupchat-link-item">
+        <div class="groupchat-link-icon"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg></div>
+        <div class="groupchat-link-text">Bangladesh Public Service Commission</div>
+        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="opacity:0.6;"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>
+      </a>
+    `;
+  }
+
+  // 9. Render Members List from Firestore (with join requests & blocked users)
+  const container = document.getElementById('groupchatMembersList');
+  if (!container) return;
   container.innerHTML = '<div class="groupchat-empty" style="padding:14px 4px">Loading…</div>';
   try {
     const db = groupChatDb();
     const groupRef = db.collection('groups').doc(group.id);
-    const isOwner = group.role === 'owner';
 
     // Fetch members and if owner, also joinRequests and blockedUsers
     const promises = [groupRef.collection('members').get()];
@@ -804,7 +977,7 @@ async function renderMembersPanel() {
 
     let html = '';
 
-    // 1. Join Requests (for Group Owner)
+    // Join Requests (for Group Owner)
     if (isOwner && requestsSnap && !requestsSnap.empty) {
       html += `
         <div class="groupchat-panel-section">
@@ -830,7 +1003,7 @@ async function renderMembersPanel() {
         </div>`;
     }
 
-    // 2. Members List
+    // Members List
     const membersDocs = membersSnap.docs.slice().sort((a, b) => {
       if (a.data().role === 'owner') return -1;
       if (b.data().role === 'owner') return 1;
@@ -866,7 +1039,7 @@ async function renderMembersPanel() {
         </div>
       </div>`;
 
-    // 3. Blocked Users (for Group Owner)
+    // Blocked Users (for Group Owner)
     if (isOwner && blockedSnap && !blockedSnap.empty) {
       html += `
         <div class="groupchat-panel-section">
@@ -886,6 +1059,18 @@ async function renderMembersPanel() {
     }
 
     container.innerHTML = html;
+
+    // Wire live member search
+    const memberSearch = document.getElementById('groupchatMemberSearch');
+    if (memberSearch) {
+      memberSearch.oninput = () => {
+        const q = memberSearch.value.toLowerCase().trim();
+        container.querySelectorAll('.groupchat-member-row').forEach(row => {
+          const text = row.innerText.toLowerCase();
+          row.style.display = text.includes(q) ? 'flex' : 'none';
+        });
+      };
+    }
 
     // Wire Join Request buttons
     container.querySelectorAll('[data-approve-uid]').forEach(btn => btn.addEventListener('click', async () => {
@@ -937,6 +1122,7 @@ async function renderMembersPanel() {
       } catch (e) { groupChatError(e, 'Unable to unblock user.'); }
     }));
 
+    if (window.lucide) window.lucide.createIcons();
   } catch (e) {
     container.innerHTML = '<div class="groupchat-empty" style="padding:12px 4px">Failed to load members.</div>';
   }
@@ -1225,8 +1411,44 @@ function initGroupChat() {
 
   if (search) {
     let timer;
-    search.addEventListener('input', () => { clearTimeout(timer); timer = setTimeout(() => searchPublicGroups(search.value), 250); });
+    const clearBtn = document.getElementById('groupchatClearSearchBtn');
+    search.addEventListener('input', () => {
+      if (clearBtn) clearBtn.hidden = !search.value.trim();
+      clearTimeout(timer);
+      timer = setTimeout(() => searchPublicGroups(search.value), 250);
+    });
+    if (clearBtn) {
+      clearBtn.addEventListener('click', () => {
+        search.value = '';
+        clearBtn.hidden = true;
+        searchPublicGroups('');
+        search.focus();
+      });
+    }
   }
+
+  // Telegram-style Folder / Filter Pills
+  const filterPills = document.querySelectorAll('.groupchat-filter-pill');
+  filterPills.forEach(pill => {
+    pill.addEventListener('click', () => {
+      filterPills.forEach(p => p.classList.remove('active'));
+      pill.classList.add('active');
+      const filter = pill.dataset.filter;
+      const myGroupsSection = document.querySelector('.groupchat-my-groups-section');
+      const searchResults = document.getElementById('groupchatSearchResults');
+      if (filter === 'all') {
+        if (myGroupsSection) myGroupsSection.style.display = 'flex';
+        if (searchResults) searchResults.style.display = 'flex';
+      } else if (filter === 'my') {
+        if (myGroupsSection) myGroupsSection.style.display = 'flex';
+        if (searchResults) searchResults.style.display = 'none';
+      } else if (filter === 'public') {
+        if (myGroupsSection) myGroupsSection.style.display = 'none';
+        if (searchResults) searchResults.style.display = 'flex';
+        if (search) search.focus();
+      }
+    });
+  });
   if (createButton) {
     createButton.dataset.groupchatBound = 'true';
     createButton.addEventListener('click', async () => {
@@ -1336,6 +1558,93 @@ function initGroupChat() {
         if (composer) composer.requestSubmit();
       }
     });
+
+    const emojiBtn = document.getElementById('groupchatEmojiBtn');
+    const emojiPicker = document.getElementById('groupchatEmojiPicker');
+    const emojiSearch = document.getElementById('groupchatEmojiSearch');
+    const emojiCategories = document.getElementById('groupchatEmojiCategories');
+    const emojiGrid = document.getElementById('groupchatEmojiGrid');
+    if (emojiBtn && emojiPicker && emojiSearch && emojiCategories && emojiGrid) {
+      let activeEmojiGroup = GROUP_CHAT_EMOJI_GROUPS[0];
+      let emojiSelectionStart = composerInput.value.length;
+      let emojiSelectionEnd = emojiSelectionStart;
+
+      const renderEmojiGrid = () => {
+        const query = emojiSearch.value.trim().toLowerCase();
+        const choices = query
+          ? GROUP_CHAT_EMOJI_GROUPS.flatMap(group => group.emojis).filter(([emoji, keywords]) => `${emoji} ${keywords}`.toLowerCase().includes(query))
+          : activeEmojiGroup.emojis;
+        emojiCategories.hidden = Boolean(query);
+        emojiGrid.replaceChildren();
+        if (!choices.length) {
+          const empty = document.createElement('span');
+          empty.className = 'groupchat-emoji-empty';
+          empty.textContent = 'No emoji found';
+          emojiGrid.appendChild(empty);
+          return;
+        }
+        choices.forEach(([emoji, keywords]) => {
+          const choice = document.createElement('button');
+          choice.type = 'button';
+          choice.className = 'groupchat-emoji-choice';
+          choice.textContent = emoji;
+          choice.title = keywords;
+          choice.setAttribute('aria-label', `${keywords}: ${emoji}`);
+          choice.addEventListener('click', () => {
+            composerInput.setRangeText(emoji, emojiSelectionStart, emojiSelectionEnd, 'end');
+            const cursor = composerInput.selectionStart;
+            composerInput.dispatchEvent(new Event('input', { bubbles: true }));
+            composerInput.focus();
+            composerInput.setSelectionRange(cursor, cursor);
+            emojiPicker.hidden = true;
+            emojiBtn.setAttribute('aria-expanded', 'false');
+          });
+          emojiGrid.appendChild(choice);
+        });
+      };
+
+      GROUP_CHAT_EMOJI_GROUPS.forEach(group => {
+        const category = document.createElement('button');
+        category.type = 'button';
+        category.className = 'groupchat-emoji-category';
+        category.textContent = group.icon;
+        category.title = group.name;
+        category.setAttribute('aria-label', group.name);
+        category.setAttribute('aria-pressed', String(group === activeEmojiGroup));
+        category.addEventListener('click', () => {
+          activeEmojiGroup = group;
+          emojiCategories.querySelectorAll('.groupchat-emoji-category').forEach(button => {
+            button.setAttribute('aria-pressed', String(button === category));
+          });
+          renderEmojiGrid();
+        });
+        emojiCategories.appendChild(category);
+      });
+
+      emojiSearch.addEventListener('input', renderEmojiGrid);
+      renderEmojiGrid();
+      emojiBtn.addEventListener('click', () => {
+        const isOpening = emojiPicker.hidden;
+        emojiSelectionStart = composerInput.selectionStart;
+        emojiSelectionEnd = composerInput.selectionEnd;
+        emojiPicker.hidden = !isOpening;
+        emojiBtn.setAttribute('aria-expanded', String(isOpening));
+        if (isOpening) emojiSearch.focus();
+      });
+      emojiPicker.addEventListener('keydown', event => {
+        if (event.key === 'Escape') {
+          emojiPicker.hidden = true;
+          emojiBtn.setAttribute('aria-expanded', 'false');
+          emojiBtn.focus();
+        }
+      });
+      document.addEventListener('click', event => {
+        if (!emojiPicker.hidden && !emojiPicker.contains(event.target) && !emojiBtn.contains(event.target)) {
+          emojiPicker.hidden = true;
+          emojiBtn.setAttribute('aria-expanded', 'false');
+        }
+      });
+    }
   }
 
   const messagesBox = document.getElementById('groupchatMessages');

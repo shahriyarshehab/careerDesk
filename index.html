@@ -742,7 +742,18 @@
               <button class="pill subtle groupchat-sidebar-create-btn" id="groupchatSidebarCreateBtn" type="button" title="Create Group"><i data-lucide="plus"></i><span>New</span></button>
             </div>
           </div>
-          <input id="groupchatSearchInput" class="groupchat-input" type="search" placeholder="Search public groups" autocomplete="off">
+          <!-- Telegram-style search bar -->
+          <div class="groupchat-search-wrap">
+            <svg class="groupchat-search-icon" xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+            <input id="groupchatSearchInput" class="groupchat-input" type="search" placeholder="Search public groups" autocomplete="off">
+            <button id="groupchatClearSearchBtn" class="groupchat-clear-search-btn" type="button" title="Clear search" hidden><i data-lucide="x"></i></button>
+          </div>
+          <!-- Telegram-style filter pills -->
+          <div class="groupchat-filter-pills" id="groupchatFilterPills">
+            <button type="button" class="groupchat-filter-pill active" data-filter="all">All</button>
+            <button type="button" class="groupchat-filter-pill" data-filter="my">My Groups</button>
+            <button type="button" class="groupchat-filter-pill" data-filter="public">Explore</button>
+          </div>
           <div id="groupchatSearchResults" class="groupchat-search-results"></div>
           <div class="groupchat-my-groups-section">
             <span class="groupchat-section-label">My Groups</span>
@@ -761,21 +772,157 @@
                 </button>
               </div>
               <form id="groupchatComposer" class="groupchat-composer" hidden>
+                <div id="groupchatEmojiPicker" class="groupchat-emoji-picker" role="dialog" aria-label="Emoji picker" hidden>
+                  <label class="groupchat-emoji-search-wrap">
+                    <i data-lucide="search" aria-hidden="true"></i>
+                    <input id="groupchatEmojiSearch" class="groupchat-emoji-search" type="search" placeholder="Search emoji" autocomplete="off">
+                  </label>
+                  <div id="groupchatEmojiCategories" class="groupchat-emoji-categories" aria-label="Emoji categories"></div>
+                  <div id="groupchatEmojiGrid" class="groupchat-emoji-grid" aria-label="Emoji choices"></div>
+                </div>
                 <div class="groupchat-composer-inner">
                   <textarea id="groupchatMessageInput" class="groupchat-textarea" rows="1" maxlength="4000" placeholder="Write a message... (Enter to send, Shift+Enter for newline)" required></textarea>
+                  <button type="button" class="groupchat-composer-btn" id="groupchatEmojiBtn" title="Choose emoji" aria-label="Choose emoji" aria-haspopup="dialog" aria-expanded="false" aria-controls="groupchatEmojiPicker">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" x2="9.01" y1="9" y2="9"/><line x1="15" x2="15.01" y1="9" y2="9"/></svg>
+                  </button>
                   <button class="groupchat-send-btn" type="submit" title="Send message" aria-label="Send message">
                     <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
                   </button>
                 </div>
               </form>
             </div>
-            <aside id="groupchatMembersPanel" class="groupchat-members-panel" hidden>
+            <!-- Telegram Web Style Right Side Group Info Drawer -->
+            <aside id="groupchatMembersPanel" class="groupchat-members-panel groupchat-info-panel" hidden>
+              <!-- Panel Header (always visible) -->
               <div class="groupchat-members-panel-header">
-                <span class="groupchat-title">Members</span>
-                <button id="groupchatMembersPanelClose" class="micro-btn" type="button" aria-label="Close members"><i data-lucide="x"></i></button>
+                <span class="groupchat-title">Group Info</span>
+                <div class="groupchat-panel-header-actions">
+                  <button id="groupchatPanelEditBtn" class="micro-btn" type="button" title="Edit Group" aria-label="Edit Group"><i data-lucide="pencil"></i></button>
+                  <button id="groupchatMembersPanelClose" class="micro-btn" type="button" aria-label="Close group info"><i data-lucide="x"></i></button>
+                </div>
               </div>
-              <div id="groupchatMembersList" class="groupchat-members-list"></div>
+
+              <!-- Scrollable zone: hero, details, tabs, tab content -->
+              <div class="groupchat-panel-scroll-zone">
+                <!-- Hero Profile Card -->
+                <div class="groupchat-info-hero">
+                  <div class="groupchat-info-avatar-wrap">
+                    <div class="groupchat-info-avatar" id="groupchatInfoAvatar"></div>
+                  </div>
+                  <h3 class="groupchat-info-name" id="groupchatInfoName">Group Name</h3>
+                  <p class="groupchat-info-meta" id="groupchatInfoMeta">
+                    <span id="groupchatInfoMemberCount">1 member</span>
+                    <span class="groupchat-info-dot">•</span>
+                    <span class="groupchat-info-online" id="groupchatInfoOnline">online now</span>
+                  </p>
+
+                  <!-- Quick Action Buttons -->
+                  <div class="groupchat-info-quick-actions">
+                    <button id="groupchatQuickMuteBtn" class="groupchat-quick-action-btn" type="button" title="Notifications">
+                      <div class="groupchat-quick-action-icon"><i data-lucide="bell" id="groupchatQuickMuteIcon"></i></div>
+                      <span id="groupchatQuickMuteText">Mute</span>
+                    </button>
+                    <button id="groupchatQuickSearchBtn" class="groupchat-quick-action-btn" type="button" title="Search in chat">
+                      <div class="groupchat-quick-action-icon"><i data-lucide="search"></i></div>
+                      <span>Search</span>
+                    </button>
+                    <button id="groupchatQuickInviteBtn" class="groupchat-quick-action-btn" type="button" title="Invite member">
+                      <div class="groupchat-quick-action-icon"><i data-lucide="user-plus"></i></div>
+                      <span>Invite</span>
+                    </button>
+                    <button id="groupchatQuickShareBtn" class="groupchat-quick-action-btn" type="button" title="Share link">
+                      <div class="groupchat-quick-action-icon"><i data-lucide="share-2"></i></div>
+                      <span>Share</span>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Description & Invite Card & Notifications Switch -->
+                <div class="groupchat-info-details">
+                  <div class="groupchat-info-section" id="groupchatInfoDescSection">
+                    <div class="groupchat-info-section-label">About</div>
+                    <p class="groupchat-info-desc" id="groupchatInfoDesc">Public study group</p>
+                  </div>
+
+                  <div class="groupchat-info-card groupchat-invite-card" id="groupchatInfoInviteCard" title="Click to copy invite link">
+                    <div class="groupchat-info-card-icon"><i data-lucide="link"></i></div>
+                    <div class="groupchat-info-card-text">
+                      <span class="groupchat-info-card-title" id="groupchatInfoInviteLink">careerdesk.app/g/...</span>
+                      <span class="groupchat-info-card-sub">Invite link (Click to copy)</span>
+                    </div>
+                    <button class="micro-btn" type="button"><i data-lucide="copy"></i></button>
+                  </div>
+
+                  <div class="groupchat-info-card groupchat-notif-card">
+                    <div class="groupchat-info-card-icon"><i data-lucide="bell"></i></div>
+                    <div class="groupchat-info-card-text">
+                      <span class="groupchat-info-card-title">Notifications</span>
+                      <span class="groupchat-info-card-sub" id="groupchatNotifStatus">Enabled</span>
+                    </div>
+                    <label class="groupchat-toggle-switch">
+                      <input type="checkbox" id="groupchatNotifToggle" checked>
+                      <span class="groupchat-toggle-slider"></span>
+                    </label>
+                  </div>
+                </div>
+
+                <!-- Segmented Navigation Tabs: Members, Files, Media, Links -->
+                <div class="groupchat-info-tabs" id="groupchatInfoTabs">
+                  <button type="button" class="groupchat-info-tab active" data-tab="members">
+                    <i data-lucide="users"></i><span>Members</span>
+                  </button>
+                  <button type="button" class="groupchat-info-tab" data-tab="files">
+                    <i data-lucide="file-text"></i><span>Files</span>
+                  </button>
+                  <button type="button" class="groupchat-info-tab" data-tab="media">
+                    <i data-lucide="image"></i><span>Media</span>
+                  </button>
+                  <button type="button" class="groupchat-info-tab" data-tab="links">
+                    <i data-lucide="link-2"></i><span>Links</span>
+                  </button>
+                </div>
+
+                <!-- Tab Panes Container -->
+                <div class="groupchat-tab-contents">
+                  <!-- MEMBERS PANE -->
+                  <div class="groupchat-tab-pane" id="groupchatPaneMembers">
+                    <div class="groupchat-member-search-wrap">
+                      <input type="text" id="groupchatMemberSearch" class="groupchat-input groupchat-member-search-input" placeholder="Search members...">
+                    </div>
+                    <div id="groupchatMembersList" class="groupchat-members-list"></div>
+                  </div>
+
+                  <!-- FILES PANE -->
+                  <div class="groupchat-tab-pane" id="groupchatPaneFiles" hidden>
+                    <div id="groupchatFilesList" class="groupchat-files-list"></div>
+                  </div>
+
+                  <!-- MEDIA PANE -->
+                  <div class="groupchat-tab-pane" id="groupchatPaneMedia" hidden>
+                    <div id="groupchatMediaGrid" class="groupchat-media-grid"></div>
+                  </div>
+
+                  <!-- LINKS PANE -->
+                  <div class="groupchat-tab-pane" id="groupchatPaneLinks" hidden>
+                    <div id="groupchatLinksList" class="groupchat-links-list"></div>
+                  </div>
+                </div>
+              </div><!-- /.groupchat-panel-scroll-zone -->
+
+              <!-- Bottom Group Actions — always pinned at panel bottom -->
+              <div class="groupchat-info-footer-actions">
+                <button id="groupchatInfoInviteActionBtn" class="groupchat-info-footer-btn" type="button">
+                  <i data-lucide="user-plus"></i><span>Invite Members</span>
+                </button>
+                <button id="groupchatInfoSettingsBtn" class="groupchat-info-footer-btn" type="button">
+                  <i data-lucide="settings"></i><span>Group Settings &amp; Permissions</span>
+                </button>
+                <button id="groupchatInfoLeaveBtn" class="groupchat-info-footer-btn danger" type="button">
+                  <i data-lucide="log-out"></i><span>Leave Group</span>
+                </button>
+              </div>
             </aside>
+
           </div>
         </div>
       </div>
