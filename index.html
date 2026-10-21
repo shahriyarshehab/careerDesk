@@ -230,7 +230,7 @@
 
       <div class="collapsible-form" id="noteFormWrap" style="display:none;">
         <div class="entry-form">
-          <input type="text" id="noteTitle" class="fancy-input-title" placeholder="Note title...">
+          <input type="text" id="noteTitle" class="fancy-input-title" maxlength="100" placeholder="Note title (max 100 characters)...">
           <div class="note-meta-row">
             <span class="note-meta-label">Category:</span>
             <select id="noteTag">
@@ -656,62 +656,16 @@
 
     <!-- ===== SYLLABUS ===== -->
     <section class="panel" id="panel-syllabus">
-      <div class="syllabus-page-head">
-        <div>
-          <span class="syllabus-eyebrow"><i data-lucide="sparkles"></i> Your learning command center</span>
-          <h2 class="section-title syllabus-page-title">Syllabus Tracker</h2>
-          <p class="syllabus-page-subtitle">Turn your curriculum into a clear, measurable path from first topic to exam-ready.</p>
-        </div>
-        <div class="syllabus-head-mark" aria-hidden="true">
-          <i data-lucide="route"></i>
-        </div>
+      <h2 class="section-title">Syllabus Tracker</h2>
+      <div class="syllabus-overall glass">
+        <div class="overall-label"><span id="syllabusOverallLabel">0 / 0 topics completed</span><span id="syllabusOverallPct">0%</span></div>
+        <div class="progress-track"><div class="progress-fill" id="syllabusOverallFill" style="width:0%"></div></div>
       </div>
-
-      <div class="syllabus-overview-grid">
-        <div class="syllabus-overall glass">
-          <div class="syllabus-progress-heading">
-            <div>
-              <span class="syllabus-card-kicker">Overall progress</span>
-              <strong id="syllabusOverallLabel">0 / 0 topics completed</strong>
-            </div>
-            <span class="syllabus-progress-percent" id="syllabusOverallPct">0%</span>
-          </div>
-          <div class="progress-track syllabus-progress-track">
-            <div class="progress-fill" id="syllabusOverallFill" style="width:0%"></div>
-          </div>
-          <div class="syllabus-progress-foot">
-            <span><i data-lucide="check-circle-2"></i> Keep building your streak</span>
-            <span class="syllabus-status-dot"><span></span> Live</span>
-          </div>
-        </div>
-        <div class="syllabus-tip-card">
-          <div class="syllabus-tip-icon"><i data-lucide="lightbulb"></i></div>
-          <div>
-            <span class="syllabus-card-kicker">Small steps, big wins</span>
-            <strong>Finish one topic today</strong>
-            <p>Mark topics complete as you learn. Your progress is saved automatically.</p>
-          </div>
-        </div>
-      </div>
-
-      <div class="entry-form syllabus-entry-form">
-        <div class="syllabus-form-heading">
-          <div class="syllabus-form-icon"><i data-lucide="plus"></i></div>
-          <div>
-            <strong>Build your curriculum</strong>
-            <span>Add a subject and its first topic to get started.</span>
-          </div>
-        </div>
+      <div class="entry-form">
         <div class="syllabus-form-row">
-          <label class="syllabus-field">
-            <span>Subject or category</span>
-            <input type="text" id="newCategoryInput" list="appSubjectDatalist" placeholder="e.g. English Grammar" class="syllabus-subject-input">
-          </label>
-          <label class="syllabus-field">
-            <span>First topic <em>optional</em></span>
-            <input type="text" id="newTopicInput" placeholder="e.g. Parts of speech" class="syllabus-topic-input">
-          </label>
-          <button class="pill solid" id="addCategoryBtn" type="button"><i data-lucide="plus"></i> <span>Add Subject</span></button>
+          <input type="text" id="newCategoryInput" list="appSubjectDatalist" placeholder="Category / Subject Name (Choose or type)" class="syllabus-subject-input">
+          <input type="text" id="newTopicInput" placeholder="First Topic (Optional)" class="syllabus-topic-input">
+          <button class="pill solid" id="addCategoryBtn" type="button"><i data-lucide="plus"></i> <span>Add Category</span></button>
         </div>
       </div>
       <div id="categoryList"></div>
@@ -942,13 +896,14 @@
       <!-- User Profile & Cloud Hub Card -->
       <div class="glass user-profile-card" id="userProfileCard"></div>
 
-      <!-- Curriculum & Subjects Management Hub -->
-      <div class="glass profile-track-card" id="profileTrackCard" style="margin-bottom: 22px;"></div>
+      <div id="authenticatedProfileContent" hidden>
+        <!-- Curriculum & Subjects Management Hub -->
+        <div class="glass profile-track-card" id="profileTrackCard" style="margin-bottom: 22px;"></div>
 
-      <!-- Aspirant Overview, Targets, Core Pillars & Radar Hub -->
-      <div id="profileAspirantHub" style="margin-bottom: 22px;"></div>
+        <!-- Aspirant Overview, Targets, Core Pillars & Radar Hub -->
+        <div id="profileAspirantHub" style="margin-bottom: 22px;"></div>
 
-      <div class="glass data-management-card" id="dataManagementCard" style="padding:22px; border-color:var(--border);">
+        <div class="glass data-management-card" id="dataManagementCard" style="padding:22px; border-color:var(--border);">
         <h2 class="section-title" style="font-size:17px; margin-bottom:14px; display:flex; align-items:center; gap:8px;">
           <i data-lucide="cloud" style="color:var(--accent2); width:19px; height:19px;"></i>
           <span>Cloud Sync &amp; Storage</span>
@@ -1025,6 +980,7 @@
           </button>
         </div>
 
+        </div>
       </div>
     </section>
 

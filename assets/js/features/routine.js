@@ -218,8 +218,35 @@ window.formatTime12 = formatTime12;
 
 const ROUTINE_HEAD = '<thead><tr><th style="width:16%">Start</th><th style="width:16%">End</th><th style="width:24%">Subject</th><th>Topic / Task</th><th style="width:78px; text-align:right;"><button type="button" class="routine-table-reset-btn" id="resetRoutineBtn" title="Reset to recommended daily routine"><i data-lucide="rotate-ccw" style="width:12px; height:12px; vertical-align:middle; margin-right:3px;"></i><span>Reset</span></button></th></tr></thead>';
 
+function routineTopicIsInSyllabus(row) {
+  const subject = typeof canonicalSubjectName === 'function'
+    ? canonicalSubjectName(row.subject).trim().toLowerCase()
+    : String(row.subject || '').trim().toLowerCase();
+  const task = String(row.task || '').trim().toLowerCase();
+  if (!subject || !task) return false;
+  const category = (state.syllabus || []).find(item => {
+    const name = typeof canonicalSubjectName === 'function'
+      ? canonicalSubjectName(item.name).trim().toLowerCase()
+      : String(item.name || '').trim().toLowerCase();
+    return name === subject;
+  });
+  return !!category && (category.topics || []).some(topic => String(topic.name || '').trim().toLowerCase() === task);
+}
+
+function updateRoutineSyllabusAction(row, button) {
+  if (!row || !button) return;
+  const complete = !!String(row.subject || '').trim() && !!String(row.task || '').trim();
+  const added = complete && routineTopicIsInSyllabus(row);
+  button.disabled = !complete || added;
+  button.title = added ? 'Already in Syllabus' : complete ? 'Add task to Syllabus' : 'Enter a subject and task first';
+  button.setAttribute('aria-label', button.title);
+  button.innerHTML = added ? ICON.check : ICON.layers;
+}
+
 function routineRowHtml(row) {
   const meta = typeof getSubjectMeta === 'function' ? getSubjectMeta(row.subject) : { color: '#6366f1', icon: 'book-open' };
+  const topicAdded = routineTopicIsInSyllabus(row);
+  const taskReady = !!String(row.subject || '').trim() && !!String(row.task || '').trim();
   return `
     <tr>
       <td><input type="time" value="${row.startTime || ''}" data-field="startTime" data-id="${row.id}"></td>
@@ -231,7 +258,10 @@ function routineRowHtml(row) {
         </div>
       </td>
       <td><input type="text" value="${escapeAttr(row.task || '')}" placeholder="Task description" data-field="task" data-id="${row.id}"></td>
-      <td><button class="del-row" title="Delete row" data-id="${row.id}">${ICON.x}</button></td>
+      <td><div class="routine-row-actions">
+        <button class="routine-syllabus-btn" type="button" data-id="${escapeAttr(row.id)}" ${!taskReady || topicAdded ? 'disabled' : ''} title="${topicAdded ? 'Already in Syllabus' : taskReady ? 'Add task to Syllabus' : 'Enter a subject and task first'}" aria-label="${topicAdded ? 'Already in Syllabus' : 'Add task to Syllabus'}">${topicAdded ? ICON.check : ICON.layers}</button>
+        <button class="del-row" title="Delete row" data-id="${row.id}">${ICON.x}</button>
+      </div></td>
     </tr>
   `;
 }
@@ -388,6 +418,7 @@ document.addEventListener('input', (e) => {
     const row = state.routine.find(r => String(r.id) === t.dataset.id);
     if (row) {
       row[t.dataset.field] = t.value;
+      updateRoutineSyllabusAction(row, t.closest('tr')?.querySelector('.routine-syllabus-btn'));
       saveData();
     }
   }
@@ -406,6 +437,44 @@ document.addEventListener('change', (e) => {
 });
 
 document.addEventListener('click', (e) => {
+  const syllabusBtn = e.target.closest('.routine-syllabus-btn');
+  if (syllabusBtn && syllabusBtn.closest('#routineCardWrap')) {
+    const row = state.routine.find(item => String(item.id) === syllabusBtn.dataset.id);
+    const subject = String(row?.subject || '').trim();
+    const task = String(row?.task || '').trim();
+    if (!row || !subject || !task) {
+      showToast('Enter a subject and task first.', true);
+      return;
+    }
+
+    const subjectName = typeof canonicalSubjectName === 'function' ? canonicalSubjectName(subject) : subject;
+    const subjectKey = subjectName.trim().toLowerCase();
+    let category = (state.syllabus || []).find(item => {
+      const name = typeof canonicalSubjectName === 'function'
+        ? canonicalSubjectName(item.name).trim().toLowerCase()
+        : String(item.name || '').trim().toLowerCase();
+      return name === subjectKey;
+    });
+    if (!category) {
+      category = { id: Date.now(), name: subjectName, topics: [] };
+      state.syllabus.push(category);
+    }
+    if (!Array.isArray(category.topics)) category.topics = [];
+    const taskKey = task.toLowerCase();
+    if (category.topics.some(topic => String(topic.name || '').trim().toLowerCase() === taskKey)) {
+      updateRoutineSyllabusAction(row, syllabusBtn);
+      showToast('This task is already in the Syllabus.');
+      return;
+    }
+    category.topics.push({ id: Date.now(), name: task, done: false });
+    saveData();
+    if (typeof renderCategories === 'function') renderCategories();
+    if (typeof syncAllSubjectSelects === 'function') syncAllSubjectSelects();
+    renderRoutine();
+    showToast(`Added "${task}" to ${category.name} Syllabus.`);
+    return;
+  }
+
   const delBtn = e.target.closest('.del-row');
   if (delBtn && delBtn.closest('#routineCardWrap')) {
     if (!window.confirm('Are you sure you want to delete this routine slot?')) return;

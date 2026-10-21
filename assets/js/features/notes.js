@@ -6,6 +6,8 @@
 const notesGrid = document.getElementById('notesGrid');
 const noteSearch = document.getElementById('noteSearch');
 const noteFilterTag = document.getElementById('noteFilterTag');
+const NOTE_COLLAPSE_CHAR_LIMIT = 500;
+const NOTE_TITLE_MAX_LENGTH = 100;
 
 function filteredNotes() {
   const searchEl = document.getElementById('noteSearch') || noteSearch;
@@ -66,6 +68,9 @@ function renderNotes() {
     card.dataset.noteId = n.id;
     const d = new Date(n.ts);
     const meta = typeof getSubjectMeta === 'function' ? getSubjectMeta(n.tag || 'General') : { icon: 'tag' };
+    const noteBody = n.body || '';
+    const canCollapse = Array.from(noteBody).length > NOTE_COLLAPSE_CHAR_LIMIT;
+    const bodyId = `note-body-${escapeAttr(n.id)}`;
     card.innerHTML = `
       <div class="note-top">
         <div class="note-title-wrap">
@@ -79,7 +84,8 @@ function renderNotes() {
           ${ICON.pin}
         </button>
       </div>
-      <p class="note-body-text">${escapeHtml(n.body || '')}</p>
+      <p id="${bodyId}" class="note-body-text${canCollapse ? ' is-collapsed' : ''}">${escapeHtml(noteBody)}</p>
+      ${canCollapse ? `<button class="note-expand-btn" type="button" data-id="${escapeAttr(n.id)}" aria-controls="${bodyId}" aria-expanded="false">See more</button>` : ''}
       <div class="note-footer">
         <time class="note-date" datetime="${new Date(n.ts).toISOString()}" title="${d.toLocaleString('en-US')}">
           <span class="note-date-icon">${ICON.clock}</span>
@@ -108,7 +114,13 @@ notesGrid.addEventListener('click', (e) => {
   if (!btn) return;
   const id = btn.dataset.id;
   if (!id) return;
-  if (btn.classList.contains('del-btn')) {
+  if (btn.classList.contains('note-expand-btn')) {
+    const noteBody = btn.closest('.note-card')?.querySelector('.note-body-text');
+    const isExpanded = btn.getAttribute('aria-expanded') === 'true';
+    noteBody?.classList.toggle('is-collapsed', isExpanded);
+    btn.setAttribute('aria-expanded', String(!isExpanded));
+    btn.textContent = isExpanded ? 'See more' : 'See less';
+  } else if (btn.classList.contains('del-btn')) {
     const n = state.notes.find(n => String(n.id) === id);
     const title = n && n.title ? `"${n.title}"` : 'this note';
     if (!window.confirm(`Are you sure you want to delete ${title}?`)) return;
@@ -142,7 +154,7 @@ function startEdit(id) {
   if (!card) return;
   card.innerHTML = `
     <div class="note-edit-area">
-      <input type="text" value="${typeof escapeAttr === 'function' ? escapeAttr(n.title || '') : escapeHtml(n.title || '')}" id="edit-title-${id}">
+      <input type="text" maxlength="${NOTE_TITLE_MAX_LENGTH}" value="${typeof escapeAttr === 'function' ? escapeAttr(n.title || '') : escapeHtml(n.title || '')}" id="edit-title-${id}">
       <textarea rows="4" id="edit-body-${id}">${escapeHtml(n.body || '')}</textarea>
       <div class="quote-actions" style="justify-content:flex-start;">
         <button class="pill solid" data-save="${id}">Save</button>
@@ -150,8 +162,14 @@ function startEdit(id) {
       </div>
     </div>
   `;
+  const titleInput = document.getElementById(`edit-title-${id}`);
+  titleInput?.addEventListener('input', () => {
+    if (titleInput.value.length > NOTE_TITLE_MAX_LENGTH) {
+      titleInput.value = titleInput.value.slice(0, NOTE_TITLE_MAX_LENGTH);
+    }
+  });
   card.querySelector(`[data-save="${id}"]`).addEventListener('click', () => {
-    n.title = document.getElementById(`edit-title-${id}`).value.trim();
+    n.title = document.getElementById(`edit-title-${id}`).value.trim().slice(0, NOTE_TITLE_MAX_LENGTH);
     n.body = document.getElementById(`edit-body-${id}`).value.trim();
     renderNotes(); saveData();
   });
@@ -183,7 +201,7 @@ if (addNoteBtn) {
     const title = titleEl ? titleEl.value.trim() : '';
     const body = bodyEl ? bodyEl.value.trim() : '';
     if (!title && !body) return;
-    state.notes.push({ id: Date.now(), title, body, tag: tagEl ? tagEl.value : 'General', pinned: false, ts: Date.now() });
+    state.notes.push({ id: Date.now(), title: title.slice(0, NOTE_TITLE_MAX_LENGTH), body, tag: tagEl ? tagEl.value : 'General', pinned: false, ts: Date.now() });
     if (titleEl) titleEl.value = '';
     if (bodyEl) bodyEl.value = '';
     renderNotes(); saveData();
@@ -217,4 +235,3 @@ if (noteSearchClearBtn && noteSearch) {
 if (noteFilterTag) {
   noteFilterTag.addEventListener('change', renderNotes);
 }
-

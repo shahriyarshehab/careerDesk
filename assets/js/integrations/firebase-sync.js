@@ -1826,6 +1826,8 @@ function renderUserProfileUI() {
   if (!container) return;
 
   const user = getCachedAuthUser();
+  const authenticatedContent = document.getElementById('authenticatedProfileContent');
+  if (authenticatedContent) authenticatedContent.hidden = !user;
   const custom = getCustomProfile() || {};
   const effectiveName = (user && user.displayName) ? user.displayName : (custom.displayName || 'Guest Aspirant');
   const effectivePhoto = (user && user.photoURL) ? user.photoURL : (custom.photoURL || '');
@@ -2253,77 +2255,45 @@ function renderUserProfileUI() {
     }
 
     container.innerHTML = `
-      <div class="profile-brand-bar">
-        <div class="profile-brand-identity">
-          <div class="profile-brand-logo"><img src="assets/icons/favicon.svg" alt="CareerDesk logo"></div>
-          <div>
-            <span class="profile-brand-eyebrow">CAREERDESK / PERSONAL COMMAND CENTER</span>
-            <strong>Welcome back, ${escapeHtml(effectiveName.split(' ')[0] || 'Aspirant')}</strong>
+      <div class="profile-cover-banner" aria-hidden="true"></div>
+      <div class="profile-social-identity">
+        <div class="user-avatar-wrap">${avatarHtml}</div>
+        <div class="profile-social-copy">
+          <h2 class="user-display-name">${escapeHtml(effectiveName)}</h2>
+          <div class="profile-social-meta">
+            <span class="user-handle-badge">@${escapeHtml(effectiveUsername)}</span>
+            <span class="user-occupation-badge ${occMeta.className}">
+              <i data-lucide="${occMeta.icon}" aria-hidden="true"></i>
+              <span>${escapeHtml(occMeta.label)}</span>
+            </span>
+          </div>
+          <div class="profile-social-contact">
+            <span><i data-lucide="mail" aria-hidden="true"></i>${escapeHtml(user.email || 'Email not connected')}</span>
+            ${effectivePhone ? `<span><i data-lucide="phone" aria-hidden="true"></i>${escapeHtml(formatDisplayPhone(effectivePhone))}</span>` : ''}
+            <span class="user-provider-badge ${providerClass}">${providerIconHtml}${escapeHtml(providerLabel)}</span>
           </div>
         </div>
-        <div class="profile-live-state"><span></span> Workspace live</div>
-      </div>
-      <!-- HERO BANNER -->
-      <div class="profile-hero-banner authenticated-profile-hero">
-        <div class="profile-hero-grid">
-          <!-- Left: Avatar & Identity Details -->
-          <div class="profile-hero-left">
-            <div class="user-avatar-wrap">
-              ${avatarHtml}
-            </div>
-
-            <div class="user-hero-text">
-              <div class="user-name-row">
-                <h3 class="user-display-name">${escapeHtml(effectiveName)}</h3>
-              </div>
-              <div class="user-handle-row" style="margin:2px 0 6px; display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
-                <span class="user-handle-badge" style="display:inline-flex; align-items:center; gap:4px; font-family:var(--font-mono); font-size:12px; font-weight:700; color:var(--accent2); background:rgba(6,182,212,0.12); border:1px solid rgba(6,182,212,0.25); padding:2px 8px; border-radius:6px;">@${escapeHtml(effectiveUsername)}</span>
-                <span class="user-occupation-badge ${occMeta.className}">
-                  <i data-lucide="${occMeta.icon}" style="width:12px;height:12px;"></i>
-                  <span>${escapeHtml(occMeta.label)}</span>
-                </span>
-              </div>
-              <div class="user-details-list" style="display:flex; flex-direction:column; gap:4px; margin-bottom:8px;">
-                <span class="user-meta-detail" style="display:inline-flex; align-items:center; gap:6px; font-size:12.5px; color:var(--text-soft);">
-                  <i data-lucide="mail" style="width:13px;height:13px;color:var(--accent1);"></i>
-                  <span>${escapeHtml(user.email || 'Email: Not connected')}</span>
-                </span>
-                ${effectivePhone ? `
-                  <span class="user-meta-detail user-meta-phone" style="display:inline-flex; align-items:center; gap:6px; font-size:12.5px; color:var(--text-soft);">
-                    <i data-lucide="phone" style="width:13px;height:13px;color:var(--accent2);"></i>
-                    <span style="font-family:var(--font-mono); font-weight:600;">${escapeHtml(formatDisplayPhone(effectivePhone))}</span>
-                  </span>
-                ` : ''}
-              </div>
-              <div class="user-provider-row">
-                <span class="user-provider-badge ${providerClass}">
-                  ${providerIconHtml} ${escapeHtml(providerLabel)}
-                </span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Right: Edit & Sign Out in Single Line Down -->
-          <div class="profile-hero-right">
-            <div class="profile-hero-actions-row">
-              <button type="button" class="pill solid btn-edit-profile-main" id="btnOpenEditProfileModal" title="Edit Profile Details">
-                <i data-lucide="user-cog" style="width:15px;height:15px;"></i> <span>Edit Profile</span>
-              </button>
-              <button type="button" class="btn-signout-modern" id="btnProfileSignOut" title="Sign out from cloud account">
-                <i data-lucide="log-out" style="width:15px;height:15px;"></i> <span>Sign Out</span>
-              </button>
-            </div>
-          </div>
+        <div class="profile-social-actions">
+          <button type="button" class="pill solid btn-edit-profile-main" id="btnOpenEditProfileModal" title="Edit Profile Details">
+            <i data-lucide="user-round-pen" aria-hidden="true"></i><span>Edit Profile</span>
+          </button>
+          <button type="button" class="btn-signout-modern" id="btnProfileSignOut" title="Sign out from cloud account">
+            <i data-lucide="log-out" aria-hidden="true"></i><span>Sign Out</span>
+          </button>
         </div>
       </div>
-
-      <!-- LIFETIME STATS SUMMARY GRID -->
-      <div class="profile-card-body authenticated-profile-stats" style="padding:18px 22px 22px;">
-        <div style="margin-bottom:12px;">
-          <h4 style="font-size:14px; color:var(--text); margin:0 0 2px; font-weight:700;">Lifetime Preparation Metrics</h4>
-          <span style="font-size:12px; color:var(--text-soft);">Your cumulative study milestone achievements</span>
+      <nav class="profile-section-nav" aria-label="Profile sections">
+        <button type="button" class="profile-section-nav-btn active" data-profile-section="profileOverviewSection" aria-current="page">Overview</button>
+        <button type="button" class="profile-section-nav-btn" data-profile-section="profileTrackCard">Track</button>
+        <button type="button" class="profile-section-nav-btn" data-profile-section="profileAspirantHub">Insights</button>
+        <button type="button" class="profile-section-nav-btn" data-profile-section="dataManagementCard">Storage</button>
+      </nav>
+      <section id="profileOverviewSection" class="profile-overview-section authenticated-profile-stats">
+        <div class="profile-overview-heading">
+          <h3>Study overview</h3>
+          <span>Lifetime</span>
         </div>
-        <div class="profile-stats-bar" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(135px, 1fr)); gap:12px; margin:0;">
+        <div class="profile-stats-bar">
           <div class="profile-stat-card glass" style="padding:14px; text-align:center; border-radius:12px; border:1px solid var(--border);">
             <span class="profile-stat-val" style="font-size:22px; font-weight:800; color:var(--accent1); font-family:var(--font-display);">${totalStudyHours}h</span>
             <span class="profile-stat-lbl" style="font-size:12px; color:var(--text-soft); display:block; margin-top:2px;">Study Time (${sessionCount} sessions)</span>
@@ -2341,7 +2311,7 @@ function renderUserProfileUI() {
             <span class="profile-stat-lbl" style="font-size:12px; color:var(--text-soft); display:block; margin-top:2px;">Study Notes (${routineCount} tasks)</span>
           </div>
         </div>
-      </div>
+      </section>
     `;
   } else {
     // ===== SIGNED-OUT / GUEST STATE — INLINE SPLIT-PANEL AUTH =====
@@ -2623,6 +2593,18 @@ function renderUserProfileUI() {
       openEditProfileModal();
     });
   }
+
+  container.querySelectorAll('[data-profile-section]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      container.querySelectorAll('[data-profile-section]').forEach(item => {
+        item.classList.toggle('active', item === btn);
+        if (item === btn) item.setAttribute('aria-current', 'page');
+        else item.removeAttribute('aria-current');
+      });
+      const target = document.getElementById(btn.dataset.profileSection);
+      target?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  });
 
   // Quote cycling buttons on profile hero card
   const cycleBtns = container.querySelectorAll('.btn-cycle-profile-hero-quote, #btnCycleProfileHeroQuote, #btnCycleProfileHeroQuoteGuest');

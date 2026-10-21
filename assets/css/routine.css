@@ -104,6 +104,35 @@
     box-shadow: 0 2px 8px rgba(244, 63, 94, 0.22);
   }
 
+  .routine-row-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 4px;
+  }
+
+  .routine-syllabus-btn {
+    width: 28px;
+    height: 28px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--surface);
+    color: var(--accent2);
+    cursor: pointer;
+    flex: 0 0 28px;
+    transition: background .16s ease, color .16s ease, border-color .16s ease;
+  }
+  .routine-syllabus-btn svg { width: 13px; height: 13px; }
+  .routine-syllabus-btn:hover:not(:disabled) {
+    border-color: var(--accent2);
+    background: color-mix(in srgb, var(--accent2) 12%, var(--surface));
+  }
+  .routine-syllabus-btn:disabled { opacity: .48; cursor: not-allowed; }
+
   .routine-actions {
     display: flex;
     align-items: center;
