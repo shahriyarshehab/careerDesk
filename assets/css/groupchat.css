@@ -729,6 +729,120 @@ html[data-theme="light"] .chat-bubble:not(.me) {
   box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.14);
 }
 
+.groupchat-composer-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-soft);
+  padding: 6px;
+  cursor: pointer;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all .16s ease;
+  flex-shrink: 0;
+}
+.groupchat-composer-btn:hover {
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.groupchat-emoji-picker {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 8px);
+  z-index: 20;
+  width: 320px;
+  max-width: calc(100vw - 32px);
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--bg);
+  box-shadow: 0 14px 36px rgba(0, 0, 0, .3);
+}
+.groupchat-emoji-picker[hidden],
+.groupchat-emoji-categories[hidden] {
+  display: none !important;
+}
+.groupchat-emoji-search-wrap {
+  height: 34px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text-soft);
+}
+.groupchat-emoji-search-wrap svg { width: 14px; height: 14px; flex-shrink: 0; }
+.groupchat-emoji-search {
+  width: 100%;
+  min-width: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  font-size: 12px;
+}
+.groupchat-emoji-categories {
+  display: flex;
+  justify-content: space-between;
+  gap: 2px;
+  margin: 8px 0 6px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--border);
+}
+.groupchat-emoji-category,
+.groupchat-emoji-choice {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text);
+  cursor: pointer;
+}
+.groupchat-emoji-category {
+  width: 32px;
+  height: 30px;
+  font-size: 16px;
+}
+.groupchat-emoji-category:hover,
+.groupchat-emoji-category[aria-pressed="true"] {
+  background: rgba(99, 102, 241, .18);
+}
+.groupchat-emoji-grid {
+  display: grid;
+  grid-template-columns: repeat(8, minmax(0, 1fr));
+  gap: 2px;
+  max-height: 192px;
+  overflow-y: auto;
+}
+.groupchat-emoji-choice {
+  aspect-ratio: 1;
+  min-width: 0;
+  font-size: 21px;
+}
+.groupchat-emoji-choice:hover,
+.groupchat-emoji-choice:focus-visible {
+  outline: none;
+  background: rgba(99, 102, 241, .2);
+}
+.groupchat-emoji-empty {
+  grid-column: 1 / -1;
+  padding: 16px 4px;
+  color: var(--text-soft);
+  font-size: 12px;
+  text-align: center;
+}
+
+@media (max-width: 420px) {
+  .groupchat-emoji-picker { width: min(320px, calc(100vw - 32px)); }
+  .groupchat-emoji-grid { grid-template-columns: repeat(7, minmax(0, 1fr)); }
+}
+
 .groupchat-textarea {
   flex: 1;
   min-height: 22px;
