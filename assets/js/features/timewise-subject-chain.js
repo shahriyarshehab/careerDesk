@@ -14,7 +14,9 @@
   const today = () => typeof dateKey === 'function' ? dateKey(Date.now()) : new Date().toISOString().slice(0,10);
   function chain() {
     const rows = typeof state !== 'undefined' && Array.isArray(state.routine) ? state.routine.filter(r => r && r.date === today() && r.subject && r.startTime) : [];
-    return (rows.length ? rows : fallback.map((r,i) => ({...r, id:'suggested-'+i, date:today(), isSuggestion:true}))).slice().sort((a,b) => String(a.startTime).localeCompare(String(b.startTime)));
+    const occupiedTimes = new Set(rows.map(r => r.startTime));
+    const suggestions = fallback.filter(r => !occupiedTimes.has(r.startTime)).map((r,i) => ({...r, id:'suggested-'+i, date:today(), isSuggestion:true}));
+    return rows.concat(suggestions).slice().sort((a,b) => String(a.startTime).localeCompare(String(b.startTime)));
   }
   function render() {
     const host = document.getElementById('timewiseSubjectChain');
