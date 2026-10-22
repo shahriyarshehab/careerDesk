@@ -1,0 +1,27 @@
+/* ==========================================================================
+   CareerDesk — Consistent Section Widths
+   Keep every main section aligned to the same 1200px content frame as Group Chat.
+   Loaded last from master.css so it takes precedence over earlier visual layers.
+   ========================================================================== */
+
+main > .panel:not(#panel-groupchat) {
+  width: calc(100% - 32px);
+  max-width: 1200px;
+  margin-inline: auto;
+  box-sizing: border-box;
+}
+
+/* Match the Group Chat section's compact page gutters on smaller screens. */
+@media (max-width: 900px) {
+  main > .panel:not(#panel-groupchat) {
+    width: 100%;
+    max-width: 100%;
+    padding-inline: 8px;
+  }
+}
+
+@media (max-width: 768px) {
+  main > .panel:not(#panel-groupchat) {
+    padding-inline: 4px;
+  }
+}
