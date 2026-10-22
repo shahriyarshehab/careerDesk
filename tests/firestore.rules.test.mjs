@@ -72,12 +72,10 @@ test('unauthenticated users cannot read user profile documents', async () => {
   await assertFails(getDoc(doc(env.unauthenticatedContext().firestore(), 'users/private-user')));
 });
 
-test('a signed-in user can atomically create their own username reservation', async () => {
+test('a signed-in user can create a reservation matching their private profile', async () => {
   const db = env.authenticatedContext('uid-alice').firestore();
-  const batch = writeBatch(db);
-  batch.set(doc(db, 'users/uid-alice'), { username: 'alice' }, { merge: true });
-  batch.set(doc(db, 'usernames/alice'), { username: 'alice', updatedAt: 123 });
-  await assertSucceeds(batch.commit());
+  await assertSucceeds(setDoc(doc(db, 'users/uid-alice'), { username: 'alice' }, { merge: true }));
+  await assertSucceeds(setDoc(doc(db, 'usernames/alice'), { username: 'alice', updatedAt: 123 }));
 });
 
 test('username reservations cannot contain email or UID fields', async () => {
