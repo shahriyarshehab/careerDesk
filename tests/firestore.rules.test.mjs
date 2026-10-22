@@ -39,6 +39,21 @@ test('unauthenticated users can read a public username reservation without priva
   assert.equal(snapshot.data().uid, undefined);
 });
 
+test('legacy username documents containing email or UID are not publicly readable', async () => {
+  await env.withSecurityRulesDisabled(async context => {
+    await setDoc(doc(context.firestore(), 'usernames/legacyuser'), {
+      username: 'legacyuser',
+      email: 'legacy@example.com',
+      uid: 'legacy-uid',
+      updatedAt: 123
+    });
+  });
+
+  await assertFails(
+    getDoc(doc(env.unauthenticatedContext().firestore(), 'usernames/legacyuser'))
+  );
+});
+
 test('unauthenticated users cannot read user profile documents', async () => {
   await env.withSecurityRulesDisabled(async context => {
     await setDoc(doc(context.firestore(), 'users/private-user'), {
