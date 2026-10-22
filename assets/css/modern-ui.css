@@ -1,0 +1,231 @@
+/* ==========================================================================
+   CareerDesk — Modern Premium UI Refresh
+   Presentation-only overrides. Existing feature markup and application logic
+   remain unchanged; dark/light themes continue to use the shared design tokens.
+   ========================================================================== */
+
+:root {
+  --radius: 20px;
+  --radius-sm: 13px;
+  --cd-ease: cubic-bezier(.2, .8, .2, 1);
+}
+
+html {
+  scroll-behavior: smooth;
+  scrollbar-gutter: stable;
+}
+
+body {
+  background:
+    radial-gradient(ellipse at 8% 0%, color-mix(in srgb, var(--accent1) 14%, transparent), transparent 34rem),
+    radial-gradient(ellipse at 92% 18%, color-mix(in srgb, var(--accent2) 10%, transparent), transparent 30rem),
+    var(--bg);
+  letter-spacing: -.012em;
+  -webkit-font-smoothing: antialiased;
+}
+
+.aurora span { opacity: .24; filter: blur(100px); }
+
+header.masthead,
+header.main-header {
+  top: 12px;
+  width: min(1480px, calc(100% - 40px));
+  max-width: 1480px;
+  min-height: 68px;
+  height: auto;
+  padding: 10px 16px;
+  border-radius: 22px;
+  background: color-mix(in srgb, var(--bg) 78%, transparent);
+  border-color: color-mix(in srgb, var(--border) 75%, var(--accent1) 10%);
+  box-shadow: 0 10px 34px rgba(0,0,0,.12), inset 0 1px 0 rgba(255,255,255,.06);
+  backdrop-filter: blur(26px) saturate(160%);
+  -webkit-backdrop-filter: blur(26px) saturate(160%);
+}
+
+.brand-mark, .brand-badge {
+  border-radius: 14px;
+  box-shadow: 0 5px 20px color-mix(in srgb, var(--accent1) 24%, transparent);
+}
+
+.brand-title, .brand-copy h1, .brand h1 {
+  font-size: clamp(18px, 1.5vw, 21px);
+  letter-spacing: -.7px;
+}
+
+.tabs, .nav-menu {
+  gap: 5px;
+  padding: 5px;
+  border: 1px solid var(--border);
+  border-radius: 15px;
+  background: color-mix(in srgb, var(--surface) 75%, transparent);
+}
+
+.tab-btn, .nav-link {
+  border-radius: 11px;
+  transition: color .2s ease, background .2s ease, transform .2s var(--cd-ease), box-shadow .2s ease;
+}
+
+.tab-btn:hover, .nav-link:hover { transform: translateY(-1px); }
+
+.tab-btn.active, .nav-link.active {
+  box-shadow: 0 4px 14px color-mix(in srgb, var(--accent1) 18%, transparent);
+}
+
+.icon-action-btn, .watch-action {
+  border-radius: 13px;
+  transition: transform .2s var(--cd-ease), border-color .2s ease, background .2s ease;
+}
+
+.icon-action-btn:hover, .watch-action:hover { transform: translateY(-2px); }
+
+.panel {
+  width: min(1480px, calc(100% - 40px));
+  margin-inline: auto;
+  padding-bottom: clamp(72px, 7vw, 112px);
+}
+
+.home-container, #panel-home .home-container {
+  max-width: none;
+  gap: 22px;
+}
+
+.home-hero, #panel-home .home-hero {
+  border-radius: 28px;
+  border: 1px solid color-mix(in srgb, var(--border) 72%, var(--accent1) 16%);
+  box-shadow: 0 20px 55px rgba(0,0,0,.12), inset 0 1px 0 rgba(255,255,255,.06);
+}
+
+.home-hero-title { letter-spacing: -.055em; line-height: 1.04; }
+.home-hero-sub { max-width: 60ch; line-height: 1.7; }
+
+.home-stat-card, .home-widget, .home-pillar-card,
+.home-routine-card, .review-card, .session-card, .target-card,
+.study-heatmap-card, .notes-v2-hero, .mcq-v2-hero,
+#panel-home .glass, #panel-home .home-card {
+  border-radius: 22px;
+  border-color: var(--border);
+  box-shadow: 0 8px 26px rgba(0,0,0,.06), inset 0 1px 0 rgba(255,255,255,.035);
+  transition: border-color .22s ease, transform .22s var(--cd-ease), box-shadow .22s ease;
+}
+
+.home-stat-card:hover, .home-widget:hover, .home-pillar-card:hover,
+.home-routine-card:hover, .review-card:hover, .session-card:hover,
+.target-card:hover, .study-heatmap-card:hover {
+  border-color: color-mix(in srgb, var(--accent1) 34%, var(--border));
+  box-shadow: 0 14px 36px rgba(0,0,0,.10);
+}
+
+.home-stat-value { letter-spacing: -.055em; font-variant-numeric: tabular-nums; }
+.home-widget-header { margin-bottom: 16px; }
+.home-widget-title, .section-title { letter-spacing: -.035em; }
+
+button, .btn, input, select, textarea { font: inherit; }
+
+button, .pill, .btn, .icon-action-btn, .watch-action {
+  transition-timing-function: var(--cd-ease);
+}
+
+button:focus-visible, a:focus-visible, input:focus-visible,
+select:focus-visible, textarea:focus-visible, [tabindex]:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--accent2) 70%, white);
+  outline-offset: 3px;
+}
+
+input, select, textarea, .fancy-input-title, .fancy-textarea {
+  border-radius: 13px;
+  transition: border-color .2s ease, box-shadow .2s ease, background .2s ease;
+}
+
+input:focus, select:focus, textarea:focus {
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent1) 13%, transparent);
+}
+
+.pill, button.solid, .btn.solid {
+  border-radius: 12px;
+  font-weight: 700;
+  letter-spacing: -.015em;
+}
+
+button.solid, .btn.solid {
+  box-shadow: 0 5px 15px color-mix(in srgb, var(--accent1) 20%, transparent);
+}
+
+button.solid:hover, .btn.solid:hover { transform: translateY(-1px); }
+
+.routine-card-header, .routine-title-box, .notes-v2-toolbar,
+.tracker-top, .panel-header-row, .mcq-top-bar {
+  gap: 16px;
+}
+
+.routine-card, .note-card, .session-row, .target-row,
+.home-timeline-item, .home-next-routine-strip {
+  border-radius: 15px;
+}
+
+.date-slider, .routine-month-dropdown, .segmented-toggle-group,
+.timer-mode-selector, .timer-duration-group, .mcq-mode-toggle-group {
+  border-radius: 14px;
+}
+
+.notes-grid { gap: 18px; }
+.note-card { transition: transform .2s var(--cd-ease), box-shadow .2s ease; }
+.note-card:hover { transform: translateY(-3px); }
+
+#panel-notes, #panel-tracker, #panel-countdown, #panel-quiz,
+#panel-syllabus, #panel-groupchat {
+  animation: cdPanelEnter .35s var(--cd-ease) both;
+}
+
+@keyframes cdPanelEnter {
+  from { opacity: 0; transform: translateY(7px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+::selection { background: var(--accent1); color: #fff; }
+
+@media (min-width: 1500px) {
+  .panel { width: min(1480px, calc(100% - 64px)); }
+}
+
+@media (max-width: 900px) {
+  header.masthead, header.main-header {
+    top: 8px;
+    width: calc(100% - 20px);
+    border-radius: 18px;
+    padding: 9px 11px;
+  }
+  .panel { width: calc(100% - 24px); }
+  .tabs, .nav-menu { border-radius: 13px; }
+  .home-hero, #panel-home .home-hero { border-radius: 22px; }
+}
+
+@media (max-width: 600px) {
+  header.masthead, header.main-header {
+    top: 5px;
+    width: calc(100% - 12px);
+    min-height: 58px;
+    padding: 8px;
+    gap: 6px;
+    border-radius: 16px;
+  }
+  .brand-container, .brand { gap: 8px; }
+  .brand-mark, .brand-badge { width: 32px; height: 32px; border-radius: 10px; }
+  .brand-title, .brand-copy h1, .brand h1 { font-size: 17px; }
+  .panel { width: calc(100% - 18px); }
+  .home-container, #panel-home .home-container { gap: 14px; }
+  .home-stat-card, .home-widget, .home-pillar-card,
+  .home-routine-card, .review-card, .session-card, .target-card,
+  .study-heatmap-card, .notes-v2-hero, .mcq-v2-hero {
+    border-radius: 17px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
