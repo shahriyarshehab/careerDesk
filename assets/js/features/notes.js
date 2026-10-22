@@ -159,7 +159,7 @@ function startEdit(id) {
   if (!n) return;
   const grid = document.getElementById('notesGrid') || notesGrid;
   if (!grid) return;
-  const safeId = typeof escapeAttr === 'function' ? escapeAttr(String(id)) : String(id).replace(/["\\]/g, '\\  const card = [...notesGrid.children].find(c => c.querySelector(`[data-id="${id}"]`));');
+  const safeId = typeof escapeAttr === 'function' ? escapeAttr(String(id)) : String(id).replace(/["\\]/g, '\\$&');
   const card = [...grid.children].find(c => c.querySelector(`[data-id="${safeId}"]`));
   if (!card) return;
   card.innerHTML = `
