@@ -39,6 +39,13 @@ test('unauthenticated users can read a public username reservation without priva
   assert.equal(snapshot.data().uid, undefined);
 });
 
+test('unauthenticated users can check that an unclaimed username does not exist', async () => {
+  const snapshot = await assertSucceeds(
+    getDoc(doc(env.unauthenticatedContext().firestore(), 'usernames/available-name'))
+  );
+  assert.equal(snapshot.exists(), false);
+});
+
 test('legacy username documents containing email or UID are not publicly readable', async () => {
   await env.withSecurityRulesDisabled(async context => {
     await setDoc(doc(context.firestore(), 'usernames/legacyuser'), {
