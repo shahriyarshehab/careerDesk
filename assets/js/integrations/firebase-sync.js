@@ -1138,6 +1138,66 @@ async function syncUserDataToFirestore(user = null, silent = true) {
 }
 
 /**
+ * Validate restored data before it can replace the active local state.
+ * This is a structural guard, not a substitute for escaping data at render time.
+ */
+function isPlainCloudRecord(value) {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return false;
+  const proto = Object.getPrototypeOf(value);
+  return proto === Object.prototype || proto === null;
+}
+
+function isValidCloudState(candidate) {
+  if (!isPlainCloudRecord(candidate)) return false;
+
+  const arrayFields = [
+    'routine', 'notes', 'customQuotes', 'sessions', 'syllabus', 'flashcards',
+    'deletedSubjects', 'permanentlyDeletedSubjects', 'customSubjects',
+    'deletedQuotes'
+  ];
+  for (const key of arrayFields) {
+    if (Object.prototype.hasOwnProperty.call(candidate, key)) {
+      if (!Array.isArray(candidate[key])) return false;
+      // Avoid accepting huge/corrupt arrays that can freeze the UI during restore.
+      if (candidate[key].length > 50000) return false;
+      if (candidate[key].some(item => item !== null && !isPlainCloudRecord(item))) return false;
+    }
+  }
+
+  for (const key of ['quoteIdx', 'dailyTargetMinutes', 'quoteCarouselInterval']) {
+    if (Object.prototype.hasOwnProperty.call(candidate, key)
+      && (typeof candidate[key] !== 'number' || !Number.isFinite(candidate[key]))) return false;
+  }
+
+  if (Object.prototype.hasOwnProperty.call(candidate, 'theme')
+    && !['light', 'dark'].includes(candidate.theme)) return false;
+  if (Object.prototype.hasOwnProperty.call(candidate, 'quoteSource')
+    && typeof candidate.quoteSource !== 'string') return false;
+
+  return true;
+}
+
+function validateCloudBundle(bundle) {
+  if (!isPlainCloudRecord(bundle)) return false;
+  if (Object.prototype.hasOwnProperty.call(bundle, 'state') && !isValidCloudState(bundle.state)) return false;
+
+  for (const key of ['exams', 'mistakes', 'customMCQQuestions']) {
+    if (Object.prototype.hasOwnProperty.call(bundle, key)) {
+      if (!Array.isArray(bundle[key]) || bundle[key].length > 50000) return false;
+      if (bundle[key].some(item => item !== null && !isPlainCloudRecord(item))) return false;
+    }
+  }
+
+  if (Object.prototype.hasOwnProperty.call(bundle, 'mcqProgress')
+    && !isPlainCloudRecord(bundle.mcqProgress)) return false;
+  if (Object.prototype.hasOwnProperty.call(bundle, 'todayBreakMinutes')
+    && (typeof bundle.todayBreakMinutes !== 'number' || !Number.isFinite(bundle.todayBreakMinutes)
+      || bundle.todayBreakMinutes < 0)) return false;
+
+  return true;
+}
+
+/**
  * Collects/Restores individual data from Firestore when a user logs in
  */
 async function collectUserDataFromFirestore(user = null) {
@@ -1190,6 +1250,11 @@ async function collectUserDataFromFirestore(user = null) {
 
       if (typeof scrubPrototypePollution === 'function') {
         cloudData = scrubPrototypePollution(cloudData);
+      }
+
+      // Reject malformed or unexpectedly shaped snapshots before mutating local state.
+      if (!validateCloudBundle(cloudData)) {
+        throw new Error('Cloud backup failed data validation. Local data was left unchanged.');
       }
 
       // Restore user-specific state
