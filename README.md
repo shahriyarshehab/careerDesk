@@ -172,7 +172,7 @@ Install the development dependencies, then run the Firestore rules regression su
 
 ```bash
 npm install
-npm run test:rules
+npm test
 ```
 
 The practical project-level checks are:
