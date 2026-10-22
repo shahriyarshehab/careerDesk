@@ -160,7 +160,7 @@ function startEdit(id) {
   const grid = document.getElementById('notesGrid') || notesGrid;
   if (!grid) return;
   const safeId = typeof escapeAttr === 'function' ? escapeAttr(String(id)) : String(id).replace(/["\\]/g, '\\$&');
-  const card = [...grid.children].find(c => c.querySelector(`[data-id="${safeId}"]`));
+  const card = [...grid.children].find(c => [...c.querySelectorAll('[data-id]')].some(el => el.dataset.id === String(id)));
   if (!card) return;
   card.innerHTML = `
     <div class="note-edit-area">
@@ -178,12 +178,14 @@ function startEdit(id) {
       titleInput.value = titleInput.value.slice(0, NOTE_TITLE_MAX_LENGTH);
     }
   });
-  card.querySelector(`[data-save="${safeId}"]`).addEventListener('click', () => {
+  const saveBtn = [...card.querySelectorAll('button')].find(button => button.dataset.save === String(id));
+  const cancelBtn = [...card.querySelectorAll('button')].find(button => button.dataset.cancel === String(id));
+  if (saveBtn) saveBtn.addEventListener('click', () => {
     n.title = document.getElementById(`edit-title-${safeId}`).value.trim().slice(0, NOTE_TITLE_MAX_LENGTH);
     n.body = document.getElementById(`edit-body-${safeId}`).value.trim();
     renderNotes(); saveData();
   });
-  card.querySelector(`[data-cancel="${safeId}"]`).addEventListener('click', renderNotes);
+  if (cancelBtn) cancelBtn.addEventListener('click', renderNotes);
 }
 
 // ===== Notes Form Toggle =====
