@@ -1,21 +1,24 @@
 # Security Policy
 
-## Supported Versions
+## Supported versions
 
-Use this section to tell people about which versions of your project are
-currently being supported with security updates.
+Security fixes are targeted at the latest version on the `main` branch. Older deployments may require manual updates and Firebase Console changes.
 
-| Version | Supported          |
-| ------- | ------------------ |
-| 5.1.x   | :white_check_mark: |
-| 5.0.x   | :x:                |
-| 4.0.x   | :white_check_mark: |
-| < 4.0   | :x:                |
+## Reporting a vulnerability
 
-## Reporting a Vulnerability
+Please report suspected vulnerabilities privately to the repository owner through GitHub's private vulnerability reporting feature, if enabled. If private reporting is unavailable, contact the maintainer through a verified contact channel rather than publishing exploit details in an issue.
 
-Use this section to tell people how to report a vulnerability.
+Include:
+- affected file, feature, or deployment;
+- steps to reproduce and expected versus actual behavior;
+- potential impact and any safe proof-of-concept details.
 
-Tell them where to go, how often they can expect to get an update on a
-reported vulnerability, what to expect if the vulnerability is accepted or
-declined, etc.
+Do not include real user emails, passwords, access tokens, service-account keys, or private study data in a report.
+
+## Response expectations
+
+The maintainer should acknowledge a report within 7 calendar days and provide an initial assessment or next-step update within 14 calendar days where reasonably possible. Timelines may vary with severity and reproduction needs.
+
+## Secret handling
+
+Never commit Firebase service-account credentials or registered App Check debug tokens. If a credential or debug token is exposed, revoke or rotate it in the provider console and review relevant access logs. Firebase client configuration values are not substitutes for Firestore Security Rules or App Check enforcement.
