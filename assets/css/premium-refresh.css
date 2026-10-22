@@ -1,0 +1,224 @@
+/* CareerDesk Premium UI Refresh
+   Visual-only layer: preserves existing markup, app logic, and stored data. */
+
+:root {
+  --cd-radius-sm: 12px;
+  --cd-radius-md: 18px;
+  --cd-radius-lg: 24px;
+  --cd-ease: cubic-bezier(.2,.75,.25,1);
+}
+
+html {
+  scroll-behavior: smooth;
+  color-scheme: dark;
+}
+
+html[data-theme="dark"] {
+  --surface: rgba(18, 25, 42, .82);
+  --surface-strong: #111a2c;
+  --border: rgba(148, 163, 184, .16);
+  --text: #edf4ff;
+  --text-soft: #a7b5cc;
+  --text-muted: #8191ab;
+  --accent1: #818cf8;
+  --accent2: #2dd4bf;
+  --shadow: 0 18px 46px rgba(0, 0, 0, .22);
+  background: #080d18;
+}
+
+html[data-theme="light"] {
+  color-scheme: light;
+  --surface: rgba(255, 255, 255, .88);
+  --surface-strong: #f5f8fc;
+  --border: rgba(100, 116, 139, .18);
+  --text: #172238;
+  --text-soft: #53627a;
+  --text-muted: #718096;
+  --accent1: #4f46e5;
+  --accent2: #0d9488;
+  --shadow: 0 16px 38px rgba(30, 41, 59, .075);
+  background: #f4f7fb;
+}
+
+body {
+  color: var(--text);
+  background:
+    radial-gradient(ellipse at 8% 0%, rgba(99, 102, 241, .10), transparent 34%),
+    radial-gradient(ellipse at 92% 8%, rgba(20, 184, 166, .08), transparent 28%),
+    var(--bg, transparent);
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+
+html[data-theme="light"] body {
+  background:
+    radial-gradient(ellipse at 4% 0%, rgba(99, 102, 241, .075), transparent 32%),
+    radial-gradient(ellipse at 96% 0%, rgba(20, 184, 166, .06), transparent 30%),
+    #f4f7fb;
+}
+
+::selection { background: rgba(99, 102, 241, .3); color: var(--text); }
+
+:where(button, input, textarea, select, a, summary):focus-visible {
+  outline: 3px solid rgba(45, 212, 191, .72);
+  outline-offset: 3px;
+}
+
+.main-header,
+header.masthead,
+header.main-header {
+  border-color: var(--border) !important;
+  background: color-mix(in srgb, var(--surface-strong) 84%, transparent) !important;
+  box-shadow: 0 12px 34px rgba(0, 0, 0, .08), inset 0 1px 0 rgba(255,255,255,.035);
+  backdrop-filter: blur(22px) saturate(150%);
+  -webkit-backdrop-filter: blur(22px) saturate(150%);
+}
+
+.brand-mark,
+.brand-badge {
+  border-radius: 16px !important;
+  box-shadow: 0 8px 22px rgba(99, 102, 241, .22);
+}
+
+.brand-title {
+  letter-spacing: -.045em;
+  font-weight: 800;
+}
+
+nav.tabs {
+  border-color: var(--border);
+}
+
+.tab-btn {
+  transition: background .2s var(--cd-ease), color .2s var(--cd-ease), transform .2s var(--cd-ease);
+}
+
+.tab-btn:not(.active):hover {
+  background: rgba(129, 140, 248, .10) !important;
+}
+
+main {
+  max-width: 1480px !important;
+  margin-inline: auto;
+}
+
+.panel.active {
+  animation: cd-panel-in .32s var(--cd-ease);
+}
+
+@keyframes cd-panel-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+:where(.glass, .section-shell, .routine-hero, .routine-card, .note-card,
+       .stat-card, .monthly-routine-card, .exam-card, .countdown-card,
+       .syllabus-card, .category-card, .profile-card, .tracker-card,
+       .mcq-card, .quiz-card, .quote-ticker, .entry-form) {
+  border-color: var(--border);
+  box-shadow: var(--shadow);
+}
+
+.glass,
+.section-shell,
+.routine-hero,
+.routine-card,
+.entry-form {
+  border-radius: var(--cd-radius-md);
+}
+
+.glass {
+  background: var(--surface);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+.section-shell,
+.entry-form {
+  background: linear-gradient(145deg, var(--surface-strong), var(--surface));
+}
+
+:where(.note-card, .monthly-routine-card, .stat-card, .activity-box) {
+  transition: transform .2s var(--cd-ease), border-color .2s ease, box-shadow .2s ease;
+}
+
+@media (hover: hover) {
+  :where(.note-card, .monthly-routine-card, .stat-card):hover {
+    transform: translateY(-2px);
+    border-color: color-mix(in srgb, var(--accent1) 40%, var(--border));
+    box-shadow: 0 16px 32px rgba(0, 0, 0, .10);
+  }
+}
+
+:where(button, .btn, .pill, .micro-btn, .toggle-form-btn, .routine-view-btn) {
+  transition: transform .18s var(--cd-ease), box-shadow .18s ease, background-color .18s ease, border-color .18s ease;
+}
+
+:where(button, .btn, .pill, .toggle-form-btn):active {
+  transform: translateY(1px) scale(.985);
+}
+
+:where(input, textarea, select, .entry-form input, .entry-form textarea) {
+  border-color: var(--border);
+  border-radius: var(--cd-radius-sm);
+  transition: border-color .18s ease, box-shadow .18s ease, background .18s ease;
+}
+
+:where(input, textarea, select):focus {
+  border-color: var(--accent1) !important;
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, .12) !important;
+}
+
+h2.section-title {
+  letter-spacing: -.035em;
+}
+
+.panel-header-row {
+  row-gap: 10px;
+}
+
+table.routine {
+  border-collapse: separate;
+  border-spacing: 0;
+  overflow: hidden;
+}
+
+table.routine th {
+  font-size: 11px;
+  letter-spacing: .075em;
+  text-transform: uppercase;
+}
+
+table.routine :is(th, td) {
+  border-color: var(--border);
+}
+
+:where(.q-text, .note-card-body, .section-content) {
+  line-height: 1.7;
+}
+
+.progress-bar,
+.progress-track {
+  overflow: hidden;
+  border-radius: 999px;
+}
+
+img, svg { max-width: 100%; }
+
+@media (max-width: 768px) {
+  main { padding-inline: 12px !important; }
+  .panel-header-row { align-items: flex-start; }
+  :where(.glass, .section-shell, .routine-hero, .entry-form) {
+    border-radius: 16px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
