@@ -24,5 +24,4 @@ window.FIREBASE_CONFIG = {
   appId: "1:189177714174:web:c79ef6afaa4e2d20849caf",
   measurementId: "G-SXBKCRJ2ZN",
   appCheckSiteKey: "6LenlMItAAAAAFg_0Ahb_toKI9QT5049bubC_xZ5",
-  appCheckDebugToken: "F17DE73E-5A1A-4976-A79B-CBB82579E225"
 };
