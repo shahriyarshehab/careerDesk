@@ -168,7 +168,14 @@ Open `index.html` directly in a browser. The app is designed to work as a static
 
 ## Validation commands
 
-This repository does not define a dedicated test script. The practical project-level checks are:
+Install the development dependencies, then run the Firestore rules regression suite (Firebase Emulator required):
+
+```bash
+npm install
+npm run test:rules
+```
+
+The practical project-level checks are:
 
 ```bash
 node --check assets/js/app/master.js
