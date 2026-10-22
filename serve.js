@@ -4,7 +4,9 @@ const fs = require('fs');
 const path = require('path');
 const { exec } = require('child_process');
 
-const PORT = process.env.PORT || 3000;
+const PORT = Number(process.env.PORT) || 3000;
+// Cloud hosts (Render, Railway, etc.) require binding to all interfaces, not localhost.
+const HOST = process.env.HOST || '0.0.0.0';
 const MIME_TYPES = {
   '.html': 'text/html; charset=utf-8',
   '.css': 'text/css; charset=utf-8',
@@ -39,7 +41,7 @@ const server = http.createServer((req, res) => {
   });
 });
 
-server.listen(PORT, 'localhost', () => {
+server.listen(PORT, HOST, () => {
   const url = 'http://localhost:' + PORT;
   console.log('\n==================================================');
   console.log('  CareerDesk is running locally!');
