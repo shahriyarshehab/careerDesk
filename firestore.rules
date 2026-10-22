@@ -50,7 +50,7 @@ service cloud.firestore {
         && request.resource.data.keys().hasOnly(['username', 'updatedAt'])
         && request.resource.data.keys().hasAll(['username'])
         && request.resource.data.username == username
-        && getAfter(/databases/$(database)/documents/users/$(request.auth.uid)).data.username == username;
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.username == username;
       // Reservations are immutable to prevent username takeover by overwriting.
       allow update: if false;
       allow delete: if request.auth != null
