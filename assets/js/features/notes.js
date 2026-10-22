@@ -23,8 +23,9 @@ function filteredNotes() {
 }
 
 function formatKeepDate(ts) {
-  if (!ts) return '';
+  if (ts === null || ts === undefined || ts === '') return '';
   const d = new Date(ts);
+  if (Number.isNaN(d.getTime())) return '';
   const now = new Date();
 
   const isToday = d.getFullYear() === now.getFullYear() &&
@@ -53,6 +54,11 @@ function formatKeepDate(ts) {
   return `${dateStr}, ${timeStr}`;
 }
 
+function safeNoteIsoDate(ts) {
+  const date = new Date(ts);
+  return Number.isNaN(date.getTime()) ? '' : date.toISOString();
+}
+
 function renderNotes() {
   const grid = document.getElementById('notesGrid') || notesGrid;
   if (!grid) return;
@@ -65,12 +71,13 @@ function renderNotes() {
   list.forEach(n => {
     const card = document.createElement('div');
     card.className = 'note-card glass' + (n.pinned ? ' pinned' : '');
-    card.dataset.noteId = n.id;
+    card.dataset.noteId = String(n.id ?? '');
     const d = new Date(n.ts);
     const meta = typeof getSubjectMeta === 'function' ? getSubjectMeta(n.tag || 'General') : { icon: 'tag' };
     const noteBody = n.body || '';
     const canCollapse = Array.from(noteBody).length > NOTE_COLLAPSE_CHAR_LIMIT;
-    const bodyId = `note-body-${escapeAttr(n.id)}`;
+    const safeId = escapeAttr(String(n.id ?? ''));
+    const bodyId = `note-body-${safeId}`;
     card.innerHTML = `
       <div class="note-top">
         <div class="note-title-wrap">
@@ -80,14 +87,14 @@ function renderNotes() {
             <span>${escapeHtml(n.tag || 'General')}</span>
           </span>
         </div>
-        <button class="pin-btn ${n.pinned ? 'pin-active' : ''}" title="${n.pinned ? 'Unpin note' : 'Pin note'}" aria-label="Pin note" data-id="${n.id}">
+        <button class="pin-btn ${n.pinned ? 'pin-active' : ''}" title="${n.pinned ? 'Unpin note' : 'Pin note'}" aria-label="Pin note" data-id="${safeId}">
           ${ICON.pin}
         </button>
       </div>
       <p id="${bodyId}" class="note-body-text${canCollapse ? ' is-collapsed' : ''}">${escapeHtml(noteBody)}</p>
       ${canCollapse ? `<button class="note-expand-btn" type="button" data-id="${escapeAttr(n.id)}" aria-controls="${bodyId}" aria-expanded="false">See more</button>` : ''}
       <div class="note-footer">
-        <time class="note-date" datetime="${new Date(n.ts).toISOString()}" title="${d.toLocaleString('en-US')}">
+        <time class="note-date" datetime="${safeNoteIsoDate(n.ts)}" title="${d.toLocaleString('en-US')}">
           <span class="note-date-icon">${ICON.clock}</span>
           <span>${formatKeepDate(n.ts)}</span>
         </time>
@@ -101,7 +108,7 @@ function renderNotes() {
         </div>
       </div>
     `;
-    notesGrid.appendChild(card);
+    grid.appendChild(card);
   });
 
   if (window.lucide && typeof window.lucide.createIcons === 'function') {
@@ -109,7 +116,7 @@ function renderNotes() {
   }
 }
 
-notesGrid.addEventListener('click', (e) => {
+if (notesGrid) notesGrid.addEventListener('click', (e) => {
   const btn = e.target.closest('button');
   if (!btn) return;
   const id = btn.dataset.id;
@@ -150,30 +157,33 @@ notesGrid.addEventListener('click', (e) => {
 function startEdit(id) {
   const n = state.notes.find(n => String(n.id) === id);
   if (!n) return;
-  const card = [...notesGrid.children].find(c => c.querySelector(`[data-id="${id}"]`));
+  const grid = document.getElementById('notesGrid') || notesGrid;
+  if (!grid) return;
+  const safeId = typeof escapeAttr === 'function' ? escapeAttr(String(id)) : String(id).replace(/["\\]/g, '\\  const card = [...notesGrid.children].find(c => c.querySelector(`[data-id="${id}"]`));');
+  const card = [...grid.children].find(c => c.querySelector(`[data-id="${safeId}"]`));
   if (!card) return;
   card.innerHTML = `
     <div class="note-edit-area">
-      <input type="text" maxlength="${NOTE_TITLE_MAX_LENGTH}" value="${typeof escapeAttr === 'function' ? escapeAttr(n.title || '') : escapeHtml(n.title || '')}" id="edit-title-${id}">
-      <textarea rows="4" id="edit-body-${id}">${escapeHtml(n.body || '')}</textarea>
+      <input type="text" maxlength="${NOTE_TITLE_MAX_LENGTH}" value="${typeof escapeAttr === 'function' ? escapeAttr(n.title || '') : escapeHtml(n.title || '')}" id="edit-title-${safeId}">
+      <textarea rows="4" id="edit-body-${safeId}">${escapeHtml(n.body || '')}</textarea>
       <div class="quote-actions" style="justify-content:flex-start;">
-        <button class="pill solid" data-save="${id}">Save</button>
-        <button class="pill" data-cancel="${id}">Cancel</button>
+        <button class="pill solid" data-save="${safeId}">Save</button>
+        <button class="pill" data-cancel="${safeId}">Cancel</button>
       </div>
     </div>
   `;
-  const titleInput = document.getElementById(`edit-title-${id}`);
+  const titleInput = document.getElementById(`edit-title-${safeId}`);
   titleInput?.addEventListener('input', () => {
     if (titleInput.value.length > NOTE_TITLE_MAX_LENGTH) {
       titleInput.value = titleInput.value.slice(0, NOTE_TITLE_MAX_LENGTH);
     }
   });
-  card.querySelector(`[data-save="${id}"]`).addEventListener('click', () => {
-    n.title = document.getElementById(`edit-title-${id}`).value.trim().slice(0, NOTE_TITLE_MAX_LENGTH);
-    n.body = document.getElementById(`edit-body-${id}`).value.trim();
+  card.querySelector(`[data-save="${safeId}"]`).addEventListener('click', () => {
+    n.title = document.getElementById(`edit-title-${safeId}`).value.trim().slice(0, NOTE_TITLE_MAX_LENGTH);
+    n.body = document.getElementById(`edit-body-${safeId}`).value.trim();
     renderNotes(); saveData();
   });
-  card.querySelector(`[data-cancel="${id}"]`).addEventListener('click', renderNotes);
+  card.querySelector(`[data-cancel="${safeId}"]`).addEventListener('click', renderNotes);
 }
 
 // ===== Notes Form Toggle =====
