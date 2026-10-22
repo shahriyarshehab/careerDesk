@@ -14,7 +14,7 @@ This branch contains source-level hardening changes from the code audit. It has 
 
 1. In Firebase Console → App Check → Apps, inspect registered debug tokens. Revoke any token that was exposed in source control, then register a fresh local-only token if required. Firebase's official guidance says debug tokens must not be committed and exposed tokens should be deleted.
 2. Confirm the production reCAPTCHA Enterprise provider/site key is correctly configured. Review App Check metrics before enabling enforcement to avoid locking out legitimate clients.
-3. Review the `usernames` collection and current `firestore.rules`. The current app resolves a username to an email before Firebase Authentication, while the registry document stores email and UID. Simply denying unauthenticated reads would break username-based sign-in. Before tightening this rule, migrate username-to-email resolution to a trusted server endpoint (for example, a callable Cloud Function) and change public registry documents to contain no email address. Then change rules to deny unauthenticated reads and add emulator tests for both authenticated and unauthenticated access.
+3. Review existing `usernames` documents. This branch changes the public registry to contain only `username` and `updatedAt`, and changes registration to write the user profile and reservation atomically. Existing documents that contain `email` or `uid` must be migrated/cleaned up; deploying rules alone does not erase old fields. The browser's local username map remains private to that browser for legacy username sign-in. On a new device, users should sign in with email.
 
 ## Validation still required
 
