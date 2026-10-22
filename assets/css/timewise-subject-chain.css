@@ -20,3 +20,6 @@
 .tw-chain-footnote{display:flex;align-items:center;gap:7px;margin-top:12px;color:var(--text-muted,#64748b);font-size:11px;line-height:1.5}.tw-chain-footnote svg{width:14px;height:14px;flex:0 0 auto}
 @media(max-width:600px){.tw-chain-heading{align-items:flex-start}.tw-chain-heading-icon{width:36px;height:36px}.tw-chain-heading h3{font-size:14px}.tw-chain-heading p{max-width:230px;line-height:1.45}.tw-chain-status{font-size:9px;padding:5px 7px}.tw-chain-focus{padding:15px}.tw-chain-focus strong{font-size:19px}.tw-chain-step{gap:8px;padding:11px 2px}.tw-chain-node{flex-basis:29px;height:29px}.tw-chain-topline{align-items:flex-start;flex-direction:column;gap:3px}}
 @media(prefers-reduced-motion:no-preference){.tw-chain-step,.tw-add-slot{transition:background .18s ease,border-color .18s ease,color .18s ease}}
+/* Keep the suggestion chain separate from the routine table and hide it in monthly mode. */
+.monthly-routines:not([hidden]) ~ .tw-subject-chain { display: none; }
+.tw-chain-step.is-next { background: color-mix(in srgb, var(--accent1,#8b5cf6) 4%, transparent); border-radius: 12px; }
