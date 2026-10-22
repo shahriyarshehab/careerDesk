@@ -25,3 +25,6 @@
 
 /* Keep all main sections aligned to Group Chat's width. */
 @import url('section-width-alignment.css');
+
+/* Modern design system — loaded last to polish all existing sections. */
+@import url('modern-design-system.css');
