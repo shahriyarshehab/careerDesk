@@ -39,11 +39,19 @@ service cloud.firestore {
       }
     }
 
-    // Unique Username Registry
+    // Public username reservations contain only the username and timestamp.
+    // Never store email addresses or UIDs in this publicly readable collection.
     match /usernames/{username} {
       allow read: if true;
-      allow create: if request.auth != null && request.resource.data.uid == request.auth.uid;
-      allow update, delete: if request.auth != null && resource.data.uid == request.auth.uid;
+      allow create: if request.auth != null
+        && request.resource.data.keys().hasOnly(['username', 'updatedAt'])
+        && request.resource.data.keys().hasAll(['username'])
+        && request.resource.data.username == username
+        && getAfter(/databases/$(database)/documents/users/$(request.auth.uid)).data.username == username;
+      // Reservations are immutable to prevent username takeover by overwriting.
+      allow update: if false;
+      allow delete: if request.auth != null
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.username == username;
     }
 
     function signedIn() {
