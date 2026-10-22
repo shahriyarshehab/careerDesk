@@ -116,15 +116,14 @@ async function registerUsernameForUser(username, email, uid = '') {
   if (typeof firebase !== 'undefined' && firebase.apps && firebase.apps.length > 0 && firebase.firestore && uid) {
     try {
       const db = firebase.firestore();
-      const batch = db.batch();
-      // The user profile and public reservation are committed atomically.
+      // Store the claim on the owner's private profile first. The registry rule
+      // checks this profile before allowing the public reservation to be created.
+      await db.collection('users').doc(uid).set({ username: u }, { merge: true });
       // Public registry documents deliberately contain no email address or UID.
-      batch.set(db.collection('users').doc(uid), { username: u }, { merge: true });
-      batch.set(db.collection('usernames').doc(u), {
+      await db.collection('usernames').doc(u).set({
         username: u,
         updatedAt: Date.now()
       });
-      await batch.commit();
     } catch (e) {
       console.warn('[Register Username] Firestore mapping error:', e);
       return false;
@@ -653,11 +652,17 @@ async function signInWithEmailPassword(emailOrUsername, password, isSignUp = fal
         }
 
         // 2. Save username mapping
+        let usernameRegistrationFailed = false;
         if (customUsername) {
-          await registerUsernameForUser(customUsername, email, user.uid);
-          const custom = getCustomProfile() || {};
-          custom.username = normalizeUsername(customUsername);
-          saveCustomProfile(custom);
+          const usernameRegistered = await registerUsernameForUser(customUsername, email, user.uid);
+          if (usernameRegistered) {
+            const custom = getCustomProfile() || {};
+            custom.username = normalizeUsername(customUsername);
+            saveCustomProfile(custom);
+          } else {
+            usernameRegistrationFailed = true;
+            customUsername = '';
+          }
         }
 
         // 3. Send optional verification email in background
@@ -676,6 +681,9 @@ async function signInWithEmailPassword(emailOrUsername, password, isSignUp = fal
         applyCustomProfileOverrides(currentAuthUser);
         localStorage.setItem(FIREBASE_USER_CACHE_KEY, JSON.stringify(currentAuthUser));
         showToast('Account created! Welcome, ' + currentAuthUser.displayName);
+        if (usernameRegistrationFailed) {
+          showToast('Username reservation failed. Please sign in with your email and choose another username later.', true);
+        }
         closeAuthModal();
         renderUserProfileUI();
         if (typeof collectUserDataFromFirestore === 'function') {
