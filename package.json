@@ -5,7 +5,9 @@
   "main": "serve.js",
   "scripts": {
     "start": "node serve.js",
-    "test:rules": "firebase emulators:exec --only firestore --project demo-careerdesk-rules \"node --test tests/firestore.rules.test.mjs\""
+    "test:rules": "firebase emulators:exec --only firestore --project demo-careerdesk-rules \"node --test tests/firestore.rules.test.mjs\"",
+    "check:syntax": "node --check assets/js/features/notes.js && node --check assets/js/integrations/firebase-sync.js && node --check assets/js/integrations/firebase-config.js",
+    "test": "npm run check:syntax && npm run test:rules"
   },
   "keywords": [
     "careerdesk",
