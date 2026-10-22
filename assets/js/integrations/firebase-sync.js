@@ -83,51 +83,57 @@ async function isUsernameAvailable(username, excludeUid = '') {
   const u = normalizeUsername(username);
   if (!u || !isValidUsername(u)) return false;
 
-  // 1. Check local map
+  // Local mappings are private to this browser and retain compatibility for existing users.
   const map = getLocalUsernameMap();
-  if (map[u] && map[u].uid && map[u].uid !== excludeUid) {
-    return false;
-  }
+  if (map[u] && map[u].uid && map[u].uid !== excludeUid) return false;
 
-  // 2. Check Firestore
   if (typeof firebase !== 'undefined' && firebase.apps && firebase.apps.length > 0 && firebase.firestore) {
     try {
-      const doc = await firebase.firestore().collection('usernames').doc(u).get();
-      if (doc.exists) {
-        const data = doc.data();
-        if (data && data.uid && data.uid !== excludeUid) {
-          return false;
-        }
+      const db = firebase.firestore();
+      const usernameDoc = await db.collection('usernames').doc(u).get();
+      if (!usernameDoc.exists) return true;
+
+      // Only the signed-in owner may reuse their own existing username.
+      if (excludeUid && firebase.auth && firebase.auth().currentUser?.uid === excludeUid) {
+        const ownProfile = await db.collection('users').doc(excludeUid).get();
+        return !!(ownProfile.exists && normalizeUsername(ownProfile.data()?.username || '') === u);
       }
+      return false;
     } catch (e) {
-      console.warn('[Username Check] Firestore check skipped:', e);
+      // Fail closed: a rules/network error must not make a claimed username appear available.
+      console.warn('[Username Check] Firestore check failed; treating username as unavailable:', e);
+      return false;
     }
   }
-  return true;
+  return !(map[u] && map[u].uid && map[u].uid !== excludeUid);
 }
 
 async function registerUsernameForUser(username, email, uid = '') {
   const u = normalizeUsername(username);
-  if (!u || !email) return false;
-  saveLocalUsernameMapping(u, email, uid);
+  const normalizedEmail = (email || '').toLowerCase().trim();
+  if (!u || !normalizedEmail || !isValidUsername(u)) return false;
 
-  if (typeof firebase !== 'undefined' && firebase.apps && firebase.apps.length > 0 && firebase.firestore) {
+  if (typeof firebase !== 'undefined' && firebase.apps && firebase.apps.length > 0 && firebase.firestore && uid) {
     try {
-      await firebase.firestore().collection('usernames').doc(u).set({
+      const db = firebase.firestore();
+      const batch = db.batch();
+      // The user profile and public reservation are committed atomically.
+      // Public registry documents deliberately contain no email address or UID.
+      batch.set(db.collection('users').doc(uid), { username: u }, { merge: true });
+      batch.set(db.collection('usernames').doc(u), {
         username: u,
-        email: email.toLowerCase().trim(),
-        uid: uid || '',
         updatedAt: Date.now()
-      }, { merge: true });
-      if (uid) {
-        await firebase.firestore().collection('users').doc(uid).set({
-          username: u
-        }, { merge: true });
-      }
+      });
+      await batch.commit();
     } catch (e) {
       console.warn('[Register Username] Firestore mapping error:', e);
+      return false;
     }
   }
+
+  // Email is kept only in this browser's local map for legacy username sign-in.
+  // On a new device, sign in with email rather than exposing email through Firestore.
+  saveLocalUsernameMapping(u, normalizedEmail, uid);
   return true;
 }
 
@@ -146,22 +152,18 @@ async function resolveUsernameOrEmail(identifier) {
     return map[u].email;
   }
 
-  // Check Firestore usernames collection
+  // Firestore's public registry intentionally contains no email or UID.
+  // Username-to-email resolution is therefore limited to this browser's private local map.
+  // On a new device, users should sign in with their email address.
   if (typeof firebase !== 'undefined' && firebase.apps && firebase.apps.length > 0 && firebase.firestore) {
     try {
       const doc = await firebase.firestore().collection('usernames').doc(u).get();
-      if (doc.exists) {
-        const data = doc.data();
-        if (data && data.email) {
-          saveLocalUsernameMapping(u, data.email, data.uid || '');
-          return data.email;
-        }
-      }
+      if (!doc.exists) return null;
     } catch (e) {
-      console.warn('[Resolve Username] Firestore lookup warning:', e);
+      console.warn('[Resolve Username] Privacy-safe lookup warning:', e);
     }
   }
-  return null; // Not found
+  return null; // Use email on a new device; never fetch email from a public registry.
 }
 
 function getEffectiveUsername(user = null) {
@@ -609,7 +611,7 @@ async function signInWithEmailPassword(emailOrUsername, password, isSignUp = fal
     const resolved = await resolveUsernameOrEmail(email);
     if (!resolved) {
       const u = normalizeUsername(email);
-      const msg = `No account found with username @${u}. Please sign in with your email or register.`;
+      const msg = `For privacy, username sign-in only works in the browser where it was saved. Please sign in with your email address or register.`;
       displayAuthError(msg);
       return;
     }
