@@ -42,7 +42,9 @@ service cloud.firestore {
     // Public username reservations contain only the username and timestamp.
     // Never store email addresses or UIDs in this publicly readable collection.
     match /usernames/{username} {
-      allow read: if true;
+      allow read: if resource.data.keys().hasOnly(['username', 'updatedAt'])
+        && resource.data.keys().hasAll(['username'])
+        && resource.data.username == username;
       allow create: if request.auth != null
         && request.resource.data.keys().hasOnly(['username', 'updatedAt'])
         && request.resource.data.keys().hasAll(['username'])
