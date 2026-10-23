@@ -835,3 +835,73 @@
 @media (prefers-reduced-motion: reduce) {
   #panel-notes.active .notes-fab { animation: none; transition: none; }
 }
+
+
+/* Notes layout fix: keep filters and the note list outside the toolbar card. */
+#panel-notes .notes-v2-toolbar { min-width: 0; }
+#panel-notes > .note-toolbar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(150px, 190px);
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  box-sizing: border-box;
+}
+#panel-notes > .notes-grid { width: 100%; min-width: 0; }
+#panel-notes .note-toolbar select {
+  min-width: 0;
+  max-width: 100%;
+  padding: 0 34px 0 12px;
+  color: var(--text);
+  background-color: var(--surface-strong);
+  border: 1px solid var(--border);
+  cursor: pointer;
+}
+#panel-notes .note-toolbar select option {
+  color: var(--text);
+  background: var(--surface-strong);
+}
+#panel-notes.active .notes-fab {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: auto;
+  min-width: 0;
+  height: 52px;
+  padding: 0 18px;
+  gap: 9px;
+  border-radius: 16px;
+  right: max(24px, env(safe-area-inset-right, 0px) + 16px);
+  bottom: max(24px, env(safe-area-inset-bottom, 0px) + 16px);
+  z-index: 80;
+}
+#panel-notes.active .notes-fab .notes-fab-label {
+  display: inline;
+  font-size: 13px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+#panel-notes.active .notes-fab svg,
+#panel-notes.active .notes-fab i[data-lucide] {
+  width: 20px;
+  height: 20px;
+}
+@media (max-width: 768px) {
+  #panel-notes .note-toolbar {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  #panel-notes .note-toolbar select { width: 100%; }
+  #panel-notes.active .notes-fab {
+    width: 56px;
+    min-width: 56px;
+    height: 56px;
+    padding: 0;
+    border-radius: 50%;
+    right: max(18px, env(safe-area-inset-right, 0px) + 10px);
+    bottom: calc(82px + env(safe-area-inset-bottom, 0px) + 12px);
+  }
+  #panel-notes.active .notes-fab .notes-fab-label { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  #panel-notes.active .notes-fab { animation: none; transition: none; }
+}
