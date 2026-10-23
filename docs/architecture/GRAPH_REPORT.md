@@ -20,7 +20,6 @@
 - Routine & Calendar Schedule
 - WebCrypto AES-GCM & PIN Security
 - App Shell & Router
-- Notes & Search Manager
 - Exam Countdown Engine
 - Syllabus Checklist Tracker
 - Dashboard & Hero Hub
@@ -44,7 +43,7 @@
 ## Import Cycles
 - None detected.
 
-## Communities (18 total, 4 thin omitted)
+## Communities (17 total, 4 thin omitted)
 
 ### Community 0 - "Cloud Auth & Firestore Sync"
 Cohesion: 0.06
@@ -52,7 +51,7 @@ Nodes (98): applyCustomProfileOverrides(), applyRemoteChange(), bindInlinePasswo
 
 ### Community 1 - "Core State & Master Subjects"
 Cohesion: 0.07
-Nodes (52): addSubject(), BANGLADESH_CURRICULUM_DATA, buildDefaultNotes(), canonicalSubjectName(), connectAutoSyncFile(), currentViewMonth, currentViewYear, dateKey() (+44 more)
+Nodes (52): addSubject(), BANGLADESH_CURRICULUM_DATA, canonicalSubjectName(), connectAutoSyncFile(), currentViewMonth, currentViewYear, dateKey() (+44 more)
 
 ### Community 2 - "Peer Group Chat"
 Cohesion: 0.12
@@ -85,10 +84,6 @@ Nodes (29): base64ToBuffer(), bufferToBase64(), closeSetPinModal(), closeVaultPa
 ### Community 9 - "App Shell & Router"
 Cohesion: 0.10
 Nodes (23): activateTab(), darkBtn, fullscreenToggleSettings, getJournalData(), initCommandPalette(), openPalette(), renderItems(), initDailyJournal() (+15 more)
-
-### Community 10 - "Notes & Search Manager"
-Cohesion: 0.17
-Nodes (15): closeNoteComposeModal(), filteredNotes(), formatKeepDate(), noteComposeModal, noteFilterTag, noteModalTitle, noteSearch, noteSearchClearBtn (+7 more)
 
 ### Community 11 - "Exam Countdown Engine"
 Cohesion: 0.24
