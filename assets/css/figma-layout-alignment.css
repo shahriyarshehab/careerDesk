@@ -62,3 +62,280 @@
     min-height: 36px !important;
   }
 }
+
+
+/* ==========================================================================
+   Auto-collapsing desktop sidebar
+   - Compact by default; expands while hovered or keyboard-focused.
+   - Keep profile anchored at the bottom of the left navigation.
+   - Keep mobile/tablet navigation unchanged.
+   ========================================================================== */
+@media (min-width: 1000px) {
+  :root {
+    --cd-sidebar-collapsed-width: 76px;
+    --cd-sidebar-expanded-width: 252px;
+  }
+
+  header.main-header,
+  header.masthead,
+  .main-header {
+    width: var(--cd-sidebar-collapsed-width) !important;
+    max-width: var(--cd-sidebar-collapsed-width) !important;
+    padding: 22px 10px 18px !important;
+    gap: 22px !important;
+    transition: width .22s ease, max-width .22s ease, padding .22s ease, box-shadow .22s ease !important;
+  }
+
+  header.main-header:hover,
+  header.main-header:focus-within,
+  header.masthead:hover,
+  header.masthead:focus-within,
+  .main-header:hover,
+  .main-header:focus-within {
+    width: var(--cd-sidebar-expanded-width) !important;
+    max-width: var(--cd-sidebar-expanded-width) !important;
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+    box-shadow: 12px 0 40px rgba(0,0,0,.18), inset -1px 0 0 var(--cd-border) !important;
+  }
+
+  header.main-header .brand-container,
+  header.main-header .brand,
+  .main-header .brand-container,
+  .main-header .brand {
+    justify-content: center !important;
+    padding: 0 0 18px !important;
+    gap: 0 !important;
+    overflow: hidden !important;
+  }
+
+  header.main-header:hover .brand-container,
+  header.main-header:hover .brand,
+  header.main-header:focus-within .brand-container,
+  header.main-header:focus-within .brand,
+  .main-header:hover .brand-container,
+  .main-header:hover .brand,
+  .main-header:focus-within .brand-container,
+  .main-header:focus-within .brand {
+    justify-content: flex-start !important;
+    padding-left: 7px !important;
+    padding-right: 7px !important;
+    gap: 12px !important;
+  }
+
+  header.main-header .brand-title,
+  .main-header .brand-title {
+    display: inline-block !important;
+    max-width: 0 !important;
+    opacity: 0 !important;
+    overflow: hidden !important;
+    white-space: nowrap !important;
+    transition: max-width .18s ease, opacity .16s ease !important;
+  }
+
+  header.main-header:hover .brand-title,
+  header.main-header:focus-within .brand-title,
+  .main-header:hover .brand-title,
+  .main-header:focus-within .brand-title {
+    max-width: 160px !important;
+    opacity: 1 !important;
+  }
+
+  header.main-header .nav-menu::before,
+  .main-header .nav-menu::before {
+    text-align: center !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    font-size: 0 !important;
+    letter-spacing: 0 !important;
+  }
+
+  header.main-header:hover .nav-menu::before,
+  header.main-header:focus-within .nav-menu::before,
+  .main-header:hover .nav-menu::before,
+  .main-header:focus-within .nav-menu::before {
+    text-align: left !important;
+    padding-left: 12px !important;
+    padding-right: 12px !important;
+    font-size: 10px !important;
+    letter-spacing: .16em !important;
+  }
+
+  header.main-header .nav-link,
+  header.main-header .tab-btn,
+  .main-header .nav-link,
+  .main-header .tab-btn {
+    justify-content: center !important;
+    gap: 0 !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    overflow: hidden !important;
+  }
+
+  header.main-header:hover .nav-link,
+  header.main-header:hover .tab-btn,
+  header.main-header:focus-within .nav-link,
+  header.main-header:focus-within .tab-btn,
+  .main-header:hover .nav-link,
+  .main-header:hover .tab-btn,
+  .main-header:focus-within .nav-link,
+  .main-header:focus-within .tab-btn {
+    justify-content: flex-start !important;
+    gap: 13px !important;
+    padding-left: 13px !important;
+    padding-right: 13px !important;
+  }
+
+  header.main-header .nav-link span,
+  header.main-header .tab-btn span,
+  .main-header .nav-link span,
+  .main-header .tab-btn span {
+    display: inline-block !important;
+    max-width: 0 !important;
+    opacity: 0 !important;
+    overflow: hidden !important;
+    white-space: nowrap !important;
+    transition: max-width .18s ease, opacity .16s ease !important;
+  }
+
+  header.main-header:hover .nav-link span,
+  header.main-header:hover .tab-btn span,
+  header.main-header:focus-within .nav-link span,
+  header.main-header:focus-within .tab-btn span,
+  .main-header:hover .nav-link span,
+  .main-header:hover .tab-btn span,
+  .main-header:focus-within .nav-link span,
+  .main-header:focus-within .tab-btn span {
+    max-width: 180px !important;
+    opacity: 1 !important;
+  }
+
+  header.main-header .header-actions,
+  .main-header .header-actions {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 8px !important;
+    width: 100% !important;
+    margin-top: auto !important;
+    padding-top: 14px !important;
+  }
+
+  header.main-header .nav-search-btn,
+  .main-header .nav-search-btn {
+    width: 100% !important;
+    min-width: 0 !important;
+    min-height: 40px !important;
+    justify-content: center !important;
+    gap: 0 !important;
+    overflow: hidden !important;
+  }
+
+  header.main-header:hover .nav-search-btn,
+  header.main-header:focus-within .nav-search-btn,
+  .main-header:hover .nav-search-btn,
+  .main-header:focus-within .nav-search-btn {
+    justify-content: flex-start !important;
+    gap: 10px !important;
+    padding-left: 12px !important;
+    padding-right: 12px !important;
+  }
+
+  header.main-header .nav-search-text,
+  header.main-header .nav-search-kbd,
+  .main-header .nav-search-text,
+  .main-header .nav-search-kbd {
+    display: none !important;
+    opacity: 0 !important;
+  }
+
+  header.main-header:hover .nav-search-text,
+  header.main-header:hover .nav-search-kbd,
+  header.main-header:focus-within .nav-search-text,
+  header.main-header:focus-within .nav-search-kbd,
+  .main-header:hover .nav-search-text,
+  .main-header:hover .nav-search-kbd,
+  .main-header:focus-within .nav-search-text,
+  .main-header:focus-within .nav-search-kbd {
+    display: inline-flex !important;
+    opacity: 1 !important;
+  }
+
+  header.main-header .nav-notif-btn,
+  .main-header .nav-notif-btn {
+    display: grid !important;
+  }
+
+  /* Profile is visually removed from the top/actions row and docked to sidebar bottom. */
+  header.main-header .header-actions .nav-user-pill,
+  .main-header .header-actions .nav-user-pill {
+    position: fixed !important;
+    z-index: 1002 !important;
+    left: 10px !important;
+    bottom: 18px !important;
+    top: auto !important;
+    right: auto !important;
+    width: 56px !important;
+    max-width: 56px !important;
+    height: 44px !important;
+    min-height: 44px !important;
+    padding: 0 !important;
+    display: flex !important;
+    justify-content: center !important;
+    gap: 0 !important;
+    overflow: hidden !important;
+    border: 1px solid transparent !important;
+    border-radius: 12px !important;
+    background: transparent !important;
+    transition: left .22s ease, width .22s ease, max-width .22s ease, padding .22s ease, background .18s ease !important;
+  }
+
+  header.main-header:hover .header-actions .nav-user-pill,
+  header.main-header:focus-within .header-actions .nav-user-pill,
+  .main-header:hover .header-actions .nav-user-pill,
+  .main-header:focus-within .header-actions .nav-user-pill {
+    left: 14px !important;
+    width: 224px !important;
+    max-width: 224px !important;
+    justify-content: flex-start !important;
+    gap: 12px !important;
+    padding: 0 12px !important;
+  }
+
+  header.main-header .nav-user-name,
+  header.main-header .nav-user-chevron,
+  .main-header .nav-user-name,
+  .main-header .nav-user-chevron {
+    display: none !important;
+    opacity: 0 !important;
+  }
+
+  header.main-header:hover .nav-user-name,
+  header.main-header:hover .nav-user-chevron,
+  header.main-header:focus-within .nav-user-name,
+  header.main-header:focus-within .nav-user-chevron,
+  .main-header:hover .nav-user-name,
+  .main-header:hover .nav-user-chevron,
+  .main-header:focus-within .nav-user-name,
+  .main-header:focus-within .nav-user-chevron {
+    display: inline !important;
+    opacity: 1 !important;
+  }
+
+  main,
+  body.tab-groupchat-active main,
+  main:has(#panel-groupchat.active) {
+    margin-left: calc(var(--cd-sidebar-collapsed-width) + 24px) !important;
+    padding-right: 24px !important;
+    transition: margin-left .22s ease !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  header.main-header,
+  header.main-header *,
+  .main-header,
+  .main-header * {
+    transition-duration: .01ms !important;
+  }
+}
