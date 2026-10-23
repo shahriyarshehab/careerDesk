@@ -683,7 +683,7 @@ function openVaultPassphraseModal() {
       </div>
 
       <p style="font-size:13px; color:var(--text-soft); margin:0 0 14px; line-height:1.45;">
-        When enabled, your routines, notes, syllabus progress, and mistake bank are encrypted using <strong>AES-GCM-256</strong> before uploading to Firestore. Even database administrators cannot read your data.
+        When enabled, your routines, syllabus progress, and mistake bank are encrypted using <strong>AES-GCM-256</strong> before uploading to Firestore. Even database administrators cannot read your data.
       </p>
 
       <div class="form-group" style="margin-bottom:12px;">
