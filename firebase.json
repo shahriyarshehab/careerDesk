@@ -15,6 +15,11 @@
       "node_modules/**",
       ".git/**",
       ".github/**",
+      ".agents/**",
+      "scripts/**",
+      "docs/**",
+      "graphify-out/**",
+      "*.md",
       "*.bak",
       "*-backup.json"
     ],

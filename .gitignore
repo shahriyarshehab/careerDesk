@@ -9,3 +9,5 @@ package-lock.json
 firebase-debug.log
 .agents/
 skills-lock.json
+graphify-out/
+.graphify*

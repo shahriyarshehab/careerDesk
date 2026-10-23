@@ -202,6 +202,13 @@ This project has a few important repository-specific conventions:
 - keep the app zero-build and browser-native
 - use standard English digits for UI counters, timers, and percentages
 
+## Architecture & Codebase Map
+
+An interactive AST dependency map and architectural report are generated via Graphify:
+- **Interactive Visual Map:** Open [`docs/architecture/graph.html`](docs/architecture/graph.html) in any browser to explore modules, functions, and cross-file dependencies.
+- **Architecture Report:** See [`docs/architecture/GRAPH_REPORT.md`](docs/architecture/GRAPH_REPORT.md) for core hub abstractions and community cohesion.
+- **Regeneration Guide:** See [`GRAPHIFY_SETUP.md`](GRAPHIFY_SETUP.md) for setup and build instructions.
+
 ## Important files to know
 
 - `index.html` — app shell and entry page
@@ -210,6 +217,7 @@ This project has a few important repository-specific conventions:
 - `assets/js/app/app.js` — app bootstrap, tab/router setup, command palette
 - `assets/js/features/*.js` — feature-specific modules
 - `assets/js/integrations/*.js` — Firebase and security logic
+- `docs/architecture/graph.html` — interactive visual dependency map
 
 ## License
 

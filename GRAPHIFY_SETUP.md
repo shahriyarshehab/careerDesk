@@ -1,35 +1,57 @@
-# Graphify setup for CareerDesk
+# 🗺️ Codebase Knowledge Graph & Architecture Map (Graphify)
 
-Graphify is a local developer tool, not a runtime dependency of the deployed app.
+Graphify provides AST-based codebase graph extraction, community clustering, and interactive visual mapping for CareerDesk. It is a developer and documentation tool, completely decoupled from the production runtime and excluded from Firebase Hosting deployments.
 
-## Install
+---
 
-Requires Python 3.10+. Recommended:
+## 🚀 Viewing the Architecture Visualizer
 
+The codebase graph and report are generated and published under `docs/architecture/`:
+
+1. **Interactive Visual Map:**
+   Open [`docs/architecture/graph.html`](docs/architecture/graph.html) directly in any web browser.
+   - Zoom, pan, and search symbols (functions, state variables, event handlers).
+   - Color-coded by architectural module/community (Core State, Cloud Sync, Routine, Tracker, MCQ Engine, etc.).
+   - Inspect incoming/outgoing dependency edges.
+
+2. **Architecture Analysis Report:**
+   Read [`docs/architecture/GRAPH_REPORT.md`](docs/architecture/GRAPH_REPORT.md).
+   - God Nodes (core architectural hubs with the highest connectivity).
+   - Cohesion metrics and community groupings across all 18 JavaScript modules.
+
+---
+
+## 🛠️ Regenerating the Map Locally
+
+### 1. Requirements & Installation
+Requires Python 3.10+.
 ```bash
-uv tool install graphifyy
+pip install graphifyy
+# or using uv:
+uv pip install graphifyy
 ```
 
-Alternative: `pipx install graphifyy`. The PyPI package is `graphifyy`; the CLI command is `graphify`.
-
-## Build the code graph
-
-Open this repository in a supported coding assistant and run:
-
-```text
-/graphify .
+### 2. Run the Builder Script
+```bash
+python scripts/build_graphify.py
 ```
+This script:
+- Scans all 18 production JavaScript modules in `assets/js/**`.
+- Excludes temporary scratch files, dependencies, and minified vendor scripts (`lucide.min.js`).
+- Applies smart architectural labeling to all detected clusters.
+- Updates `docs/architecture/graph.html`, `docs/architecture/GRAPH_REPORT.md`, and `docs/architecture/graph.json`.
 
-For Codex, the project-local skill can also be registered with `graphify install --project --platform codex`.
+---
 
-## Outputs
+## 🤖 CI / GitHub Actions Automation
 
-Graphify normally creates `graphify-out/` with `graph.html` (interactive map), `graph.json` (graph data), and `GRAPH_REPORT.md` (architecture report). These artifacts are generated locally; review them before committing or publishing because they can expose source-code structure.
+The workflow in [`.github/workflows/graphify.yml`](.github/workflows/graphify.yml) runs whenever changes to `assets/js/**` are pushed:
+- Automatically validates graph generation in a clean environment.
+- Publishes the summary table directly into the GitHub Actions **Run Step Summary**.
+- Uploads the interactive map and report artifacts for easy download.
 
-## CareerDesk context
+---
 
-- No-build HTML, CSS, and vanilla JavaScript app.
-- Entry points: `index.html`, `assets/js/app/master.js`, `assets/js/app/app.js`, and `assets/js/core/core.js`.
-- Follow script loading order in `assets/js/app/master.js` when tracing feature dependencies.
-- Browser `localStorage` is primary storage; Firebase is optional sync/backup.
-- Do not add Graphify to production runtime dependencies or Firebase hosting assets.
+## 🔒 Security & Deployment Notes
+
+- Graphify artifacts and scripts are listed in `firebase.json` under `hosting.ignore`, ensuring internal AST models and function maps are never bundled into the public Firebase web app.
