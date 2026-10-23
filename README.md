@@ -10,7 +10,6 @@ CareerDesk combines the tools a serious aspirant needs in one place:
 - Focus timer and study tracking
 - MCQ practice and timed exam mode
 - Syllabus tracking and topic progress
-- Smart notes and pinned study content
 - Flashcards and review flows
 - Exam countdowns and target planning
 - Optional Firebase cloud backup and sync
@@ -45,7 +44,6 @@ The app is intentionally local-first and privacy-aware:
 
 ### Knowledge management
 
-- Notes and pinned study content
 - Flashcard-based review
 - Unified subject manager and soft-delete behavior
 
@@ -95,7 +93,6 @@ careerDesk/
 │   │   ├── routine.css
 │   │   ├── tracker.css
 │   │   ├── syllabus.css
-│   │   ├── notes.css
 │   │   ├── mcq.css
 │   │   ├── profile.css
 │   │   ├── quotes.css
@@ -114,7 +111,6 @@ careerDesk/
 │   │   │   ├── tracker.js
 │   │   │   ├── syllabus.js
 │   │   │   ├── mcq.js
-│   │   │   ├── notes.js
 │   │   │   ├── quotes.js
 │   │   │   ├── countdown.js
 │   │   │   ├── profile.js
