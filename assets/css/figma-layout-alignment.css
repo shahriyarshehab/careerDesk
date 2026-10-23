@@ -622,3 +622,52 @@
     overflow-x: hidden !important;
   }
 }
+
+
+/* Final positioning fix: the sidebar's backdrop-filter was making the fixed top toolbar use the sidebar as its containing block instead of the viewport. */
+@media (min-width: 1000px) {
+  header.main-header,
+  header.main-header.masthead,
+  header.masthead,
+  .main-header {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: auto !important;
+    bottom: 0 !important;
+    inset: 0 auto 0 0 !important;
+    width: 252px !important;
+    min-width: 252px !important;
+    max-width: 252px !important;
+    height: 100vh !important;
+    height: 100dvh !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
+    transform: none !important;
+    filter: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+
+  body { padding-top: 0 !important; }
+
+  main,
+  body.tab-groupchat-active main,
+  main:has(#panel-groupchat.active) {
+    width: calc(100% - 300px) !important;
+    max-width: none !important;
+    margin: 0 24px 0 276px !important;
+    padding: 28px 0 0 !important;
+    box-sizing: border-box !important;
+  }
+
+  header.main-header .topbar,
+  .main-header .topbar {
+    position: fixed !important;
+    top: 12px !important;
+    left: 276px !important;
+    right: 24px !important;
+    width: auto !important;
+    z-index: 1100 !important;
+  }
+}
