@@ -98,7 +98,8 @@ document.addEventListener('click', (e) => {
 
 function normalizeTabName(tabName) {
   if (!tabName) return 'home';
-  if (tabName === 'dashboard' || tabName === 'routine' || tabName === 'notes') return 'home';
+  if (tabName === 'dashboard') return 'home';
+  if (tabName === 'routine' || tabName === 'rutine' || tabName === 'notes') return 'routine';
   if (tabName === 'flashcards' || tabName === 'quiz' || tabName === 'mcq') return 'quiz';
   if (tabName === 'exams') return 'countdown';
   if (tabName === 'settings' || tabName === 'auth' || tabName === 'login' || tabName === 'signup' || tabName === 'register') return 'profile';
@@ -124,7 +125,10 @@ function activateTab(rawTabName, persist = false) {
   });
   document.body.classList.toggle('tab-groupchat-active', tabName === 'groupchat');
 
-  if (rawTabName !== 'routine') {
+  // Notify other modules of the active tab
+  document.dispatchEvent(new CustomEvent('careerdesk:tabchange', { detail: tabName }));
+
+  if (rawTabName !== 'routine' && rawTabName !== 'rutine') {
     window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
   }
 
@@ -134,16 +138,27 @@ function activateTab(rawTabName, persist = false) {
   }
 
   if (tabName === 'home') {
+    if (typeof renderDashboard === 'function') {
+      renderDashboard();
+    }
+  }
+
+  if (tabName === 'routine') {
     if (typeof renderHomeDashboard === 'function') {
       renderHomeDashboard();
     }
-    if (rawTabName === 'routine') {
-      setTimeout(() => {
-        const routineSec = document.getElementById('homeRoutineSection');
-        if (routineSec) routineSec.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }, 120);
+    if (typeof renderRoutine === 'function') {
+      renderRoutine();
     }
-    if (typeof initProfileQuoteTypewriter === 'function') initProfileQuoteTypewriter();
+    if (typeof renderDateSlider === 'function') {
+      renderDateSlider();
+    }
+    if (typeof renderStudyChain === 'function') {
+      renderStudyChain();
+    }
+    if (typeof initProfileQuoteTypewriter === 'function') {
+      initProfileQuoteTypewriter();
+    }
   }
 
   if (tabName === 'profile' || tabName === 'settings') {
@@ -216,8 +231,8 @@ function initCommandPalette() {
   let currentItems = [];
 
   const staticCommands = [
-    { id: 'tab-home', category: 'Navigation', icon: 'home', title: 'Go to Home & Routine', subtitle: 'Mission Control, stats & daily study schedule', action: () => activateTab('home', true) },
-    { id: 'tab-routine', category: 'Navigation', icon: 'calendar-days', title: 'Jump to Study Routine', subtitle: 'View & edit daily study schedule on Home', action: () => activateTab('routine', true) },
+    { id: 'tab-home', category: 'Navigation', icon: 'layout-dashboard', title: 'Go to Dashboard', subtitle: 'Overview, analytics & quick stats', action: () => activateTab('home', true) },
+    { id: 'tab-routine', category: 'Navigation', icon: 'calendar-check', title: 'Go to Rutine', subtitle: 'Daily study schedule, chain & quote ticker', action: () => activateTab('routine', true) },
     { id: 'tab-tracker', category: 'Navigation', icon: 'timer', title: 'Go to Tracker & Focus', subtitle: 'Pomodoro timer & activity stats', action: () => activateTab('tracker', true) },
     { id: 'tab-quiz', category: 'Navigation', icon: 'brain', title: 'Go to BCS & Govt MCQ Quiz', subtitle: 'Practice randomized MCQs & model tests', action: () => activateTab('quiz', true) },
     { id: 'tab-countdown', category: 'Navigation', icon: 'calendar-clock', title: 'Go to Exam Targets', subtitle: 'Exam countdowns & milestones', action: () => activateTab('countdown', true) },

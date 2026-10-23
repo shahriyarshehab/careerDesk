@@ -24,6 +24,7 @@
     'assets/js/integrations/firebase-config.js',
     'assets/js/integrations/firebase-sync.js',
     'assets/js/features/profile.js',
+    'assets/js/features/dashboard.js',
     'assets/js/features/home.js',
     'assets/js/features/groupchat.js',
     'assets/js/app/app.js'
