@@ -403,7 +403,6 @@ if (importDataInputEl) {
 
         state = {
           routine: Array.isArray(rawState.routine) ? migrateRoutine(rawState.routine) : [],
-          notes: Array.isArray(rawState.notes) ? rawState.notes : [],
           customQuotes: Array.isArray(rawState.customQuotes) ? rawState.customQuotes : [],
           quoteIdx: typeof rawState.quoteIdx === 'number' ? rawState.quoteIdx : 0,
           quoteSource: rawState.quoteSource || 'all',
@@ -820,11 +819,11 @@ if (confirmDeleteCloudBtn) {
 const resetAllBtnEl = document.getElementById('resetAllBtn');
 if (resetAllBtnEl) {
   resetAllBtnEl.addEventListener('click', async () => {
-    const ok = window.confirm('Are you sure? All routines, notes, syllabus, flashcards, and tracker sessions will be deleted. This cannot be undone.');
+    const ok = window.confirm('Are you sure? All routines, syllabus, flashcards, and tracker sessions will be deleted. This cannot be undone.');
     if (!ok) return;
     const keepTheme = state.theme;
     state = typeof getDefaultState === 'function' ? getDefaultState() : {
-      routine: [], notes: [], customQuotes: [], quoteIdx: 0, quoteSource: 'all', theme: keepTheme,
+      routine: [], customQuotes: [], quoteIdx: 0, quoteSource: 'all', theme: keepTheme,
       sessions: [], activeSession: null, dailyTargetMinutes: 240,
       syllabus: [], flashcards: [],
       quoteCarouselEnabled: true, quoteCarouselInterval: 300,
