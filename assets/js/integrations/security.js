@@ -496,7 +496,7 @@ function renderSecurityVaultUI() {
         </div>
 
         <p class="security-mod-desc">
-          When locked, your active timers, daily notes, and routine schedules are hidden behind a 4-digit PIN lock screen until you return.
+          When locked, your active timers and routine schedules are hidden behind a 4-digit PIN lock screen until you return.
         </p>
 
         <!-- Inactivity Auto-Lock Duration Row -->
@@ -554,7 +554,7 @@ function renderSecurityVaultUI() {
         </div>
 
         <p class="security-mod-desc">
-          Your routines, notes, syllabus, and mistake bank are encrypted using a secret passphrase right in your browser. Even Firestore database administrators cannot read your data.
+          Your routines, syllabus, and mistake bank are encrypted using a secret passphrase right in your browser. Even Firestore database administrators cannot read your data.
         </p>
 
         <div style="padding:10px 12px; border-radius:10px; background:rgba(255,255,255,0.02); border:1px solid var(--border); margin-bottom:14px; font-size:12px; color:var(--text-soft); line-height:1.5;">
