@@ -25,7 +25,6 @@ MODULE_TITLES = {
     "groupchat.js": "Peer Group Chat",
     "home.js": "Dashboard & Hero Hub",
     "mcq.js": "MCQ Quiz & Exam Engine",
-    "notes.js": "Notes & Search Manager",
     "profile.js": "Profile & Academic Curriculum",
     "questions.js": "BCS Question Bank Repository",
     "quotes.js": "Motivational Quotes & Wallpaper",
