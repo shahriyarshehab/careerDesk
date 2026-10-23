@@ -32,7 +32,6 @@ CareerDesk/
 │   │   ├── home.css        # Daily Study Routine hero card, date slider, and monthly view styling
 │   │   ├── routine.css     # Routine tables, calendar date slider, monthly schedule
 │   │   ├── quotes.css      # Motivation ticker, wallpaper generator, quotes manager
-│   │   ├── notes.css       # Quick notes grid, cards, pinning, search filtering
 │   │   ├── tracker.css     # Timers, 24h activity log, consistency heatmap, onboarding
 │   │   ├── countdown.css   # Target exam countdown cards engine
 │   │   ├── syllabus.css    # Curriculum categories, topic checklist, progress bars
@@ -49,7 +48,6 @@ CareerDesk/
 │   │   ├── core.js         # Master subject control, data schema, localStorage adapter & utilities
 │   │   ├── routine.js      # Routine schedules, date slider, day-by-day & monthly views
 │   │   ├── quotes.js       # Quote ticker, carousel, quotes manager & canvas wallpaper export
-│   │   ├── notes.js        # Quick notes, categorization tags, pinning & search
 │   │   ├── tracker.js      # Focus timer, 24h activity break tracker, heatmap & goals
 │   │   ├── countdown.js    # Target exam countdown timers engine
 │   │   ├── syllabus.js     # Category & topic progress tracking, inline edit & delete mode
@@ -77,7 +75,6 @@ CareerDesk/
 - **`assets/js/core.js`**: Central storage adapter, state initialization (`getDefaultState`), global utilities (`escapeHtml`, `escapeAttr`, `toBnDigits`, `dateKey`), and the Unified Subject Control System (`masterSubjectList`, `canonicalSubjectName`, `renameSubject`, `syncAllSubjectSelects`).
 - **`assets/js/routine.js`**: Manages day-by-day and monthly routine views, calendar sliders, task editing, and time blocks.
 - **`assets/js/quotes.js`**: Handles motivational quote rotations, the quote manager, interval carousels, and 1920x1080 canvas wallpaper generation.
-- **`assets/js/notes.js`**: Manages user study notes with tags, full-text search, and pinning.
 - **`assets/js/tracker.js`**: Real-time study timer, 24h break logs, activity heatmap, and target hours.
 - **`assets/js/countdown.js`**: Target exam countdown cards, date differentials, and exam target creation.
 - **`assets/js/syllabus.js`**: Interactive curriculum tracking, progress bars, topic completion toggles, and deletion modes.
