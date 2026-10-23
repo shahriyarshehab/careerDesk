@@ -244,13 +244,10 @@ function initCommandPalette() {
       }
     },
     {
-      id: 'act-add-note', category: 'Actions', icon: 'plus', title: 'Add New Note', subtitle: 'Quickly open new note form',
+      id: 'act-add-note', category: 'Actions', icon: 'plus', title: 'Add New Note', subtitle: 'Open note composer modal',
       action: () => {
         activateTab('notes', true);
-        const tBtn = document.getElementById('toggleNoteFormBtn');
-        if (tBtn) tBtn.click();
-        const nInput = document.getElementById('noteTitle');
-        if (nInput) nInput.focus();
+        if (typeof openNoteComposeModal === 'function') openNoteComposeModal();
       }
     },
     {

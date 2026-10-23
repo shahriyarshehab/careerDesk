@@ -1792,6 +1792,18 @@
       "source_location": "L543"
     },
     {
+      "id": "features_notes_closenotecomposemodal",
+      "label": "closeNoteComposeModal()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 10,
+      "community_name": "Notes & Search Manager",
+      "file_type": "code",
+      "norm_label": "closenotecomposemodal()",
+      "source_file": "features/notes.js",
+      "source_location": "L213"
+    },
+    {
       "id": "features_notes_filterednotes",
       "label": "filteredNotes()",
       "_callable": true,
@@ -1801,7 +1813,7 @@
       "file_type": "code",
       "norm_label": "filterednotes()",
       "source_file": "features/notes.js",
-      "source_location": "L12"
+      "source_location": "L14"
     },
     {
       "id": "features_notes_formatkeepdate",
@@ -1813,7 +1825,19 @@
       "file_type": "code",
       "norm_label": "formatkeepdate()",
       "source_file": "features/notes.js",
-      "source_location": "L25"
+      "source_location": "L27"
+    },
+    {
+      "id": "features_notes_opennotecomposemodal",
+      "label": "openNoteComposeModal()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 10,
+      "community_name": "Notes & Search Manager",
+      "file_type": "code",
+      "norm_label": "opennotecomposemodal()",
+      "source_file": "features/notes.js",
+      "source_location": "L157"
     },
     {
       "id": "features_notes_rendernotes",
@@ -1825,7 +1849,19 @@
       "file_type": "code",
       "norm_label": "rendernotes()",
       "source_file": "features/notes.js",
-      "source_location": "L56"
+      "source_location": "L58"
+    },
+    {
+      "id": "features_notes_savenotecompose",
+      "label": "saveNoteCompose()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 10,
+      "community_name": "Notes & Search Manager",
+      "file_type": "code",
+      "norm_label": "savenotecompose()",
+      "source_file": "features/notes.js",
+      "source_location": "L226"
     },
     {
       "id": "features_notes_startedit",
@@ -1837,7 +1873,7 @@
       "file_type": "code",
       "norm_label": "startedit()",
       "source_file": "features/notes.js",
-      "source_location": "L150"
+      "source_location": "L152"
     },
     {
       "id": "features_countdown_initeditexamlisteners",
@@ -4597,7 +4633,7 @@
       "file_type": "code",
       "norm_label": "getjournaldata()",
       "source_file": "app/app.js",
-      "source_location": "L638"
+      "source_location": "L635"
     },
     {
       "id": "app_app_initcommandpalette",
@@ -4621,7 +4657,7 @@
       "file_type": "code",
       "norm_label": "closepalette()",
       "source_file": "app/app.js",
-      "source_location": "L290"
+      "source_location": "L287"
     },
     {
       "id": "app_app_initcommandpalette_openpalette",
@@ -4633,7 +4669,7 @@
       "file_type": "code",
       "norm_label": "openpalette()",
       "source_file": "app/app.js",
-      "source_location": "L280"
+      "source_location": "L277"
     },
     {
       "id": "app_app_initcommandpalette_renderitems",
@@ -4645,7 +4681,7 @@
       "file_type": "code",
       "norm_label": "renderitems()",
       "source_file": "app/app.js",
-      "source_location": "L300"
+      "source_location": "L297"
     },
     {
       "id": "app_app_initdailyjournal",
@@ -4657,7 +4693,7 @@
       "file_type": "code",
       "norm_label": "initdailyjournal()",
       "source_file": "app/app.js",
-      "source_location": "L649"
+      "source_location": "L646"
     },
     {
       "id": "app_app_initdailyjournal_loadtodayentry",
@@ -4669,7 +4705,7 @@
       "file_type": "code",
       "norm_label": "loadtodayentry()",
       "source_file": "app/app.js",
-      "source_location": "L663"
+      "source_location": "L660"
     },
     {
       "id": "app_app_initdailyjournal_renderjournalhistory",
@@ -4681,7 +4717,7 @@
       "file_type": "code",
       "norm_label": "renderjournalhistory()",
       "source_file": "app/app.js",
-      "source_location": "L676"
+      "source_location": "L673"
     },
     {
       "id": "app_app_initkeyboardshortcutspanel",
@@ -4693,7 +4729,7 @@
       "file_type": "code",
       "norm_label": "initkeyboardshortcutspanel()",
       "source_file": "app/app.js",
-      "source_location": "L527"
+      "source_location": "L524"
     },
     {
       "id": "app_app_initkeyboardshortcutspanel_closeshortcuts",
@@ -4705,7 +4741,7 @@
       "file_type": "code",
       "norm_label": "closeshortcuts()",
       "source_file": "app/app.js",
-      "source_location": "L591"
+      "source_location": "L588"
     },
     {
       "id": "app_app_initkeyboardshortcutspanel_openshortcuts",
@@ -4717,7 +4753,7 @@
       "file_type": "code",
       "norm_label": "openshortcuts()",
       "source_file": "app/app.js",
-      "source_location": "L583"
+      "source_location": "L580"
     },
     {
       "id": "app_app_initkeyboardshortcutspanel_rendershortcutsbody",
@@ -4729,7 +4765,7 @@
       "file_type": "code",
       "norm_label": "rendershortcutsbody()",
       "source_file": "app/app.js",
-      "source_location": "L565"
+      "source_location": "L562"
     },
     {
       "id": "app_app_initmcqquickfilter",
@@ -4741,7 +4777,7 @@
       "file_type": "code",
       "norm_label": "initmcqquickfilter()",
       "source_file": "app/app.js",
-      "source_location": "L738"
+      "source_location": "L735"
     },
     {
       "id": "app_app_initmcqquickfilter_populatesubjectoptions",
@@ -4753,7 +4789,7 @@
       "file_type": "code",
       "norm_label": "populatesubjectoptions()",
       "source_file": "app/app.js",
-      "source_location": "L744"
+      "source_location": "L741"
     },
     {
       "id": "app_app_initmcqquickfilter_updatecountlabel",
@@ -4765,7 +4801,7 @@
       "file_type": "code",
       "norm_label": "updatecountlabel()",
       "source_file": "app/app.js",
-      "source_location": "L753"
+      "source_location": "L750"
     },
     {
       "id": "app_app_normalizetabname",
@@ -4801,7 +4837,7 @@
       "file_type": "code",
       "norm_label": "savejournaldata()",
       "source_file": "app/app.js",
-      "source_location": "L645"
+      "source_location": "L642"
     },
     {
       "id": "app_app_settheme",
@@ -5061,15 +5097,15 @@
       "source_location": "L1"
     },
     {
-      "id": "features_notes_addnotebtn",
-      "label": "addNoteBtn",
+      "id": "features_notes_notecomposemodal",
+      "label": "noteComposeModal",
       "_origin": "ast",
       "community": 10,
       "community_name": "Notes & Search Manager",
       "file_type": "code",
-      "norm_label": "addnotebtn",
+      "norm_label": "notecomposemodal",
       "source_file": "features/notes.js",
-      "source_location": "L195"
+      "source_location": "L290"
     },
     {
       "id": "features_notes_notefiltertag",
@@ -5081,6 +5117,17 @@
       "norm_label": "notefiltertag",
       "source_file": "features/notes.js",
       "source_location": "L8"
+    },
+    {
+      "id": "features_notes_notemodaltitle",
+      "label": "noteModalTitle",
+      "_origin": "ast",
+      "community": 10,
+      "community_name": "Notes & Search Manager",
+      "file_type": "code",
+      "norm_label": "notemodaltitle",
+      "source_file": "features/notes.js",
+      "source_location": "L281"
     },
     {
       "id": "features_notes_notesearch",
@@ -5102,7 +5149,18 @@
       "file_type": "code",
       "norm_label": "notesearchclearbtn",
       "source_file": "features/notes.js",
-      "source_location": "L218"
+      "source_location": "L301"
+    },
+    {
+      "id": "features_notes_notesfabbtn",
+      "label": "notesFabBtn",
+      "_origin": "ast",
+      "community": 10,
+      "community_name": "Notes & Search Manager",
+      "file_type": "code",
+      "norm_label": "notesfabbtn",
+      "source_file": "features/notes.js",
+      "source_location": "L269"
     },
     {
       "id": "features_notes_notesgrid",
@@ -5116,26 +5174,15 @@
       "source_location": "L6"
     },
     {
-      "id": "features_notes_notewrap",
-      "label": "noteWrap",
+      "id": "features_notes_savenotecomposebtn",
+      "label": "saveNoteComposeBtn",
       "_origin": "ast",
       "community": 10,
       "community_name": "Notes & Search Manager",
       "file_type": "code",
-      "norm_label": "notewrap",
+      "norm_label": "savenotecomposebtn",
       "source_file": "features/notes.js",
-      "source_location": "L181"
-    },
-    {
-      "id": "features_notes_togglenotebtn",
-      "label": "toggleNoteBtn",
-      "_origin": "ast",
-      "community": 10,
-      "community_name": "Notes & Search Manager",
-      "file_type": "code",
-      "norm_label": "togglenotebtn",
-      "source_file": "features/notes.js",
-      "source_location": "L180"
+      "source_location": "L275"
     },
     {
       "id": "features_countdown",
@@ -6404,7 +6451,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/app.js",
-      "source_location": "L269",
+      "source_location": "L266",
       "weight": 1.0
     },
     {
@@ -6416,7 +6463,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/app.js",
-      "source_location": "L275",
+      "source_location": "L272",
       "weight": 1.0
     },
     {
@@ -6428,7 +6475,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/app.js",
-      "source_location": "L286",
+      "source_location": "L283",
       "weight": 1.0
     },
     {
@@ -6440,7 +6487,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/app.js",
-      "source_location": "L322",
+      "source_location": "L319",
       "weight": 1.0
     },
     {
@@ -6452,7 +6499,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/app.js",
-      "source_location": "L712",
+      "source_location": "L709",
       "weight": 1.0
     },
     {
@@ -6464,7 +6511,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/app.js",
-      "source_location": "L714",
+      "source_location": "L711",
       "weight": 1.0
     },
     {
@@ -6476,7 +6523,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/app.js",
-      "source_location": "L664",
+      "source_location": "L661",
       "weight": 1.0
     },
     {
@@ -6488,7 +6535,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/app.js",
-      "source_location": "L678",
+      "source_location": "L675",
       "weight": 1.0
     },
     {
@@ -6500,7 +6547,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/app.js",
-      "source_location": "L614",
+      "source_location": "L611",
       "weight": 1.0
     },
     {
@@ -6512,7 +6559,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/app.js",
-      "source_location": "L618",
+      "source_location": "L615",
       "weight": 1.0
     },
     {
@@ -6524,7 +6571,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/app.js",
-      "source_location": "L628",
+      "source_location": "L625",
       "weight": 1.0
     },
     {
@@ -6536,7 +6583,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/app.js",
-      "source_location": "L584",
+      "source_location": "L581",
       "weight": 1.0
     },
     {
@@ -10148,7 +10195,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "features/notes.js",
-      "source_location": "L59",
+      "source_location": "L61",
       "weight": 1.0
     },
     {
@@ -10160,11 +10207,23 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "features/notes.js",
-      "source_location": "L92",
+      "source_location": "L94",
       "weight": 1.0
     },
     {
-      "source": "features_notes_startedit",
+      "source": "features_notes_savenotecompose",
+      "target": "features_notes_closenotecomposemodal",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "features/notes.js",
+      "source_location": "L263",
+      "weight": 1.0
+    },
+    {
+      "source": "features_notes_savenotecompose",
       "target": "features_notes_rendernotes",
       "relation": "calls",
       "_origin": "ast",
@@ -10172,7 +10231,19 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "features/notes.js",
-      "source_location": "L174",
+      "source_location": "L264",
+      "weight": 1.0
+    },
+    {
+      "source": "features_notes_startedit",
+      "target": "features_notes_opennotecomposemodal",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "features/notes.js",
+      "source_location": "L153",
       "weight": 1.0
     },
     {
@@ -14708,7 +14779,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/app.js",
-      "source_location": "L527",
+      "source_location": "L524",
       "weight": 1.0
     },
     {
@@ -14732,7 +14803,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/app.js",
-      "source_location": "L649",
+      "source_location": "L646",
       "weight": 1.0
     },
     {
@@ -14744,7 +14815,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/app.js",
-      "source_location": "L738",
+      "source_location": "L735",
       "weight": 1.0
     },
     {
@@ -14780,7 +14851,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/app.js",
-      "source_location": "L290",
+      "source_location": "L287",
       "weight": 1.0
     },
     {
@@ -14792,7 +14863,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/app.js",
-      "source_location": "L300",
+      "source_location": "L297",
       "weight": 1.0
     },
     {
@@ -14804,7 +14875,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/app.js",
-      "source_location": "L663",
+      "source_location": "L660",
       "weight": 1.0
     },
     {
@@ -14816,7 +14887,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/app.js",
-      "source_location": "L676",
+      "source_location": "L673",
       "weight": 1.0
     },
     {
@@ -14828,7 +14899,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/app.js",
-      "source_location": "L744",
+      "source_location": "L741",
       "weight": 1.0
     },
     {
@@ -14840,7 +14911,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/app.js",
-      "source_location": "L753",
+      "source_location": "L750",
       "weight": 1.0
     },
     {
@@ -14912,7 +14983,31 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "features/notes.js",
-      "source_location": "L150",
+      "source_location": "L152",
+      "weight": 1.0
+    },
+    {
+      "source": "features_notes",
+      "target": "features_notes_opennotecomposemodal",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "features/notes.js",
+      "source_location": "L157",
+      "weight": 1.0
+    },
+    {
+      "source": "features_notes",
+      "target": "features_notes_savenotecompose",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "features/notes.js",
+      "source_location": "L226",
       "weight": 1.0
     },
     {
@@ -14924,7 +15019,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "features/notes.js",
-      "source_location": "L56",
+      "source_location": "L58",
       "weight": 1.0
     },
     {
@@ -15675,7 +15770,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/app.js",
-      "source_location": "L638",
+      "source_location": "L635",
       "weight": 1.0
     },
     {
@@ -15686,7 +15781,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/app.js",
-      "source_location": "L645",
+      "source_location": "L642",
       "weight": 1.0
     },
     {
@@ -15719,7 +15814,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/app.js",
-      "source_location": "L565",
+      "source_location": "L562",
       "weight": 1.0
     },
     {
@@ -17644,51 +17739,29 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "features/notes.js",
-      "source_location": "L12",
+      "source_location": "L14",
       "weight": 1.0
     },
     {
       "source": "features_notes",
-      "target": "features_notes_togglenotebtn",
+      "target": "features_notes_closenotecomposemodal",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "features/notes.js",
-      "source_location": "L180",
+      "source_location": "L213",
       "weight": 1.0
     },
     {
       "source": "features_notes",
-      "target": "features_notes_notewrap",
+      "target": "features_notes_notesfabbtn",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "features/notes.js",
-      "source_location": "L181",
-      "weight": 1.0
-    },
-    {
-      "source": "features_notes",
-      "target": "features_notes_addnotebtn",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "features/notes.js",
-      "source_location": "L195",
-      "weight": 1.0
-    },
-    {
-      "source": "features_notes",
-      "target": "features_notes_notesearchclearbtn",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "features/notes.js",
-      "source_location": "L218",
+      "source_location": "L269",
       "weight": 1.0
     },
     {
@@ -17699,7 +17772,51 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "features/notes.js",
-      "source_location": "L25",
+      "source_location": "L27",
+      "weight": 1.0
+    },
+    {
+      "source": "features_notes",
+      "target": "features_notes_savenotecomposebtn",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "features/notes.js",
+      "source_location": "L275",
+      "weight": 1.0
+    },
+    {
+      "source": "features_notes",
+      "target": "features_notes_notemodaltitle",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "features/notes.js",
+      "source_location": "L281",
+      "weight": 1.0
+    },
+    {
+      "source": "features_notes",
+      "target": "features_notes_notecomposemodal",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "features/notes.js",
+      "source_location": "L290",
+      "weight": 1.0
+    },
+    {
+      "source": "features_notes",
+      "target": "features_notes_notesearchclearbtn",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "features/notes.js",
+      "source_location": "L301",
       "weight": 1.0
     },
     {
@@ -20408,7 +20525,7 @@
       "confidence_score": 0.85,
       "context": "argument",
       "source_file": "app/app.js",
-      "source_location": "L445",
+      "source_location": "L442",
       "weight": 1.0
     },
     {
@@ -20420,7 +20537,7 @@
       "confidence_score": 0.85,
       "context": "argument",
       "source_file": "app/app.js",
-      "source_location": "L596",
+      "source_location": "L593",
       "weight": 1.0
     },
     {
@@ -20432,7 +20549,7 @@
       "confidence_score": 0.85,
       "context": "argument",
       "source_file": "app/app.js",
-      "source_location": "L597",
+      "source_location": "L594",
       "weight": 1.0
     },
     {
@@ -20809,5 +20926,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "da70edfddcf289ebd70b09067923a38e588091b8"
+  "built_at_commit": "d86f60d073ff12e5cfdfa154a03cd056d31f4bab"
 }

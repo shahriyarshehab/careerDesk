@@ -235,9 +235,8 @@
         </div>
         <div class="btn-group">
           <button class="pill subtle" id="toggleJournalBtn" type="button" title="Daily Reflection Journal">
-            <i data-lucide="book-open"></i> <span>Journal</span>
+            <i data-lucide="book-open"></i> <span>Daily Journal</span>
           </button>
-          <button class="pill solid toggle-form-btn" id="toggleNoteFormBtn"><i data-lucide="plus"></i> New Note</button>
         </div>
       </div>
 
@@ -266,27 +265,6 @@
         </div>
       </div>
 
-      <div class="collapsible-form" id="noteFormWrap" style="display:none;">
-        <div class="entry-form">
-          <input type="text" id="noteTitle" class="fancy-input-title" maxlength="100" placeholder="Note title (max 100 characters)...">
-          <div class="note-meta-row">
-            <span class="note-meta-label">Category:</span>
-            <select id="noteTag">
-              <option value="General">General</option>
-              <option value="English">English</option>
-              <option value="Math">Mathematics</option>
-              <option value="Bangla">Bengali</option>
-              <option value="General Knowledge">General Knowledge</option>
-              <option value="Important">Important</option>
-            </select>
-          </div>
-          <textarea id="noteBody" class="fancy-textarea"
-            placeholder="Write detailed note, formula, or key summary here..."></textarea>
-          <div class="quote-actions" style="justify-content:flex-end; margin-top:14px;">
-            <button class="pill solid" id="addNoteBtn"><i data-lucide="save"></i> Save Note</button>
-          </div>
-        </div>
-      </div>
       <div class="note-toolbar">
         <div class="search-input-wrapper">
           <i data-lucide="search" class="search-input-icon"></i>
@@ -306,6 +284,12 @@
         </select>
       </div>
       <div class="notes-grid" id="notesGrid"></div>
+
+      <!-- Floating Action Button (FAB) for Note Creation -->
+      <button type="button" class="notes-fab" id="notesFabBtn" title="Create New Note (+)" aria-label="Create New Note">
+        <i data-lucide="plus"></i>
+        <span class="notes-fab-label">New Note</span>
+      </button>
     </section>
 
     <!-- ===== TRACKER & FOCUS COMBINED ===== -->
@@ -1838,6 +1822,70 @@
       <div class="btn-group" style="justify-content:flex-end;">
         <button class="pill" id="cancelEditExamBtn" type="button">Cancel</button>
         <button class="pill solid" id="saveEditExamBtn" type="button"><i data-lucide="check"></i> <span>Save Changes</span></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== NOTE COMPOSE MODAL ===== -->
+  <div class="modal-overlay" id="noteComposeModal" style="display:none;" role="dialog" aria-modal="true" aria-labelledby="noteModalTitleLabel">
+    <div class="modal-card note-compose-card glass">
+      <div class="note-modal-header">
+        <div class="note-modal-header-info">
+          <div class="note-modal-icon-badge">
+            <i data-lucide="notebook-pen"></i>
+          </div>
+          <div>
+            <h3 class="modal-title" id="noteModalTitleLabel">Create Note</h3>
+            <p class="note-modal-subtitle">Capture thoughts, formulas, or study summaries</p>
+          </div>
+        </div>
+        <button type="button" class="micro-btn subtle" data-close="noteComposeModal" title="Close" aria-label="Close note composer">
+          <i data-lucide="x"></i>
+        </button>
+      </div>
+
+      <div class="note-modal-body">
+        <div class="note-modal-field">
+          <div class="note-modal-label-row">
+            <label for="noteModalTitle">Title</label>
+            <span id="noteModalTitleCount">0 / 100</span>
+          </div>
+          <input type="text" id="noteModalTitle" class="fancy-input-title" maxlength="100" placeholder="Note title (e.g. BCS Math Shortcuts, English Idioms)..." autocomplete="off">
+        </div>
+
+        <div class="note-modal-field">
+          <div class="note-modal-label-row">
+            <label for="noteModalTag">Category Tag</label>
+          </div>
+          <select id="noteModalTag" class="pill note-tag-select">
+            <option value="General">General</option>
+            <option value="English">English</option>
+            <option value="Math">Mathematics</option>
+            <option value="Bangla">Bengali</option>
+            <option value="General Knowledge">General Knowledge</option>
+            <option value="Important">Important</option>
+          </select>
+        </div>
+
+        <div class="note-modal-field">
+          <div class="note-modal-label-row">
+            <label for="noteModalBody">Note Content</label>
+            <span class="note-modal-hint-label">Supports plain text & formulas</span>
+          </div>
+          <textarea id="noteModalBody" class="fancy-textarea note-modal-textarea" rows="7" placeholder="Write your key points, formulas, or summary notes here..."></textarea>
+        </div>
+
+        <div class="note-modal-shortcut-tip">
+          <i data-lucide="sparkles"></i>
+          <span>Tip: Press <strong>Ctrl + Enter</strong> to save quickly.</span>
+        </div>
+      </div>
+
+      <div class="note-modal-footer">
+        <button type="button" class="pill subtle" data-close="noteComposeModal">Cancel</button>
+        <button type="button" class="pill solid" id="saveNoteComposeBtn">
+          <i data-lucide="check"></i> <span>Save Note</span>
+        </button>
       </div>
     </div>
   </div>

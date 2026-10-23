@@ -9,6 +9,8 @@ const noteFilterTag = document.getElementById('noteFilterTag');
 const NOTE_COLLAPSE_CHAR_LIMIT = 500;
 const NOTE_TITLE_MAX_LENGTH = 100;
 
+let currentEditingNoteId = null;
+
 function filteredNotes() {
   const searchEl = document.getElementById('noteSearch') || noteSearch;
   const filterEl = document.getElementById('noteFilterTag') || noteFilterTag;
@@ -59,7 +61,7 @@ function renderNotes() {
   const list = filteredNotes();
   grid.innerHTML = '';
   if (!list.length) {
-    grid.innerHTML = '<div class="empty-state">No notes found. Create a new note using the button above.</div>';
+    grid.innerHTML = '<div class="empty-state">No notes found. Tap the <strong style="color:var(--accent1); font-size:16px;">+</strong> button at the bottom-right to create a note.</div>';
     return;
   }
   list.forEach(n => {
@@ -109,7 +111,7 @@ function renderNotes() {
   }
 }
 
-notesGrid.addEventListener('click', (e) => {
+notesGrid?.addEventListener('click', (e) => {
   const btn = e.target.closest('button');
   if (!btn) return;
   const id = btn.dataset.id;
@@ -148,73 +150,154 @@ notesGrid.addEventListener('click', (e) => {
 });
 
 function startEdit(id) {
-  const n = state.notes.find(n => String(n.id) === id);
-  if (!n) return;
-  const card = [...notesGrid.children].find(c => c.querySelector(`[data-id="${id}"]`));
-  if (!card) return;
-  card.innerHTML = `
-    <div class="note-edit-area">
-      <input type="text" maxlength="${NOTE_TITLE_MAX_LENGTH}" value="${escapeAttr(n.title || '')}" id="edit-title-${id}">
-      <textarea rows="4" id="edit-body-${id}">${escapeHtml(n.body || '')}</textarea>
-      <div class="quote-actions" style="justify-content:flex-start;">
-        <button class="pill solid" data-save="${id}">Save</button>
-        <button class="pill" data-cancel="${id}">Cancel</button>
-      </div>
-    </div>
-  `;
-  const titleInput = document.getElementById(`edit-title-${id}`);
-  titleInput?.addEventListener('input', () => {
-    if (titleInput.value.length > NOTE_TITLE_MAX_LENGTH) {
-      titleInput.value = titleInput.value.slice(0, NOTE_TITLE_MAX_LENGTH);
-    }
-  });
-  card.querySelector(`[data-save="${id}"]`).addEventListener('click', () => {
-    n.title = document.getElementById(`edit-title-${id}`).value.trim().slice(0, NOTE_TITLE_MAX_LENGTH);
-    n.body = document.getElementById(`edit-body-${id}`).value.trim();
-    renderNotes(); saveData();
-  });
-  card.querySelector(`[data-cancel="${id}"]`).addEventListener('click', renderNotes);
+  openNoteComposeModal(id);
 }
 
-// ===== Notes Form Toggle =====
-const toggleNoteBtn = document.getElementById('toggleNoteFormBtn');
-const noteWrap = document.getElementById('noteFormWrap');
-if (toggleNoteBtn && noteWrap) {
-  toggleNoteBtn.addEventListener('click', () => {
-    const isOpen = noteWrap.style.display !== 'none';
-    noteWrap.style.display = isOpen ? 'none' : 'block';
-    toggleNoteBtn.innerHTML = isOpen ? `${ICON.plus} <span>New Note</span>` : `${ICON.x} <span>Close Form</span>`;
-    toggleNoteBtn.classList.toggle('active-open', !isOpen);
-    if (!isOpen) {
-      const input = document.getElementById('noteTitle');
-      if (input) input.focus();
-    }
-  });
-}
+// ===== Note Compose Modal & FAB Operations =====
+function openNoteComposeModal(editId = null) {
+  currentEditingNoteId = editId ? String(editId) : null;
+  const modalTitleLabel = document.getElementById('noteModalTitleLabel');
+  const titleEl = document.getElementById('noteModalTitle');
+  const tagEl = document.getElementById('noteModalTag');
+  const bodyEl = document.getElementById('noteModalBody');
+  const countEl = document.getElementById('noteModalTitleCount');
 
-const addNoteBtn = document.getElementById('addNoteBtn');
-if (addNoteBtn) {
-  addNoteBtn.addEventListener('click', () => {
-    const titleEl = document.getElementById('noteTitle');
-    const bodyEl = document.getElementById('noteBody');
-    const tagEl = document.getElementById('noteTag');
-    const title = titleEl ? titleEl.value.trim() : '';
-    const body = bodyEl ? bodyEl.value.trim() : '';
-    if (!title && !body) return;
-    state.notes.push({ id: Date.now(), title: title.slice(0, NOTE_TITLE_MAX_LENGTH), body, tag: tagEl ? tagEl.value : 'General', pinned: false, ts: Date.now() });
+  // Populate or sync tags with masterSubjectList or default tags
+  if (tagEl) {
+    const defaultTags = ['General', 'English', 'Math', 'Bangla', 'General Knowledge', 'Important'];
+    let merged = defaultTags;
+    if (typeof masterSubjectList === 'function') {
+      const subs = masterSubjectList();
+      merged = Array.from(new Set([...defaultTags, ...subs]));
+    }
+    const currentVal = tagEl.value;
+    tagEl.innerHTML = merged.map(t => `<option value="${escapeAttr(t)}">${escapeHtml(t)}</option>`).join('');
+    if (currentVal && merged.includes(currentVal)) {
+      tagEl.value = currentVal;
+    }
+  }
+
+  if (currentEditingNoteId) {
+    const note = (state.notes || []).find(n => String(n.id) === currentEditingNoteId);
+    if (modalTitleLabel) modalTitleLabel.textContent = 'Edit Note';
+    if (titleEl) titleEl.value = note ? (note.title || '') : '';
+    if (tagEl && note) tagEl.value = note.tag || 'General';
+    if (bodyEl) bodyEl.value = note ? (note.body || '') : '';
+  } else {
+    if (modalTitleLabel) modalTitleLabel.textContent = 'Create Note';
     if (titleEl) titleEl.value = '';
+    const currentFilter = document.getElementById('noteFilterTag')?.value;
+    if (tagEl) tagEl.value = (currentFilter && currentFilter !== 'all') ? currentFilter : 'General';
     if (bodyEl) bodyEl.value = '';
-    renderNotes(); saveData();
+  }
 
-    if (noteWrap && toggleNoteBtn) {
-      noteWrap.style.display = 'none';
-      toggleNoteBtn.innerHTML = `${ICON.plus} <span>New Note</span>`;
-      toggleNoteBtn.classList.remove('active-open');
+  if (countEl && titleEl) {
+    countEl.textContent = `${titleEl.value.length} / ${NOTE_TITLE_MAX_LENGTH}`;
+  }
+
+  if (typeof openModal === 'function') {
+    openModal('noteComposeModal');
+  } else {
+    const modalEl = document.getElementById('noteComposeModal');
+    if (modalEl) {
+      modalEl.style.display = 'flex';
+      modalEl.classList.add('open');
     }
-    showToast('Note saved successfully!');
+  }
+
+  setTimeout(() => {
+    if (titleEl) titleEl.focus();
+  }, 100);
+}
+
+function closeNoteComposeModal() {
+  currentEditingNoteId = null;
+  if (typeof closeModal === 'function') {
+    closeModal('noteComposeModal');
+  } else {
+    const modalEl = document.getElementById('noteComposeModal');
+    if (modalEl) {
+      modalEl.classList.remove('open');
+      modalEl.style.display = 'none';
+    }
+  }
+}
+
+function saveNoteCompose() {
+  const titleEl = document.getElementById('noteModalTitle');
+  const tagEl = document.getElementById('noteModalTag');
+  const bodyEl = document.getElementById('noteModalBody');
+
+  const title = titleEl ? titleEl.value.trim().slice(0, NOTE_TITLE_MAX_LENGTH) : '';
+  const body = bodyEl ? bodyEl.value.trim() : '';
+  const tag = tagEl ? tagEl.value : 'General';
+
+  if (!title && !body) {
+    if (typeof showToast === 'function') showToast('Please enter a note title or content');
+    return;
+  }
+
+  if (!Array.isArray(state.notes)) state.notes = [];
+
+  if (currentEditingNoteId) {
+    const existing = state.notes.find(n => String(n.id) === currentEditingNoteId);
+    if (existing) {
+      existing.title = title || 'Untitled';
+      existing.body = body;
+      existing.tag = tag;
+      existing.ts = Date.now();
+    }
+    if (typeof showToast === 'function') showToast('Note updated successfully!');
+  } else {
+    state.notes.push({
+      id: Date.now(),
+      title: title || 'Untitled',
+      body,
+      tag,
+      pinned: false,
+      ts: Date.now()
+    });
+    if (typeof showToast === 'function') showToast('Note saved successfully!');
+  }
+
+  closeNoteComposeModal();
+  renderNotes();
+  saveData();
+}
+
+// FAB Button to Open Composer
+const notesFabBtn = document.getElementById('notesFabBtn');
+if (notesFabBtn) {
+  notesFabBtn.addEventListener('click', () => openNoteComposeModal());
+}
+
+// Modal Save Button
+const saveNoteComposeBtn = document.getElementById('saveNoteComposeBtn');
+if (saveNoteComposeBtn) {
+  saveNoteComposeBtn.addEventListener('click', saveNoteCompose);
+}
+
+// Character counter for note modal title
+const noteModalTitle = document.getElementById('noteModalTitle');
+if (noteModalTitle) {
+  noteModalTitle.addEventListener('input', () => {
+    const countEl = document.getElementById('noteModalTitleCount');
+    if (countEl) countEl.textContent = `${noteModalTitle.value.length} / ${NOTE_TITLE_MAX_LENGTH}`;
   });
 }
 
+// Ctrl + Enter shortcut inside note composer modal
+const noteComposeModal = document.getElementById('noteComposeModal');
+if (noteComposeModal) {
+  noteComposeModal.addEventListener('keydown', (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+      e.preventDefault();
+      saveNoteCompose();
+    }
+  });
+}
+
+// Search and Filter Listeners
 const noteSearchClearBtn = document.getElementById('noteSearchClearBtn');
 if (noteSearch) {
   noteSearch.addEventListener('input', () => {
