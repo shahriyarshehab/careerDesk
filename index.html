@@ -52,8 +52,6 @@
     <nav class="tabs nav-menu" role="tablist" aria-label="Primary Navigation">
       <button class="tab-btn nav-link active" data-tab="home" role="tab" aria-selected="true" title="Home &amp; Daily Study Routine"
         aria-label="Home"><i data-lucide="home"></i><span>Home</span></button>
-      <button class="tab-btn nav-link" data-tab="notes" role="tab" aria-selected="false" title="Smart Notes"
-        aria-label="Smart Notes"><i data-lucide="notebook-pen"></i><span>Notes</span></button>
       <button class="tab-btn nav-link" data-tab="tracker" role="tab" aria-selected="false" title="Tracker &amp; Focus"
         aria-label="Tracker"><i data-lucide="timer"></i><span>Tracker</span></button>
       <button class="tab-btn nav-link" data-tab="quiz" role="tab" aria-selected="false" title="BCS &amp; Govt MCQ Practice"
@@ -202,49 +200,6 @@
           <span id="routineSaveNote" style="display:none;"></span>
         </section>
       </div>
-    </section>
-
-    <!-- ===== NOTES ===== -->
-    <section class="panel" id="panel-notes">
-      <div class="notes-v2-hero">
-        <div>
-          <span class="notes-v2-eyebrow"><i data-lucide="sparkles"></i> Your second brain</span>
-          <h2 class="section-title notes-v2-title">Smart Notes</h2>
-          <p class="notes-v2-subtitle">Capture the ideas, formulas, and reflections worth remembering.</p>
-        </div>
-        <div class="notes-v2-hero-icon"><i data-lucide="notebook-pen"></i></div>
-      </div>
-      <div class="notes-v2-toolbar">
-        <div class="notes-v2-toolbar-copy">
-          <span class="notes-v2-kicker">Knowledge library</span>
-          <strong>Keep your best thinking close</strong>
-        </div>
-      </div>
-      <div class="note-toolbar">
-        <div class="search-input-wrapper">
-          <i data-lucide="search" class="search-input-icon"></i>
-          <input type="search" id="noteSearch" placeholder="Search notes by keyword, topic, or tag..." autocomplete="off">
-          <button type="button" class="search-clear-btn" id="noteSearchClearBtn" title="Clear search" aria-label="Clear search" style="display:none;">
-            <i data-lucide="x"></i>
-          </button>
-        </div>
-        <select id="noteFilterTag" class="pill" aria-label="Filter notes by tag">
-          <option value="all">All Tags</option>
-          <option value="General">General</option>
-          <option value="English">English</option>
-          <option value="Math">Mathematics</option>
-          <option value="Bangla">Bengali</option>
-          <option value="General Knowledge">General Knowledge</option>
-          <option value="Important">Important</option>
-        </select>
-      </div>
-      <div class="notes-grid" id="notesGrid"></div>
-
-      <!-- Floating Action Button (FAB) for Note Creation -->
-      <button type="button" class="notes-fab" id="notesFabBtn" title="Create New Note (+)" aria-label="Create New Note">
-        <i data-lucide="plus"></i>
-        <span class="notes-fab-label">New Note</span>
-      </button>
     </section>
 
     <!-- ===== TRACKER & FOCUS COMBINED ===== -->
@@ -991,7 +946,7 @@
                     </span>
                   </div>
                   <span style="font-size:12.5px; color:var(--text-soft);" id="cloudSyncStatusDesc">
-                    Your routines, notes, syllabus progress, and mistake bank automatically sync with your personal Firestore account with offline resilience.
+                    Your routines, syllabus progress, and mistake bank automatically sync with your personal Firestore account with offline resilience.
                   </span>
                 </div>
                 <div class="settings-btn-group data-action-buttons">
@@ -1010,7 +965,7 @@
                   <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px; flex-wrap:wrap; gap:8px;">
                     <div>
                       <strong style="font-size:14.5px; display:block; color:var(--text); margin-bottom:2px;">Point-in-Time Cloud Snapshots</strong>
-                      <span style="font-size:12.5px; color:var(--text-soft);">Restore routines, notes, or syllabus from any previous automated snapshot.</span>
+                      <span style="font-size:12.5px; color:var(--text-soft);">Restore routines or syllabus from any previous automated snapshot.</span>
                     </div>
                     <button class="pill subtle" id="btnToggleSnapshotsList" type="button" style="font-size:12px; padding:4px 10px;">
                       <i data-lucide="history"></i> <span id="snapshotToggleText">View Snapshots (0)</span>
@@ -1045,7 +1000,7 @@
               <div class="settings-row" style="margin-top:14px; padding-top:14px; border-top:none; border-bottom:none; padding-bottom:0;">
                 <div>
                   <strong style="font-size:14.5px; display:block; color:#f43f5e; margin-bottom:2px;">Delete User Cloud Data</strong>
-                  <span style="font-size:12.5px; color:var(--text-soft);">Permanently remove synced routines, notes, syllabus, and snapshots from Firestore cloud or purge local cached workspaces for a specific user.</span>
+                  <span style="font-size:12.5px; color:var(--text-soft);">Permanently remove synced routines, syllabus, and snapshots from Firestore cloud or purge local cached workspaces for a specific user.</span>
                 </div>
                 <button class="pill danger" id="btnDeleteCloudData" type="button" style="white-space:nowrap; background:rgba(244,63,94,0.12); color:#f43f5e; border-color:rgba(244,63,94,0.3);">
                   <i data-lucide="cloud-off"></i> <span>Delete Cloud Data</span>
@@ -1162,7 +1117,7 @@
                     <i data-lucide="upload"></i> <span>Restore Local JSON</span>
                   </label>
                   <input type="file" id="importDataInput" accept=".json" style="display:none;" />
-                  <button class="pill danger" id="resetAllBtn" type="button" title="Reset all local routines, notes, and study logs" style="background:rgba(244,63,94,0.1); color:#f43f5e; border-color:rgba(244,63,94,0.25);">
+                  <button class="pill danger" id="resetAllBtn" type="button" title="Reset all local routines and study logs" style="background:rgba(244,63,94,0.1); color:#f43f5e; border-color:rgba(244,63,94,0.25);">
                     <i data-lucide="trash-2"></i> <span>Reset Local Data</span>
                   </button>
                 </div>
@@ -1607,7 +1562,7 @@
         <span class="auth-visual-kicker">CAREERDESK / YOUR NEXT MOVE</span>
         <div class="auth-visual-orbit"><i data-lucide="sparkles"></i></div>
         <h3>Turn preparation<br><em>into progress.</em></h3>
-        <p>One calm workspace for your routines, notes, quizzes, goals, and study community.</p>
+        <p>One calm workspace for your routines, quizzes, goals, and study community.</p>
         <div class="auth-visual-points">
           <span><i data-lucide="check"></i> Private by default</span>
           <span><i data-lucide="check"></i> Built for focused learners</span>
@@ -1781,76 +1736,12 @@
     </div>
   </div>
 
-  <!-- ===== NOTE COMPOSE MODAL ===== -->
-  <div class="modal-overlay" id="noteComposeModal" style="display:none;" role="dialog" aria-modal="true" aria-labelledby="noteModalTitleLabel">
-    <div class="modal-card note-compose-card glass">
-      <div class="note-modal-header">
-        <div class="note-modal-header-info">
-          <div class="note-modal-icon-badge">
-            <i data-lucide="notebook-pen"></i>
-          </div>
-          <div>
-            <h3 class="modal-title" id="noteModalTitleLabel">Create Note</h3>
-            <p class="note-modal-subtitle">Capture thoughts, formulas, or study summaries</p>
-          </div>
-        </div>
-        <button type="button" class="micro-btn subtle" data-close="noteComposeModal" title="Close" aria-label="Close note composer">
-          <i data-lucide="x"></i>
-        </button>
-      </div>
-
-      <div class="note-modal-body">
-        <div class="note-modal-field">
-          <div class="note-modal-label-row">
-            <label for="noteModalTitle">Title</label>
-            <span id="noteModalTitleCount">0 / 100</span>
-          </div>
-          <input type="text" id="noteModalTitle" class="fancy-input-title" maxlength="100" placeholder="Note title (e.g. BCS Math Shortcuts, English Idioms)..." autocomplete="off">
-        </div>
-
-        <div class="note-modal-field">
-          <div class="note-modal-label-row">
-            <label for="noteModalTag">Category Tag</label>
-          </div>
-          <select id="noteModalTag" class="pill note-tag-select">
-            <option value="General">General</option>
-            <option value="English">English</option>
-            <option value="Math">Mathematics</option>
-            <option value="Bangla">Bengali</option>
-            <option value="General Knowledge">General Knowledge</option>
-            <option value="Important">Important</option>
-          </select>
-        </div>
-
-        <div class="note-modal-field">
-          <div class="note-modal-label-row">
-            <label for="noteModalBody">Note Content</label>
-            <span class="note-modal-hint-label">Supports plain text & formulas</span>
-          </div>
-          <textarea id="noteModalBody" class="fancy-textarea note-modal-textarea" rows="7" placeholder="Write your key points, formulas, or summary notes here..."></textarea>
-        </div>
-
-        <div class="note-modal-shortcut-tip">
-          <i data-lucide="sparkles"></i>
-          <span>Tip: Press <strong>Ctrl + Enter</strong> to save quickly.</span>
-        </div>
-      </div>
-
-      <div class="note-modal-footer">
-        <button type="button" class="pill subtle" data-close="noteComposeModal">Cancel</button>
-        <button type="button" class="pill solid" id="saveNoteComposeBtn">
-          <i data-lucide="check"></i> <span>Save Note</span>
-        </button>
-      </div>
-    </div>
-  </div>
-
   <!-- Command Palette Modal (Ctrl + K) -->
   <div class="modal-overlay" id="commandPaletteModal" style="display:none;">
     <div class="command-palette-card glass">
       <div class="palette-header">
         <i data-lucide="search" class="palette-search-icon"></i>
-        <input type="text" id="paletteSearchInput" placeholder="Type a command or search notes, syllabus, tabs... (Ctrl+K)" autocomplete="off">
+        <input type="text" id="paletteSearchInput" placeholder="Type a command or search syllabus, tabs... (Ctrl+K)" autocomplete="off">
         <kbd class="palette-esc-badge" id="closePaletteBtn">ESC</kbd>
       </div>
       <div class="palette-body" id="paletteResults"></div>
