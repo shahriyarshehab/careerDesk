@@ -362,3 +362,78 @@ html[data-theme="light"] .nav-search-kbd {
   }
 }
 
+
+
+/* Header alignment fix: normalize search/profile controls and keep page panels clear */
+header.main-header,
+header.masthead {
+  min-height: 68px !important;
+  height: 68px !important;
+  margin-bottom: 22px !important;
+  align-items: center !important;
+  overflow: visible !important;
+}
+
+header.main-header .header-actions,
+header.masthead .header-actions {
+  min-height: 36px !important;
+  height: 36px !important;
+  align-items: center !important;
+}
+
+header.main-header .nav-search-btn,
+header.masthead .nav-search-btn,
+header.main-header .nav-user-pill,
+header.masthead .nav-user-pill {
+  box-sizing: border-box !important;
+  height: 36px !important;
+  min-height: 36px !important;
+  max-height: 36px !important;
+  align-self: center !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  line-height: 1 !important;
+}
+
+header.main-header .nav-user-avatar,
+header.masthead .nav-user-avatar {
+  width: 26px !important;
+  height: 26px !important;
+  flex: 0 0 26px !important;
+}
+
+header.main-header .icon-action-btn,
+header.masthead .icon-action-btn {
+  box-sizing: border-box !important;
+  width: 34px !important;
+  height: 34px !important;
+  min-height: 34px !important;
+  align-self: center !important;
+}
+
+header.main-header nav.tabs,
+header.main-header .nav-menu,
+header.masthead nav.tabs,
+header.masthead .nav-menu {
+  min-height: 38px !important;
+  align-items: center !important;
+}
+
+@media (max-width: 760px) {
+  header.main-header,
+  header.masthead {
+    height: auto !important;
+    min-height: 60px !important;
+    margin-bottom: 16px !important;
+    padding: 8px 10px !important;
+    flex-wrap: wrap !important;
+    row-gap: 8px !important;
+  }
+
+  header.main-header .header-actions,
+  header.masthead .header-actions {
+    height: 36px !important;
+    min-height: 36px !important;
+  }
+}
