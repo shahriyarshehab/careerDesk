@@ -13,6 +13,7 @@
     'assets/js/lucide.min.js',
     'assets/js/core/core.js',
     'assets/js/features/routine.js',
+    'assets/js/features/study-chain.js',
     'assets/js/features/quotes.js',
     'assets/js/features/notes.js',
     'assets/js/features/tracker.js',
