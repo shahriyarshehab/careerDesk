@@ -4172,7 +4172,7 @@ async function renderCloudSnapshotsList() {
   let html = '';
   snapshots.forEach(snap => {
     const dateFormatted = snap.isoDate ? new Date(snap.isoDate).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' }) : 'Unknown date';
-    const s = snap.stats || { notes: 0, routine: 0, topicsDone: 0, masteredMCQs: 0 };
+    const s = snap.stats || { routine: 0, topicsDone: 0, masteredMCQs: 0 };
 
     html += `
       <div class="glass" style="padding:10px 14px; border-radius:10px; border:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px;">
