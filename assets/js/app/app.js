@@ -537,10 +537,10 @@ function initKeyboardShortcutsPanel() {
       shortcuts: [
         { keys: ['Alt', '1'], desc: 'Go to Home & Daily Routine' },
         { keys: ['Alt', '2'], desc: 'Go to Smart Notes' },
-        { keys: ['Alt', '3'], desc: 'Go to Tracker & Focus' },
-        { keys: ['Alt', '4'], desc: 'Go to Quiz & Flashcards' },
-        { keys: ['Alt', '5'], desc: 'Go to Exam Targets' },
-        { keys: ['Alt', '6'], desc: 'Go to Syllabus' },
+        { keys: ['Alt', '3'], desc: 'Go to BCS & Govt MCQ Quiz' },
+        { keys: ['Alt', '4'], desc: 'Go to Exam Targets' },
+        { keys: ['Alt', '5'], desc: 'Go to Syllabus' },
+        { keys: ['Alt', '6'], desc: 'Go to Peer Group Chat' },
         { keys: ['Alt', '7'], desc: 'Go to Profile & Settings' },
       ]
     },
@@ -624,7 +624,7 @@ function initKeyboardShortcutsPanel() {
     }
     // Alt + Number = navigate tabs
     if (e.altKey && !e.ctrlKey && !e.metaKey) {
-      const tabMap = { '1': 'home', '2': 'notes', '3': 'tracker', '4': 'flashcards', '5': 'countdown', '6': 'syllabus', '7': 'profile' };
+      const tabMap = { '1': 'home', '2': 'notes', '3': 'quiz', '4': 'countdown', '5': 'syllabus', '6': 'groupchat', '7': 'profile', '8': 'tracker' };
       if (tabMap[e.key]) { e.preventDefault(); activateTab(tabMap[e.key], true); }
     }
   });
