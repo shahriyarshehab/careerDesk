@@ -54,7 +54,8 @@
     const now = new Date();
     const nowMinutes = now.getHours() * 60 + now.getMinutes() + now.getSeconds() / 60;
     const today = localDateKey(now);
-    const rows = (Array.isArray(window.state?.routine) ? window.state.routine : [])
+    const routineRows = typeof state !== 'undefined' && Array.isArray(state.routine) ? state.routine : [];
+    const rows = routineRows
       .filter(row => row && row.date === today && String(row.subject || '').trim())
       .map(row => ({
         ...row,
