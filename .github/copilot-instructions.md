@@ -9,7 +9,7 @@ Key entry points:
 - `assets/js/app/master.js` loads the feature modules in dependency order, so most app work is coordinated through shared globals and initialization.
 - `assets/js/core/core.js` owns the shared app state, storage adapter, default state, and the unified subject system (`masterSubjectList`, `canonicalSubjectName`, `renameSubject`, `syncAllSubjectSelects`).
 - `assets/js/app/app.js` handles tab routing, modals, command palette, and app bootstrap.
-- `routine.js`, `tracker.js`, `syllabus.js`, `mcq.js`, `notes.js`, `profile.js`, and related modules all operate on the same `state` object instead of separate stores.
+- `routine.js`, `tracker.js`, `syllabus.js`, `mcq.js`, `profile.js`, and related modules all operate on the same `state` object instead of separate stores.
 
 Primary persistence lives in browser `localStorage` under `jobprep-dashboard-data-v2`; Firebase is optional and should never be treated as the source of truth for local app behavior.
 
