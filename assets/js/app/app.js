@@ -218,7 +218,6 @@ function initCommandPalette() {
   const staticCommands = [
     { id: 'tab-home', category: 'Navigation', icon: 'home', title: 'Go to Home & Routine', subtitle: 'Mission Control, stats & daily study schedule', action: () => activateTab('home', true) },
     { id: 'tab-routine', category: 'Navigation', icon: 'calendar-days', title: 'Jump to Study Routine', subtitle: 'View & edit daily study schedule on Home', action: () => activateTab('routine', true) },
-    { id: 'tab-notes', category: 'Navigation', icon: 'notebook-pen', title: 'Go to Smart Notes', subtitle: 'Study notes, formulas & tags', action: () => activateTab('notes', true) },
     { id: 'tab-tracker', category: 'Navigation', icon: 'timer', title: 'Go to Tracker & Focus', subtitle: 'Pomodoro timer & activity stats', action: () => activateTab('tracker', true) },
     { id: 'tab-quiz', category: 'Navigation', icon: 'brain', title: 'Go to BCS & Govt MCQ Quiz', subtitle: 'Practice randomized MCQs & model tests', action: () => activateTab('quiz', true) },
     { id: 'tab-countdown', category: 'Navigation', icon: 'calendar-clock', title: 'Go to Exam Targets', subtitle: 'Exam countdowns & milestones', action: () => activateTab('countdown', true) },
@@ -243,13 +242,7 @@ function initCommandPalette() {
         else if (window.isCustomCountdownActive && typeof stopCustomCountdown === 'function') stopCustomCountdown(false);
       }
     },
-    {
-      id: 'act-add-note', category: 'Actions', icon: 'plus', title: 'Add New Note', subtitle: 'Open note composer modal',
-      action: () => {
-        activateTab('notes', true);
-        if (typeof openNoteComposeModal === 'function') openNoteComposeModal();
-      }
-    },
+
     {
       id: 'act-add-routine', category: 'Actions', icon: 'calendar-plus', title: 'Add Study Block', subtitle: 'Insert new study session into today',
       action: () => {
@@ -303,33 +296,6 @@ function initCommandPalette() {
     } else {
       matched = staticCommands.filter(c => c.title.toLowerCase().includes(q) || c.subtitle.toLowerCase().includes(q));
 
-      if (Array.isArray(state.notes)) {
-        state.notes.forEach(note => {
-          const t = (note.title || '').toLowerCase();
-          const b = (note.body || '').toLowerCase();
-          const tag = (note.tag || '').toLowerCase();
-          if (t.includes(q) || b.includes(q) || tag.includes(q)) {
-            matched.push({
-              id: 'note-' + note.id,
-              category: 'Notes',
-              icon: 'notebook-pen',
-              title: note.title || 'Untitled Note',
-              subtitle: (note.tag ? `[${note.tag}] ` : '') + (note.body || '').slice(0, 45) + '...',
-              action: () => {
-                activateTab('notes', true);
-                setTimeout(() => {
-                  const el = document.querySelector(`[data-note-id="${note.id}"]`);
-                  if (el) {
-                    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    el.style.outline = '2px solid var(--accent1)';
-                    setTimeout(() => el.style.outline = '', 2000);
-                  }
-                }, 100);
-              }
-            });
-          }
-        });
-      }
 
       if (Array.isArray(state.syllabus)) {
         state.syllabus.forEach(cat => {
@@ -361,7 +327,7 @@ function initCommandPalette() {
     if (selectedIndex >= currentItems.length) selectedIndex = 0;
 
     if (!currentItems.length) {
-      results.innerHTML = '<div style="padding:24px; text-align:center; color:var(--text-muted); font-size:13px;">No matching commands or notes found.</div>';
+      results.innerHTML = '<div style="padding:24px; text-align:center; color:var(--text-muted); font-size:13px;">No matching commands or topics found.</div>';
       return;
     }
 
@@ -467,7 +433,6 @@ function initCommandPalette() {
   renderQuoteManager();
   syncQuoteSettings();
   startQuoteRotation();
-  renderNotes();
   renderTrackerAll();
   renderCategories();
   syncAllSubjectSelects();
@@ -531,12 +496,11 @@ function initKeyboardShortcutsPanel() {
       group: 'Navigation',
       shortcuts: [
         { keys: ['Alt', '1'], desc: 'Go to Home & Daily Routine' },
-        { keys: ['Alt', '2'], desc: 'Go to Smart Notes' },
-        { keys: ['Alt', '3'], desc: 'Go to Tracker & Focus' },
-        { keys: ['Alt', '4'], desc: 'Go to Quiz & Flashcards' },
-        { keys: ['Alt', '5'], desc: 'Go to Exam Targets' },
-        { keys: ['Alt', '6'], desc: 'Go to Syllabus' },
-        { keys: ['Alt', '7'], desc: 'Go to Profile & Settings' },
+        { keys: ['Alt', '2'], desc: 'Go to Tracker & Focus' },
+        { keys: ['Alt', '3'], desc: 'Go to Quiz & Flashcards' },
+        { keys: ['Alt', '4'], desc: 'Go to Exam Targets' },
+        { keys: ['Alt', '5'], desc: 'Go to Syllabus' },
+        { keys: ['Alt', '6'], desc: 'Go to Profile & Settings' },
       ]
     },
     {
@@ -619,7 +583,7 @@ function initKeyboardShortcutsPanel() {
     }
     // Alt + Number = navigate tabs
     if (e.altKey && !e.ctrlKey && !e.metaKey) {
-      const tabMap = { '1': 'home', '2': 'notes', '3': 'tracker', '4': 'flashcards', '5': 'countdown', '6': 'syllabus', '7': 'profile' };
+      const tabMap = { '1': 'home', '2': 'tracker', '3': 'quiz', '4': 'countdown', '5': 'syllabus', '6': 'profile' };
       if (tabMap[e.key]) { e.preventDefault(); activateTab(tabMap[e.key], true); }
     }
   });
