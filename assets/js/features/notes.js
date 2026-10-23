@@ -101,10 +101,10 @@ function renderNotes() {
           <span>${formatKeepDate(n.ts)}</span>
         </time>
         <div class="note-actions btn-group">
-          <button class="note-action-btn edit-btn" title="Edit note" aria-label="Edit note" data-id="${n.id}">
+          <button class="note-action-btn edit-btn" title="Edit note" aria-label="Edit note" data-id="${safeId}">
             ${ICON.edit} <span>Edit</span>
           </button>
-          <button class="note-action-btn del-btn" title="Delete note" aria-label="Delete note" data-id="${n.id}">
+          <button class="note-action-btn del-btn" title="Delete note" aria-label="Delete note" data-id="${safeId}">
             ${ICON.trash} <span>Delete</span>
           </button>
         </div>
