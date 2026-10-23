@@ -1,0 +1,206 @@
+/* CareerDesk — screenshot-aligned layout correction (layout only; no feature/content changes) */
+@media (min-width: 1000px) {
+  :root { --cd-sidebar-width: 242px; }
+  body { min-width: 320px; }
+  header.main-header.masthead {
+    position: static !important;
+    inset: auto !important;
+    width: auto !important;
+    max-width: none !important;
+    height: 0 !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    overflow: visible !important;
+    z-index: 500;
+    display: block !important;
+  }
+  header.main-header .brand-container {
+    position: fixed !important;
+    z-index: 502;
+    left: 24px !important;
+    top: 22px !important;
+    width: 194px;
+    min-height: 64px;
+    padding: 0 0 17px !important;
+    gap: 10px !important;
+    border-bottom: 1px solid rgba(148, 170, 215, .2);
+  }
+  header.main-header .brand-mark,
+  header.main-header .brand-badge { width: 42px !important; height: 42px !important; }
+  header.main-header .brand-title { font-size: 20px !important; letter-spacing: -.5px; }
+  header.main-header .brand-kicker,
+  header.main-header .brand-sub { display: block !important; }
+  header.main-header .nav-menu {
+    position: fixed !important;
+    z-index: 501;
+    left: 14px !important;
+    top: 128px !important;
+    width: 212px !important;
+    max-width: 212px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    justify-content: flex-start !important;
+    gap: 5px !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    background: transparent !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    overflow: visible !important;
+  }
+  header.main-header .nav-menu .tab-btn {
+    width: 100% !important;
+    min-height: 41px !important;
+    height: 41px !important;
+    padding: 0 12px !important;
+    display: flex !important;
+    justify-content: flex-start !important;
+    gap: 12px !important;
+    border-radius: 11px !important;
+    font-size: 13px !important;
+    transform: none !important;
+    box-shadow: none !important;
+    text-align: left !important;
+  }
+  header.main-header .nav-menu .tab-btn.active {
+    background: rgba(113, 152, 255, .12) !important;
+    color: #edf3ff !important;
+    border-color: transparent !important;
+    box-shadow: inset 3px 0 #7198ff !important;
+  }
+  header.main-header .header-actions {
+    position: fixed !important;
+    z-index: 503;
+    top: 15px !important;
+    right: 22px !important;
+    height: 41px !important;
+    max-width: calc(100vw - var(--cd-sidebar-width) - 48px);
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    gap: 10px !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    background: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+  }
+  header.main-header .nav-search-btn {
+    width: clamp(190px, 18.5vw, 250px) !important;
+    min-width: 160px;
+    height: 40px !important;
+    justify-content: flex-start !important;
+    gap: 10px !important;
+    padding: 0 13px !important;
+    border-radius: 12px !important;
+    background: #111827 !important;
+    border-color: rgba(148, 170, 215, .18) !important;
+    font-weight: 500 !important;
+  }
+  header.main-header .nav-search-btn .nav-search-text { display: inline !important; flex: 1; text-align: left; }
+  header.main-header .nav-search-btn .nav-search-kbd { display: inline-flex !important; }
+  header.main-header .icon-action-btn {
+    flex: 0 0 40px !important;
+    width: 40px !important;
+    height: 40px !important;
+    border-radius: 12px !important;
+  }
+  header.main-header .nav-user-pill {
+    min-width: 0 !important;
+    max-width: 185px;
+    padding: 0 5px !important;
+    gap: 8px !important;
+    border: 0 !important;
+    background: transparent !important;
+  }
+  header.main-header .nav-user-avatar { width: 40px !important; height: 40px !important; flex: 0 0 40px; font-size: 17px !important; }
+  header.main-header .nav-user-name { max-width: 100px; overflow: hidden; text-overflow: ellipsis; }
+  main {
+    margin-left: var(--cd-sidebar-width) !important;
+    width: calc(100% - var(--cd-sidebar-width)) !important;
+    min-width: 0 !important;
+    padding: 0 28px 32px 26px !important;
+  }
+  main > .panel { min-width: 0; }
+  #panel-home .db-shell {
+    width: 100% !important;
+    max-width: 1180px !important;
+    margin: 0 auto !important;
+    padding-top: 22px !important;
+  }
+  #panel-home .db-top-header {
+    display: flex !important;
+    align-items: flex-start !important;
+    justify-content: space-between !important;
+    gap: 24px !important;
+    margin: 0 0 24px !important;
+  }
+  #panel-home .db-header-left { min-width: 0; }
+  #panel-home .db-header-right { flex: 0 0 auto; }
+  #panel-home .db-feature-hero {
+    min-height: 205px;
+    margin-bottom: 28px !important;
+  }
+  #panel-home .db-kpi-grid {
+    display: grid !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    align-items: stretch !important;
+    gap: 18px !important;
+  }
+  #panel-home .db-kpi-card { min-width: 0 !important; }
+}
+@media (max-width: 999px) {
+  header.main-header.masthead {
+    position: sticky !important;
+    top: 8px !important;
+    width: calc(100% - 20px) !important;
+    height: auto !important;
+    min-height: 58px !important;
+    margin: 8px auto 16px !important;
+    padding: 8px 10px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 8px !important;
+    border-radius: 16px !important;
+    background: rgba(13, 20, 36, .94) !important;
+    border: 1px solid rgba(148, 170, 215, .18) !important;
+    box-shadow: 0 10px 28px rgba(0,0,0,.22) !important;
+  }
+  header.main-header .brand-container,
+  header.main-header .nav-menu,
+  header.main-header .header-actions {
+    position: static !important;
+    width: auto !important;
+    max-width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+  }
+  header.main-header .nav-menu { display: none !important; }
+  header.main-header .header-actions { gap: 5px !important; }
+  header.main-header .nav-search-btn { min-width: 38px !important; width: 40px !important; padding: 0 10px !important; }
+  header.main-header .nav-search-text,
+  header.main-header .nav-search-kbd { display: none !important; }
+  main { margin-left: 0 !important; width: 100% !important; padding: 0 14px 24px !important; }
+  #panel-home .db-shell { width: 100% !important; padding-top: 8px !important; }
+  #panel-home .db-kpi-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+}
+@media (max-width: 560px) {
+  header.main-header .brand-title { font-size: 17px !important; }
+  header.main-header .brand-mark,
+  header.main-header .brand-badge { width: 34px !important; height: 34px !important; }
+  header.main-header .nav-user-name,
+  header.main-header .nav-user-chevron { display: none !important; }
+  #panel-home .db-kpi-grid { grid-template-columns: minmax(0, 1fr) !important; }
+  #panel-home .db-top-header { gap: 12px !important; }
+}
