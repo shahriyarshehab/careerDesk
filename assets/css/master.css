@@ -25,3 +25,6 @@
 
 /* Unified Navigation and Section Frame: loaded last to guarantee exact pixel alignment */
 @import url('section-width-alignment.css');
+
+/* CareerDesk modern responsive redesign overrides */
+@import url('careerdesk-redesign.css');
