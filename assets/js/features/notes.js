@@ -61,9 +61,40 @@ function safeNoteIsoDate(ts) {
   return Number.isNaN(date.getTime()) ? '' : date.toISOString();
 }
 
+function refreshNoteFilterOptions() {
+  const filterEl = document.getElementById('noteFilterTag') || noteFilterTag;
+  if (!filterEl) return;
+
+  const selected = filterEl.value || 'all';
+  const baseTags = ['General', 'English', 'Math', 'Bangla', 'General Knowledge', 'Important'];
+  const subjectTags = typeof masterSubjectList === 'function' ? masterSubjectList() : [];
+  const savedTags = Array.isArray(state.notes) ? state.notes.map(note => note.tag).filter(Boolean) : [];
+  const tags = Array.from(new Set([...baseTags, ...subjectTags, ...savedTags]))
+    .filter(tag => typeof tag === 'string' && tag.trim())
+    .sort((a, b) => {
+      const ai = baseTags.indexOf(a), bi = baseTags.indexOf(b);
+      if (ai !== -1 || bi !== -1) return (ai === -1 ? 999 : ai) - (bi === -1 ? 999 : bi);
+      return a.localeCompare(b);
+    });
+
+  filterEl.replaceChildren();
+  const allOption = document.createElement('option');
+  allOption.value = 'all';
+  allOption.textContent = 'All Tags';
+  filterEl.appendChild(allOption);
+  tags.forEach(tag => {
+    const option = document.createElement('option');
+    option.value = tag;
+    option.textContent = tag;
+    filterEl.appendChild(option);
+  });
+  filterEl.value = tags.includes(selected) || selected === 'all' ? selected : 'all';
+}
+
 function renderNotes() {
   const grid = document.getElementById('notesGrid') || notesGrid;
   if (!grid) return;
+  refreshNoteFilterOptions();
   const list = filteredNotes();
   grid.innerHTML = '';
   if (!list.length) {
