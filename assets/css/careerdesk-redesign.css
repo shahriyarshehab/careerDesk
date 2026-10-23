@@ -1,0 +1,106 @@
+/* CareerDesk modern dashboard refresh — additive, feature-safe overrides */
+:root {
+  --cd-ink: #0b1020;
+  --cd-panel: rgba(18, 27, 48, .82);
+  --cd-panel-solid: #111a2e;
+  --cd-line: rgba(148, 170, 215, .16);
+  --cd-blue: #7198ff;
+  --cd-mint: #68dfbd;
+}
+html[data-theme="dark"] body {
+  background:
+    radial-gradient(ellipse at 12% -10%, rgba(64, 105, 218, .12), transparent 35%),
+    radial-gradient(ellipse at 92% 10%, rgba(61, 205, 172, .055), transparent 28%),
+    var(--bg, #0b1020);
+}
+#panel-home .home-container { gap: 22px; }
+#panel-home .home-hero {
+  position: relative;
+  isolation: isolate;
+  padding: clamp(22px, 3vw, 36px);
+  border-radius: 26px;
+  border: 1px solid rgba(113, 152, 255, .26);
+  background:
+    radial-gradient(ellipse at 88% 0%, rgba(113,152,255,.22), transparent 40%),
+    radial-gradient(ellipse at 5% 100%, rgba(104,223,189,.08), transparent 36%),
+    linear-gradient(135deg, #121d35 0%, #101729 65%, #0d1525 100%);
+  box-shadow: 0 22px 56px rgba(0,0,0,.22), inset 0 1px rgba(255,255,255,.07);
+}
+#panel-home .home-hero::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  width: 230px; height: 230px;
+  right: 4%; top: -130px;
+  border: 1px solid rgba(104,223,189,.2);
+  border-radius: 50%;
+  box-shadow: 0 0 0 24px rgba(104,223,189,.025), 0 0 0 48px rgba(113,152,255,.025);
+  pointer-events: none;
+}
+#panel-home .home-user-command-row {
+  padding-bottom: 20px;
+  margin-bottom: 18px;
+  border-bottom-color: var(--cd-line);
+}
+#panel-home .home-user-avatar-wrap { width: 48px; height: 48px; }
+#panel-home .home-user-greeting-name { letter-spacing: -.035em; }
+#panel-home .glass, #panel-home .home-card, #panel-home .review-card {
+  border: 1px solid var(--cd-line);
+  border-radius: 20px;
+  box-shadow: 0 12px 30px rgba(0,0,0,.12), inset 0 1px rgba(255,255,255,.025);
+  transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease;
+}
+#panel-home .glass:hover, #panel-home .home-card:hover, #panel-home .review-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(113,152,255,.38);
+  box-shadow: 0 18px 38px rgba(0,0,0,.19);
+}
+#panel-home .home-next-routine-strip {
+  padding: 13px 16px;
+  border-radius: 14px;
+  border-color: var(--cd-line);
+  background: rgba(255,255,255,.025);
+}
+#panel-home button, #panel-home .btn {
+  transition: transform .18s ease, filter .18s ease, box-shadow .18s ease;
+}
+#panel-home button:hover, #panel-home .btn:hover { filter: brightness(1.08); }
+#panel-home button:active, #panel-home .btn:active { transform: translateY(1px) scale(.99); }
+#panel-home :is(button, a, input, select, textarea):focus-visible {
+  outline: 2px solid var(--cd-blue);
+  outline-offset: 3px;
+}
+html[data-theme="light"] body {
+  background:
+    radial-gradient(ellipse at 10% 0%, rgba(113,152,255,.09), transparent 34%),
+    #f4f7fc;
+}
+html[data-theme="light"] #panel-home .home-hero {
+  background:
+    radial-gradient(ellipse at 88% 0%, rgba(113,152,255,.13), transparent 40%),
+    linear-gradient(135deg, #fff, #f1f5fc);
+  border-color: rgba(77,111,190,.2);
+  box-shadow: 0 18px 44px rgba(33,52,93,.08);
+}
+html[data-theme="light"] #panel-home .glass,
+html[data-theme="light"] #panel-home .home-card,
+html[data-theme="light"] #panel-home .review-card {
+  border-color: rgba(77,99,144,.16);
+  box-shadow: 0 8px 24px rgba(33,52,93,.055);
+}
+@media (max-width: 760px) {
+  #panel-home .home-container { gap: 16px; }
+  #panel-home .home-hero { padding: 20px 17px; border-radius: 20px; }
+  #panel-home .home-user-command-row { align-items: flex-start; gap: 13px; }
+  #panel-home .home-user-actions-cluster { width: 100%; }
+  #panel-home .home-user-actions-cluster > * { max-width: 100%; }
+  #panel-home .glass, #panel-home .home-card, #panel-home .review-card { border-radius: 16px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  #panel-home *, #panel-home *::before, #panel-home *::after {
+    scroll-behavior: auto !important;
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+  }
+}
