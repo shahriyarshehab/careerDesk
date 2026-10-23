@@ -1,32 +1,15 @@
 # CareerDesk Code Review: Bug Report & Fixes
 **Date:** September 21, 2026  
 **Reviewer:** Professional Web Design Audit  
-**Status:** 7 Issues Found | 1 Critical | 2 High | 4 Medium
+**Status:** 5 Issues Found | 0 Critical | 2 High | 3 Medium
 
 ---
 
 ## 🔴 CRITICAL ISSUES
 
-### 1. **Security: HTML Injection in Note Editor** 
-**Severity:** 🔴 CRITICAL | **File:** `assets/js/notes.js:145`  
-**Issue:** XSS vulnerability - using conditional escaping in HTML attribute context
-
-```javascript
-// ❌ VULNERABLE (Line 145)
-value="${typeof escapeAttr === 'function' ? escapeAttr(n.title || '') : escapeHtml(n.title || '')}"
-
-// ✅ CORRECT FIX
-value="${escapeAttr(n.title || '')}"
-```
-
-**Impact:** Malicious users could inject HTML/JavaScript through note titles  
-**Fix:** Use `escapeAttr()` for HTML attributes (it's already loaded globally)
-
----
-
 ## 🟠 HIGH PRIORITY ISSUES
 
-### 2. **Memory Leak: Uncleaned Countdown Intervals**
+### 1. **Memory Leak: Uncleaned Countdown Intervals**
 **Severity:** 🟠 HIGH | **File:** `assets/js/home.js:356`  
 **Issue:** `setInterval()` called without clearing previous intervals
 
@@ -46,7 +29,7 @@ profileCountdownInterval = setInterval(update, 1000);
 
 ---
 
-### 3. **Icon Rendering Bug: Hardcoded HTML String**
+### 2. **Icon Rendering Bug: Hardcoded HTML String**
 **Severity:** 🟠 HIGH | **File:** `assets/js/countdown.js:228`  
 **Issue:** Using raw HTML string instead of ICON object
 
@@ -65,7 +48,7 @@ toggleExamBtn.innerHTML = `${ICON.plus} <span>New Exam Target</span>`;
 
 ## 🟡 MEDIUM PRIORITY ISSUES
 
-### 4. **State Guard Missing: Unsafe DOM Access Before State Init**
+### 3. **State Guard Missing: Unsafe DOM Access Before State Init**
 **Severity:** 🟡 MEDIUM | **File:** `assets/js/tracker.js:6-12`  
 **Issue:** DOM elements referenced before state object guaranteed to exist
 
@@ -74,24 +57,7 @@ toggleExamBtn.innerHTML = `${ICON.plus} <span>New Exam Target</span>`;
 
 ---
 
-### 5. **Accessibility: Broken Icon HTML in Toggle Buttons**
-**Severity:** 🟡 MEDIUM | **File:** `assets/js/notes.js:168`  
-**Issue:** Icon HTML concatenated without proper span wrapper for text
-
-```javascript
-// ❌ CURRENT (Line 168)
-toggleNoteBtn.innerHTML = isOpen ? `${ICON.plus} New Note` : `${ICON.x} Close Form`;
-
-// ✅ CORRECT FIX
-toggleNoteBtn.innerHTML = isOpen ? `${ICON.plus} <span>New Note</span>` : `${ICON.x} <span>Close Form</span>`;
-```
-
-**Impact:** Mobile CSS hides text but icon visible; screen readers fail  
-**Why:** Mobile CSS: `.pill span { display: none !important; }`
-
----
-
-### 6. **Performance: Redundant DOM Queries**
+### 4. **Performance: Redundant DOM Queries**
 **Severity:** 🟡 MEDIUM | **File:** `assets/js/core.js:868`  
 **Issue:** `renderSubjectSelect()` queries datalist without clearing
 
@@ -112,7 +78,7 @@ if (datalist) {
 
 ---
 
-### 7. **Responsive Design: Hardcoded Mobile Layout**
+### 5. **Responsive Design: Hardcoded Mobile Layout**
 **Severity:** 🟡 MEDIUM | **File:** `assets/css/home.css:1134`  
 **Issue:** Fixed 170px width breaks on phones < 320px
 
@@ -138,11 +104,9 @@ if (datalist) {
 
 | # | Issue | File | Severity | Type |
 |---|-------|------|----------|------|
-| 1 | XSS injection | notes.js:145 | 🔴 Critical | Security |
-| 2 | Memory leak | home.js:356 | 🟠 High | Performance |
-| 3 | Hardcoded icons | countdown.js:228 | 🟠 High | UI/Design |
-| 4 | Missing guard | tracker.js:6 | 🟡 Medium | Stability |
-| 5 | Bad accessibility | notes.js:168 | 🟡 Medium | A11y |
-| 6 | Stale DOM options | core.js:868 | 🟡 Medium | Performance |
-| 7 | Fixed mobile width | home.css:1134 | 🟡 Medium | Responsive |
+| 1 | Memory leak | home.js:356 | 🟠 High | Performance |
+| 2 | Hardcoded icons | countdown.js:228 | 🟠 High | UI/Design |
+| 3 | Missing guard | tracker.js:6 | 🟡 Medium | Stability |
+| 4 | Stale DOM options | core.js:868 | 🟡 Medium | Performance |
+| 5 | Fixed mobile width | home.css:1134 | 🟡 Medium | Responsive |
 
