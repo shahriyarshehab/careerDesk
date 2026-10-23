@@ -256,6 +256,7 @@ if (startBtn) {
     state.activeSession = { subject: canonical, start: Date.now() };
     saveData();
     renderTrackerAll();
+    if (typeof window.renderStudyChain === 'function') window.renderStudyChain();
   });
 }
 
@@ -271,6 +272,7 @@ if (stopBtn) {
     state.activeSession = null;
     saveData();
     renderTrackerAll();
+    if (typeof window.renderStudyChain === 'function') window.renderStudyChain();
     showToast('Stopwatch session saved!');
   });
 }
