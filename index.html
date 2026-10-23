@@ -219,38 +219,6 @@
           <span class="notes-v2-kicker">Knowledge library</span>
           <strong>Keep your best thinking close</strong>
         </div>
-        <div class="btn-group">
-          <button class="pill subtle" id="toggleJournalBtn" type="button" title="Daily Reflection Journal">
-            <i data-lucide="book-open"></i> <span>Daily Journal</span>
-          </button>
-        </div>
-      </div>
-
-      <!-- Daily Reflection Journal (collapsed by default) -->
-      <div class="collapsible-form glass" id="journalWrap" style="display:none; padding:18px; margin-bottom:16px; border-radius:14px;">
-        <div style="display:flex; align-items:center; gap:8px; margin-bottom:10px;">
-          <i data-lucide="book-open" style="width:16px; height:16px; color:var(--accent1);"></i>
-          <strong style="font-size:14px; color:var(--text);">Today's Reflection</strong>
-          <span id="journalDateLabel" style="font-size:12px; color:var(--text-soft); margin-left:4px;"></span>
-        </div>
-        <textarea id="journalTextarea" rows="4" placeholder="How was your study session today? What did you learn? What will you improve tomorrow?..." style="width:100%; padding:12px; border-radius:10px; border:1px solid var(--border); background:var(--surface); color:var(--text); font-family:inherit; font-size:13.5px; resize:vertical; line-height:1.6; box-sizing:border-box;"></textarea>
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px; flex-wrap:wrap; gap:8px;">
-          <span id="journalSaveStatus" style="font-size:12px; color:var(--text-muted);"></span>
-          <div class="btn-group">
-            <button class="pill subtle" id="journalViewAllBtn" type="button" style="font-size:12px; padding:6px 12px;">
-              <i data-lucide="list"></i> Past Entries
-            </button>
-            <button class="pill solid" id="journalSaveBtn" type="button" style="font-size:12px; padding:6px 14px;">
-              <i data-lucide="save"></i> Save
-            </button>
-          </div>
-        </div>
-        <!-- Past journal entries (collapsible) -->
-        <div id="journalHistoryWrap" style="display:none; margin-top:14px; border-top:1px solid var(--border); padding-top:12px;">
-          <div id="journalHistoryList" style="display:flex; flex-direction:column; gap:10px;"></div>
-        </div>
-      </div>
-
       <div class="note-toolbar">
         <div class="search-input-wrapper">
           <i data-lucide="search" class="search-input-icon"></i>
