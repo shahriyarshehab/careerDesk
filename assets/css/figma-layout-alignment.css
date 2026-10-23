@@ -604,3 +604,21 @@
   .main-header,
   .main-header * { transition-duration: .01ms !important; }
 }
+
+
+/* Keep the fixed page-level toolbar from being clipped by the sidebar container. */
+@media (min-width: 1000px) {
+  header.main-header,
+  header.main-header.masthead,
+  header.masthead,
+  .main-header {
+    overflow: visible !important;
+  }
+  header.main-header nav.tabs,
+  header.main-header .nav-menu,
+  .main-header nav.tabs,
+  .main-header .nav-menu {
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+  }
+}
