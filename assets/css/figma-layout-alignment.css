@@ -339,3 +339,268 @@
     transition-duration: .01ms !important;
   }
 }
+
+
+/* ==========================================================================
+   CareerDesk navigation correction — permanently expanded desktop sidebar
+   and a single centered page-level search bar with right-side utilities.
+   ========================================================================== */
+@media (min-width: 1000px) {
+  :root {
+    --cd-sidebar-expanded-width: 252px;
+    --cd-sidebar-collapsed-width: 252px;
+  }
+
+  header.main-header,
+  header.main-header.masthead,
+  header.masthead,
+  .main-header {
+    position: fixed !important;
+    inset: 0 auto 0 0 !important;
+    z-index: 1000 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    justify-content: flex-start !important;
+    width: var(--cd-sidebar-expanded-width) !important;
+    min-width: var(--cd-sidebar-expanded-width) !important;
+    max-width: var(--cd-sidebar-expanded-width) !important;
+    height: 100dvh !important;
+    min-height: 100dvh !important;
+    max-height: 100dvh !important;
+    margin: 0 !important;
+    padding: 22px 14px 84px !important;
+    gap: 20px !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    border-radius: 0 18px 18px 0 !important;
+    transition: none !important;
+  }
+
+  header.main-header:hover,
+  header.main-header:focus-within,
+  header.masthead:hover,
+  header.masthead:focus-within,
+  .main-header:hover,
+  .main-header:focus-within {
+    width: var(--cd-sidebar-expanded-width) !important;
+    min-width: var(--cd-sidebar-expanded-width) !important;
+    max-width: var(--cd-sidebar-expanded-width) !important;
+    padding: 22px 14px 84px !important;
+  }
+
+  header.main-header .brand-container,
+  header.main-header .brand,
+  .main-header .brand-container,
+  .main-header .brand {
+    justify-content: flex-start !important;
+    padding: 0 7px 18px !important;
+    gap: 12px !important;
+    flex: 0 0 auto !important;
+  }
+
+  header.main-header .brand-title,
+  .main-header .brand-title {
+    max-width: 160px !important;
+    opacity: 1 !important;
+  }
+
+  header.main-header nav.tabs,
+  header.main-header .nav-menu,
+  .main-header nav.tabs,
+  .main-header .nav-menu {
+    display: flex !important;
+    flex: 1 1 auto !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    justify-content: flex-start !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    padding: 8px !important;
+    margin: 0 !important;
+    gap: 5px !important;
+    overflow: visible !important;
+    background: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+  }
+
+  header.main-header .nav-link,
+  header.main-header .tab-btn,
+  .main-header .nav-link,
+  .main-header .tab-btn,
+  header.main-header:hover .nav-link,
+  header.main-header:hover .tab-btn,
+  header.main-header:focus-within .nav-link,
+  header.main-header:focus-within .tab-btn,
+  .main-header:hover .nav-link,
+  .main-header:hover .tab-btn,
+  .main-header:focus-within .nav-link,
+  .main-header:focus-within .tab-btn {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    height: 44px !important;
+    min-height: 44px !important;
+    padding: 0 13px !important;
+    gap: 13px !important;
+    border-radius: 11px !important;
+  }
+
+  header.main-header .nav-link span,
+  header.main-header .tab-btn span,
+  .main-header .nav-link span,
+  .main-header .tab-btn span,
+  header.main-header:hover .nav-link span,
+  header.main-header:hover .tab-btn span,
+  header.main-header:focus-within .nav-link span,
+  header.main-header:focus-within .tab-btn span,
+  .main-header:hover .nav-link span,
+  .main-header:hover .tab-btn span,
+  .main-header:focus-within .nav-link span,
+  .main-header:focus-within .tab-btn span {
+    display: inline-block !important;
+    max-width: 180px !important;
+    opacity: 1 !important;
+    overflow: visible !important;
+  }
+
+  /* Only the profile shortcut stays in the sidebar's bottom area. */
+  header.main-header .header-actions,
+  .main-header .header-actions {
+    display: flex !important;
+    position: static !important;
+    flex: 0 0 auto !important;
+    flex-direction: column !important;
+    width: 100% !important;
+    margin: auto 0 0 !important;
+    padding: 0 !important;
+  }
+  header.main-header .header-actions > :not(.nav-user-pill),
+  .main-header .header-actions > :not(.nav-user-pill) {
+    display: none !important;
+  }
+  header.main-header .header-actions .nav-user-pill,
+  .main-header .header-actions .nav-user-pill,
+  header.main-header:hover .header-actions .nav-user-pill,
+  header.main-header:focus-within .header-actions .nav-user-pill {
+    position: fixed !important;
+    left: 14px !important;
+    bottom: 16px !important;
+    top: auto !important;
+    right: auto !important;
+    width: 224px !important;
+    max-width: 224px !important;
+    height: 44px !important;
+    min-height: 44px !important;
+    padding: 0 12px !important;
+    justify-content: flex-start !important;
+    gap: 12px !important;
+    background: rgba(255,255,255,.035) !important;
+    border: 1px solid var(--cd-border, rgba(148,163,184,.18)) !important;
+    border-radius: 12px !important;
+  }
+  header.main-header .nav-user-name,
+  header.main-header .nav-user-chevron,
+  .main-header .nav-user-name,
+  .main-header .nav-user-chevron {
+    display: inline !important;
+    max-width: 160px !important;
+    opacity: 1 !important;
+  }
+
+  /* Page content clears the persistent sidebar. */
+  body { padding-top: 82px !important; }
+  main,
+  body.tab-groupchat-active main,
+  main:has(#panel-groupchat.active) {
+    margin-left: calc(var(--cd-sidebar-expanded-width) + 24px) !important;
+    padding-right: 24px !important;
+    transition: none !important;
+  }
+
+  /* One always-visible search centered over the active page. */
+  header.main-header .topbar,
+  .main-header .topbar {
+    position: fixed !important;
+    z-index: 1100 !important;
+    top: 12px !important;
+    left: calc(var(--cd-sidebar-expanded-width) + 24px) !important;
+    right: 24px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    gap: 8px !important;
+    width: auto !important;
+    height: 44px !important;
+    min-height: 44px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+    pointer-events: none !important;
+  }
+  header.main-header .topbar > *,
+  .main-header .topbar > * { pointer-events: auto !important; }
+
+  header.main-header .topbar > .nav-search-btn,
+  .main-header .topbar > .nav-search-btn {
+    position: absolute !important;
+    left: 50% !important;
+    top: 0 !important;
+    transform: translateX(-50%) !important;
+    width: min(420px, 48%) !important;
+    min-width: 200px !important;
+    height: 42px !important;
+    justify-content: flex-start !important;
+    padding: 0 14px !important;
+    gap: 10px !important;
+    background: var(--surface, rgba(255,255,255,.055)) !important;
+    border: 1px solid var(--cd-border, rgba(148,163,184,.2)) !important;
+    box-shadow: 0 5px 18px rgba(0,0,0,.08) !important;
+  }
+  header.main-header .topbar > .nav-search-btn span,
+  .main-header .topbar > .nav-search-btn span {
+    display: inline !important;
+  }
+
+  header.main-header .topbar > .icon-action-btn,
+  .main-header .topbar > .icon-action-btn {
+    display: inline-flex !important;
+    flex: 0 0 42px !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 42px !important;
+    height: 42px !important;
+    min-height: 42px !important;
+    padding: 0 !important;
+    border-radius: 12px !important;
+  }
+  header.main-header .topbar > .icon-action-btn span:not(.nav-notif-dot),
+  .main-header .topbar > .icon-action-btn span:not(.nav-notif-dot) {
+    display: none !important;
+  }
+  header.main-header .topbar > .icon-action-btn .nav-notif-dot,
+  .main-header .topbar > .icon-action-btn .nav-notif-dot {
+    display: block !important;
+  }
+}
+
+@media (max-width: 999px) {
+  header.main-header .topbar,
+  .main-header .topbar {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    gap: 6px !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  header.main-header,
+  header.main-header *,
+  .main-header,
+  .main-header * { transition-duration: .01ms !important; }
+}
