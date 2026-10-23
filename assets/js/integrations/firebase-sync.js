@@ -1156,6 +1156,36 @@ async function syncUserDataToFirestore(user = null, silent = true) {
 }
 
 /**
+ * Permanently remove the retired Notes payload from this user's historical cloud snapshots.
+ * Only updates the signed-in user's own backup documents; unrelated study data is preserved.
+ */
+async function purgeLegacyNotesFromCloudBackups(user) {
+  if (!user || user.isDemo || user.isLocalSession ||
+      typeof firebase === 'undefined' || !firebase.firestore || !firebase.apps || !firebase.apps.length) return;
+  try {
+    const db = firebase.firestore();
+    const userRef = db.collection('users').doc(user.uid);
+    const snapshots = await userRef.collection('backups').get();
+    for (const doc of snapshots.docs) {
+      const payload = doc.data() || {};
+      if (payload.data && payload.data.state &&
+          Object.prototype.hasOwnProperty.call(payload.data.state, 'notes')) {
+        await doc.ref.update({ 'data.state.notes': firebase.firestore.FieldValue.delete() });
+      }
+    }
+    const legacyBackup = await userRef.collection('careerdesk_backups').doc('latest').get();
+    if (legacyBackup.exists) {
+      const payload = legacyBackup.data() || {};
+      if (payload.state && Object.prototype.hasOwnProperty.call(payload.state, 'notes')) {
+        await legacyBackup.ref.update({ 'state.notes': firebase.firestore.FieldValue.delete() });
+      }
+    }
+  } catch (err) {
+    console.warn('[CareerDesk] Legacy Notes cloud-backup cleanup skipped:', err);
+  }
+}
+
+/**
  * Collects/Restores individual data from Firestore when a user logs in
  */
 async function collectUserDataFromFirestore(user = null) {
@@ -1249,7 +1279,10 @@ async function collectUserDataFromFirestore(user = null) {
       if (cloudData.state) delete cloudData.state.notes;
       localStorage.setItem('careerdesk_user_data_' + user.uid, JSON.stringify(cloudData));
       localStorage.setItem(FIREBASE_LAST_SYNC_KEY, new Date().toISOString());
-      if (isFirebaseOnline) await syncUserDataToFirestore(user, true);
+      if (isFirebaseOnline) {
+        await syncUserDataToFirestore(user, true);
+        await purgeLegacyNotesFromCloudBackups(user);
+      }
       showToast(`Welcome back, ${user.displayName || 'Aspirant'}! Loaded your cloud data.`);
     } else {
       // First time login for this user: initialize cloud data with clean default state
