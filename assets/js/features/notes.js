@@ -25,8 +25,9 @@ function filteredNotes() {
 }
 
 function formatKeepDate(ts) {
-  if (!ts) return '';
+  if (ts === null || ts === undefined || ts === '') return '';
   const d = new Date(ts);
+  if (Number.isNaN(d.getTime())) return '';
   const now = new Date();
 
   const isToday = d.getFullYear() === now.getFullYear() &&
@@ -55,6 +56,11 @@ function formatKeepDate(ts) {
   return `${dateStr}, ${timeStr}`;
 }
 
+function safeNoteIsoDate(ts) {
+  const date = new Date(ts);
+  return Number.isNaN(date.getTime()) ? '' : date.toISOString();
+}
+
 function renderNotes() {
   const grid = document.getElementById('notesGrid') || notesGrid;
   if (!grid) return;
@@ -67,12 +73,13 @@ function renderNotes() {
   list.forEach(n => {
     const card = document.createElement('div');
     card.className = 'note-card glass' + (n.pinned ? ' pinned' : '');
-    card.dataset.noteId = n.id;
+    card.dataset.noteId = String(n.id ?? '');
     const d = new Date(n.ts);
     const meta = typeof getSubjectMeta === 'function' ? getSubjectMeta(n.tag || 'General') : { icon: 'tag' };
     const noteBody = n.body || '';
     const canCollapse = Array.from(noteBody).length > NOTE_COLLAPSE_CHAR_LIMIT;
-    const bodyId = `note-body-${escapeAttr(n.id)}`;
+    const safeId = escapeAttr(String(n.id ?? ''));
+    const bodyId = `note-body-${safeId}`;
     card.innerHTML = `
       <div class="note-top">
         <div class="note-title-wrap">
@@ -82,14 +89,14 @@ function renderNotes() {
             <span>${escapeHtml(n.tag || 'General')}</span>
           </span>
         </div>
-        <button class="pin-btn ${n.pinned ? 'pin-active' : ''}" title="${n.pinned ? 'Unpin note' : 'Pin note'}" aria-label="Pin note" data-id="${n.id}">
+        <button class="pin-btn ${n.pinned ? 'pin-active' : ''}" title="${n.pinned ? 'Unpin note' : 'Pin note'}" aria-label="Pin note" data-id="${safeId}">
           ${ICON.pin}
         </button>
       </div>
       <p id="${bodyId}" class="note-body-text${canCollapse ? ' is-collapsed' : ''}">${escapeHtml(noteBody)}</p>
-      ${canCollapse ? `<button class="note-expand-btn" type="button" data-id="${escapeAttr(n.id)}" aria-controls="${bodyId}" aria-expanded="false">See more</button>` : ''}
+      ${canCollapse ? `<button class="note-expand-btn" type="button" data-id="${safeId}" aria-controls="${bodyId}" aria-expanded="false">See more</button>` : ''}
       <div class="note-footer">
-        <time class="note-date" datetime="${new Date(n.ts).toISOString()}" title="${d.toLocaleString('en-US')}">
+        <time class="note-date" datetime="${safeNoteIsoDate(n.ts)}" title="${d.toLocaleString('en-US')}">
           <span class="note-date-icon">${ICON.clock}</span>
           <span>${formatKeepDate(n.ts)}</span>
         </time>
@@ -103,7 +110,7 @@ function renderNotes() {
         </div>
       </div>
     `;
-    notesGrid.appendChild(card);
+    grid.appendChild(card);
   });
 
   if (window.lucide && typeof window.lucide.createIcons === 'function') {
