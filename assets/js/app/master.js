@@ -15,7 +15,6 @@
     'assets/js/features/routine.js',
     'assets/js/features/study-chain.js',
     'assets/js/features/quotes.js',
-    'assets/js/features/notes.js',
     'assets/js/features/tracker.js',
     'assets/js/features/countdown.js',
     'assets/js/features/syllabus.js',
