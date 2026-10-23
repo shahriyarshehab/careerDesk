@@ -67,6 +67,14 @@ if (watchThemeToggle) {
 
 const watchFullscreenToggle = document.getElementById('watchFullscreenToggle');
 if (watchFullscreenToggle) watchFullscreenToggle.addEventListener('click', toggleFullscreen);
+
+// Zoom toggle
+const zoomBtn = document.getElementById('zoomToggleBtn');
+if (zoomBtn) {
+  zoomBtn.addEventListener('click', () => {
+    document.body.classList.toggle('zoomed');
+  });
+}
 document.addEventListener('fullscreenchange', syncWatchControls);
 syncWatchControls();
 
@@ -202,7 +210,23 @@ function activateTab(rawTabName, persist = false) {
 }
 
 document.querySelectorAll('.tab-btn').forEach(btn => {
-  btn.addEventListener('click', () => activateTab(btn.dataset.tab, true));
+  btn.addEventListener('click', () => {
+    activateTab(btn.dataset.tab, true);
+    const navMenu = document.querySelector('nav.tabs, .nav-menu');
+    if (navMenu) navMenu.classList.remove('expanded');
+    if (navMenu) navMenu.classList.add('collapsed');
+  });
+});
+
+// Click section expands nav back / collapses cleanly
+document.querySelectorAll('.panel').forEach(panel => {
+  panel.addEventListener('click', () => {
+    const navMenu = document.querySelector('nav.tabs, .nav-menu');
+    if (navMenu) {
+      navMenu.classList.remove('collapsed');
+      navMenu.classList.add('expanded');
+    }
+  });
 });
 
 try {

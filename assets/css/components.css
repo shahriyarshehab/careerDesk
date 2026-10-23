@@ -170,38 +170,23 @@
     display: block;
   }
 
-  /* Span Collapse / Expansion Animation: Default shows only icon, expands smoothly on hover */
+  /* Span always visible — no hover expand/collapse */
   .category-action-group .cat-group-btn span,
   .flashcard-action-group .cat-group-btn span,
   .monthly-routine-actions button span,
   .quote-item-actions button span,
   .note-actions button span,
   .subject-row-actions button span {
-    max-width: 0;
-    opacity: 0;
-    overflow: hidden;
+    max-width: 105px;
+    opacity: 1;
+    overflow: visible;
     white-space: nowrap;
     display: inline-block;
     vertical-align: middle;
-    margin-left: 0;
-    transition: max-width 0.25s cubic-bezier(0.4, 0, 0.2, 1),
-                opacity 0.2s ease,
-                margin-left 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    margin-left: 6px;
+    transition: none;
     font-size: 12px;
     font-weight: 600;
-  }
-
-  .category-action-group .cat-group-btn:hover span,
-  .category-action-group .cat-group-btn.active span,
-  .flashcard-action-group .cat-group-btn:hover span,
-  .flashcard-action-group .cat-group-btn.active span,
-  .monthly-routine-actions button:hover span,
-  .quote-item-actions button:hover span,
-  .note-actions button:hover span,
-  .subject-row-actions button:hover span {
-    max-width: 105px;
-    opacity: 1;
-    margin-left: 6px;
   }
 
   /* Contextual Hover Accent Colors */

@@ -1944,3 +1944,8 @@
       width: 100%;
     }
   }
+
+  body.zoomed {
+    transform: scale(1.1);
+    transform-origin: top center;
+  }
