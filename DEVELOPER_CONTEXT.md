@@ -239,7 +239,6 @@ If a subject is renamed or soft-deleted, the change must propagate everywhere. D
 
 Critical default areas:
 - `routine`
-- `notes`
 - `sessions`
 - `activeSession`
 - `dailyTargetMinutes`
