@@ -510,14 +510,6 @@
     stroke: #38bdf8 !important;
     filter: drop-shadow(0 0 6px rgba(56, 189, 248, 0.8));
   }
-  .tab-btn[data-tab="notes"]:hover:not(.active) i[data-lucide],
-  .tab-btn[data-tab="notes"]:hover:not(.active) svg,
-  .tab-btn[data-tab="notes"]:hover:not(.active) .lucide {
-    color: #fbbf24 !important;
-    stroke: #fbbf24 !important;
-    filter: drop-shadow(0 0 6px rgba(251, 191, 36, 0.8));
-  }
-
   /* 3. Tracker: Quantum Mint / Neon Emerald */
   .tab-btn[data-tab="tracker"]:hover:not(.active) i[data-lucide],
   .tab-btn[data-tab="tracker"]:hover:not(.active) svg,
