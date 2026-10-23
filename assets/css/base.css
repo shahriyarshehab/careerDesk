@@ -510,8 +510,6 @@
     stroke: #38bdf8 !important;
     filter: drop-shadow(0 0 6px rgba(56, 189, 248, 0.8));
   }
-
-  /* 2. Notes: Solar Amber / Golden Circuit */
   .tab-btn[data-tab="notes"]:hover:not(.active) i[data-lucide],
   .tab-btn[data-tab="notes"]:hover:not(.active) svg,
   .tab-btn[data-tab="notes"]:hover:not(.active) .lucide {
@@ -591,14 +589,6 @@
     color: #0284c7 !important;
     stroke: #0284c7 !important;
     filter: drop-shadow(0 0 4px rgba(2, 132, 199, 0.5));
-  }
-
-  html[data-theme="light"] .tab-btn[data-tab="notes"]:hover:not(.active) i[data-lucide],
-  html[data-theme="light"] .tab-btn[data-tab="notes"]:hover:not(.active) svg,
-  html[data-theme="light"] .tab-btn[data-tab="notes"]:hover:not(.active) .lucide {
-    color: #d97706 !important;
-    stroke: #d97706 !important;
-    filter: drop-shadow(0 0 4px rgba(217, 119, 6, 0.5));
   }
 
   html[data-theme="light"] .tab-btn[data-tab="tracker"]:hover:not(.active) i[data-lucide],
