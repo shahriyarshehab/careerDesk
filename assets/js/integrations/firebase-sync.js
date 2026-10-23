@@ -1112,6 +1112,10 @@ async function syncUserDataToFirestore(user = null, silent = true) {
           ? firebase.firestore.FieldValue.serverTimestamp()
           : nowIso
       }, { merge: true });
+      // Firestore merge writes preserve omitted nested fields, so explicitly delete legacy Notes data.
+      await db.collection('users').doc(user.uid).update({
+        'state.notes': firebase.firestore.FieldValue.delete()
+      });
     }
 
     const nowIso = new Date().toISOString();
