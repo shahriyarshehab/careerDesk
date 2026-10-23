@@ -180,7 +180,6 @@ function saveUserTrack(track) {
 function getDefaultState() {
   return {
     routine: [],
-    notes: [],
     customQuotes: [],
     quoteIdx: 0,
     quoteSource: "all",
@@ -238,9 +237,6 @@ function buildDefaultRoutine(dateStr) {
   return template.map((t, i) => ({ id: Date.now() + i, date: dateStr, ...t }));
 }
 
-function buildDefaultNotes() {
-  return getDefaultState().notes;
-}
 
 
 // Quotes Normalization & Core State Definition
@@ -262,7 +258,7 @@ function normalizeCustomQuotes(quotes) {
 }
 
 let state = {
-  routine: null, notes: [], customQuotes: [], quoteIdx: 0, quoteSource: 'all', theme: 'dark',
+  routine: null, customQuotes: [], quoteIdx: 0, quoteSource: 'all', theme: 'dark',
   sessions: [], activeSession: null, dailyTargetMinutes: 240,
   syllabus: [], flashcards: [],
   quoteCarouselEnabled: true, quoteCarouselInterval: 300,
@@ -301,7 +297,6 @@ function initCrossTabSync() {
         if (changes.length > 0) {
           // Update local state
           state.routine = newState.routine;
-          state.notes = newState.notes;
           state.sessions = newState.sessions;
           state.syllabus = newState.syllabus;
           state.flashcards = newState.flashcards;
@@ -336,7 +331,6 @@ function detectStateChanges(oldState, newState) {
   const changes = [];
   
   const fields = [
-    { key: 'notes', label: 'Notes' },
     { key: 'routine', label: 'Routine' },
     { key: 'sessions', label: 'Study Sessions' },
     { key: 'syllabus', label: 'Syllabus' },
@@ -359,7 +353,6 @@ function detectStateChanges(oldState, newState) {
 
 function refreshAllViews(changes) {
   // Refresh all possible views based on what changed
-  if (typeof renderNotes === 'function') renderNotes();
   if (typeof renderRoutine === 'function') renderRoutine();
   if (typeof renderCategories === 'function') renderCategories();
   if (typeof renderFlashcards === 'function') renderFlashcards();
@@ -406,9 +399,6 @@ async function loadData() {
       state.routine = Array.isArray(p.routine)
         ? migrateRoutine(p.routine).filter(r => r && !isMockRoutineTask(r))
         : [];
-      state.notes = Array.isArray(p.notes)
-        ? p.notes.filter(n => n && n.id !== 1785728326261 && n.title !== "Key Quantitative Aptitude Formulas")
-        : [];
       state.customQuotes = normalizeCustomQuotes(Array.isArray(p.customQuotes) ? p.customQuotes : []);
       state.quoteIdx = typeof p.quoteIdx === 'number' ? p.quoteIdx : 0;
       state.quoteSource = p.quoteSource || 'all';
@@ -438,6 +428,9 @@ async function loadData() {
     const def = getDefaultState();
     state = { ...state, ...def };
   }
+  // Purge legacy notes from this device and persist the notes-free schema.
+  delete state.notes;
+  await storageAdapter.set(STORAGE_KEY, JSON.stringify(state));
   document.documentElement.setAttribute('data-theme', state.theme);
   syncThemeButtons();
 }
@@ -592,7 +585,7 @@ function saveData() {
   
   // Update sync timestamps for all array/object fields
   const syncTypes = [
-    'routine', 'notes', 'sessions', 'syllabus', 'flashcards', 
+    'routine', 'sessions', 'syllabus', 'flashcards', 
     'customQuotes', 'customSubjects', 'deletedSubjects', 'deletedQuotes',
     'dailyTargetMinutes', 'quoteIdx', 'quoteSource', 'theme', 
     'quoteCarouselEnabled', 'quoteCarouselInterval', 'userTrack'
