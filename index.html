@@ -110,22 +110,7 @@
     <section class="panel active" id="panel-home">
       <div class="home-container">
 
-        <section class="study-chain-hero" aria-label="Study chain tracker">
-          <div class="study-chain-copy">
-            <span class="study-chain-kicker">YOUR DAILY STUDY CHAIN</span>
-            <h2>One hour at a time.<br><span>One goal at a time.</span></h2>
-            <p>Your chain is built from today’s routine. Update a subject or time in the table and the live chain follows automatically.</p>
-            <div class="study-chain-stats">
-              <div class="study-chain-stat"><strong>0</strong><span>Study sessions</span></div>
-              <div class="study-chain-stat"><strong>0 min</strong><span>Planned study time</span></div>
-              <div class="study-chain-stat"><strong>0%</strong><span>Daily time elapsed</span></div>
-            </div>
-          </div>
-          <div class="study-chain-visual">
-            <div class="study-chain-visual-head"><span>STUDY CHAIN</span><span class="study-chain-clock">◷ --:--</span></div>
-            <div class="study-chain-list" id="studyChainList" aria-live="polite"></div>
-          </div>
-        </section>
+        <!-- 1. Daily Motivational Quote Ticker (First on Homepage) -->
         <section class="home-quote-command quote-command-v2" id="homeQuoteCommand">
           <div class="profile-quote-ticker-top quote-command-v2-stage" id="profileHeroQuoteTicker">
             <div class="profile-quote-ticker-content">
@@ -143,7 +128,26 @@
             <div class="profile-quote-progress-bar quote-command-v2-progress"><div class="profile-quote-progress-fill" id="profileQuoteProgressFill"></div></div>
           </div>
         </section>
-        <!-- Unified Full-Width Daily Study Routine Card -->
+
+        <!-- 2. Live Daily Study Chain -->
+        <section class="study-chain-hero" aria-label="Study chain tracker">
+          <div class="study-chain-copy">
+            <span class="study-chain-kicker">YOUR DAILY STUDY CHAIN</span>
+            <h2>One hour at a time.<br><span>One goal at a time.</span></h2>
+            <p>Your chain is built from today’s routine. Update a subject or time in the table and the live chain follows automatically.</p>
+            <div class="study-chain-stats">
+              <div class="study-chain-stat"><strong>0</strong><span>Study sessions</span></div>
+              <div class="study-chain-stat"><strong>0 min</strong><span>Planned study time</span></div>
+              <div class="study-chain-stat"><strong>0%</strong><span>Daily time elapsed</span></div>
+            </div>
+          </div>
+          <div class="study-chain-visual">
+            <div class="study-chain-visual-head"><span>STUDY CHAIN</span><span class="study-chain-clock">◷ --:--</span></div>
+            <div class="study-chain-list" id="studyChainList" aria-live="polite"></div>
+          </div>
+        </section>
+
+        <!-- 3. Full-Width Daily Study Routine Card -->
         <section class="home-routine-card glass" id="homeRoutineSection">
           <div class="routine-card-header">
             <div class="routine-hero-copy routine-title-box">

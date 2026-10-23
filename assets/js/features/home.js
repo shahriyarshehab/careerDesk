@@ -18,6 +18,7 @@ function renderHomeDashboard() {
   if (typeof renderRoutine === 'function') renderRoutine();
   if (typeof updateMonthYearPlaceholder === 'function') updateMonthYearPlaceholder();
   if (typeof restoreRoutineSubNav === 'function') restoreRoutineSubNav();
+  if (typeof renderStudyChain === 'function') renderStudyChain();
 
   // Create Lucide Icons
   if (window.lucide && typeof window.lucide.createIcons === 'function') {
