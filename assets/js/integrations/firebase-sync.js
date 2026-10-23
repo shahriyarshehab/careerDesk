@@ -1042,6 +1042,21 @@ async function signOutUser() {
  * Builds the complete export bundle for cloud storage
  */
 function buildCloudDataBundle() {
+  delete state.notes;
+  // Strip legacy notes from cached user bundles on this browser.
+  try {
+    for (let i = localStorage.length - 1; i >= 0; i--) {
+      const key = localStorage.key(i);
+      if (!key || !(key.startsWith('careerdesk_user_data_') || key.startsWith('careerdesk_cloud_backup_'))) continue;
+      const raw = localStorage.getItem(key);
+      if (!raw) continue;
+      const cached = JSON.parse(raw);
+      if (cached && cached.state && Object.prototype.hasOwnProperty.call(cached.state, 'notes')) {
+        delete cached.state.notes;
+        localStorage.setItem(key, JSON.stringify(cached));
+      }
+    }
+  } catch (e) { console.warn('[CareerDesk] Legacy notes cache cleanup skipped:', e); }
   return {
     state: state,
     exams: exams || [],
@@ -1197,7 +1212,9 @@ async function collectUserDataFromFirestore(user = null) {
 
       // Restore user-specific state
       if (cloudData.state) {
+        delete cloudData.state.notes;
         state = cloudData.state;
+        delete state.notes;
         if (Array.isArray(state.flashcards) && typeof isMockFlashcard === 'function') {
           state.flashcards = state.flashcards.filter(f => f && !isMockFlashcard(f));
         }
@@ -1228,8 +1245,11 @@ async function collectUserDataFromFirestore(user = null) {
       }
 
       await storageAdapter.set(STORAGE_KEY, JSON.stringify(state));
+      delete state.notes;
+      if (cloudData.state) delete cloudData.state.notes;
       localStorage.setItem('careerdesk_user_data_' + user.uid, JSON.stringify(cloudData));
       localStorage.setItem(FIREBASE_LAST_SYNC_KEY, new Date().toISOString());
+      if (isFirebaseOnline) await syncUserDataToFirestore(user, true);
       showToast(`Welcome back, ${user.displayName || 'Aspirant'}! Loaded your cloud data.`);
     } else {
       // First time login for this user: initialize cloud data with clean default state
@@ -1255,7 +1275,7 @@ async function collectUserDataFromFirestore(user = null) {
 
 // Sync metadata for conflict resolution
 const SYNC_TYPES = [
-  'routine', 'notes', 'sessions', 'syllabus', 'flashcards', 
+  'routine', 'sessions', 'syllabus', 'flashcards', 
   'customQuotes', 'customSubjects', 'deletedSubjects', 'dailyTargetMinutes',
   'quoteIdx', 'quoteSource', 'theme', 'quoteCarouselEnabled', 'quoteCarouselInterval',
   'deletedQuotes', 'userTrack'
@@ -1316,9 +1336,6 @@ function applyRemoteChange(dataType, payload, remoteTimestamp) {
   switch (dataType) {
     case 'routine':
       state.routine = Array.isArray(payload) ? payload : state.routine;
-      break;
-    case 'notes':
-      state.notes = Array.isArray(payload) ? payload : state.notes;
       break;
     case 'sessions':
       state.sessions = Array.isArray(payload) ? payload : state.sessions;
@@ -1556,7 +1573,6 @@ function refreshAllDashboardPanels() {
   if (typeof renderRoutine === 'function') renderRoutine();
   if (typeof renderDateSlider === 'function') renderDateSlider();
   if (typeof renderTrackerRoutinePreview === 'function') renderTrackerRoutinePreview();
-  if (typeof renderNotes === 'function') renderNotes();
   if (typeof renderTrackerAll === 'function') renderTrackerAll();
   if (typeof renderCategories === 'function') renderCategories();
   if (typeof renderSyllabusOverall === 'function') renderSyllabusOverall();
@@ -2153,7 +2169,6 @@ function renderUserProfileUI() {
   const totalStudyHours = (totalStudyMinutes / 60).toFixed(1);
   const sessionCount = (state && Array.isArray(state.sessions)) ? state.sessions.length : 0;
   const routineCount = (state && Array.isArray(state.routine)) ? state.routine.length : 0;
-  const notesCount = (state && Array.isArray(state.notes)) ? state.notes.length : 0;
 
   let doneTopics = 0;
   let totalTopics = 0;
@@ -2267,10 +2282,7 @@ function renderUserProfileUI() {
           <span class="profile-stat-val" style="font-size:22px; font-weight:800; color:#10b981; font-family:var(--font-display);">${masteredMCQsCount}</span>
           <span class="profile-stat-lbl" style="font-size:12px; color:var(--text-soft); display:block; margin-top:2px;">Mastered MCQs (/1,000)</span>
         </div>
-        <div class="profile-stat-card glass" style="padding:14px; text-align:center; border-radius:12px; border:1px solid var(--border);">
-          <span class="profile-stat-val" style="font-size:22px; font-weight:800; color:var(--text); font-family:var(--font-display);">${notesCount}</span>
-          <span class="profile-stat-lbl" style="font-size:12px; color:var(--text-soft); display:block; margin-top:2px;">Study Notes (${routineCount} tasks)</span>
-        </div>
+
       </div>
     </section>
   `;
@@ -2284,7 +2296,7 @@ function renderUserProfileUI() {
   const statusDesc = document.getElementById('cloudSyncStatusDesc');
   if (user) {
     if (liveBadge) liveBadge.innerHTML = `<i data-lucide="check-circle" style="width:12px; height:12px;"></i> Auto-Sync Active`;
-    if (statusDesc) statusDesc.textContent = 'Your routines, notes, syllabus progress, and mistake bank automatically sync with your personal Firestore account with offline resilience.';
+    if (statusDesc) statusDesc.textContent = 'Your routines, syllabus progress, and mistake bank automatically sync with your personal Firestore account with offline resilience.';
   } else {
     if (liveBadge) liveBadge.innerHTML = `<i data-lucide="cloud-off" style="width:12px; height:12px;"></i> Offline / Local Storage`;
     if (statusDesc) statusDesc.textContent = 'Data is stored locally on this device. Sign in or connect an account to enable real-time cloud sync, automatic snapshots, and multi-device access.';
@@ -2453,7 +2465,7 @@ function renderAuthPageUI() {
             <i data-lucide="check-circle-2" style="width:28px; height:28px;"></i>
           </div>
           <h2 class="auth-card-title">You're Signed In</h2>
-          <p class="auth-card-subtitle">Connected as <strong>${escapeHtml(user.email || user.phoneNumber || effectiveName)}</strong>. Your routines, notes, and progress are synced with the cloud.</p>
+          <p class="auth-card-subtitle">Connected as <strong>${escapeHtml(user.email || user.phoneNumber || effectiveName)}</strong>. Your routines and progress are synced with the cloud.</p>
         </div>
 
         <div class="auth-card-body" style="text-align:center;">
@@ -2487,7 +2499,7 @@ function renderAuthPageUI() {
           <img src="assets/icons/favicon.svg" alt="CareerDesk logo" style="width:54px; height:54px; border-radius:15px; box-shadow:0 8px 24px rgba(99,102,241,0.35);">
         </div>
         <h2 class="auth-card-title">Welcome to CareerDesk</h2>
-        <p class="auth-card-subtitle">Sign in or create your account to synchronize your study routines, notes, syllabus checklist, and mistake bank across all your devices.</p>
+        <p class="auth-card-subtitle">Sign in or create your account to synchronize your study routines, syllabus checklist, and mistake bank across all your devices.</p>
       </div>
 
       <!-- Card Body Form -->
@@ -4029,7 +4041,6 @@ async function createCloudSnapshot(label = null, user = null, isBackground = fal
   const snapshotId = 'snap_' + Date.now();
   const now = new Date();
 
-  const notesCount = (bundle.state && Array.isArray(bundle.state.notes)) ? bundle.state.notes.length : 0;
   const routineCount = (bundle.state && Array.isArray(bundle.state.routine)) ? bundle.state.routine.length : 0;
   const syllabusCount = (bundle.state && Array.isArray(bundle.state.syllabus))
     ? bundle.state.syllabus.reduce((acc, cat) => acc + (cat.topics ? cat.topics.filter(t => t.done).length : 0), 0)
@@ -4044,7 +4055,6 @@ async function createCloudSnapshot(label = null, user = null, isBackground = fal
     timestamp: Date.now(),
     isoDate: now.toISOString(),
     stats: {
-      notes: notesCount,
       routine: routineCount,
       topicsDone: syllabusCount,
       masteredMCQs: masteredCount
@@ -4121,7 +4131,7 @@ async function listCloudSnapshots(user = null) {
           label: d.label || 'Snapshot',
           timestamp: d.timestamp || 0,
           isoDate: d.isoDate || '',
-          stats: d.stats || { notes: 0, routine: 0, topicsDone: 0, masteredMCQs: 0 }
+          stats: d.stats || { routine: 0, topicsDone: 0, masteredMCQs: 0 }
         });
       });
       if (list.length > 0) {
@@ -4169,7 +4179,7 @@ async function renderCloudSnapshotsList() {
         <div>
           <div style="font-weight:700; font-size:13.5px; color:var(--text);">${escapeHtml(snap.label)}</div>
           <div style="font-size:11.5px; color:var(--text-soft); margin-top:2px;">
-            ${dateFormatted} &bull; <span style="color:var(--accent1);">${s.notes} Notes</span> &bull; <span>${s.routine} Tasks</span> &bull; <span>${s.topicsDone} Topics</span> &bull; <span style="color:#10b981;">${s.masteredMCQs} Mastered</span>
+            ${dateFormatted} &bull; <span style="color:var(--accent1);">${s.routine} Tasks</span> &bull; <span>${s.topicsDone} Topics</span> &bull; <span style="color:#10b981;">${s.masteredMCQs} Mastered</span>
           </div>
         </div>
         <div style="display:flex; align-items:center; gap:6px;">
@@ -4232,7 +4242,7 @@ async function restoreCloudSnapshot(snapshotId, user = null) {
     return false;
   }
 
-  const ok = window.confirm(`Restore this backup snapshot?\n\nThis will replace your current routines, notes, syllabus, and MCQ progress with the data from this snapshot.`);
+  const ok = window.confirm(`Restore this backup snapshot?\n\nThis will replace your current routines, syllabus, and MCQ progress with the data from this snapshot.`);
   if (!ok) return false;
 
   try {
