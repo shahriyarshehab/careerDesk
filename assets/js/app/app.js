@@ -511,8 +511,6 @@ function initCommandPalette() {
   // Feature #14: Keyboard Shortcuts Panel
   initKeyboardShortcutsPanel();
 
-  // Feature #13: Daily Reflection Journal
-  initDailyJournal();
 
   // Feature #4: MCQ Quick Subject Pre-Filter
   initMCQQuickFilter();
@@ -627,107 +625,8 @@ function initKeyboardShortcutsPanel() {
   });
 }
 
-/* ==========================================================================
-   Feature #13 — Daily Reflection Journal
-   ========================================================================== */
-const JOURNAL_KEY = 'careerdesk_daily_journal_v1';
-
-function getJournalData() {
-  try {
-    const raw = localStorage.getItem(JOURNAL_KEY);
-    return raw ? JSON.parse(raw) : {};
-  } catch (e) { return {}; }
-}
-
-function saveJournalData(data) {
-  try { localStorage.setItem(JOURNAL_KEY, JSON.stringify(data)); } catch (e) {}
-}
-
-function initDailyJournal() {
-  const toggleBtn = document.getElementById('toggleJournalBtn');
-  const journalWrap = document.getElementById('journalWrap');
-  const textarea = document.getElementById('journalTextarea');
-  const saveBtn = document.getElementById('journalSaveBtn');
-  const dateLabel = document.getElementById('journalDateLabel');
-  const statusEl = document.getElementById('journalSaveStatus');
-  const viewAllBtn = document.getElementById('journalViewAllBtn');
-  const historyWrap = document.getElementById('journalHistoryWrap');
-  const historyList = document.getElementById('journalHistoryList');
-  if (!toggleBtn || !journalWrap || !textarea) return;
-
-  const todayKey = dateKey(Date.now());
-
-  function loadTodayEntry() {
-    const journal = getJournalData();
-    const todayEntry = journal[todayKey] || '';
-    textarea.value = todayEntry;
-    if (dateLabel) {
-      const now = new Date();
-      dateLabel.textContent = '— ' + now.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
-    }
-    if (statusEl) {
-      statusEl.textContent = todayEntry ? 'Entry saved for today.' : '';
-    }
-  }
-
-  function renderJournalHistory() {
-    if (!historyList) return;
-    const journal = getJournalData();
-    const entries = Object.entries(journal)
-      .filter(([key]) => key !== todayKey && journal[key] && journal[key].trim())
-      .sort((a, b) => b[0].localeCompare(a[0]))
-      .slice(0, 14); // Last 14 days
-
-    if (!entries.length) {
-      historyList.innerHTML = '<div style="font-size:13px; color:var(--text-muted); text-align:center; padding:10px 0;">No past journal entries found.</div>';
-      return;
-    }
-    historyList.innerHTML = entries.map(([dateStr, text]) => {
-      const d = new Date(dateStr);
-      const label = d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
-      return `
-        <div style="padding:12px 14px; border-radius:10px; border:1px solid var(--border); background:var(--surface);">
-          <div style="font-size:12px; font-weight:700; color:var(--text-muted); margin-bottom:6px;">${escapeHtml(label)}</div>
-          <div style="font-size:13px; color:var(--text); line-height:1.6; white-space:pre-wrap;">${escapeHtml(text)}</div>
-        </div>`;
-    }).join('');
-  }
-
-  toggleBtn.addEventListener('click', () => {
-    const isOpen = journalWrap.style.display !== 'none';
-    journalWrap.style.display = isOpen ? 'none' : 'block';
-    toggleBtn.classList.toggle('active-open', !isOpen);
-    if (!isOpen) {
-      loadTodayEntry();
-      textarea.focus();
-      if (window.lucide) lucide.createIcons();
-    }
-  });
-
-  if (saveBtn) {
-    saveBtn.addEventListener('click', () => {
-      const journal = getJournalData();
-      journal[todayKey] = textarea.value.trim();
-      saveJournalData(journal);
-      if (statusEl) {
-        statusEl.textContent = 'Saved at ' + new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
-      }
-      showToast('Journal entry saved!');
-    });
-  }
-
-  if (viewAllBtn && historyWrap) {
-    viewAllBtn.addEventListener('click', () => {
-      const isOpen = historyWrap.style.display !== 'none';
-      historyWrap.style.display = isOpen ? 'none' : 'block';
-      viewAllBtn.innerHTML = isOpen ? '<i data-lucide="list"></i> Past Entries' : '<i data-lucide="chevron-up"></i> Hide';
-      if (!isOpen) renderJournalHistory();
-      if (window.lucide) lucide.createIcons();
-    });
-  }
-
-  loadTodayEntry();
-}
+// Remove legacy Daily Journal entries from older versions of CareerDesk.
+try { localStorage.removeItem('careerdesk_daily_journal_v1'); } catch (e) {}
 
 /* ==========================================================================
    Feature #4 — MCQ Quick Subject Pre-Filter
