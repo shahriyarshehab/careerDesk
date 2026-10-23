@@ -29,8 +29,8 @@ body {
 header.masthead,
 header.main-header {
   top: 12px;
-  width: min(1480px, calc(100% - 40px));
-  max-width: 1480px;
+  width: min(1200px, calc(100% - 32px));
+  max-width: 1200px;
   min-height: 68px;
   height: auto;
   padding: 10px 16px;
@@ -79,8 +79,9 @@ header.main-header {
 .icon-action-btn:hover, .watch-action:hover { transform: translateY(-2px); }
 
 .panel {
-  width: min(1480px, calc(100% - 40px));
-  margin-inline: auto;
+  width: 100%;
+  max-width: 100%;
+  margin-inline: 0;
   padding-bottom: clamp(72px, 7vw, 112px);
 }
 
@@ -183,10 +184,6 @@ button.solid:hover, .btn.solid:hover { transform: translateY(-1px); }
 
 ::selection { background: var(--accent1); color: #fff; }
 
-@media (min-width: 1500px) {
-  .panel { width: min(1480px, calc(100% - 64px)); }
-}
-
 @media (max-width: 900px) {
   header.masthead, header.main-header {
     top: 8px;
@@ -194,7 +191,6 @@ button.solid:hover, .btn.solid:hover { transform: translateY(-1px); }
     border-radius: 18px;
     padding: 9px 11px;
   }
-  .panel { width: calc(100% - 24px); }
   .tabs, .nav-menu { border-radius: 13px; }
   .home-hero, #panel-home .home-hero { border-radius: 22px; }
 }
@@ -211,7 +207,6 @@ button.solid:hover, .btn.solid:hover { transform: translateY(-1px); }
   .brand-container, .brand { gap: 8px; }
   .brand-mark, .brand-badge { width: 32px; height: 32px; border-radius: 10px; }
   .brand-title, .brand-copy h1, .brand h1 { font-size: 17px; }
-  .panel { width: calc(100% - 18px); }
   .home-container, #panel-home .home-container { gap: 14px; }
   .home-stat-card, .home-widget, .home-pillar-card,
   .home-routine-card, .review-card, .session-card, .target-card,

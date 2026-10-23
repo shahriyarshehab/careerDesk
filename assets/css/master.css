@@ -22,9 +22,7 @@
 
 @import url('premium-refresh.css');
 @import url('modern-ui.css');
-
-/* Keep all main sections aligned to Group Chat's width. */
-@import url('section-width-alignment.css');
-
-/* Modern design system — loaded last to polish all existing sections. */
 @import url('modern-design-system.css');
+
+/* Unified Navigation and Section Frame: loaded last to guarantee exact pixel alignment */
+@import url('section-width-alignment.css');

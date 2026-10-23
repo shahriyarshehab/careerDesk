@@ -349,6 +349,7 @@
   .tracker-top {
     display: grid;
     grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+    align-items: stretch;   /* ← FIX: forces both cards to equal height */
     gap: 18px;
     margin-bottom: 22px;
   }
@@ -437,20 +438,22 @@
   @media (max-width:850px) {
     .tracker-top {
       grid-template-columns: 1fr;
+      align-items: start; /* stacked on mobile — no forced equal height */
     }
   }
 
+  /* ── Left column: Focus / Timer card ── */
   .session-card {
     min-width: 0;
+    height: 100%;           /* ← FIX: fill the full grid row height */
+    box-sizing: border-box;
     padding: 22px;
     display: flex;
     flex-direction: column;
     gap: 12px;
   }
 
-  .target-card {
-    min-width: 0;
-  }
+  /* ── Right column: Goal / Progress card ── (single canonical rule below at .target-card) */
 
   .session-row {
     display: flex;
@@ -610,6 +613,7 @@
     margin-top: 6px;
   }
 
+  /* ── Right column: Goal / Progress card ── */
   .target-card {
     padding: 22px;
     display: flex;
@@ -617,7 +621,9 @@
     gap: 14px;
     min-width: 0;
     width: 100%;
+    height: 100%;           /* ← FIX: fill the full grid row height */
     box-sizing: border-box;
+    overflow-y: auto;       /* ← FIX: scroll internally if content overflows */
   }
 
   .target-row {
@@ -685,7 +691,7 @@
     min-width: 0;
     box-sizing: border-box;
     flex: 1 1 auto;
-    overflow: hidden;
+    overflow: visible; /* ← FIX: was 'hidden' which silently clipped routine items */
   }
 
   .tracker-routine-title {
@@ -752,11 +758,13 @@
     flex-direction: column;
     gap: 8px;
     margin-top: 4px;
-    max-height: 220px;
+    flex: 1 1 0;            /* ← FIX: grow to fill remaining card height */
+    min-height: 0;          /* required for flex shrink to work */
+    max-height: 320px;      /* reasonable cap so it doesn't balloon on tall screens */
     overflow-y: auto;
     padding-right: 4px;
-    min-height: 0;
   }
+
 
   .session-item {
     display: flex;

@@ -1,27 +1,106 @@
 /* ==========================================================================
-   CareerDesk — Consistent Section Widths
-   Keep every main section aligned to the same 1200px content frame as Group Chat.
-   Loaded last from master.css so it takes precedence over earlier visual layers.
+   CareerDesk — Unified Navigation & Section Frame
+   Guarantees that Navigation (Header) and all Content Sections share the
+   exact same width, margins, and responsive gutters across all screen sizes.
+   Prefers the canonical 1200px section width.
+   Loaded last from master.css to take precedence over all other visual layers.
    ========================================================================== */
 
-main > .panel:not(#panel-groupchat) {
-  width: calc(100% - 32px);
-  max-width: 1200px;
-  margin-inline: auto;
-  box-sizing: border-box;
+:root {
+  --cd-frame-max-width: 1200px;
+  --cd-frame-gutter: 32px;
 }
 
-/* Match the Group Chat section's compact page gutters on smaller screens. */
+/* 1. Masthead Navigation Bar (Header) */
+header.masthead,
+header.main-header,
+.main-header {
+  width: calc(100% - var(--cd-frame-gutter)) !important;
+  max-width: var(--cd-frame-max-width) !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  margin-inline: auto !important;
+  /* Do NOT set left/right: 0 here — it overrides margin:auto centering for sticky elements */
+  box-sizing: border-box !important;
+}
+
+/* 2. Main Content Wrapper */
+main {
+  width: calc(100% - var(--cd-frame-gutter)) !important;
+  max-width: var(--cd-frame-max-width) !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  margin-inline: auto !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  padding-inline: 0 !important;
+  box-sizing: border-box !important;
+}
+
+/* 3. All Tab Content Panels (Home, Notes, Tracker, Quiz, Exams, Syllabus, Profile) */
+main > .panel,
+.panel {
+  width: 100% !important;
+  max-width: 100% !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  margin-inline: 0 !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  padding-inline: 0 !important;
+  box-sizing: border-box !important;
+}
+
+/* 4. Group Chat Panel special height constraints while preserving exact width */
+body.tab-groupchat-active main,
+main:has(#panel-groupchat.active) {
+  width: calc(100% - var(--cd-frame-gutter)) !important;
+  max-width: var(--cd-frame-max-width) !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  margin-inline: auto !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  padding-inline: 0 !important;
+}
+
+#panel-groupchat {
+  width: 100% !important;
+  max-width: 100% !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  margin-inline: 0 !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  padding-inline: 0 !important;
+}
+
+/* 5. Tablet Breakpoint: 20px Gutter */
 @media (max-width: 900px) {
-  main > .panel:not(#panel-groupchat) {
-    width: 100%;
-    max-width: 100%;
-    padding-inline: 8px;
+  :root {
+    --cd-frame-gutter: 20px;
+  }
+  header.masthead,
+  header.main-header,
+  .main-header,
+  main,
+  body.tab-groupchat-active main,
+  main:has(#panel-groupchat.active) {
+    width: calc(100% - 20px) !important;
   }
 }
 
-@media (max-width: 768px) {
-  main > .panel:not(#panel-groupchat) {
-    padding-inline: 4px;
+/* 6. Mobile Breakpoint: 12px Gutter */
+@media (max-width: 600px) {
+  :root {
+    --cd-frame-gutter: 12px;
+  }
+  header.masthead,
+  header.main-header,
+  .main-header,
+  main,
+  body.tab-groupchat-active main,
+  main:has(#panel-groupchat.active) {
+    width: calc(100% - 12px) !important;
   }
 }

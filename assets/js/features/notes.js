@@ -154,7 +154,7 @@ function startEdit(id) {
   if (!card) return;
   card.innerHTML = `
     <div class="note-edit-area">
-      <input type="text" maxlength="${NOTE_TITLE_MAX_LENGTH}" value="${typeof escapeAttr === 'function' ? escapeAttr(n.title || '') : escapeHtml(n.title || '')}" id="edit-title-${id}">
+      <input type="text" maxlength="${NOTE_TITLE_MAX_LENGTH}" value="${escapeAttr(n.title || '')}" id="edit-title-${id}">
       <textarea rows="4" id="edit-body-${id}">${escapeHtml(n.body || '')}</textarea>
       <div class="quote-actions" style="justify-content:flex-start;">
         <button class="pill solid" data-save="${id}">Save</button>
@@ -183,7 +183,7 @@ if (toggleNoteBtn && noteWrap) {
   toggleNoteBtn.addEventListener('click', () => {
     const isOpen = noteWrap.style.display !== 'none';
     noteWrap.style.display = isOpen ? 'none' : 'block';
-    toggleNoteBtn.innerHTML = isOpen ? `${ICON.plus} New Note` : `${ICON.x} Close Form`;
+    toggleNoteBtn.innerHTML = isOpen ? `${ICON.plus} <span>New Note</span>` : `${ICON.x} <span>Close Form</span>`;
     toggleNoteBtn.classList.toggle('active-open', !isOpen);
     if (!isOpen) {
       const input = document.getElementById('noteTitle');
@@ -208,7 +208,7 @@ if (addNoteBtn) {
 
     if (noteWrap && toggleNoteBtn) {
       noteWrap.style.display = 'none';
-      toggleNoteBtn.innerHTML = `${ICON.plus} New Note`;
+      toggleNoteBtn.innerHTML = `${ICON.plus} <span>New Note</span>`;
       toggleNoteBtn.classList.remove('active-open');
     }
     showToast('Note saved successfully!');

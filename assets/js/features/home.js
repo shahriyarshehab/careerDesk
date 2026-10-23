@@ -353,6 +353,7 @@ function startProfileExamCountdown(nearestExam) {
   }
 
   update();
+  if (profileCountdownInterval) clearInterval(profileCountdownInterval);
   profileCountdownInterval = setInterval(update, 1000);
 }
 

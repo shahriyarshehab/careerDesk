@@ -456,9 +456,204 @@ function setupAutoLockTimer() {
 
 function renderSecurityVaultUI() {
   const container = document.getElementById('securityVaultCard');
-  if (container) container.innerHTML = '';
-  return;
+  if (!container) return;
+
+  const hasPin = !!getPrivacyPinHash();
+  const autoLockMins = getAutoLockMinutes();
+  const vaultCfg = getVaultConfig();
+  const isWebCrypto = isWebCryptoSupported();
+
+  container.innerHTML = `
+    <div class="section-card-header" style="margin-bottom:20px;">
+      <div class="section-card-title-group">
+        <div class="section-card-icon-badge" style="color:#10b981; background:rgba(16,185,129,0.12); border-color:rgba(16,185,129,0.3);">
+          <i data-lucide="shield-check"></i>
+        </div>
+        <div>
+          <h3 class="section-card-title">Security, Privacy &amp; Data Protection</h3>
+          <p class="section-card-desc">Zero-knowledge AES-GCM encryption, privacy PIN lock overlay, and client-side data safety</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="security-modules-grid">
+      <!-- 1. PRIVACY PIN LOCK MODULE -->
+      <div class="security-module-card">
+        <div class="security-module-head">
+          <div style="display:flex; align-items:center; gap:9px;">
+            <div class="security-mod-icon ${hasPin ? 'active' : ''}">
+              <i data-lucide="key-round"></i>
+            </div>
+            <div>
+              <strong class="security-mod-title">Privacy PIN &amp; Lock Screen</strong>
+              <span class="security-mod-subtitle">Quick overlay lock to shield your workspace</span>
+            </div>
+          </div>
+          <span class="pill ${hasPin ? 'success' : 'subtle'}" style="font-size:11px; padding:3px 9px;">
+            <i data-lucide="${hasPin ? 'check-circle' : 'circle-dashed'}" style="width:12px; height:12px;"></i>
+            <span>${hasPin ? 'PIN Active' : 'Not Configured'}</span>
+          </span>
+        </div>
+
+        <p class="security-mod-desc">
+          When locked, your active timers, daily notes, and routine schedules are hidden behind a 4-digit PIN lock screen until you return.
+        </p>
+
+        <!-- Inactivity Auto-Lock Duration Row -->
+        <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; padding:10px 12px; border-radius:10px; background:var(--surface); border:1px solid var(--border); margin-bottom:14px; flex-wrap:wrap;">
+          <div style="font-size:12.5px; color:var(--text); font-weight:600; display:flex; align-items:center; gap:6px;">
+            <i data-lucide="timer" style="width:14px; height:14px; color:var(--text-soft);"></i>
+            <span>Inactivity Auto-Lock:</span>
+          </div>
+          <select id="selectAutoLockVaultMins" class="pill" style="font-size:12px; padding:5px 10px; min-width:140px;">
+            <option value="0" ${autoLockMins === 0 ? 'selected' : ''}>Disabled (Manual only)</option>
+            <option value="5" ${autoLockMins === 5 ? 'selected' : ''}>Lock after 5 mins</option>
+            <option value="15" ${autoLockMins === 15 ? 'selected' : ''}>Lock after 15 mins</option>
+            <option value="30" ${autoLockMins === 30 ? 'selected' : ''}>Lock after 30 mins</option>
+          </select>
+        </div>
+
+        <div class="security-mod-actions">
+          ${hasPin ? `
+            <button type="button" class="pill theme-action-btn" id="btnChangePinVault">
+              <i data-lucide="pencil"></i> <span>Change PIN</span>
+            </button>
+            <button type="button" class="pill danger" id="btnRemovePinVault">
+              <i data-lucide="trash-2"></i> <span>Remove PIN</span>
+            </button>
+            <button type="button" class="pill solid" id="btnLockNowVault" style="margin-left:auto;">
+              <i data-lucide="lock"></i> <span>Lock Now (Alt+L)</span>
+            </button>
+          ` : `
+            <button type="button" class="pill solid" id="btnSetPinVault">
+              <i data-lucide="plus"></i> <span>Set 4-Digit PIN</span>
+            </button>
+            <button type="button" class="pill subtle" id="btnLockNowVaultDirect" style="margin-left:auto;">
+              <i data-lucide="lock"></i> <span>Lock Workspace</span>
+            </button>
+          `}
+        </div>
+      </div>
+
+      <!-- 2. ZERO-KNOWLEDGE CLOUD ENCRYPTION VAULT MODULE -->
+      <div class="security-module-card">
+        <div class="security-module-head">
+          <div style="display:flex; align-items:center; gap:9px;">
+            <div class="security-mod-icon ${vaultCfg.enabled ? 'vault-active' : ''}">
+              <i data-lucide="lock"></i>
+            </div>
+            <div>
+              <strong class="security-mod-title">Zero-Knowledge Cloud Encryption</strong>
+              <span class="security-mod-subtitle">Hardware-grade AES-GCM-256 WebCrypto</span>
+            </div>
+          </div>
+          <span class="pill ${vaultCfg.enabled ? 'success' : 'subtle'}" style="font-size:11px; padding:3px 9px;">
+            <i data-lucide="${vaultCfg.enabled ? 'shield-alert' : 'unlock'}" style="width:12px; height:12px;"></i>
+            <span>${vaultCfg.enabled ? 'AES-256 Active' : 'Cloud Plaintext'}</span>
+          </span>
+        </div>
+
+        <p class="security-mod-desc">
+          Your routines, notes, syllabus, and mistake bank are encrypted using a secret passphrase right in your browser. Even Firestore database administrators cannot read your data.
+        </p>
+
+        <div style="padding:10px 12px; border-radius:10px; background:rgba(255,255,255,0.02); border:1px solid var(--border); margin-bottom:14px; font-size:12px; color:var(--text-soft); line-height:1.5;">
+          <div style="display:flex; align-items:center; gap:6px; color:var(--text); font-weight:700; margin-bottom:2px;">
+            <i data-lucide="cpu" style="width:13px; height:13px; color:var(--accent2);"></i>
+            <span>Browser WebCrypto Engine: ${isWebCrypto ? 'Supported &amp; Hardware Accelerated' : 'Software Fallback'}</span>
+          </div>
+          <span>Key derivation uses PBKDF2 with SHA-256 (100,000 rounds) + AES-GCM-256 authenticated ciphers.</span>
+        </div>
+
+        <div class="security-mod-actions">
+          <button type="button" class="pill solid" id="btnOpenVaultModalCard">
+            <i data-lucide="${vaultCfg.enabled ? 'key' : 'shield-check'}"></i>
+            <span>${vaultCfg.enabled ? 'Update Passphrase' : 'Enable Cloud Encryption'}</span>
+          </button>
+          ${vaultCfg.enabled ? `
+            <button type="button" class="pill danger" id="btnDisableVaultFromCard">
+              <i data-lucide="unlock"></i> <span>Disable Encryption</span>
+            </button>
+          ` : ''}
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. PRIVACY ARCHITECTURE PILLARS ROW -->
+    <div class="security-trust-strip">
+      <div class="security-trust-item">
+        <i data-lucide="eye-off" style="color:var(--accent2);"></i>
+        <div>
+          <strong>Zero External Trackers</strong>
+          <span>No analytics, no ad beacons, zero third-party scripts.</span>
+        </div>
+      </div>
+      <div class="security-trust-item">
+        <i data-lucide="database" style="color:var(--accent1);"></i>
+        <div>
+          <strong>100% Client-Side Privacy</strong>
+          <span>All primary data is stored locally in your browser's localStorage.</span>
+        </div>
+      </div>
+      <div class="security-trust-item">
+        <i data-lucide="shield" style="color:#10b981;"></i>
+        <div>
+          <strong>Tamper-Proof Storage</strong>
+          <span>Scrubbed for prototype pollution with safe defaults guarantee.</span>
+        </div>
+      </div>
+    </div>
+  `;
+
+  // Bind Security Card Listeners
+  const btnSetPin = container.querySelector('#btnSetPinVault');
+  const btnChangePin = container.querySelector('#btnChangePinVault');
+  const btnRemovePin = container.querySelector('#btnRemovePinVault');
+  const btnLockNow = container.querySelector('#btnLockNowVault, #btnLockNowVaultDirect');
+  const autoLockSelect = container.querySelector('#selectAutoLockVaultMins');
+  const btnOpenVault = container.querySelector('#btnOpenVaultModalCard');
+  const btnDisableVault = container.querySelector('#btnDisableVaultFromCard');
+
+  if (btnSetPin) btnSetPin.addEventListener('click', openSetPinModal);
+  if (btnChangePin) btnChangePin.addEventListener('click', openSetPinModal);
+  if (btnRemovePin) {
+    btnRemovePin.addEventListener('click', () => {
+      if (confirm('Remove your 4-digit privacy PIN? Anyone opening this device will have instant access.')) {
+        removePrivacyPin();
+        showToast('Privacy PIN removed.');
+        renderSecurityVaultUI();
+      }
+    });
+  }
+  if (btnLockNow) {
+    btnLockNow.addEventListener('click', () => {
+      lockWorkspaceNow();
+    });
+  }
+  if (autoLockSelect) {
+    autoLockSelect.addEventListener('change', (e) => {
+      const mins = parseInt(e.target.value, 10) || 0;
+      setAutoLockMinutes(mins);
+      showToast(mins > 0 ? `Auto-lock enabled after ${mins} minutes of inactivity.` : 'Auto-lock disabled.');
+    });
+  }
+  if (btnOpenVault) btnOpenVault.addEventListener('click', openVaultPassphraseModal);
+  if (btnDisableVault) {
+    btnDisableVault.addEventListener('click', () => {
+      if (confirm('Disable zero-knowledge cloud encryption? Future cloud syncs will be stored in standard secure Firestore.')) {
+        saveVaultConfig({ enabled: false, salt: null });
+        sessionStorage.removeItem('careerdesk_active_vault_pass');
+        showToast('Cloud encryption disabled.');
+        renderSecurityVaultUI();
+      }
+    });
+  }
+
+  if (window.lucide && typeof window.lucide.createIcons === 'function') {
+    window.lucide.createIcons();
+  }
 }
+window.renderSecurityVaultUI = renderSecurityVaultUI;
 
 
 /**

@@ -148,11 +148,14 @@ function activateTab(rawTabName, persist = false) {
 
   if (tabName === 'profile' || tabName === 'settings') {
     try { if (typeof renderUserProfileUI === 'function') renderUserProfileUI(); } catch (e) { console.error('[CareerDesk] renderUserProfileUI error:', e); }
+    try { if (typeof initProfileCockpit === 'function') initProfileCockpit(); } catch (e) { console.error('[CareerDesk] initProfileCockpit error:', e); }
     try { if (typeof renderProfileTrackCard === 'function') renderProfileTrackCard(); } catch (e) { console.error('[CareerDesk] renderProfileTrackCard error:', e); }
     try { if (typeof renderProfileAspirantHub === 'function') renderProfileAspirantHub(); } catch (e) { console.error('[CareerDesk] renderProfileAspirantHub error:', e); }
     try { renderSubjectManager(); } catch (e) { console.error('[CareerDesk] renderSubjectManager error:', e); }
+    try { if (typeof renderSecurityVaultUI === 'function') renderSecurityVaultUI(); } catch (e) { console.error('[CareerDesk] renderSecurityVaultUI error:', e); }
     try { renderQuoteManager(); } catch (e) { console.error('[CareerDesk] renderQuoteManager error:', e); }
     try { syncQuoteSettings(); } catch (e) { console.error('[CareerDesk] syncQuoteSettings error:', e); }
+    try { if (typeof syncCockpitPreferencesUI === 'function') syncCockpitPreferencesUI(); } catch (e) { console.error('[CareerDesk] syncCockpitPreferencesUI error:', e); }
 
     // If navigated via #login or #signup directly, pop open the auth modal
     if (rawTabName === 'login' || rawTabName === 'signup') {

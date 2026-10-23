@@ -1827,7 +1827,7 @@ function renderUserProfileUI() {
 
   const user = getCachedAuthUser();
   const authenticatedContent = document.getElementById('authenticatedProfileContent');
-  if (authenticatedContent) authenticatedContent.hidden = !user;
+  if (authenticatedContent) authenticatedContent.hidden = false;
   const custom = getCustomProfile() || {};
   const effectiveName = (user && user.displayName) ? user.displayName : (custom.displayName || 'Guest Aspirant');
   const effectivePhoto = (user && user.photoURL) ? user.photoURL : (custom.photoURL || '');
@@ -2135,48 +2135,6 @@ function renderUserProfileUI() {
     return;
   }
 
-  // Keep the Profile tab useful for signed-out visitors and route authentication
-  // through the redesigned shared auth modal.
-  if (!user) {
-    container.innerHTML = `
-      <div class="profile-login-landing">
-        <div class="profile-login-glow"></div>
-        <div class="profile-login-copy">
-          <span class="profile-login-kicker"><i data-lucide="lock-keyhole"></i> PERSONAL WORKSPACE</span>
-          <h2>Your progress deserves<br><em>a home.</em></h2>
-          <p>Sign in to manage your profile, sync study data across devices, and keep your CareerDesk workspace ready wherever you learn.</p>
-          <div class="profile-login-benefits">
-            <span><i data-lucide="cloud"></i> Secure cloud sync</span>
-            <span><i data-lucide="bar-chart-3"></i> Personal progress insights</span>
-            <span><i data-lucide="users"></i> Study community access</span>
-          </div>
-          <div class="profile-login-actions">
-            <button type="button" class="pill solid" id="btnOpenAuthModalLogin">
-              <i data-lucide="log-in"></i><span>Sign in to Profile</span>
-            </button>
-            <button type="button" class="pill subtle" id="btnOpenAuthModalSignup">
-              <i data-lucide="user-plus"></i><span>Create free account</span>
-            </button>
-          </div>
-          <small>Your local study data remains available on this device.</small>
-        </div>
-        <div class="profile-login-preview" aria-hidden="true">
-          <div class="profile-preview-orbit"><i data-lucide="sparkles"></i></div>
-          <div class="profile-preview-card preview-card-top"><i data-lucide="target"></i><span><b>Stay on track</b><small>Build your next milestone</small></span></div>
-          <div class="profile-preview-card preview-card-bottom"><i data-lucide="trending-up"></i><span><b>Progress, visualized</b><small>Every focused minute counts</small></span></div>
-        </div>
-      </div>
-    `;
-    if (window.lucide && typeof window.lucide.createIcons === 'function') {
-      window.lucide.createIcons();
-    }
-    const btnLogin = document.getElementById('btnOpenAuthModalLogin');
-    const btnSignup = document.getElementById('btnOpenAuthModalSignup');
-    if (btnLogin) btnLogin.addEventListener('click', () => openAuthModal('login'));
-    if (btnSignup) btnSignup.addEventListener('click', () => openAuthModal('signup'));
-    return;
-  }
-
   // =========================================================================
   // 2. VIEW MODE (Signed-In or Guest)
   // =========================================================================
@@ -2186,18 +2144,6 @@ function renderUserProfileUI() {
     ? `<img src="${escapeAttr(effectivePhoto)}" alt="${escapeAttr(effectiveName)}" class="user-avatar-img" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
        <div class="user-avatar-fallback" style="display:none;">${escapeHtml(initials)}</div>`
     : `<div class="user-avatar-fallback">${effectiveName && effectiveName !== 'Guest Aspirant' ? escapeHtml(initials) : '<i data-lucide="user" style="width:32px;height:32px;color:var(--text-soft);"></i>'}</div>`;
-
-  // Motivational quote for top right
-  let heroQuote = { q: 'Discipline is the bridge between goals and accomplishment.', a: 'CareerDesk' };
-  try {
-    if (typeof currentPool === 'function') {
-      const pool = currentPool();
-      if (pool && pool.length > 0) {
-        const qIdx = (state && typeof state.quoteIdx === 'number') ? (state.quoteIdx % pool.length) : 0;
-        heroQuote = pool[qIdx] || pool[0];
-      }
-    }
-  } catch (qErr) { }
 
   // Lifetime study metrics
   let totalStudyMinutes = 0;
@@ -2224,16 +2170,25 @@ function renderUserProfileUI() {
     ? userMCQProgress.masteredIds.length
     : 0;
 
+  let providerLabel = 'Offline Workspace';
+  let providerClass = 'guest-local';
+  let providerIconHtml = '<i data-lucide="hard-drive" style="width:12px;height:12px;"></i>';
+  let contactHtml = '<span><i data-lucide="hard-drive" aria-hidden="true"></i>Local Device Storage (Active)</span>';
+  let actionButtonsHtml = `
+    <button type="button" class="pill solid btn-edit-profile-main" id="btnOpenEditProfileModal" title="Edit Profile Details">
+      <i data-lucide="user-round-pen" aria-hidden="true"></i><span>Edit Profile</span>
+    </button>
+    <button type="button" class="pill theme-action-btn" id="btnOpenAuthModalLogin" title="Sign in to sync with cloud">
+      <i data-lucide="cloud" aria-hidden="true"></i><span>Connect Cloud</span>
+    </button>
+  `;
+
   if (user) {
     const isGoogle = user.providerId?.includes('google');
     const isGithub = user.providerId?.includes('github');
     const isEmail  = user.providerId === 'password';
     const isPhone  = user.providerId === 'phone';
     const isDemo   = !!user.isDemo;
-
-    let providerLabel = 'Online Cloud';
-    let providerClass = '';
-    let providerIconHtml = '<i data-lucide="cloud" style="width:12px;height:12px;"></i>';
 
     if (isDemo) {
       providerLabel = 'Demo Account';
@@ -2252,277 +2207,73 @@ function renderUserProfileUI() {
     } else if (isPhone) {
       providerLabel = 'Phone Account';
       providerIconHtml = '<i data-lucide="smartphone" style="width:12px;height:12px;"></i>';
+    } else {
+      providerLabel = 'Cloud Account';
+      providerIconHtml = '<i data-lucide="cloud" style="width:12px;height:12px;"></i>';
     }
 
-    container.innerHTML = `
-      <div class="profile-cover-banner" aria-hidden="true"></div>
-      <div class="profile-social-identity">
-        <div class="user-avatar-wrap">${avatarHtml}</div>
-        <div class="profile-social-copy">
-          <h2 class="user-display-name">${escapeHtml(effectiveName)}</h2>
-          <div class="profile-social-meta">
-            <span class="user-handle-badge">@${escapeHtml(effectiveUsername)}</span>
-            <span class="user-occupation-badge ${occMeta.className}">
-              <i data-lucide="${occMeta.icon}" aria-hidden="true"></i>
-              <span>${escapeHtml(occMeta.label)}</span>
-            </span>
-          </div>
-          <div class="profile-social-contact">
-            <span><i data-lucide="mail" aria-hidden="true"></i>${escapeHtml(user.email || 'Email not connected')}</span>
-            ${effectivePhone ? `<span><i data-lucide="phone" aria-hidden="true"></i>${escapeHtml(formatDisplayPhone(effectivePhone))}</span>` : ''}
-            <span class="user-provider-badge ${providerClass}">${providerIconHtml}${escapeHtml(providerLabel)}</span>
-          </div>
-        </div>
-        <div class="profile-social-actions">
-          <button type="button" class="pill solid btn-edit-profile-main" id="btnOpenEditProfileModal" title="Edit Profile Details">
-            <i data-lucide="user-round-pen" aria-hidden="true"></i><span>Edit Profile</span>
-          </button>
-          <button type="button" class="btn-signout-modern" id="btnProfileSignOut" title="Sign out from cloud account">
-            <i data-lucide="log-out" aria-hidden="true"></i><span>Sign Out</span>
-          </button>
-        </div>
-      </div>
-      <nav class="profile-section-nav" aria-label="Profile sections">
-        <button type="button" class="profile-section-nav-btn active" data-profile-section="profileOverviewSection" aria-current="page">Overview</button>
-        <button type="button" class="profile-section-nav-btn" data-profile-section="profileTrackCard">Track</button>
-        <button type="button" class="profile-section-nav-btn" data-profile-section="profileAspirantHub">Insights</button>
-        <button type="button" class="profile-section-nav-btn" data-profile-section="dataManagementCard">Storage</button>
-      </nav>
-      <section id="profileOverviewSection" class="profile-overview-section authenticated-profile-stats">
-        <div class="profile-overview-heading">
-          <h3>Study overview</h3>
-          <span>Lifetime</span>
-        </div>
-        <div class="profile-stats-bar">
-          <div class="profile-stat-card glass" style="padding:14px; text-align:center; border-radius:12px; border:1px solid var(--border);">
-            <span class="profile-stat-val" style="font-size:22px; font-weight:800; color:var(--accent1); font-family:var(--font-display);">${totalStudyHours}h</span>
-            <span class="profile-stat-lbl" style="font-size:12px; color:var(--text-soft); display:block; margin-top:2px;">Study Time (${sessionCount} sessions)</span>
-          </div>
-          <div class="profile-stat-card glass" style="padding:14px; text-align:center; border-radius:12px; border:1px solid var(--border);">
-            <span class="profile-stat-val" style="font-size:22px; font-weight:800; color:var(--accent2); font-family:var(--font-display);">${syllabusPct}%</span>
-            <span class="profile-stat-lbl" style="font-size:12px; color:var(--text-soft); display:block; margin-top:2px;">Syllabus (${doneTopics}/${totalTopics})</span>
-          </div>
-          <div class="profile-stat-card glass" style="padding:14px; text-align:center; border-radius:12px; border:1px solid var(--border);">
-            <span class="profile-stat-val" style="font-size:22px; font-weight:800; color:#10b981; font-family:var(--font-display);">${masteredMCQsCount}</span>
-            <span class="profile-stat-lbl" style="font-size:12px; color:var(--text-soft); display:block; margin-top:2px;">Mastered MCQs (/1,000)</span>
-          </div>
-          <div class="profile-stat-card glass" style="padding:14px; text-align:center; border-radius:12px; border:1px solid var(--border);">
-            <span class="profile-stat-val" style="font-size:22px; font-weight:800; color:var(--text); font-family:var(--font-display);">${notesCount}</span>
-            <span class="profile-stat-lbl" style="font-size:12px; color:var(--text-soft); display:block; margin-top:2px;">Study Notes (${routineCount} tasks)</span>
-          </div>
-        </div>
-      </section>
+    contactHtml = `
+      <span><i data-lucide="mail" aria-hidden="true"></i>${escapeHtml(user.email || 'Email not connected')}</span>
+      ${effectivePhone ? `<span><i data-lucide="phone" aria-hidden="true"></i>${escapeHtml(formatDisplayPhone(effectivePhone))}</span>` : ''}
     `;
-  } else {
-    // ===== SIGNED-OUT / GUEST STATE — INLINE SPLIT-PANEL AUTH =====
-    container.innerHTML = `
-      <div class="auth-guest-landing-card clean-guest-card" style="padding:0; overflow:hidden;">
-        <div class="inline-auth-container" id="inlineAuthContainer">
-          <div class="inline-auth-forms-wrap" id="inlineAuthFormsWrap">
-            <div class="inline-auth-form-panel ia-panel-signin" id="inlineAuthSignInPanel">
-              <div class="ia-form-header">
-                <h2 class="ia-form-title">Welcome Back</h2>
-                <p class="ia-form-subtitle">Sign in to sync your study workspace across devices.</p>
-              </div>
-              <form id="inlineAuthLoginForm" novalidate onsubmit="return false;">
-                <div class="form-group">
-                  <label class="auth-input-label" for="inlineAuthEmailInput">Email or Username</label>
-                  <div class="input-container">
-                    <span class="input-icon-left"><i data-lucide="mail" style="width:15px; height:15px;"></i></span>
-                    <input type="text" id="inlineAuthEmailInput" class="auth-input" placeholder="name@domain.com" autocomplete="username">
-                  </div>
-                </div>
-                <div class="form-group">
-                  <div class="input-label-row">
-                    <label class="auth-input-label" for="inlineAuthPasswordInput">Password</label>
-                    <button type="button" class="btn-forgot" id="inlineAuthForgotBtn">Forgot?</button>
-                  </div>
-                  <div class="input-container">
-                    <span class="input-icon-left"><i data-lucide="lock" style="width:15px; height:15px;"></i></span>
-                    <input type="password" id="inlineAuthPasswordInput" class="auth-input" placeholder="••••••••" autocomplete="current-password">
-                    <button type="button" class="btn-toggle-pass" id="inlineAuthTogglePass" title="Show / Hide Password">
-                      <i data-lucide="eye" style="width:15px; height:15px;"></i>
-                    </button>
-                  </div>
-                </div>
-                <button type="submit" class="btn-submit" id="inlineAuthLoginSubmitBtn">
-                  <i data-lucide="log-in" style="width:16px; height:16px;"></i>
-                  <span>Sign In</span>
-                </button>
-                <div id="inlineAuthLoginError" class="auth-status-msg"></div>
-                <div class="auth-divider ia-social-section">
-                  <div class="auth-divider-line"></div>
-                  <span class="auth-divider-text">Or continue with</span>
-                  <div class="auth-divider-line"></div>
-                </div>
-                <div class="social-auth-grid">
-                  <button type="button" class="btn-social" id="inlineBtnSignInGoogle" title="Sign in with Google">
-                    <svg viewBox="0 0 24 24" width="16" height="16">
-                      <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                      <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                      <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
-                      <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
-                    </svg>
-                    <span>Google</span>
-                  </button>
-                  <button type="button" class="btn-social" id="inlineBtnSignInGithub" title="Sign in with GitHub">
-                    <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
-                      <path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/>
-                    </svg>
-                    <span>GitHub</span>
-                  </button>
-                  <button type="button" class="btn-social" id="inlineBtnSignInGuest" title="Instant Offline Access" style="grid-column: span 2; border-color: rgba(99,102,241,0.25); background: rgba(99,102,241,0.06); color: var(--text); padding: 9px 12px; display: inline-flex; align-items: center; justify-content: center; gap: 8px;">
-                    <i data-lucide="zap" style="width:15px; height:15px; color:var(--accent2);"></i>
-                    <span style="font-weight:600; font-size:12.5px;">Continue as Guest (Instant Access)</span>
-                  </button>
-                </div>
-                <div class="auth-recaptcha-wrapper" style="margin-top:14px;">
-                  <div id="inlineRecaptchaContainer" style="min-height:0; display:flex; justify-content:center;"></div>
-                  <div id="inlineRecaptchaFallback" style="display:flex; align-items:center; justify-content:space-between; padding:8px 12px; border-radius:10px; border:1px solid var(--border); background:var(--surface-strong); user-select:none;">
-                    <label style="display:flex; align-items:center; gap:8px; cursor:pointer; margin:0;">
-                      <input type="checkbox" id="inlineRecaptchaCheckbox" style="width:16px; height:16px; accent-color:var(--accent1); cursor:pointer;">
-                      <span id="inlineRecaptchaLabel" style="font-size:12.5px; font-weight:600; color:var(--text);">I am not a robot</span>
-                    </label>
-                    <span style="font-size:9.5px; color:var(--text-muted); font-weight:700;">Security check</span>
-                  </div>
-                </div>
-              </form>
-            </div>
 
-            <div class="inline-auth-form-panel ia-panel-signup" id="inlineAuthSignUpPanel">
-              <div class="ia-form-header">
-                <h2 class="ia-form-title">Create Account</h2>
-                <p class="ia-form-subtitle">Join thousands of learners tracking their progress.</p>
-              </div>
-              <form id="inlineAuthSignupForm" novalidate onsubmit="return false;">
-                <div class="form-group">
-                  <label class="auth-input-label" for="inlineAuthUsernameInput">Username</label>
-                  <div class="input-container">
-                    <span class="input-icon-left"><i data-lucide="user" style="width:15px; height:15px;"></i></span>
-                    <input type="text" id="inlineAuthUsernameInput" class="auth-input" placeholder="e.g. shehab" autocomplete="username">
-                  </div>
-                </div>
-                <div class="form-group">
-                  <label class="auth-input-label" for="inlineAuthNameInput">Full Name</label>
-                  <div class="input-container">
-                    <span class="input-icon-left"><i data-lucide="user-check" style="width:15px; height:15px;"></i></span>
-                    <input type="text" id="inlineAuthNameInput" class="auth-input" placeholder="e.g. Shahriyar Shehab" autocomplete="name">
-                  </div>
-                </div>
-                <div class="form-group">
-                  <label class="auth-input-label" for="inlineAuthSignupEmailInput">Email Address</label>
-                  <div class="input-container">
-                    <span class="input-icon-left"><i data-lucide="mail" style="width:15px; height:15px;"></i></span>
-                    <input type="text" id="inlineAuthSignupEmailInput" class="auth-input" placeholder="name@domain.com" autocomplete="email">
-                  </div>
-                </div>
-                <div class="form-group">
-                  <label class="auth-input-label" for="inlineAuthSignupPasswordInput">Password</label>
-                  <div class="input-container">
-                    <span class="input-icon-left"><i data-lucide="lock" style="width:15px; height:15px;"></i></span>
-                    <input type="password" id="inlineAuthSignupPasswordInput" class="auth-input" placeholder="••••••••" autocomplete="new-password">
-                    <button type="button" class="btn-toggle-pass" id="inlineAuthSignupTogglePass" title="Show / Hide Password">
-                      <i data-lucide="eye" style="width:15px; height:15px;"></i>
-                    </button>
-                  </div>
-                </div>
-                <button type="submit" class="btn-submit" id="inlineAuthSignupSubmitBtn">
-                  <i data-lucide="user-plus" style="width:16px; height:16px;"></i>
-                  <span>Get Started Free</span>
-                </button>
-                <div id="inlineAuthSignupError" class="auth-status-msg"></div>
-                <div class="auth-divider ia-social-section">
-                  <div class="auth-divider-line"></div>
-                  <span class="auth-divider-text">Or continue with</span>
-                  <div class="auth-divider-line"></div>
-                </div>
-                <div class="social-auth-grid">
-                  <button type="button" class="btn-social" id="inlineBtnSignUpGoogle" title="Sign up with Google">
-                    <svg viewBox="0 0 24 24" width="16" height="16">
-                      <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                      <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                      <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
-                      <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
-                    </svg>
-                    <span>Google</span>
-                  </button>
-                  <button type="button" class="btn-social" id="inlineBtnSignUpGithub" title="Sign up with GitHub">
-                    <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
-                      <path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/>
-                    </svg>
-                    <span>GitHub</span>
-                  </button>
-                </div>
-                <div class="auth-recaptcha-wrapper" style="margin-top:14px;">
-                  <div id="inlineSignupRecaptchaFallback" style="display:flex; align-items:center; justify-content:space-between; padding:8px 12px; border-radius:10px; border:1px solid var(--border); background:var(--surface-strong); user-select:none;">
-                    <label style="display:flex; align-items:center; gap:8px; cursor:pointer; margin:0;">
-                      <input type="checkbox" id="inlineSignupRecaptchaCheckbox" style="width:16px; height:16px; accent-color:var(--accent1); cursor:pointer;">
-                      <span id="inlineSignupRecaptchaLabel" style="font-size:12.5px; font-weight:600; color:var(--text);">I am not a robot</span>
-                    </label>
-                    <span style="font-size:9.5px; color:var(--text-muted); font-weight:700;">Security check</span>
-                  </div>
-                </div>
-              </form>
-            </div>
-          </div>
-
-          <div class="inline-auth-overlay-container" id="inlineAuthOverlayContainer">
-            <div class="inline-auth-overlay">
-              <div class="inline-auth-overlay-panel overlay-left">
-                <div class="overlay-icon-wrap">
-                  <i data-lucide="log-in" style="width:28px; height:28px;"></i>
-                </div>
-                <h3 class="overlay-title">Already with us?</h3>
-                <p class="overlay-desc">Sign in to restore your routines, notes, syllabus, and cloud backups.</p>
-                <button type="button" class="overlay-ghost-btn" id="btnInlineAuthToLogin">
-                  <i data-lucide="arrow-left" style="width:15px; height:15px;"></i>
-                  <span>Sign In</span>
-                </button>
-                <div class="overlay-trust-row">
-                  <span class="overlay-trust-item"><i data-lucide="shield-check"></i> Encrypted</span>
-                  <span class="overlay-trust-item"><i data-lucide="cloud"></i> Cloud Sync</span>
-                </div>
-              </div>
-              <div class="inline-auth-overlay-panel overlay-right">
-                <div class="overlay-icon-wrap">
-                  <i data-lucide="sparkles" style="width:28px; height:28px;"></i>
-                </div>
-                <h3 class="overlay-title">New here?</h3>
-                <p class="overlay-desc">Create a free account and keep your study progress in sync across every device.</p>
-                <button type="button" class="overlay-ghost-btn" id="btnInlineAuthToSignup">
-                  <span>Sign Up</span>
-                  <i data-lucide="arrow-right" style="width:15px; height:15px;"></i>
-                </button>
-                <div class="overlay-trust-row">
-                  <span class="overlay-trust-item"><i data-lucide="shield-check"></i> Encrypted</span>
-                  <span class="overlay-trust-item"><i data-lucide="cloud"></i> Cloud Sync</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div id="inlineVerificationView" class="verification-view">
-            <div class="verification-icon-wrap">
-              <i data-lucide="mail-check" style="width:30px; height:30px;"></i>
-            </div>
-            <h3 style="font-size:19px; font-weight:700; margin-bottom:8px; color:var(--text);">Check Your Inbox</h3>
-            <p style="font-size:13.5px; color:var(--text-soft); line-height:1.6; margin-bottom:24px;">
-              We've dispatched an activation link to <br>
-              <strong id="inlineVerificationEmail" style="color:var(--text);"></strong>.
-            </p>
-            <button type="button" class="btn-submit" id="btnInlineVerificationLogin" style="max-width:280px;">
-              <i data-lucide="arrow-left" style="width:16px; height:16px;"></i>
-              <span>Return to Login</span>
-            </button>
-            <div style="display:flex; justify-content:center; align-items:center; gap:6px; font-size:12.5px; color:var(--text-muted); margin-top:14px;">
-              <span>Didn't receive the email?</span>
-              <button type="button" id="btnInlineVerificationResend" style="background:none; border:none; color:var(--accent1); font-weight:600; cursor:pointer; padding:0; text-decoration:underline;">Resend verification</button>
-            </div>
-            <p id="inlineVerificationResendStatus" style="font-size:12px; font-weight:600; margin:8px 0 0; min-height:16px; color:#10b981;"></p>
-</div>
-      </div>
+    actionButtonsHtml = `
+      <button type="button" class="pill solid btn-edit-profile-main" id="btnOpenEditProfileModal" title="Edit Profile Details">
+        <i data-lucide="user-round-pen" aria-hidden="true"></i><span>Edit Profile</span>
+      </button>
+      <button type="button" class="btn-signout-modern" id="btnProfileSignOut" title="Sign out from cloud account">
+        <i data-lucide="log-out" aria-hidden="true"></i><span>Sign Out</span>
+      </button>
     `;
   }
+
+  container.innerHTML = `
+    <div class="profile-cover-banner" aria-hidden="true"></div>
+    <div class="profile-social-identity">
+      <div class="user-avatar-wrap">${avatarHtml}</div>
+      <div class="profile-social-copy">
+        <h2 class="user-display-name">${escapeHtml(effectiveName)}</h2>
+        <div class="profile-social-meta">
+          <span class="user-handle-badge">@${escapeHtml(effectiveUsername || 'guest')}</span>
+          <span class="user-occupation-badge ${occMeta.className}">
+            <i data-lucide="${occMeta.icon}" aria-hidden="true"></i>
+            <span>${escapeHtml(occMeta.label)}</span>
+          </span>
+        </div>
+        <div class="profile-social-contact">
+          ${contactHtml}
+          <span class="user-provider-badge ${providerClass}">${providerIconHtml}${escapeHtml(providerLabel)}</span>
+        </div>
+      </div>
+      <div class="profile-social-actions">
+        ${actionButtonsHtml}
+      </div>
+    </div>
+    <section id="profileOverviewSection" class="profile-overview-section authenticated-profile-stats">
+      <div class="profile-overview-heading">
+        <h3>Study overview</h3>
+        <span>Lifetime Progress</span>
+      </div>
+      <div class="profile-stats-bar">
+        <div class="profile-stat-card glass" style="padding:14px; text-align:center; border-radius:12px; border:1px solid var(--border);">
+          <span class="profile-stat-val" style="font-size:22px; font-weight:800; color:var(--accent1); font-family:var(--font-display);">${totalStudyHours}h</span>
+          <span class="profile-stat-lbl" style="font-size:12px; color:var(--text-soft); display:block; margin-top:2px;">Study Time (${sessionCount} sessions)</span>
+        </div>
+        <div class="profile-stat-card glass" style="padding:14px; text-align:center; border-radius:12px; border:1px solid var(--border);">
+          <span class="profile-stat-val" style="font-size:22px; font-weight:800; color:var(--accent2); font-family:var(--font-display);">${syllabusPct}%</span>
+          <span class="profile-stat-lbl" style="font-size:12px; color:var(--text-soft); display:block; margin-top:2px;">Syllabus (${doneTopics}/${totalTopics})</span>
+        </div>
+        <div class="profile-stat-card glass" style="padding:14px; text-align:center; border-radius:12px; border:1px solid var(--border);">
+          <span class="profile-stat-val" style="font-size:22px; font-weight:800; color:#10b981; font-family:var(--font-display);">${masteredMCQsCount}</span>
+          <span class="profile-stat-lbl" style="font-size:12px; color:var(--text-soft); display:block; margin-top:2px;">Mastered MCQs (/1,000)</span>
+        </div>
+        <div class="profile-stat-card glass" style="padding:14px; text-align:center; border-radius:12px; border:1px solid var(--border);">
+          <span class="profile-stat-val" style="font-size:22px; font-weight:800; color:var(--text); font-family:var(--font-display);">${notesCount}</span>
+          <span class="profile-stat-lbl" style="font-size:12px; color:var(--text-soft); display:block; margin-top:2px;">Study Notes (${routineCount} tasks)</span>
+        </div>
+      </div>
+    </section>
+  `;
 
   // Update cloud sync status indicators on dataManagementCard
   const dataMgmtCard = document.getElementById('dataManagementCard');

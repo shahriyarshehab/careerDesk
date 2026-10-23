@@ -239,6 +239,9 @@ function currentSubjectValue() {
 
 if (startBtn) {
   startBtn.addEventListener('click', () => {
+    // Countdown mode (selectedDuration > 0) is fully handled by the document-level
+    // capture listener below. This handler is exclusively for stopwatch mode (duration = 0).
+    if (selectedDuration !== 0) return;
     if (!timerMode) return;
     const subj = currentSubjectValue();
     if (!subj) {
@@ -246,6 +249,7 @@ if (startBtn) {
         sessionCustomInput.style.display = 'block';
         sessionCustomInput.focus();
       }
+      showToast('Please enter or select a study subject', true);
       return;
     }
     const canonical = (typeof addSubject === 'function' ? addSubject(subj) : subj) || subj;
@@ -257,6 +261,9 @@ if (startBtn) {
 
 if (stopBtn) {
   stopBtn.addEventListener('click', () => {
+    // Only handle the stopwatch (selectedDuration === 0) case here.
+    // Countdown stop is handled by the document-level capture listener below.
+    if (selectedDuration !== 0) return;
     if (!state.activeSession) return;
     const end = Date.now();
     const durationMin = Math.max(1, Math.round((end - state.activeSession.start) / 60000));
@@ -264,6 +271,7 @@ if (stopBtn) {
     state.activeSession = null;
     saveData();
     renderTrackerAll();
+    showToast('Stopwatch session saved!');
   });
 }
 
@@ -378,24 +386,32 @@ function renderProgress() {
   const todayTotal = state.sessions.filter(s => dateKey(s.start) === todayKey()).reduce((a, s) => a + s.duration, 0);
   const target = state.dailyTargetMinutes || 1;
   const pct = Math.min(100, Math.round((todayTotal / target) * 100));
-  document.getElementById('progressFill').style.width = pct + '%';
-  document.getElementById('progressLabelLeft').textContent = fmtHM(todayTotal) + ' studied';
-  document.getElementById('progressLabelRight').textContent = pct + '%';
-  targetHoursInput.value = (state.dailyTargetMinutes / 60).toString();
+
+  const progressFill = document.getElementById('progressFill');
+  const progressLabelLeft = document.getElementById('progressLabelLeft');
+  const progressLabelRight = document.getElementById('progressLabelRight');
+  const streakLine = document.getElementById('streakLine');
+  const verdict = document.getElementById('verdictBox');
+
+  if (progressFill) progressFill.style.width = pct + '%';
+  if (progressLabelLeft) progressLabelLeft.textContent = fmtHM(todayTotal) + ' studied';
+  if (progressLabelRight) progressLabelRight.textContent = pct + '%';
+  if (targetHoursInput) targetHoursInput.value = (state.dailyTargetMinutes / 60).toString();
   const settingsTargetInput = document.getElementById('targetHoursSettings');
   if (settingsTargetInput) settingsTargetInput.value = (state.dailyTargetMinutes / 60).toString();
 
-  const verdict = document.getElementById('verdictBox');
-  if (todayTotal === 0) {
-    verdict.textContent = 'No study logged yet today — start your first session, you can do it!';
-  } else if (pct >= 100) {
-    verdict.textContent = 'Daily target completed! Outstanding effort today.';
-  } else if (pct >= 75) {
-    verdict.textContent = 'Almost there — just a little more focus to reach your goal.';
-  } else if (pct >= 40) {
-    verdict.textContent = 'Good start, keep up the momentum with another session.';
-  } else {
-    verdict.textContent = 'Study time is low today — jump into another focused session now.';
+  if (verdict) {
+    if (todayTotal === 0) {
+      verdict.textContent = 'No study logged yet today — start your first session, you can do it!';
+    } else if (pct >= 100) {
+      verdict.textContent = 'Daily target completed! Outstanding effort today.';
+    } else if (pct >= 75) {
+      verdict.textContent = 'Almost there — just a little more focus to reach your goal.';
+    } else if (pct >= 40) {
+      verdict.textContent = 'Good start, keep up the momentum with another session.';
+    } else {
+      verdict.textContent = 'Study time is low today — jump into another focused session now.';
+    }
   }
 
   let streak = 0;
@@ -406,10 +422,13 @@ function renderProgress() {
     if (total >= target) streak++; else break;
   }
   if (pct >= 100) streak++;
-  document.getElementById('streakLine').textContent = streak > 0
-    ? 'Target Streak: ' + streak + (streak === 1 ? ' day' : ' days')
-    : 'Start your study streak today!';
+  if (streakLine) {
+    streakLine.textContent = streak > 0
+      ? 'Target Streak: ' + streak + (streak === 1 ? ' day' : ' days')
+      : 'Start your study streak today!';
+  }
 }
+
 
 function renderSubjectBars() {
   const box = document.getElementById('subjectBars');
@@ -898,12 +917,14 @@ function startCustomCountdown() {
       const s = String(customCountdownSecs % 60).padStart(2, '0');
       if (display) display.textContent = `${m}:${s}`;
       renderTodaySessions();
+      renderProgress();
       syncMiniTimerWidget();
     } else {
       clearInterval(customCountdownInterval);
       stopCustomCountdown(true);
     }
   }, 1000);
+
   syncMiniTimerWidget();
 }
 
@@ -978,9 +999,9 @@ document.addEventListener('click', (e) => {
     startCustomCountdown();
   } else if (stopBtnClicked) {
     e.stopImmediatePropagation();
-    if (timerMode === 'break') {
-      stopCustomCountdown(false);
-    } else if (customCountdownSecs > 0) {
+    // Both study and break sessions show a cancel confirmation modal when time remains.
+    // The modal already has mode-specific text via openCancelModal().
+    if (customCountdownSecs > 0) {
       openCancelModal(customCountdownSecs);
     } else {
       stopCustomCountdown(false);

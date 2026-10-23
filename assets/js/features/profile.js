@@ -53,24 +53,30 @@ if (closeSubjectManagerModalBtn) {
 
 function renderSubjectManager() {
   const container = document.getElementById('subjectManagerList');
+  const cockpitContainer = document.getElementById('cockpitSubjectManagerList');
   const deletedSection = document.getElementById('deletedSubjectSection');
+  const cockpitDeletedSection = document.getElementById('cockpitDeletedSubjectSection');
   const deletedContainer = document.getElementById('deletedSubjectList');
+  const cockpitDeletedContainer = document.getElementById('cockpitDeletedSubjectList');
   const countBadge = document.getElementById('subjectCountBadge');
-  if (!container) return;
+  const cockpitCountBadge = document.getElementById('cockpitSubjectCountBadge');
+
+  if (!container && !cockpitContainer) return;
 
   const activeSubjects = masterSubjectList(false);
   const deletedSet = new Set((state.deletedSubjects || []).map(s => canonicalSubjectName(s).toLowerCase()));
   const allSubjects = masterSubjectList(true);
   const deletedSubjects = allSubjects.filter(s => deletedSet.has(canonicalSubjectName(s).toLowerCase()));
 
-  if (countBadge) {
-    countBadge.textContent = `${activeSubjects.length} Active`;
-  }
+  const countText = `${activeSubjects.length} Active`;
+  if (countBadge) countBadge.textContent = countText;
+  if (cockpitCountBadge) cockpitCountBadge.textContent = countText;
 
+  let activeHtml = '';
   if (!activeSubjects.length) {
-    container.innerHTML = '<p style="color:var(--text-soft); font-size:13px; margin:8px 0; text-align:center;">No active subjects found. Click "Reset Defaults" or add a new subject above.</p>';
+    activeHtml = '<p style="color:var(--text-soft); font-size:13px; margin:8px 0; text-align:center;">No active subjects found. Click "Reset Defaults" or add a new subject above.</p>';
   } else {
-    container.innerHTML = activeSubjects.map(s => {
+    activeHtml = activeSubjects.map(s => {
       const stats = getSubjectStats(s);
       const meta = typeof getSubjectMeta === 'function' ? getSubjectMeta(s) : { color: '#6366f1', icon: 'book-open' };
       const statPills = [];
@@ -123,39 +129,57 @@ function renderSubjectManager() {
     }).join('');
   }
 
+  if (container) container.innerHTML = activeHtml;
+  if (cockpitContainer) cockpitContainer.innerHTML = activeHtml;
+
+  let deletedHtml = '';
+  if (deletedSubjects.length > 0) {
+    deletedHtml = deletedSubjects.map(s => {
+      const meta = typeof getSubjectMeta === 'function' ? getSubjectMeta(s) : { color: '#6366f1', icon: 'book-open' };
+      return `
+        <div class="subject-manager-row subject-deleted">
+          <div class="subject-info">
+            <div style="display:flex; align-items:center; gap:8px;">
+              <span class="track-subj-icon-badge" style="color:var(--text-soft); opacity:0.6; background:rgba(255,255,255,0.05); width:26px; height:26px; border-radius:7px; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0;">
+                <i data-lucide="${meta.icon || 'book-open'}" style="width:14px; height:14px;"></i>
+              </span>
+              <span class="subject-manager-name">${escapeHtml(s)}</span>
+            </div>
+            <span style="font-size:11px; color:var(--text-soft); display:flex; align-items:center; gap:6px; margin-top:2px;">
+              <span>Hidden from pickers</span> &bull; 
+              <span style="color:#f43f5e; font-weight:600; font-size:10.5px; background:rgba(244,63,94,0.08); padding:1px 6px; border-radius:4px; border:1px solid rgba(244,63,94,0.2);">Deleted data cannot restore</span>
+            </span>
+          </div>
+          <div class="btn-group subject-row-actions">
+            <button class="pill subject-restore-btn" data-restore-subject="${escapeAttr(s)}" type="button" title="Restore this subject">
+              ${ICON.undo} <span>Restore</span>
+            </button>
+            <button class="pill danger subject-hard-delete-btn" data-perm-delete-subject="${escapeAttr(s)}" type="button" title="Permanently delete subject (deleted data cannot restore)">
+              ${ICON.trash} <span>Delete Permanently</span>
+            </button>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
   if (deletedSection && deletedContainer) {
     if (deletedSubjects.length > 0) {
       deletedSection.style.display = 'block';
-      deletedContainer.innerHTML = deletedSubjects.map(s => {
-        const meta = typeof getSubjectMeta === 'function' ? getSubjectMeta(s) : { color: '#6366f1', icon: 'book-open' };
-        return `
-          <div class="subject-manager-row subject-deleted">
-            <div class="subject-info">
-              <div style="display:flex; align-items:center; gap:8px;">
-                <span class="track-subj-icon-badge" style="color:var(--text-soft); opacity:0.6; background:rgba(255,255,255,0.05); width:26px; height:26px; border-radius:7px; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0;">
-                  <i data-lucide="${meta.icon || 'book-open'}" style="width:14px; height:14px;"></i>
-                </span>
-                <span class="subject-manager-name">${escapeHtml(s)}</span>
-              </div>
-              <span style="font-size:11px; color:var(--text-soft); display:flex; align-items:center; gap:6px; margin-top:2px;">
-                <span>Hidden from pickers</span> &bull; 
-                <span style="color:#f43f5e; font-weight:600; font-size:10.5px; background:rgba(244,63,94,0.08); padding:1px 6px; border-radius:4px; border:1px solid rgba(244,63,94,0.2);">Deleted data cannot restore</span>
-              </span>
-            </div>
-            <div class="btn-group subject-row-actions">
-              <button class="pill subject-restore-btn" data-restore-subject="${escapeAttr(s)}" type="button" title="Restore this subject">
-                ${ICON.undo} <span>Restore</span>
-              </button>
-              <button class="pill danger subject-hard-delete-btn" data-perm-delete-subject="${escapeAttr(s)}" type="button" title="Permanently delete subject (deleted data cannot restore)">
-                ${ICON.trash} <span>Delete Permanently</span>
-              </button>
-            </div>
-          </div>
-        `;
-      }).join('');
+      deletedContainer.innerHTML = deletedHtml;
     } else {
       deletedSection.style.display = 'none';
       deletedContainer.innerHTML = '';
+    }
+  }
+
+  if (cockpitDeletedSection && cockpitDeletedContainer) {
+    if (deletedSubjects.length > 0) {
+      cockpitDeletedSection.style.display = 'block';
+      cockpitDeletedContainer.innerHTML = deletedHtml;
+    } else {
+      cockpitDeletedSection.style.display = 'none';
+      cockpitDeletedContainer.innerHTML = '';
     }
   }
 
@@ -1753,12 +1777,196 @@ function attachTrackCardListeners(container, track) {
 
 window.renderProfileTrackCard = renderProfileTrackCard;
 
-// Auto-initialize profile track card on load
+// =========================================================================
+// PROFILE & SETTINGS COCKPIT CONTROLLER
+// =========================================================================
+
+function switchProfileCockpitTab(tabKey) {
+  const validTabs = ['overview', 'track', 'subjects', 'security', 'cloud', 'preferences'];
+  const targetKey = validTabs.includes(tabKey) ? tabKey : 'overview';
+
+  // 1. Update navigation buttons
+  const navBtns = document.querySelectorAll('#profileCockpitNav .cockpit-nav-btn');
+  navBtns.forEach(btn => {
+    const isTarget = btn.dataset.cockpitTab === targetKey;
+    btn.classList.toggle('active', isTarget);
+    btn.setAttribute('aria-selected', isTarget ? 'true' : 'false');
+  });
+
+  // 2. Switch visible pane
+  const paneMap = {
+    overview: 'cockpitPaneOverview',
+    track: 'cockpitPaneTrack',
+    subjects: 'cockpitPaneSubjects',
+    security: 'cockpitPaneSecurity',
+    cloud: 'cockpitPaneCloud',
+    preferences: 'cockpitPanePreferences'
+  };
+
+  Object.entries(paneMap).forEach(([key, paneId]) => {
+    const pane = document.getElementById(paneId);
+    if (pane) {
+      const isTarget = key === targetKey;
+      pane.style.display = isTarget ? 'block' : 'none';
+      pane.classList.toggle('active', isTarget);
+    }
+  });
+
+  // 3. Save selection
+  try {
+    localStorage.setItem('careerdesk_profile_cockpit_tab', targetKey);
+  } catch (e) { }
+
+  // 4. Trigger pane renderers
+  if (targetKey === 'overview' && typeof renderProfileAspirantHub === 'function') {
+    renderProfileAspirantHub();
+  } else if (targetKey === 'track' && typeof renderProfileTrackCard === 'function') {
+    renderProfileTrackCard();
+  } else if (targetKey === 'subjects' && typeof renderSubjectManager === 'function') {
+    renderSubjectManager();
+  } else if (targetKey === 'security' && typeof renderSecurityVaultUI === 'function') {
+    renderSecurityVaultUI();
+  } else if (targetKey === 'preferences') {
+    if (typeof syncQuoteSettings === 'function') syncQuoteSettings();
+    if (typeof renderQuoteManager === 'function') renderQuoteManager();
+    syncCockpitPreferencesUI();
+  }
+
+  if (window.lucide && typeof window.lucide.createIcons === 'function') {
+    window.lucide.createIcons();
+  }
+}
+window.switchProfileCockpitTab = switchProfileCockpitTab;
+
+function syncCockpitPreferencesUI() {
+  // Sync Theme toggle
+  const currentTheme = (state && state.theme) || (document.documentElement.getAttribute('data-theme')) || 'dark';
+  const darkBtn = document.getElementById('cockpitThemeDarkBtn');
+  const lightBtn = document.getElementById('cockpitThemeLightBtn');
+  if (darkBtn && lightBtn) {
+    darkBtn.classList.toggle('active', currentTheme === 'dark');
+    lightBtn.classList.toggle('active', currentTheme === 'light');
+  }
+
+  // Sync Daily target input & chips
+  const targetMins = (state && typeof state.dailyTargetMinutes === 'number') ? state.dailyTargetMinutes : 240;
+  const targetHours = (targetMins / 60);
+  const targetInput = document.getElementById('targetHoursSettings');
+  if (targetInput) targetInput.value = targetHours.toString();
+
+  document.querySelectorAll('.cockpit-target-chip').forEach(chip => {
+    const chipVal = parseFloat(chip.dataset.hours);
+    chip.classList.toggle('active', chipVal === targetHours);
+  });
+}
+window.syncCockpitPreferencesUI = syncCockpitPreferencesUI;
+
+// Bind Cockpit Event Listeners
+document.addEventListener('click', (e) => {
+  // 1. Cockpit Nav Tab Clicks
+  const navBtn = e.target.closest('#profileCockpitNav .cockpit-nav-btn');
+  if (navBtn) {
+    e.preventDefault();
+    const tabKey = navBtn.dataset.cockpitTab;
+    if (tabKey) switchProfileCockpitTab(tabKey);
+    return;
+  }
+
+  // 2. Cockpit Add Subject Button
+  if (e.target.closest('#cockpitAddSubjectBtn')) {
+    e.preventDefault();
+    const input = document.getElementById('cockpitNewSubjectInput');
+    if (!input) return;
+    const name = input.value.trim();
+    if (!name) { input.focus(); return; }
+    const added = typeof addSubject === 'function' ? addSubject(name) : name;
+    input.value = '';
+    renderSubjectManager();
+    if (typeof renderProfileTrackCard === 'function') renderProfileTrackCard();
+    if (typeof renderProfileAspirantHub === 'function') renderProfileAspirantHub();
+    if (typeof showToast === 'function') showToast(`Subject "${added || name}" added successfully!`);
+    return;
+  }
+
+  // 3. Reset Defaults Cockpit Button
+  if (e.target.closest('#btnResetDefaultSubjectsCockpit')) {
+    e.preventDefault();
+    const ok = confirm('Reset subjects to standard Bangladesh curriculum defaults? (Custom added subjects will be retained)');
+    if (!ok) return;
+    if (typeof resetDefaultSubjects === 'function') {
+      resetDefaultSubjects();
+    } else {
+      state.deletedSubjects = [];
+      saveData();
+      syncAllSubjectSelects();
+    }
+    renderSubjectManager();
+    if (typeof renderProfileTrackCard === 'function') renderProfileTrackCard();
+    if (typeof showToast === 'function') showToast('Standard curriculum subjects restored.');
+    return;
+  }
+
+  // 4. Cockpit Theme Switchers
+  const themeBtn = e.target.closest('#cockpitThemeSwitch button');
+  if (themeBtn) {
+    e.preventDefault();
+    const newTheme = themeBtn.dataset.themeVal;
+    if (newTheme && typeof setTheme === 'function') {
+      setTheme(newTheme);
+      syncCockpitPreferencesUI();
+    } else if (newTheme) {
+      document.documentElement.setAttribute('data-theme', newTheme);
+      state.theme = newTheme;
+      saveData();
+      syncCockpitPreferencesUI();
+    }
+    return;
+  }
+
+  // 5. Cockpit Target Preset Chips
+  const targetChip = e.target.closest('.cockpit-target-chip');
+  if (targetChip) {
+    e.preventDefault();
+    const hrs = parseFloat(targetChip.dataset.hours) || 4;
+    if (typeof setDailyTarget === 'function') {
+      setDailyTarget(hrs);
+    } else {
+      state.dailyTargetMinutes = Math.round(hrs * 60);
+      saveData();
+    }
+    syncCockpitPreferencesUI();
+    if (typeof showToast === 'function') showToast(`Daily study target set to ${hrs} hours.`);
+    return;
+  }
+});
+
+// Cockpit Subject Input Enter key support
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' && e.target && e.target.id === 'cockpitNewSubjectInput') {
+    e.preventDefault();
+    const addBtn = document.getElementById('cockpitAddSubjectBtn');
+    if (addBtn) addBtn.click();
+  }
+});
+
+// Auto-initialize profile track card and cockpit tab on load
+function initProfileCockpit() {
+  const savedTab = localStorage.getItem('careerdesk_profile_cockpit_tab') || 'overview';
+  switchProfileCockpitTab(savedTab);
+}
+window.initProfileCockpit = initProfileCockpit;
+
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => {
-    setTimeout(renderProfileTrackCard, 100);
+    setTimeout(() => {
+      if (typeof renderProfileTrackCard === 'function') renderProfileTrackCard();
+      initProfileCockpit();
+    }, 100);
   });
 } else {
-  setTimeout(renderProfileTrackCard, 100);
+  setTimeout(() => {
+    if (typeof renderProfileTrackCard === 'function') renderProfileTrackCard();
+    initProfileCockpit();
+  }, 100);
 }
 

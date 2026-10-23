@@ -215,7 +215,7 @@ if (addExamBtn) {
 
     if (examWrap && toggleExamBtn) {
       examWrap.style.display = 'none';
-      toggleExamBtn.innerHTML = '<span class="btn-icon">+</span> New Exam Target';
+      toggleExamBtn.innerHTML = `${ICON.plus} <span>New Exam Target</span>`;
       toggleExamBtn.classList.remove('active-open');
     }
     showToast('New exam countdown target added!');

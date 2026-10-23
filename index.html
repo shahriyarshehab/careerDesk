@@ -891,95 +891,307 @@
       </div>
     </section>
 
-    <!-- ===== USER PROFILE & SETTINGS ===== -->
+    <!-- ===== USER PROFILE & SETTINGS COCKPIT ===== -->
     <section class="panel" id="panel-profile">
-      <!-- User Profile & Cloud Hub Card -->
+      <!-- 1. Master Profile Identity Deck -->
       <div class="glass user-profile-card" id="userProfileCard"></div>
 
-      <div id="authenticatedProfileContent" hidden>
-        <!-- Curriculum & Subjects Management Hub -->
-        <div class="glass profile-track-card" id="profileTrackCard" style="margin-bottom: 22px;"></div>
-
-        <!-- Aspirant Overview, Targets, Core Pillars & Radar Hub -->
-        <div id="profileAspirantHub" style="margin-bottom: 22px;"></div>
-
-        <div class="glass data-management-card" id="dataManagementCard" style="padding:22px; border-color:var(--border);">
-        <h2 class="section-title" style="font-size:17px; margin-bottom:14px; display:flex; align-items:center; gap:8px;">
-          <i data-lucide="cloud" style="color:var(--accent2); width:19px; height:19px;"></i>
-          <span>Cloud Sync &amp; Storage</span>
-        </h2>
-
-        <!-- Firestore Real-Time Cloud Sync Sub-Section -->
-        <div class="settings-row" style="border-top:none; padding-top:0; padding-bottom:14px; border-bottom:1px solid var(--border);">
-          <div>
-            <div style="display:flex; align-items:center; gap:8px; margin-bottom:4px; flex-wrap:wrap;">
-              <strong style="font-size:14.5px; color:var(--text);">Individual Cloud Storage</strong>
-              <span class="pill subtle" id="cloudSyncLiveBadge" style="font-size:11px; padding:2px 8px; color:#10b981; border-color:rgba(16,185,129,0.3); background:rgba(16,185,129,0.08);">
-                <i data-lucide="check-circle" style="width:12px; height:12px;"></i> Auto-Sync Active
-              </span>
-            </div>
-            <span style="font-size:12.5px; color:var(--text-soft);" id="cloudSyncStatusDesc">
-              Your routines, notes, syllabus progress, and mistake bank automatically sync with your personal Firestore account with offline resilience.
-            </span>
-          </div>
-          <div class="settings-btn-group data-action-buttons">
-            <button class="pill theme-action-btn" id="btnSyncFirestoreNow" type="button" title="Sync data to Firestore now">
-              <i data-lucide="refresh-cw"></i> <span>Sync Now</span>
-            </button>
-            <button class="pill theme-action-btn" id="btnCreateSnapshotNow" type="button" title="Create a point-in-time cloud backup snapshot">
-              <i data-lucide="camera"></i> <span>Create Snapshot</span>
-            </button>
-          </div>
-        </div>
-
-        <!-- Versioned Snapshots History Sub-Section -->
-        <div class="settings-row" style="margin-top:14px; padding-top:14px; border-top:none; border-bottom:1px solid var(--border); padding-bottom:14px;">
-          <div style="flex:1; width:100%;">
-            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px; flex-wrap:wrap; gap:8px;">
-              <div>
-                <strong style="font-size:14.5px; display:block; color:var(--text); margin-bottom:2px;">Point-in-Time Cloud Snapshots</strong>
-                <span style="font-size:12.5px; color:var(--text-soft);">Restore routines, notes, or syllabus from any previous automated snapshot.</span>
-              </div>
-              <button class="pill subtle" id="btnToggleSnapshotsList" type="button" style="font-size:12px; padding:4px 10px;">
-                <i data-lucide="history"></i> <span id="snapshotToggleText">View Snapshots (0)</span>
-              </button>
-            </div>
-            <div id="cloudSnapshotsContainer" style="display:none; margin-top:12px; background:rgba(255,255,255,0.02); border:1px solid var(--border); border-radius:12px; padding:12px; max-height:260px; overflow-y:auto;">
-              <div id="cloudSnapshotsList" style="display:flex; flex-direction:column; gap:8px;">
-                <div style="text-align:center; color:var(--text-soft); font-size:12.5px; padding:12px;">Loading snapshots...</div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- 1-Click JSON File Backup & Import Sub-Section -->
-        <div class="settings-row" style="margin-top:14px; padding-top:14px; border-top:none; border-bottom:1px solid var(--border); padding-bottom:14px;">
-          <div>
-            <strong style="font-size:14.5px; display:block; color:var(--text); margin-bottom:2px;">JSON Cloud File Backup</strong>
-            <span style="font-size:12.5px; color:var(--text-soft);">Download your complete cloud data package or restore from a previously saved JSON file.</span>
-          </div>
-          <div class="settings-btn-group data-action-buttons">
-            <button class="pill theme-action-btn" id="btnExportCloudJSON" type="button" title="Download entire cloud backup as JSON">
-              <i data-lucide="download"></i> <span>Export JSON</span>
-            </button>
-            <label class="pill theme-action-btn" for="cloudJSONFileInput" style="cursor:pointer; margin:0;" title="Restore data from JSON file">
-              <i data-lucide="upload"></i> <span>Restore from JSON</span>
-            </label>
-            <input type="file" id="cloudJSONFileInput" accept=".json" style="display:none;" />
-          </div>
-        </div>
-
-        <!-- Delete Cloud Data Section -->
-        <div class="settings-row" style="margin-top:14px; padding-top:14px; border-top:none; border-bottom:1px solid var(--border); padding-bottom:14px;">
-          <div>
-            <strong style="font-size:14.5px; display:block; color:#f43f5e; margin-bottom:2px;">Delete User Cloud Data</strong>
-            <span style="font-size:12.5px; color:var(--text-soft);">Permanently remove synced routines, notes, syllabus, and snapshots from Firestore cloud or purge local cached workspaces for a specific user.</span>
-          </div>
-          <button class="pill danger" id="btnDeleteCloudData" type="button" style="white-space:nowrap; background:rgba(244,63,94,0.12); color:#f43f5e; border-color:rgba(244,63,94,0.3);">
-            <i data-lucide="cloud-off"></i> <span>Delete Cloud Data</span>
+      <!-- 2. Profile & Settings Cockpit Shell -->
+      <div class="profile-cockpit-shell" id="profileCockpitShell">
+        <!-- Cockpit Segmented Navigation Bar -->
+        <nav class="profile-cockpit-nav" id="profileCockpitNav" role="tablist" aria-label="Profile and Settings Sections">
+          <button type="button" class="cockpit-nav-btn active" data-cockpit-tab="overview" role="tab" aria-selected="true">
+            <i data-lucide="compass"></i>
+            <span>Overview &amp; Insights</span>
           </button>
-        </div>
+          <button type="button" class="cockpit-nav-btn" data-cockpit-tab="track" role="tab" aria-selected="false">
+            <i data-lucide="graduation-cap"></i>
+            <span>Curriculum &amp; Track</span>
+          </button>
+          <button type="button" class="cockpit-nav-btn" data-cockpit-tab="subjects" role="tab" aria-selected="false">
+            <i data-lucide="layers"></i>
+            <span>Subject Manager</span>
+          </button>
+          <button type="button" class="cockpit-nav-btn" data-cockpit-tab="security" role="tab" aria-selected="false">
+            <i data-lucide="shield-check"></i>
+            <span>Security &amp; Privacy</span>
+          </button>
+          <button type="button" class="cockpit-nav-btn" data-cockpit-tab="cloud" role="tab" aria-selected="false">
+            <i data-lucide="cloud"></i>
+            <span>Cloud &amp; Backups</span>
+          </button>
+          <button type="button" class="cockpit-nav-btn" data-cockpit-tab="preferences" role="tab" aria-selected="false">
+            <i data-lucide="sliders-horizontal"></i>
+            <span>App Preferences</span>
+          </button>
+        </nav>
 
+        <!-- Cockpit Tab Panes -->
+        <div class="profile-cockpit-content" id="profileCockpitContent">
+          <!-- Pane 1: Overview & Aspirant Mission Control -->
+          <div class="cockpit-pane active" id="cockpitPaneOverview" role="tabpanel">
+            <div id="profileAspirantHub"></div>
+          </div>
+
+          <!-- Pane 2: Curriculum & Academic Track -->
+          <div class="cockpit-pane" id="cockpitPaneTrack" role="tabpanel" style="display:none;">
+            <div class="glass profile-track-card" id="profileTrackCard"></div>
+          </div>
+
+          <!-- Pane 3: Master Subject Manager -->
+          <div class="cockpit-pane" id="cockpitPaneSubjects" role="tabpanel" style="display:none;">
+            <div class="glass profile-section-card" id="profileSubjectsCockpitCard">
+              <div class="section-card-header">
+                <div class="section-card-title-group">
+                  <div class="section-card-icon-badge">
+                    <i data-lucide="layers"></i>
+                  </div>
+                  <div>
+                    <h3 class="section-card-title">
+                      <span>Master Subject Manager</span>
+                      <span class="subject-count-badge" id="cockpitSubjectCountBadge">0 Active</span>
+                    </h3>
+                    <p class="section-card-desc">Centralized repository for Routine, Focus Tracker, Syllabus curriculum, and Quizzes</p>
+                  </div>
+                </div>
+                <button class="pill subtle" id="btnResetDefaultSubjectsCockpit" type="button" title="Reset standard Bangladesh curriculum subjects">
+                  <i data-lucide="rotate-ccw"></i> <span>Reset Defaults</span>
+                </button>
+              </div>
+
+              <!-- Add Subject Bar -->
+              <div class="cockpit-subject-add-bar">
+                <div class="cockpit-input-wrap">
+                  <i data-lucide="plus-circle" class="input-icon"></i>
+                  <input type="text" id="cockpitNewSubjectInput" placeholder="Add custom subject (e.g. ICT, Higher Math, General Science)..." autocomplete="off">
+                </div>
+                <button class="pill solid" id="cockpitAddSubjectBtn" type="button">
+                  <i data-lucide="plus"></i> <span>Add Subject</span>
+                </button>
+              </div>
+
+              <!-- Active Subject List Container -->
+              <div id="cockpitSubjectManagerList" class="cockpit-subjects-list"></div>
+
+              <!-- Inactive / Hidden Subjects Container -->
+              <div id="cockpitDeletedSubjectSection" class="cockpit-inactive-section" style="display:none;">
+                <div class="cockpit-inactive-header">
+                  <i data-lucide="eye-off"></i>
+                  <h4>Inactive / Hidden Subjects</h4>
+                </div>
+                <div id="cockpitDeletedSubjectList" class="cockpit-subjects-list"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Pane 4: Security & Privacy Vault -->
+          <div class="cockpit-pane" id="cockpitPaneSecurity" role="tabpanel" style="display:none;">
+            <div class="glass profile-section-card" id="securityVaultCard"></div>
+          </div>
+
+          <!-- Pane 5: Cloud Sync & Storage -->
+          <div class="cockpit-pane" id="cockpitPaneCloud" role="tabpanel" style="display:none;">
+            <div class="glass data-management-card" id="dataManagementCard">
+              <div class="section-card-header" style="margin-bottom:16px;">
+                <div class="section-card-title-group">
+                  <div class="section-card-icon-badge" style="color:var(--accent2); background:rgba(6,182,212,0.12); border-color:rgba(6,182,212,0.3);">
+                    <i data-lucide="cloud"></i>
+                  </div>
+                  <div>
+                    <h3 class="section-card-title">Cloud Sync &amp; Backups</h3>
+                    <p class="section-card-desc">Real-time Firestore synchronization, point-in-time snapshots, and JSON archives</p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Firestore Real-Time Cloud Sync Sub-Section -->
+              <div class="settings-row" style="border-top:none; padding-top:0; padding-bottom:14px; border-bottom:1px solid var(--border);">
+                <div>
+                  <div style="display:flex; align-items:center; gap:8px; margin-bottom:4px; flex-wrap:wrap;">
+                    <strong style="font-size:14.5px; color:var(--text);">Individual Cloud Storage</strong>
+                    <span class="pill subtle" id="cloudSyncLiveBadge" style="font-size:11px; padding:2px 8px; color:#10b981; border-color:rgba(16,185,129,0.3); background:rgba(16,185,129,0.08);">
+                      <i data-lucide="check-circle" style="width:12px; height:12px;"></i> Auto-Sync Active
+                    </span>
+                  </div>
+                  <span style="font-size:12.5px; color:var(--text-soft);" id="cloudSyncStatusDesc">
+                    Your routines, notes, syllabus progress, and mistake bank automatically sync with your personal Firestore account with offline resilience.
+                  </span>
+                </div>
+                <div class="settings-btn-group data-action-buttons">
+                  <button class="pill theme-action-btn" id="btnSyncFirestoreNow" type="button" title="Sync data to Firestore now">
+                    <i data-lucide="refresh-cw"></i> <span>Sync Now</span>
+                  </button>
+                  <button class="pill theme-action-btn" id="btnCreateSnapshotNow" type="button" title="Create a point-in-time cloud backup snapshot">
+                    <i data-lucide="camera"></i> <span>Create Snapshot</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Versioned Snapshots History Sub-Section -->
+              <div class="settings-row" style="margin-top:14px; padding-top:14px; border-top:none; border-bottom:1px solid var(--border); padding-bottom:14px;">
+                <div style="flex:1; width:100%;">
+                  <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px; flex-wrap:wrap; gap:8px;">
+                    <div>
+                      <strong style="font-size:14.5px; display:block; color:var(--text); margin-bottom:2px;">Point-in-Time Cloud Snapshots</strong>
+                      <span style="font-size:12.5px; color:var(--text-soft);">Restore routines, notes, or syllabus from any previous automated snapshot.</span>
+                    </div>
+                    <button class="pill subtle" id="btnToggleSnapshotsList" type="button" style="font-size:12px; padding:4px 10px;">
+                      <i data-lucide="history"></i> <span id="snapshotToggleText">View Snapshots (0)</span>
+                    </button>
+                  </div>
+                  <div id="cloudSnapshotsContainer" style="display:none; margin-top:12px; background:rgba(255,255,255,0.02); border:1px solid var(--border); border-radius:12px; padding:12px; max-height:260px; overflow-y:auto;">
+                    <div id="cloudSnapshotsList" style="display:flex; flex-direction:column; gap:8px;">
+                      <div style="text-align:center; color:var(--text-soft); font-size:12.5px; padding:12px;">Loading snapshots...</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 1-Click JSON File Backup & Import Sub-Section -->
+              <div class="settings-row" style="margin-top:14px; padding-top:14px; border-top:none; border-bottom:1px solid var(--border); padding-bottom:14px;">
+                <div>
+                  <strong style="font-size:14.5px; display:block; color:var(--text); margin-bottom:2px;">JSON Cloud File Backup</strong>
+                  <span style="font-size:12.5px; color:var(--text-soft);">Download your complete cloud data package or restore from a previously saved JSON file.</span>
+                </div>
+                <div class="settings-btn-group data-action-buttons">
+                  <button class="pill theme-action-btn" id="btnExportCloudJSON" type="button" title="Download entire cloud backup as JSON">
+                    <i data-lucide="download"></i> <span>Export JSON</span>
+                  </button>
+                  <label class="pill theme-action-btn" for="cloudJSONFileInput" style="cursor:pointer; margin:0;" title="Restore data from JSON file">
+                    <i data-lucide="upload"></i> <span>Restore from JSON</span>
+                  </label>
+                  <input type="file" id="cloudJSONFileInput" accept=".json" style="display:none;" />
+                </div>
+              </div>
+
+              <!-- Delete Cloud Data Section -->
+              <div class="settings-row" style="margin-top:14px; padding-top:14px; border-top:none; border-bottom:none; padding-bottom:0;">
+                <div>
+                  <strong style="font-size:14.5px; display:block; color:#f43f5e; margin-bottom:2px;">Delete User Cloud Data</strong>
+                  <span style="font-size:12.5px; color:var(--text-soft);">Permanently remove synced routines, notes, syllabus, and snapshots from Firestore cloud or purge local cached workspaces for a specific user.</span>
+                </div>
+                <button class="pill danger" id="btnDeleteCloudData" type="button" style="white-space:nowrap; background:rgba(244,63,94,0.12); color:#f43f5e; border-color:rgba(244,63,94,0.3);">
+                  <i data-lucide="cloud-off"></i> <span>Delete Cloud Data</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Pane 6: App Preferences & Data Management -->
+          <div class="cockpit-pane" id="cockpitPanePreferences" role="tabpanel" style="display:none;">
+            <div class="glass profile-section-card" id="profilePreferencesCard">
+              <div class="section-card-header" style="margin-bottom:18px;">
+                <div class="section-card-title-group">
+                  <div class="section-card-icon-badge" style="color:var(--gold); background:rgba(245,158,11,0.12); border-color:rgba(245,158,11,0.3);">
+                    <i data-lucide="sliders-horizontal"></i>
+                  </div>
+                  <div>
+                    <h3 class="section-card-title">App Preferences &amp; Workspace</h3>
+                    <p class="section-card-desc">Theme personalization, daily study targets, quote ticker settings, and local workspace safety</p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 1. Theme Selection -->
+              <div class="settings-row" style="border-top:none; padding-top:0;">
+                <div>
+                  <strong style="font-size:14.5px; display:block; color:var(--text); margin-bottom:2px;">Visual Theme Mode</strong>
+                  <span style="font-size:12.5px; color:var(--text-soft);">Choose your preferred aesthetic. High-contrast dark glass or clean daytime daylight.</span>
+                </div>
+                <div class="segmented-toggle-group" id="cockpitThemeSwitch">
+                  <button type="button" class="chip btn-mode-switch" id="cockpitThemeDarkBtn" data-theme-val="dark">
+                    <i data-lucide="moon"></i> <span>Dark Mode</span>
+                  </button>
+                  <button type="button" class="chip btn-mode-switch" id="cockpitThemeLightBtn" data-theme-val="light">
+                    <i data-lucide="sun"></i> <span>Light Mode</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- 2. Daily Study Target Hours -->
+              <div class="settings-row">
+                <div>
+                  <strong style="font-size:14.5px; display:block; color:var(--text); margin-bottom:2px;">Daily Study Target</strong>
+                  <span style="font-size:12.5px; color:var(--text-soft);">Sets the completion threshold for your daily focus bar and streak calculations.</span>
+                </div>
+                <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+                  <div class="cockpit-target-presets">
+                    <button type="button" class="chip cockpit-target-chip" data-hours="2">2h</button>
+                    <button type="button" class="chip cockpit-target-chip" data-hours="4">4h</button>
+                    <button type="button" class="chip cockpit-target-chip" data-hours="6">6h</button>
+                    <button type="button" class="chip cockpit-target-chip" data-hours="8">8h</button>
+                  </div>
+                  <div style="display:inline-flex; align-items:center; gap:6px;">
+                    <input type="number" id="targetHoursSettings" min="0.5" max="18" step="0.5" value="4"
+                      style="width:72px; padding:7px 10px; border-radius:10px; border:1px solid var(--border); background:var(--surface); color:var(--text); font-size:14px; font-weight:700; text-align:center;">
+                    <span style="font-size:13px; color:var(--text-soft); font-weight:600;">hours / day</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 3. Motivational Quotes Engine -->
+              <div class="settings-row">
+                <div style="flex:1;">
+                  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; flex-wrap:wrap; gap:8px;">
+                    <div>
+                      <strong style="font-size:14.5px; display:block; color:var(--text); margin-bottom:2px;">Motivational Quotes &amp; Ticker</strong>
+                      <span style="font-size:12.5px; color:var(--text-soft);">Bilingual quote rotation speed, source pool, and custom inspirational quote management.</span>
+                    </div>
+                    <div style="display:flex; gap:8px; align-items:center;">
+                      <select id="quoteIntervalSelect" class="pill" style="font-size:12px; padding:6px 10px;" aria-label="Rotation Interval">
+                        <option value="30">30 Seconds</option>
+                        <option value="60">1 Minute</option>
+                        <option value="120">2 Minutes</option>
+                        <option value="300" selected>5 Minutes</option>
+                        <option value="900">15 Minutes</option>
+                      </select>
+                      <button type="button" class="pill subtle" id="toggleQuoteFormBtn" style="font-size:12px; padding:6px 12px;">
+                        <i data-lucide="plus"></i> <span>New Quote</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  <!-- New Quote Collapsible Box -->
+                  <div id="quoteAddBox" style="display:none; margin-top:14px; background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:16px;">
+                    <textarea id="customQuoteInput" class="fancy-textarea" rows="2" placeholder="Write inspirational quote or formula memory aid..." style="width:100%; box-sizing:border-box; margin-bottom:10px;"></textarea>
+                    <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+                      <input type="text" id="customAuthorInput" placeholder="Author name or source (optional)..." style="flex:1; min-width:180px; padding:8px 12px; border-radius:10px; border:1px solid var(--border); background:var(--surface-strong); color:var(--text); font-size:13px;">
+                      <button type="button" class="pill solid" id="addQuoteBtn"><i data-lucide="save"></i> <span>Save to Pool</span></button>
+                    </div>
+                  </div>
+
+                  <!-- Quote Manager List -->
+                  <div style="margin-top:14px; border:1px solid var(--border); border-radius:12px; background:rgba(255,255,255,0.015); padding:12px; max-height:220px; overflow-y:auto;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; padding-bottom:6px; border-bottom:1px solid var(--border);">
+                      <span style="font-size:12px; font-weight:700; color:var(--text-soft); text-transform:uppercase; letter-spacing:0.04em;">Active Quote Pool</span>
+                      <span class="pill subtle" id="quoteCountBadge" style="font-size:11px; padding:2px 8px;">0</span>
+                    </div>
+                    <div id="quoteManagerList" style="display:flex; flex-direction:column; gap:8px;"></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 4. Local Workspace Data & Danger Zone -->
+              <div class="settings-row" style="border-bottom:none; padding-bottom:0;">
+                <div>
+                  <strong style="font-size:14.5px; display:block; color:var(--text); margin-bottom:2px;">Offline Data Backup &amp; Danger Zone</strong>
+                  <span style="font-size:12.5px; color:var(--text-soft);">Save local backup file, restore previous JSON snapshot, or reset local workspace data.</span>
+                </div>
+                <div class="settings-btn-group data-action-buttons">
+                  <button class="pill theme-action-btn" id="exportDataBtn" type="button" title="Export complete local workspace as JSON">
+                    <i data-lucide="download"></i> <span>Export Local JSON</span>
+                  </button>
+                  <label class="pill theme-action-btn" for="importDataInput" style="cursor:pointer; margin:0;" title="Restore workspace from local JSON backup">
+                    <i data-lucide="upload"></i> <span>Restore Local JSON</span>
+                  </label>
+                  <input type="file" id="importDataInput" accept=".json" style="display:none;" />
+                  <button class="pill danger" id="resetAllBtn" type="button" title="Reset all local routines, notes, and study logs" style="background:rgba(244,63,94,0.1); color:#f43f5e; border-color:rgba(244,63,94,0.25);">
+                    <i data-lucide="trash-2"></i> <span>Reset Local Data</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </section>
