@@ -1041,9 +1041,7 @@ async function signOutUser() {
 /**
  * Builds the complete export bundle for cloud storage
  */
-function buildCloudDataBundle() {
-  delete state.notes;
-  // Strip legacy notes from cached user bundles on this browser.
+function purgeLegacyNotesFromLocalCaches() {
   try {
     for (let i = localStorage.length - 1; i >= 0; i--) {
       const key = localStorage.key(i);
@@ -1057,6 +1055,14 @@ function buildCloudDataBundle() {
       }
     }
   } catch (e) { console.warn('[CareerDesk] Legacy notes cache cleanup skipped:', e); }
+}
+
+// Run immediately so retired Notes data is removed even before sign-in.
+purgeLegacyNotesFromLocalCaches();
+
+function buildCloudDataBundle() {
+  delete state.notes;
+  purgeLegacyNotesFromLocalCaches();
   return {
     state: state,
     exams: exams || [],
