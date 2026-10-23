@@ -8,6 +8,7 @@
 @import url('base.css');
 @import url('components.css');
 @import url('home.css');
+@import url('dashboard.css');
 @import url('routine.css');
 @import url('quotes.css');
 @import url('tracker.css');
@@ -25,3 +26,6 @@
 
 /* Unified Navigation and Section Frame: loaded last to guarantee exact pixel alignment */
 @import url('section-width-alignment.css');
+
+/* CareerDesk modern responsive redesign overrides */
+@import url('careerdesk-redesign.css');

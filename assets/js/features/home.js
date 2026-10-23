@@ -9,7 +9,7 @@ let profileCountdownInterval = null;
  * Homepage is dedicated exclusively to the full-width daily study routine.
  */
 function renderHomeDashboard() {
-  const container = document.getElementById('panel-home');
+  const container = document.getElementById('panel-routine') || document.getElementById('panel-home');
   if (!container) return;
 
   // Refresh integrated Daily Study Routine & Date Slider

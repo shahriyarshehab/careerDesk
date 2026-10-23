@@ -41,7 +41,7 @@
   <div class="aurora"><span></span><span></span><span></span></div>
 
   <header class="main-header masthead">
-    <a href="#" class="brand-container brand" aria-label="CareerDesk Home">
+    <a href="#" class="brand-container brand" aria-label="CareerDesk Home" onclick="activateTab('home', true); return false;">
       <div class="brand-mark brand-badge" aria-label="CareerDesk logo">
         <img src="assets/icons/favicon.svg" alt="CareerDesk logo" class="careerdesk-logo" width="38" height="38">
       </div>
@@ -50,8 +50,10 @@
 
     <!-- Nav Menu Pills -->
     <nav class="tabs nav-menu" role="tablist" aria-label="Primary Navigation">
-      <button class="tab-btn nav-link active" data-tab="home" role="tab" aria-selected="true" title="Home &amp; Daily Study Routine"
-        aria-label="Home"><i data-lucide="home"></i><span>Home</span></button>
+      <button class="tab-btn nav-link active" data-tab="home" role="tab" aria-selected="true" title="Dashboard — Overview &amp; Analytics"
+        aria-label="Dashboard"><i data-lucide="layout-dashboard"></i><span>Dashboard</span></button>
+      <button class="tab-btn nav-link" data-tab="routine" role="tab" aria-selected="false" title="Rutine — Daily Study Routine &amp; Schedule"
+        aria-label="Rutine"><i data-lucide="calendar-days"></i><span>Rutine</span></button>
       <button class="tab-btn nav-link" data-tab="tracker" role="tab" aria-selected="false" title="Tracker &amp; Focus"
         aria-label="Tracker"><i data-lucide="timer"></i><span>Tracker</span></button>
       <button class="tab-btn nav-link" data-tab="quiz" role="tab" aria-selected="false" title="BCS &amp; Govt MCQ Practice"
@@ -66,18 +68,37 @@
         aria-label="User Profile"><i data-lucide="user"></i><span>Profile</span></button>
     </nav>
 
-    <!-- Header Actions -->
+    <!-- Header Actions (Figma Style) -->
     <div class="header-actions brand-actions watch-actions" aria-label="Quick controls">
-      <button class="icon-action-btn watch-action" id="shortcutsHelpBtn" type="button" title="Keyboard Shortcuts (?)" aria-label="Keyboard Shortcuts">
-        <i data-lucide="keyboard"></i>
-      </button>
-      <button class="icon-action-btn watch-action" id="commandPaletteBtn" type="button" title="Quick Commands &amp; Search (Ctrl+K)" aria-label="Quick Commands and Search">
+      <button class="nav-search-btn" id="commandPaletteBtn" type="button" title="Quick Commands &amp; Search (Ctrl+K)" aria-label="Quick Commands and Search">
         <i data-lucide="search"></i>
+        <span class="nav-search-text">Search...</span>
+        <kbd class="nav-search-kbd">Ctrl+K</kbd>
       </button>
+
+      <button class="icon-action-btn watch-action nav-notif-btn" type="button" title="Community &amp; Notifications" onclick="activateTab('groupchat', true)" aria-label="Notifications">
+        <i data-lucide="bell"></i>
+        <span class="nav-notif-dot"></span>
+      </button>
+
       <button class="icon-action-btn watch-action" id="watchThemeToggle" type="button" title="Switch to light mode" aria-label="Switch Theme">
         <i data-lucide="sun"></i>
       </button>
-      <button class="icon-action-btn watch-action" id="watchFullscreenToggle" type="button" title="Enter fullscreen" aria-label="Toggle Fullscreen">
+
+      <div class="nav-user-pill" onclick="activateTab('profile', true)" title="Open User Profile" role="button" tabindex="0">
+        <div class="nav-user-avatar">
+          <span id="navUserInitial">S</span>
+          <span class="nav-user-status-dot"></span>
+        </div>
+        <span class="nav-user-name" id="navUserName">Shahriyar</span>
+        <i data-lucide="chevron-down" class="nav-user-chevron"></i>
+      </div>
+
+      <button class="icon-action-btn watch-action" id="shortcutsHelpBtn" type="button" title="Keyboard Shortcuts (?)" aria-label="Keyboard Shortcuts" style="display:none;">
+        <i data-lucide="keyboard"></i>
+      </button>
+
+      <button class="icon-action-btn watch-action" id="watchFullscreenToggle" type="button" title="Enter fullscreen" aria-label="Toggle Fullscreen" style="display:none;">
         <i data-lucide="maximize"></i>
       </button>
     </div>
@@ -86,8 +107,205 @@
   <main>
     <datalist id="appSubjectDatalist"></datalist>
 
-    <!-- ===== HOME: DAILY STUDY ROUTINE ONLY ===== -->
+    <!-- ===== HOME / DASHBOARD (Figma node-id=3-2 Design) ===== -->
     <section class="panel active" id="panel-home">
+
+      <div class="db-shell" id="dashboardOverview">
+
+        <!-- Top Greeting Header -->
+        <header class="db-top-header">
+          <div class="db-header-left">
+            <span class="db-breadcrumb">STUDY WORKSPACE · OVERVIEW</span>
+            <h1 class="db-headline" id="dbGreetingHeadline">Let's make today count.</h1>
+            <p class="db-subheadline" id="dbGreetingSub">A little progress each day adds up to big results.</p>
+          </div>
+          <div class="db-header-right">
+            <div class="db-header-stat-pill">
+              <i data-lucide="clock"></i>
+              <span id="dbTopHeaderStudy">0m today</span>
+            </div>
+            <div class="db-header-clock-pill">
+              <span id="dbLiveClock">--:--</span>
+              <span class="db-header-date" id="dbLiveDate">--</span>
+            </div>
+          </div>
+        </header>
+
+        <!-- 1. Hero Feature Banner Card -->
+        <div class="db-feature-hero glass">
+          <div class="db-feature-content">
+            <div class="db-feature-kicker">
+              <span class="db-kicker-dot"></span>
+              <span>STUDY FLOW</span>
+            </div>
+            <h2 class="db-feature-title">Build your future,<br>one focused session at a time.</h2>
+            <p class="db-feature-sub">Maintain your daily rhythm and momentum to hit your target milestones.</p>
+            <div class="db-feature-actions">
+              <button class="db-btn-primary" id="dbHeroStartBtn" type="button" onclick="activateTab('tracker', true)">
+                <i data-lucide="play"></i> <span>Start Study Session</span>
+              </button>
+              <button class="db-btn-secondary" type="button" onclick="activateTab('routine', true)">
+                <i data-lucide="calendar"></i> <span>View Rutine</span>
+              </button>
+            </div>
+          </div>
+          <div class="db-feature-visual" aria-hidden="true">
+            <div class="db-orbital-target">
+              <div class="db-orbit-ring ring-3"></div>
+              <div class="db-orbit-ring ring-2"></div>
+              <div class="db-orbit-ring ring-1"></div>
+              <div class="db-orbit-center">
+                <i data-lucide="sparkles"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2. "Your progress at a glance" Section Header + 4 Metric Cards -->
+        <div class="db-section-header">
+          <h3 class="db-section-title">Your progress at a glance</h3>
+          <span class="db-section-badge" id="dbTargetGoalSummary">Daily Target: 4h</span>
+        </div>
+
+        <div class="db-kpi-grid">
+          <!-- Card 1: Study Time -->
+          <div class="db-kpi-card glass db-kpi--time">
+            <div class="db-kpi-head">
+              <span class="db-kpi-label">Study Time</span>
+              <div class="db-kpi-icon"><i data-lucide="clock"></i></div>
+            </div>
+            <div class="db-kpi-main">
+              <span class="db-kpi-num" id="dbKpiStudyToday">0m</span>
+              <span class="db-kpi-sub" id="dbKpiStudySub">Goal: 4h 0m</span>
+            </div>
+            <div class="db-kpi-progress">
+              <div class="db-kpi-progress-bar bar-cyan" id="dbKpiStudyProgressBar" style="width: 0%"></div>
+            </div>
+          </div>
+
+          <!-- Card 2: Tasks Completed -->
+          <div class="db-kpi-card glass db-kpi--tasks">
+            <div class="db-kpi-head">
+              <span class="db-kpi-label">Tasks Completed</span>
+              <div class="db-kpi-icon"><i data-lucide="check-circle-2"></i></div>
+            </div>
+            <div class="db-kpi-main">
+              <span class="db-kpi-num" id="dbKpiTasksRatio">0 of 0</span>
+              <span class="db-kpi-sub" id="dbKpiTasksSub">Today's routine</span>
+            </div>
+            <div class="db-kpi-progress">
+              <div class="db-kpi-progress-bar bar-emerald" id="dbKpiTasksProgressBar" style="width: 0%"></div>
+            </div>
+          </div>
+
+          <!-- Card 3: Streak Days -->
+          <div class="db-kpi-card glass db-kpi--streak">
+            <div class="db-kpi-head">
+              <span class="db-kpi-label">Current Streak</span>
+              <div class="db-kpi-icon"><i data-lucide="flame"></i></div>
+            </div>
+            <div class="db-kpi-main">
+              <span class="db-kpi-num" id="dbKpiStreak">0 days</span>
+              <span class="db-kpi-sub">Consecutive study 🔥</span>
+            </div>
+            <div class="db-kpi-progress">
+              <div class="db-kpi-progress-bar bar-amber" id="dbKpiStreakProgressBar" style="width: 40%"></div>
+            </div>
+          </div>
+
+          <!-- Card 4: Focus Score -->
+          <div class="db-kpi-card glass db-kpi--score">
+            <div class="db-kpi-head">
+              <span class="db-kpi-label">Focus Score</span>
+              <div class="db-kpi-icon"><i data-lucide="zap"></i></div>
+            </div>
+            <div class="db-kpi-main">
+              <span class="db-kpi-num" id="dbKpiFocusScore">425</span>
+              <span class="db-kpi-sub" id="dbKpiScoreSub">Points earned</span>
+            </div>
+            <div class="db-kpi-progress">
+              <div class="db-kpi-progress-bar bar-blue" id="dbKpiScoreProgressBar" style="width: 70%"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3. Two-Column Core Workspaces (Today's Plan + Focus Timer) -->
+        <div class="db-core-grid">
+          <!-- Left: Today's Study Plan -->
+          <div class="db-plan-card glass">
+            <div class="db-card-head">
+              <div class="db-card-title-group">
+                <i data-lucide="calendar-check" class="db-title-icon"></i>
+                <h3 class="db-card-heading">Today's Study Plan</h3>
+              </div>
+              <button class="db-action-link" type="button" onclick="activateTab('routine', true)" title="Open Rutine Page">
+                <span>View Rutine</span> <i data-lucide="arrow-right"></i>
+              </button>
+            </div>
+            <div class="db-plan-timeline" id="dbTodayPlanTimeline">
+              <!-- Dynamically populated from state.routine -->
+            </div>
+          </div>
+
+          <!-- Right: Focus Timer Widget -->
+          <div class="db-timer-card glass">
+            <div class="db-card-head">
+              <div class="db-card-title-group">
+                <i data-lucide="timer" class="db-title-icon"></i>
+                <h3 class="db-card-heading">Focus Timer</h3>
+              </div>
+              <span class="db-card-badge" id="dbTimerModeLabel">Pomodoro</span>
+            </div>
+            <div class="db-timer-modes">
+              <button class="db-timer-mode-btn active" data-dur="25" type="button">25:00</button>
+              <button class="db-timer-mode-btn" data-dur="50" type="button">50:00</button>
+              <button class="db-timer-mode-btn" data-dur="15" type="button">15:00</button>
+              <button class="db-timer-mode-btn" data-dur="0" type="button">Stopwatch</button>
+            </div>
+            <div class="db-timer-ring-container">
+              <svg class="db-timer-svg" viewBox="0 0 200 200">
+                <circle class="db-timer-track" cx="100" cy="100" r="82" fill="none" stroke-width="8"></circle>
+                <circle class="db-timer-circle" id="dbTimerCircle" cx="100" cy="100" r="82" fill="none" stroke-width="8" stroke-dasharray="515.2" stroke-dashoffset="0" stroke-linecap="round"></circle>
+              </svg>
+              <div class="db-timer-center-content">
+                <div class="db-timer-digits" id="dbTimerDigits">25:00</div>
+                <div class="db-timer-subject" id="dbTimerSubject">Ready to focus</div>
+              </div>
+            </div>
+            <div class="db-timer-actions">
+              <button class="db-timer-btn-start" id="dbTimerStartBtn" type="button">
+                <i data-lucide="play" id="dbTimerBtnIcon"></i> <span id="dbTimerBtnText">Start Focus</span>
+              </button>
+              <button class="db-timer-btn-reset" id="dbTimerResetBtn" type="button" title="Reset Timer">
+                <i data-lucide="rotate-ccw"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4. Bottom Motivational Quote Card -->
+        <div class="db-quote-card glass">
+          <div class="db-quote-icon-badge">
+            <i data-lucide="quote"></i>
+          </div>
+          <div class="db-quote-body">
+            <p class="db-quote-text" id="dbQuoteText">"Discipline is choosing between what you want now and what you want most."</p>
+            <span class="db-quote-author" id="dbQuoteAuthor">— CareerDesk</span>
+          </div>
+          <div class="db-quote-actions">
+            <button class="db-quote-btn" id="dbQuoteNextBtn" type="button" title="Next Motivation">
+              <i data-lucide="shuffle"></i> <span>Next Quote</span>
+            </button>
+          </div>
+        </div>
+
+      </div>
+      <!-- END DASHBOARD OVERVIEW -->
+
+    </section>
+
+    <!-- ===== ROUTINE PAGE ===== -->
+    <section class="panel" id="panel-routine">
       <div class="home-container">
 
         <!-- 1. Daily Motivational Quote Ticker (First on Homepage) -->
