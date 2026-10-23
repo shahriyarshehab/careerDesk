@@ -1049,9 +1049,21 @@ function purgeLegacyNotesFromLocalCaches() {
       const raw = localStorage.getItem(key);
       if (!raw) continue;
       const cached = JSON.parse(raw);
-      if (cached && cached.state && Object.prototype.hasOwnProperty.call(cached.state, 'notes')) {
-        delete cached.state.notes;
-        localStorage.setItem(key, JSON.stringify(cached));
+      if (cached && typeof cached === 'object') {
+        let changed = false;
+        if (cached.state && Object.prototype.hasOwnProperty.call(cached.state, 'notes')) {
+          delete cached.state.notes;
+          changed = true;
+        }
+        if (cached.state && cached.state.syncMeta && Object.prototype.hasOwnProperty.call(cached.state.syncMeta, 'notes')) {
+          delete cached.state.syncMeta.notes;
+          changed = true;
+        }
+        if (Object.prototype.hasOwnProperty.call(cached, 'notes')) {
+          delete cached.notes;
+          changed = true;
+        }
+        if (changed) localStorage.setItem(key, JSON.stringify(cached));
       }
     }
   } catch (e) { console.warn('[CareerDesk] Legacy notes cache cleanup skipped:', e); }
@@ -1120,7 +1132,9 @@ async function syncUserDataToFirestore(user = null, silent = true) {
       }, { merge: true });
       // Firestore merge writes preserve omitted nested fields, so explicitly delete legacy Notes data.
       await db.collection('users').doc(user.uid).update({
-        'state.notes': firebase.firestore.FieldValue.delete()
+        'state.notes': firebase.firestore.FieldValue.delete(),
+        'state.syncMeta.notes': firebase.firestore.FieldValue.delete(),
+        notes: firebase.firestore.FieldValue.delete()
       });
     }
 
@@ -1180,14 +1194,22 @@ async function purgeLegacyNotesFromCloudBackups(user) {
       const payload = doc.data() || {};
       if (payload.data && payload.data.state &&
           Object.prototype.hasOwnProperty.call(payload.data.state, 'notes')) {
-        await doc.ref.update({ 'data.state.notes': firebase.firestore.FieldValue.delete() });
+        await doc.ref.update({
+          'data.state.notes': firebase.firestore.FieldValue.delete(),
+          'data.state.syncMeta.notes': firebase.firestore.FieldValue.delete(),
+          'data.notes': firebase.firestore.FieldValue.delete()
+        });
       }
     }
     const legacyBackup = await userRef.collection('careerdesk_backups').doc('latest').get();
     if (legacyBackup.exists) {
       const payload = legacyBackup.data() || {};
       if (payload.state && Object.prototype.hasOwnProperty.call(payload.state, 'notes')) {
-        await legacyBackup.ref.update({ 'state.notes': firebase.firestore.FieldValue.delete() });
+        await legacyBackup.ref.update({
+          'state.notes': firebase.firestore.FieldValue.delete(),
+          'state.syncMeta.notes': firebase.firestore.FieldValue.delete(),
+          notes: firebase.firestore.FieldValue.delete()
+        });
       }
     }
   } catch (err) {
