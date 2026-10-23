@@ -64,8 +64,6 @@
         aria-label="Syllabus"><i data-lucide="list-checks"></i><span>Syllabus</span></button>
       <button class="tab-btn nav-link" data-tab="groupchat" role="tab" aria-selected="false" title="Group Chat"
         aria-label="Group Chat"><i data-lucide="messages-square"></i><span>Chat</span></button>
-      <button class="tab-btn nav-link" data-tab="profile" role="tab" aria-selected="false" title="User Profile &amp; Settings"
-        aria-label="User Profile"><i data-lucide="user"></i><span>Profile</span></button>
     </nav>
 
     <!-- Header Actions (Figma Style) -->
@@ -85,13 +83,13 @@
         <i data-lucide="sun"></i>
       </button>
 
-      <div class="nav-user-pill" onclick="activateTab('profile', true)" title="Open User Profile" role="button" tabindex="0">
-        <div class="nav-user-avatar">
-          <span id="navUserInitial">S</span>
+      <div class="nav-user-pill" onclick="activateTab('profile', true)" onkeydown="if(event.key === 'Enter' || event.key === ' '){event.preventDefault();activateTab('profile', true);}" title="Open User Profile" role="button" tabindex="0" aria-label="Open user profile">
+        <div class="nav-user-avatar" aria-hidden="true">
+          <span id="navUserInitial">U</span>
           <span class="nav-user-status-dot"></span>
         </div>
-        <span class="nav-user-name" id="navUserName">Shahriyar</span>
-        <i data-lucide="chevron-down" class="nav-user-chevron"></i>
+        <span class="nav-user-name" id="navUserName">Profile</span>
+        <i data-lucide="chevron-down" class="nav-user-chevron" aria-hidden="true"></i>
       </div>
 
       <button class="icon-action-btn watch-action" id="shortcutsHelpBtn" type="button" title="Keyboard Shortcuts (?)" aria-label="Keyboard Shortcuts" style="display:none;">
