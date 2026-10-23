@@ -49,6 +49,7 @@
     .study-chain-progress-label{display:flex;justify-content:space-between;margin-top:7px;color:#8495b5;font-size:10px}
     @media(max-width:760px){.study-chain-hero{grid-template-columns:1fr;gap:22px;padding:20px}.study-chain-visual{padding:14px}.study-chain-copy h2{font-size:30px}.study-chain-stats{margin-top:18px}}
     @media(prefers-reduced-motion:no-preference){.study-chain-item.active{animation:studyChainGlow 3.2s ease-in-out infinite}@keyframes studyChainGlow{50%{box-shadow:0 0 0 1px rgba(87,139,255,.1),0 10px 30px rgba(39,93,204,.2)}}}
+    .study-chain-item-main{min-width:0;flex:1}.study-chain-task{margin-top:5px;color:#8f9fbe;font-size:11px;line-height:1.45}.study-chain-item.next{border-color:rgba(111,154,255,.28);background:rgba(65,104,190,.06)}.study-chain-item.upcoming{opacity:.78}.study-chain-empty{display:flex;align-items:center;gap:13px;padding:22px 10px;color:#dce6fa}.study-chain-empty-icon{display:grid;place-items:center;flex:0 0 38px;width:38px;height:38px;border:1px dashed rgba(111,154,255,.45);border-radius:12px;color:#8baaff;font-size:22px}.study-chain-empty strong{display:block;font-size:13px}.study-chain-empty p{margin:5px 0 0;color:#91a0bc;font-size:12px;line-height:1.5}
   </style>
 
 </head>
@@ -111,34 +112,18 @@
 
         <section class="study-chain-hero" aria-label="Study chain tracker">
           <div class="study-chain-copy">
-            <span class="study-chain-kicker">YOUR MORNING STUDY CHAIN</span>
+            <span class="study-chain-kicker">YOUR DAILY STUDY CHAIN</span>
             <h2>One hour at a time.<br><span>One goal at a time.</span></h2>
-            <p>Keep your momentum going. Follow your subjects in sequence, finish each session, and let the next link in your study chain begin.</p>
+            <p>Your chain is built from today’s routine. Update a subject or time in the table and the live chain follows automatically.</p>
             <div class="study-chain-stats">
-              <div class="study-chain-stat"><strong>3</strong><span>Study sessions</span></div>
-              <div class="study-chain-stat"><strong>2.5 hrs</strong><span>Morning focus plan</span></div>
-              <div class="study-chain-stat"><strong>50%</strong><span>English session</span></div>
+              <div class="study-chain-stat"><strong>0</strong><span>Study sessions</span></div>
+              <div class="study-chain-stat"><strong>0 min</strong><span>Planned study time</span></div>
+              <div class="study-chain-stat"><strong>0%</strong><span>Daily time elapsed</span></div>
             </div>
           </div>
           <div class="study-chain-visual">
-            <div class="study-chain-visual-head"><span>STUDY CHAIN</span><span class="study-chain-clock">◷ 7:30 AM</span></div>
-            <div class="study-chain-list">
-              <div class="study-chain-item done">
-                <span class="study-chain-node" aria-hidden="true">✓</span>
-                <div><div class="study-chain-subject">বাংলা</div><span class="study-chain-time">6:00 – 7:00 AM</span></div>
-                <span class="study-chain-status">COMPLETED</span>
-              </div>
-              <div class="study-chain-item active" aria-current="step">
-                <span class="study-chain-node" aria-hidden="true">↗</span>
-                <div><div class="study-chain-subject">ENGLISH</div><span class="study-chain-time">7:00 – 8:00 AM</span><div class="study-chain-progress"><span></span></div><div class="study-chain-progress-label"><span>Session in progress</span><span>50%</span></div></div>
-                <span class="study-chain-status">ACTIVE NOW</span>
-              </div>
-              <div class="study-chain-item">
-                <span class="study-chain-node" aria-hidden="true">∑</span>
-                <div><div class="study-chain-subject">MATH</div><span class="study-chain-time">8:00 – 9:00 AM</span></div>
-                <span class="study-chain-status">UP NEXT</span>
-              </div>
-            </div>
+            <div class="study-chain-visual-head"><span>STUDY CHAIN</span><span class="study-chain-clock">◷ --:--</span></div>
+            <div class="study-chain-list" id="studyChainList" aria-live="polite"></div>
           </div>
         </section>
         <section class="home-quote-command quote-command-v2" id="homeQuoteCommand">
