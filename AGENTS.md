@@ -107,14 +107,6 @@ interface AppState {
     subject: string;      // Subject name (matches masterSubjectList)
     task: string;         // Task description
   }>;
-  notes: Array<{
-    id: number;
-    title: string;
-    body: string;
-    tag: string;          // 'General' | 'Math' | 'English' | 'GK' | etc.
-    pinned: boolean;
-    ts: number;
-  }>;
   sessions: Array<{
     id: number;
     subject: string;
