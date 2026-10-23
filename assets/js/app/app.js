@@ -99,7 +99,7 @@ document.addEventListener('click', (e) => {
 function normalizeTabName(tabName) {
   if (!tabName) return 'home';
   if (tabName === 'dashboard') return 'home';
-  if (tabName === 'routine' || tabName === 'rutine' || tabName === 'notes') return 'routine';
+  if (tabName === 'routine' || tabName === 'rutine') return 'routine';
   if (tabName === 'flashcards' || tabName === 'quiz' || tabName === 'mcq') return 'quiz';
   if (tabName === 'exams') return 'countdown';
   if (tabName === 'settings' || tabName === 'auth' || tabName === 'login' || tabName === 'signup' || tabName === 'register') return 'profile';
