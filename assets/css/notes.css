@@ -782,3 +782,56 @@
       display: none;
     }
   }
+
+
+/* ===== Compact circular Notes FAB — option 04 ===== */
+/* Keep the existing Notes tab visibility and click behavior; update presentation only. */
+#panel-notes.active .notes-fab {
+  display: inline-grid;
+  place-items: center;
+  width: 58px;
+  height: 58px;
+  min-width: 58px;
+  padding: 0;
+  gap: 0;
+  border-radius: 50%;
+  right: max(22px, env(safe-area-inset-right, 0px) + 14px);
+  bottom: max(22px, env(safe-area-inset-bottom, 0px) + 14px);
+  background: linear-gradient(145deg, #7185ff 0%, #6555e8 58%, #5144c9 100%);
+  border: 1px solid rgba(255, 255, 255, .28);
+  box-shadow: 0 9px 24px rgba(91, 91, 230, .34), inset 0 1px 0 rgba(255, 255, 255, .24);
+  color: #fff !important;
+  -webkit-tap-highlight-color: transparent;
+}
+#panel-notes.active .notes-fab .notes-fab-label { display: none; }
+#panel-notes.active .notes-fab svg,
+#panel-notes.active .notes-fab i[data-lucide] {
+  width: 25px;
+  height: 25px;
+  stroke-width: 2.5;
+  transform: none;
+}
+#panel-notes.active .notes-fab:hover {
+  transform: translateY(-3px);
+  background: linear-gradient(145deg, #8293ff 0%, #7567f1 58%, #6255df 100%);
+  box-shadow: 0 13px 30px rgba(91, 91, 230, .42), inset 0 1px 0 rgba(255, 255, 255, .28);
+}
+#panel-notes.active .notes-fab:hover svg,
+#panel-notes.active .notes-fab:hover i[data-lucide] { transform: none; }
+#panel-notes.active .notes-fab:active { transform: scale(.94); }
+#panel-notes.active .notes-fab:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--accent1, #7185ff) 70%, white);
+  outline-offset: 4px;
+}
+@media (max-width: 768px) {
+  #panel-notes.active .notes-fab {
+    width: 56px;
+    height: 56px;
+    min-width: 56px;
+    right: max(18px, env(safe-area-inset-right, 0px) + 10px);
+    bottom: calc(76px + env(safe-area-inset-bottom, 0px) + 14px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  #panel-notes.active .notes-fab { animation: none; transition: none; }
+}
