@@ -39,7 +39,6 @@ careerDesk/
 │   │   ├── tracker.css
 │   │   ├── syllabus.css
 │   │   ├── mcq.css
-│   │   ├── notes.css
 │   │   ├── profile.css
 │   │   ├── quotes.css
 │   │   ├── security.css
@@ -58,7 +57,6 @@ careerDesk/
 │   │   │   ├── tracker.js
 │   │   │   ├── syllabus.js
 │   │   │   ├── mcq.js
-│   │   │   ├── notes.js
 │   │   │   ├── quotes.js
 │   │   │   ├── countdown.js
 │   │   │   ├── profile.js
@@ -101,7 +99,6 @@ assets/
 │   ├── routine.css
 │   ├── tracker.css
 │   ├── syllabus.css
-│   ├── notes.css
 │   ├── mcq.css
 │   ├── profile.css
 │   ├── quotes.css
@@ -124,7 +121,6 @@ assets/
 │   │   ├── routine.js
 │   │   ├── tracker.js
 │   │   ├── syllabus.js
-│   │   ├── notes.js
 │   │   ├── quotes.js
 │   │   ├── countdown.js
 │   │   ├── mcq.js
@@ -192,7 +188,7 @@ This project is not a framework app. It is a single-page app with module-level s
 Important patterns:
 - A single shared `state` object drives the app.
 - `core.js` holds default state shape and migration-safe storage logic.
-- Feature modules such as `routine.js`, `tracker.js`, `syllabus.js`, `mcq.js`, `notes.js`, and `profile.js` mutate the same object.
+- Feature modules such as `routine.js`, `tracker.js`, `syllabus.js`, `mcq.js`, and `profile.js` mutate the same object.
 - Subject names are treated as globally synchronized identifiers.
 - LocalStorage is the source of truth for normal use; Firebase is an optional sync layer.
 
@@ -284,11 +280,6 @@ When adding a new feature, ask whether it needs a persisted field, a default val
 - Mistake bank and review
 - Custom question import and management
 
-### `assets/js/notes.js`
-- Notes board
-- Search, pinning, and tags
-- Simple note metadata and filtering
-
 ### `assets/js/profile.js`
 - User profile / aspirant data
 - Academic track selection
@@ -363,7 +354,7 @@ That gives the shortest path to understanding the project without reading every 
 
 This app loads scripts in a specific order from `master.js`:
 
-`lucide.min.js` -> `core.js` -> `routine.js` -> `quotes.js` -> `notes.js` -> `tracker.js` -> `countdown.js` -> `syllabus.js` -> `flashcards.js` -> `questions.js` -> `mcq.js` -> `security.js` -> `firebase-config.js` -> `firebase-sync.js` -> `profile.js` -> `home.js` -> `groupchat.js` -> `app.js`
+`lucide.min.js` -> `core.js` -> `routine.js` -> `study-chain.js` -> `quotes.js` -> `tracker.js` -> `countdown.js` -> `syllabus.js` -> `questions.js` -> `mcq.js` -> `security.js` -> `firebase-config.js` -> `firebase-sync.js` -> `profile.js` -> `home.js` -> `groupchat.js` -> `app.js`
 
 What that means in practice:
 - `core.js` is the foundation and defines shared utilities and storage state.
