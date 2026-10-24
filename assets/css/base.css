@@ -977,25 +977,6 @@
       filter: none !important;
     }
 
-    /* Mobile Search / Command Palette Alignment */
-    #commandPaletteModal {
-      align-items: flex-start;
-      padding: calc(8px + env(safe-area-inset-top, 0px)) 12px calc(80px + env(safe-area-inset-bottom, 0px));
-    }
-
-    #commandPaletteModal .command-palette-card {
-      width: 100%;
-      max-width: 100%;
-      margin: 6px auto 0;
-      border-radius: 16px;
-      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
-    }
-
-    #commandPaletteModal .palette-body {
-      max-height: calc(100dvh - 210px);
-      max-height: calc(100vh - 210px);
-    }
-
     header.masthead::before,
     header.main-header::before {
       content: '';

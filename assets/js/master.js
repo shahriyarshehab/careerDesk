@@ -11,14 +11,13 @@
   // Master module manifest in exact execution sequence
   const MODULES = [
     'assets/js/lucide.min.js',
-    'assets/js/core/core.js',
+    'assets/js/core.js',
     'assets/js/features/routine.js',
     'assets/js/features/study-chain.js',
     'assets/js/features/quotes.js',
     'assets/js/features/tracker.js',
     'assets/js/features/countdown.js',
     'assets/js/features/syllabus.js',
-    'assets/js/features/questions.js',
     'assets/js/features/mcq.js',
     'assets/js/integrations/security.js',
     'assets/js/integrations/firebase-config.js',
@@ -27,7 +26,7 @@
     'assets/js/features/dashboard.js',
     'assets/js/features/home.js',
     'assets/js/features/groupchat.js',
-    'assets/js/app/app.js'
+    'assets/js/app.js'
   ];
 
   // Modern synchronous ordered script injection (HTML5 standard, eliminates document.write)

@@ -454,14 +454,6 @@ if (importDataInputEl) {
   });
 }
 
-// Export JSON Shortcut Button (Settings)
-const exportSettingsBtn = document.getElementById('exportDataBtnSettings');
-if (exportSettingsBtn) {
-  exportSettingsBtn.addEventListener('click', () => {
-    document.getElementById('exportDataBtn')?.click();
-  });
-}
-
 // Firestore Real-Time Sync Button (Settings Data Card)
 const btnSyncFirestoreNow = document.getElementById('btnSyncFirestoreNow');
 if (btnSyncFirestoreNow) {
@@ -476,58 +468,6 @@ if (btnSyncFirestoreNow) {
       await syncUserDataToFirestore(null, false);
     } else if (typeof uploadBackupToCloud === 'function') {
       uploadBackupToCloud(false);
-    }
-  });
-}
-
-// Create Snapshot Button
-const btnCreateSnapshotNow = document.getElementById('btnCreateSnapshotNow');
-if (btnCreateSnapshotNow) {
-  btnCreateSnapshotNow.addEventListener('click', async () => {
-    const user = (typeof getCachedAuthUser === 'function') ? getCachedAuthUser() : null;
-    if (!user) {
-      if (typeof openAuthModal === 'function') openAuthModal('login');
-      if (typeof showToast === 'function') showToast('Please sign in to create cloud snapshots.', true);
-      return;
-    }
-    if (typeof createCloudSnapshot === 'function') {
-      createCloudSnapshot(null, null, false);
-    }
-  });
-}
-
-
-// Cloud Backup Shortcut Buttons (Settings Data Card - backwards compatibility)
-const uploadCloudDataCardBtn = document.getElementById('btnUploadCloudFromDataCard');
-if (uploadCloudDataCardBtn) {
-  uploadCloudDataCardBtn.addEventListener('click', () => {
-    const user = (typeof getCachedAuthUser === 'function') ? getCachedAuthUser() : null;
-    if (!user) {
-      if (typeof openAuthModal === 'function') openAuthModal('login');
-      if (typeof showToast === 'function') showToast('Please sign in to sync with cloud.', true);
-      return;
-    }
-    if (typeof syncUserDataToFirestore === 'function') {
-      syncUserDataToFirestore(null, false);
-    } else if (typeof uploadBackupToCloud === 'function') {
-      uploadBackupToCloud(true);
-    }
-  });
-}
-
-const restoreCloudDataCardBtn = document.getElementById('btnRestoreCloudFromDataCard');
-if (restoreCloudDataCardBtn) {
-  restoreCloudDataCardBtn.addEventListener('click', () => {
-    const user = (typeof getCachedAuthUser === 'function') ? getCachedAuthUser() : null;
-    if (!user) {
-      if (typeof openAuthModal === 'function') openAuthModal('login');
-      if (typeof showToast === 'function') showToast('Please sign in to restore from cloud.', true);
-      return;
-    }
-    if (typeof collectUserDataFromFirestore === 'function') {
-      collectUserDataFromFirestore();
-    } else if (typeof restoreBackupFromCloud === 'function') {
-      restoreBackupFromCloud();
     }
   });
 }
@@ -1781,7 +1721,7 @@ window.renderProfileTrackCard = renderProfileTrackCard;
 // =========================================================================
 
 function switchProfileCockpitTab(tabKey) {
-  const validTabs = ['overview', 'track', 'subjects', 'security', 'cloud', 'preferences'];
+  const validTabs = ['overview', 'track', 'subjects', 'security'];
   const targetKey = validTabs.includes(tabKey) ? tabKey : 'overview';
 
   // 1. Update navigation buttons
@@ -1797,9 +1737,7 @@ function switchProfileCockpitTab(tabKey) {
     overview: 'cockpitPaneOverview',
     track: 'cockpitPaneTrack',
     subjects: 'cockpitPaneSubjects',
-    security: 'cockpitPaneSecurity',
-    cloud: 'cockpitPaneCloud',
-    preferences: 'cockpitPanePreferences'
+    security: 'cockpitPaneSecurity'
   };
 
   Object.entries(paneMap).forEach(([key, paneId]) => {
@@ -1825,7 +1763,43 @@ function switchProfileCockpitTab(tabKey) {
     renderSubjectManager();
   } else if (targetKey === 'security' && typeof renderSecurityVaultUI === 'function') {
     renderSecurityVaultUI();
-  } else if (targetKey === 'preferences') {
+  }
+
+  if (window.lucide && typeof window.lucide.createIcons === 'function') {
+    window.lucide.createIcons();
+  }
+}
+window.switchProfileCockpitTab = switchProfileCockpitTab;
+
+function switchSettingsCockpitTab(tabKey) {
+  const targetKey = tabKey === 'preferences' ? 'preferences' : 'cloud';
+  const cloudPane = document.getElementById('cockpitPaneCloud');
+  const preferencesPane = document.getElementById('cockpitPanePreferences');
+  const content = document.getElementById('settingsCockpitContent');
+  if (!cloudPane || !preferencesPane || !content) return;
+
+  if (cloudPane.parentElement !== content) content.appendChild(cloudPane);
+  if (preferencesPane.parentElement !== content) content.appendChild(preferencesPane);
+
+  document.querySelectorAll('#settingsCockpitNav [data-settings-tab]').forEach((button) => {
+    const isActive = button.dataset.settingsTab === targetKey;
+    button.classList.toggle('active', isActive);
+    button.setAttribute('aria-selected', String(isActive));
+  });
+
+  [[cloudPane, 'cloud'], [preferencesPane, 'preferences']].forEach(([pane, key]) => {
+    const isActive = key === targetKey;
+    pane.style.display = isActive ? 'block' : 'none';
+    pane.classList.toggle('active', isActive);
+  });
+
+  try {
+    localStorage.setItem('careerdesk_settings_cockpit_tab', targetKey);
+  } catch (error) {
+    console.warn('[CareerDesk] Could not save settings section:', error);
+  }
+
+  if (targetKey === 'preferences') {
     if (typeof syncQuoteSettings === 'function') syncQuoteSettings();
     if (typeof renderQuoteManager === 'function') renderQuoteManager();
     syncCockpitPreferencesUI();
@@ -1835,18 +1809,20 @@ function switchProfileCockpitTab(tabKey) {
     window.lucide.createIcons();
   }
 }
-window.switchProfileCockpitTab = switchProfileCockpitTab;
+window.switchSettingsCockpitTab = switchSettingsCockpitTab;
+
+function initSettingsCockpit() {
+  let savedTab = 'cloud';
+  try {
+    savedTab = localStorage.getItem('careerdesk_settings_cockpit_tab') || savedTab;
+  } catch (error) {
+    console.warn('[CareerDesk] Could not read saved settings section:', error);
+  }
+  switchSettingsCockpitTab(savedTab);
+}
+window.initSettingsCockpit = initSettingsCockpit;
 
 function syncCockpitPreferencesUI() {
-  // Sync Theme toggle
-  const currentTheme = (state && state.theme) || (document.documentElement.getAttribute('data-theme')) || 'dark';
-  const darkBtn = document.getElementById('cockpitThemeDarkBtn');
-  const lightBtn = document.getElementById('cockpitThemeLightBtn');
-  if (darkBtn && lightBtn) {
-    darkBtn.classList.toggle('active', currentTheme === 'dark');
-    lightBtn.classList.toggle('active', currentTheme === 'light');
-  }
-
   // Sync Daily target input & chips
   const targetMins = (state && typeof state.dailyTargetMinutes === 'number') ? state.dailyTargetMinutes : 240;
   const targetHours = (targetMins / 60);
@@ -1862,6 +1838,13 @@ window.syncCockpitPreferencesUI = syncCockpitPreferencesUI;
 
 // Bind Cockpit Event Listeners
 document.addEventListener('click', (e) => {
+  const settingsNavBtn = e.target.closest('#settingsCockpitNav [data-settings-tab]');
+  if (settingsNavBtn) {
+    e.preventDefault();
+    switchSettingsCockpitTab(settingsNavBtn.dataset.settingsTab);
+    return;
+  }
+
   // 1. Cockpit Nav Tab Clicks
   const navBtn = e.target.closest('#profileCockpitNav .cockpit-nav-btn');
   if (navBtn) {
@@ -1905,24 +1888,7 @@ document.addEventListener('click', (e) => {
     return;
   }
 
-  // 4. Cockpit Theme Switchers
-  const themeBtn = e.target.closest('#cockpitThemeSwitch button');
-  if (themeBtn) {
-    e.preventDefault();
-    const newTheme = themeBtn.dataset.themeVal;
-    if (newTheme && typeof setTheme === 'function') {
-      setTheme(newTheme);
-      syncCockpitPreferencesUI();
-    } else if (newTheme) {
-      document.documentElement.setAttribute('data-theme', newTheme);
-      state.theme = newTheme;
-      saveData();
-      syncCockpitPreferencesUI();
-    }
-    return;
-  }
-
-  // 5. Cockpit Target Preset Chips
+  // 4. Cockpit Target Preset Chips
   const targetChip = e.target.closest('.cockpit-target-chip');
   if (targetChip) {
     e.preventDefault();
@@ -1968,4 +1934,3 @@ if (document.readyState === 'loading') {
     initProfileCockpit();
   }, 100);
 }
-

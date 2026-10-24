@@ -49,6 +49,8 @@ let examTimeRemaining = EXAM_DURATION_SECONDS;
 
 // Mistakes Bank State
 let mistakes = [];
+let questionBankPromise = null;
+let questionBankInitialized = false;
 
 // ==========================================================================
 // 1. Storage & Helper Utilities
@@ -138,13 +140,54 @@ function saveStoredQuestions(questions) {
   } catch (e) { }
 }
 
+function ensureBCSQuestionBankLoaded() {
+  if (Array.isArray(window.bcs1000QuestionBank)) {
+    return Promise.resolve(window.bcs1000QuestionBank);
+  }
+  if (questionBankPromise) return questionBankPromise;
+
+  questionBankPromise = fetch('assets/data/bcs-mcq-question-bank-1000.json')
+    .then(response => {
+      if (!response.ok) {
+        throw new Error(`Question bank request failed (${response.status})`);
+      }
+      return response.json();
+    })
+    .then(questions => {
+      if (!Array.isArray(questions)) {
+        throw new TypeError('Question bank data must be an array.');
+      }
+      window.bcs1000QuestionBank = questions;
+      window.defaultQuestions = questions;
+      return questions;
+    })
+    .catch(error => {
+      questionBankPromise = null;
+      throw error;
+    });
+
+  return questionBankPromise;
+}
+
+function loadQuestionBankForQuiz() {
+  return ensureBCSQuestionBankLoaded().then(() => {
+    if (!questionBankInitialized) {
+      buildPracticePool(currentSelectedSubject);
+      renderMCQFilterBar();
+      renderMCQQuestion();
+      updateMCQStatsBar();
+      questionBankInitialized = true;
+    }
+  });
+}
+
 // Get Master Questions Bank (Curated BCS Bank + Custom Stored Questions)
 function getMasterQuestions() {
   let base = [];
-  if (typeof bcs1000QuestionBank !== 'undefined' && Array.isArray(bcs1000QuestionBank) && bcs1000QuestionBank.length > 0) {
-    base = bcs1000QuestionBank;
-  } else if (typeof defaultQuestions !== 'undefined' && Array.isArray(defaultQuestions)) {
-    base = defaultQuestions;
+  if (Array.isArray(window.bcs1000QuestionBank) && window.bcs1000QuestionBank.length > 0) {
+    base = window.bcs1000QuestionBank;
+  } else if (Array.isArray(window.defaultQuestions)) {
+    base = window.defaultQuestions;
   }
   const custom = getStoredQuestions();
   if (custom.length > 0) {
@@ -1564,6 +1607,7 @@ window.mistakes = mistakes;
 window.loadMistakes = loadMistakes;
 window.renderMistakes = renderMistakes;
 window.initMCQEngine = initMCQEngine;
+window.loadQuestionBankForQuiz = loadQuestionBankForQuiz;
 window.renderMCQFilterBar = renderMCQFilterBar;
 window.renderMCQQuestion = renderMCQQuestion;
 window.updateMCQStatsBar = updateMCQStatsBar;

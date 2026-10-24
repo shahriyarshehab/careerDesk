@@ -24,67 +24,32 @@ Welcome, AI coding assistant. This file contains the complete architectural blue
 
 ```text
 CareerDesk/
-├── index.html              # Main application single-page layout & UI panels
+├── index.html
 ├── assets/
-│   ├── css/
-│   │   ├── base.css        # Theme variables, reset, typography, header, mobile dock navbar
-│   │   ├── components.css  # Universal .btn-group, .action-group, .segmented-group, .micro-btn
-│   │   ├── home.css        # Daily Study Routine hero card, date slider, and monthly view styling
-│   │   ├── routine.css     # Routine tables, calendar date slider, monthly schedule
-│   │   ├── quotes.css      # Motivation ticker, wallpaper generator, quotes manager
-│   │   ├── tracker.css     # Timers, 24h activity log, consistency heatmap, onboarding
-│   │   ├── countdown.css   # Target exam countdown cards engine
-│   │   ├── syllabus.css    # Curriculum categories, topic checklist, progress bars
-│   │   ├── mcq.css         # BCS MCQ engine, options, floating points, mistake bank
-│   │   ├── profile.css     # User profile card, academic track, subject manager & cloud sync
-│   │   ├── security.css    # PIN lock screen overlay, tamper indicators & crypto modal styling
-│   │   ├── modals.css      # Command Palette (Ctrl+K), generic modals & dialogs
-│   │   └── master.css      # Master stylesheet project manifest (only CSS linked by index.html)
-│   ├── data/
-│   │   ├── bcs-mcq-question-bank-1000.json # Complete 1,000 authentic BCS questions dataset
-│   │   └── careerdesk-backup.json          # Complete sample backup schema package
-│   ├── js/
-│   │   ├── master.js       # Master JavaScript project file & loader (only script linked by index.html)
-│   │   ├── core.js         # Master subject control, data schema, localStorage adapter & utilities
-│   │   ├── routine.js      # Routine schedules, date slider, day-by-day & monthly views
-│   │   ├── quotes.js       # Quote ticker, carousel, quotes manager & canvas wallpaper export
-│   │   ├── tracker.js      # Focus timer, 24h activity break tracker, heatmap & goals
-│   │   ├── countdown.js    # Target exam countdown timers engine
-│   │   ├── syllabus.js     # Category & topic progress tracking, inline edit & delete mode
-│   │   ├── questions.js    # Curated question banks and BCS question pool
-│   │   ├── mcq.js          # MCQ practice engine, 20-Q exam mode, sound, mistake bank & custom question manager
-│   │   ├── security.js     # Privacy PIN lock, WebCrypto AES-GCM encryption & data integrity checks
-│   │   ├── profile.js      # Profile track manager, Bangladesh class curriculum, subjects & cloud backups
-│   │   ├── home.js         # Routine and profile aspirant metrics hub
-│   │   ├── app.js          # Theme, fullscreen, modals, tabs router, command palette & init
-│   │   ├── firebase-config.js # Client-side Firebase configuration
-│   │   ├── firebase-sync.js # Cloud authentication & Firestore real-time sync
-│   │   └── lucide.min.js   # Embedded Lucide icons library
-│   └── icons/              # Curated SVG icon assets and preview showcase gallery
-├── AGENTS.md               # AI Agent architecture and conventions guide (this file)
-├── .cursorrules            # Cursor AI agent instructions
-├── .github/
-│   └── copilot-instructions.md # GitHub Copilot custom instructions
-└── README.md               # End-user documentation
+│   ├── css/                 # Modular stylesheets and layout overrides
+│   ├── data/                # Question-bank JSON
+│   ├── icons/
+│   └── js/
+│       ├── master.js        # Ordered script loader
+│       ├── core.js          # Shared state, storage, and utilities
+│       ├── app.js           # Router and bootstrap
+│       ├── features/        # User-facing feature modules
+│       ├── integrations/    # Firebase and security modules
+│       └── lucide.min.js
+├── docs/architecture/       # Graphify report and visualizations
+├── scripts/build_graphify.py
+├── AGENTS.md
+├── .github/copilot-instructions.md
+└── README.md
 ```
 
 ### Key File Roles:
-- **`index.html`**: Semantic single-page layout. Links **only** `assets/css/master.css` in head and `assets/js/master.js` at body end.
+- **`index.html`**: Semantic single-page layout. Loads the CSS manifest, final layout overrides, and JS manifest.
 - **`assets/css/master.css`**: Master Stylesheet Project File. Uses `@import` to load all modular CSS stylesheets.
 - **`assets/js/master.js`**: Master JavaScript Project File. Central manifest that synchronously loads all modular JS engines.
 - **`assets/js/core.js`**: Central storage adapter, state initialization (`getDefaultState`), global utilities (`escapeHtml`, `escapeAttr`, `toBnDigits`, `dateKey`), and the Unified Subject Control System (`masterSubjectList`, `canonicalSubjectName`, `renameSubject`, `syncAllSubjectSelects`).
-- **`assets/js/routine.js`**: Manages day-by-day and monthly routine views, calendar sliders, task editing, and time blocks.
-- **`assets/js/quotes.js`**: Handles motivational quote rotations, the quote manager, interval carousels, and 1920x1080 canvas wallpaper generation.
-- **`assets/js/tracker.js`**: Real-time study timer, 24h break logs, activity heatmap, and target hours.
-- **`assets/js/countdown.js`**: Target exam countdown cards, date differentials, and exam target creation.
-- **`assets/js/syllabus.js`**: Interactive curriculum tracking, progress bars, topic completion toggles, and deletion modes.
-- **`assets/js/flashcards.js`**: Backward-compatible stubs for legacy flashcard references.
-- **`assets/js/questions.js`**: Dedicated static repository containing default questions, AI-curated pool, and extended BCS question pools.
-- **`assets/js/mcq.js`**: Real-time MCQ quiz practice engine, 20-question timed exam mode, audio sound effects, mistake bank remediation, custom question creation, and JSON question import/export.
-- **`assets/js/security.js`**: Zero-knowledge AES-GCM-256 WebCrypto encryption, privacy PIN lock overlay, and tamper verification.
-- **`assets/js/profile.js`**: Profile track manager (Student vs Job Seeker), Bangladesh class curriculum, subjects & cloud backups.
-- **`assets/js/home.js`**: Routine and profile aspirant metrics hub.
-- **`assets/js/app.js`**: Application router (`activateTab`), modal controllers, fullscreen toggles, Command Palette (`Ctrl+K`), and bootstrap `init()`.
+- **`assets/js/features/`**: Routine, tracker, quotes, countdown, syllabus, questions, MCQ, profile, home, and group-chat modules.
+- **`assets/js/integrations/`**: Security and optional Firebase integrations.
 - **`assets/js/lucide.min.js`**: Replaces `<i data-lucide="...">` with SVG icons on startup. In dynamically generated JS templates, use the inline `ICON` object from `core.js`.
 
 ---
@@ -202,6 +167,6 @@ All subjects across **Routine**, **Tracker & Focus**, **Syllabus**, and **Quizze
 ## 🧪 6. Testing & Quality Verification
 
 Before committing changes:
-1. **Syntax Integrity**: Run `node --check assets/js/*.js` (e.g. `node --check assets/js/master.js`) to ensure zero syntax or bundling errors.
+1. **Syntax Integrity**: Run `node --check assets/js/master.js` and syntax-check feature and integration modules under `assets/js/`.
 2. **Headless Browser Verification**: For UI layout, mobile responsive behavior, or timer testing, execute automated CDP scripts using headless Chrome (located in `scratch/`) and verify screenshots.
 3. **Cross-Tab Consistency**: Verify that changing subjects or state in one tab propagates correctly to all dependent components.

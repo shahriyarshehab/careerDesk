@@ -1,12 +1,12 @@
-# Graph Report - careerDesk  (2026-10-23)
+# Graph Report - careerDesk  (2026-10-24)
 
 ## Corpus Check
-- 18 files · ~87,553 words
+- 19 files · ~88,486 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 546 nodes · 1245 edges · 18 communities (14 shown, 4 thin omitted)
-- Extraction: 97% EXTRACTED · 3% INFERRED · 0% AMBIGUOUS · INFERRED: 36 edges (avg confidence: 0.85)
+- 560 nodes · 1287 edges · 19 communities (15 shown, 4 thin omitted)
+- Extraction: 97% EXTRACTED · 3% INFERRED · 0% AMBIGUOUS · INFERRED: 39 edges (avg confidence: 0.85)
 - Token cost: 0 input · 0 output
 
 ## Community Hubs (Navigation)
@@ -20,7 +20,9 @@
 - Routine & Calendar Schedule
 - WebCrypto AES-GCM & PIN Security
 - App Shell & Router
+- Dashboard & Analytics
 - Exam Countdown Engine
+- Study Chain & Routine Timeline
 - Syllabus Checklist Tracker
 - Dashboard & Hero Hub
 - BCS Question Bank Repository
@@ -43,15 +45,15 @@
 ## Import Cycles
 - None detected.
 
-## Communities (17 total, 4 thin omitted)
+## Communities (19 total, 4 thin omitted)
 
 ### Community 0 - "Cloud Auth & Firestore Sync"
 Cohesion: 0.06
-Nodes (98): applyCustomProfileOverrides(), applyRemoteChange(), bindInlinePasswordToggle(), bindInlineRecaptchaFallback(), buildCloudDataBundle(), checkCloudInitialSync(), cleanupRealtimeSync(), closeAuthModal() (+90 more)
+Nodes (100): applyCustomProfileOverrides(), applyRemoteChange(), bindInlinePasswordToggle(), bindInlineRecaptchaFallback(), buildCloudDataBundle(), checkCloudInitialSync(), cleanupRealtimeSync(), closeAuthModal() (+92 more)
 
 ### Community 1 - "Core State & Master Subjects"
 Cohesion: 0.07
-Nodes (52): addSubject(), BANGLADESH_CURRICULUM_DATA, canonicalSubjectName(), connectAutoSyncFile(), currentViewMonth, currentViewYear, dateKey() (+44 more)
+Nodes (51): addSubject(), BANGLADESH_CURRICULUM_DATA, canonicalSubjectName(), connectAutoSyncFile(), currentViewMonth, currentViewYear, dateKey(), DEFAULT_SUBJECTS (+43 more)
 
 ### Community 2 - "Peer Group Chat"
 Cohesion: 0.12
@@ -82,39 +84,47 @@ Cohesion: 0.16
 Nodes (29): base64ToBuffer(), bufferToBase64(), closeSetPinModal(), closeVaultPassphraseModal(), computeSha256(), decryptVaultPayload(), deriveKeyFromPassphrase(), encryptVaultPayload() (+21 more)
 
 ### Community 9 - "App Shell & Router"
-Cohesion: 0.10
-Nodes (23): activateTab(), darkBtn, fullscreenToggleSettings, getJournalData(), initCommandPalette(), openPalette(), renderItems(), initDailyJournal() (+15 more)
+Cohesion: 0.11
+Nodes (19): activateTab(), darkBtn, fullscreenToggleSettings, initCommandPalette(), openPalette(), renderItems(), initKeyboardShortcutsPanel(), openShortcuts() (+11 more)
+
+### Community 10 - "Dashboard & Analytics"
+Cohesion: 0.20
+Nodes (20): calculateStreak(), formatMins(), init(), initClock(), tick(), initFocusTimer(), logCompletedSession(), pauseTimer() (+12 more)
 
 ### Community 11 - "Exam Countdown Engine"
 Cohesion: 0.24
 Nodes (8): addExamBtn, exams, examWrap, initEditExamListeners(), parseExamTargetMs(), renderExams(), saveExams(), toggleExamBtn
 
-### Community 12 - "Syllabus Checklist Tracker"
+### Community 12 - "Study Chain & Routine Timeline"
+Cohesion: 0.38
+Nodes (10): clockAt(), displaySubject(), localDateKey(), minutesOf(), moveWheel(), refresh(), renderStudyChain(), safeText() (+2 more)
+
+### Community 13 - "Syllabus Checklist Tracker"
 Cohesion: 0.31
 Nodes (8): addCategoryBtn, categoryList, openCategoryIds, renderCategories(), renderSyllabusOverall(), saveSyllabusAndRefresh(), syllabusTotals(), topicDeleteModeCategories
 
-### Community 13 - "Dashboard & Hero Hub"
+### Community 14 - "Dashboard & Hero Hub"
 Cohesion: 0.43
 Nodes (4): bindProfileAspirantHubEvents(), renderProfileAspirantHub(), startHomeExamCountdown(), startProfileExamCountdown()
 
 ## Knowledge Gaps
-- **121 isolated node(s):** `darkBtn`, `lightBtn`, `fullscreenToggleSettings`, `watchThemeToggle`, `watchFullscreenToggle` (+116 more)
-  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 165 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
+- **114 isolated node(s):** `darkBtn`, `lightBtn`, `fullscreenToggleSettings`, `watchThemeToggle`, `watchFullscreenToggle` (+109 more)
+  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 159 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
 - **4 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `connectAutoSyncFile()` connect `Core State & Master Subjects` to `Profile & Academic Curriculum`?**
-  _High betweenness centrality (0.013) - this node is a cross-community bridge._
+  _High betweenness centrality (0.012) - this node is a cross-community bridge._
 - **Are the 11 inferred relationships involving `initMCQEngine()` (e.g. with `mcq.js` and `clearAllMistakes()`) actually correct?**
   _`initMCQEngine()` has 11 INFERRED edges - model-reasoned connections that need verification._
 - **What connects `darkBtn`, `lightBtn`, `fullscreenToggleSettings` to the rest of the system?**
-  _121 weakly-connected nodes found - possible documentation gaps or missing edges._
+  _114 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `Cloud Auth & Firestore Sync` be split into smaller, more focused modules?**
-  _Cohesion score 0.05768194070080863 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.0562478366216684 - nodes in this community are weakly interconnected._
 - **Should `Core State & Master Subjects` be split into smaller, more focused modules?**
-  _Cohesion score 0.0715846994535519 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.07288135593220339 - nodes in this community are weakly interconnected._
 - **Should `Peer Group Chat` be split into smaller, more focused modules?**
   _Cohesion score 0.11818181818181818 - nodes in this community are weakly interconnected._
 - **Should `Focus Timer & 24h Heatmap` be split into smaller, more focused modules?**

@@ -110,14 +110,13 @@ function normalizeTabName(tabName) {
   if (tabName === 'routine' || tabName === 'rutine') return 'routine';
   if (tabName === 'flashcards' || tabName === 'quiz' || tabName === 'mcq') return 'quiz';
   if (tabName === 'exams') return 'countdown';
-  if (tabName === 'settings' || tabName === 'auth' || tabName === 'login' || tabName === 'signup' || tabName === 'register') return 'profile';
+  if (tabName === 'auth' || tabName === 'login' || tabName === 'signup' || tabName === 'register') return 'profile';
   return tabName;
 }
 
 function activateTab(rawTabName, persist = false) {
   const tabName = normalizeTabName(rawTabName);
-  const targetPanel = document.getElementById('panel-' + tabName) || 
-                      (tabName === 'profile' ? document.getElementById('panel-settings') : null) ||
+  const targetPanel = document.getElementById('panel-' + tabName) ||
                       (tabName === 'quiz' ? document.getElementById('panel-flashcards') : null);
   if (!targetPanel) return;
 
@@ -125,7 +124,13 @@ function activateTab(rawTabName, persist = false) {
     const bTab = normalizeTabName(b.dataset.tab);
     const isActive = bTab === tabName;
     b.classList.toggle('active', isActive);
-    b.setAttribute('aria-selected', String(isActive));
+    if (b.getAttribute('role') === 'tab') {
+      b.setAttribute('aria-selected', String(isActive));
+    } else if (isActive) {
+      b.setAttribute('aria-current', 'page');
+    } else {
+      b.removeAttribute('aria-current');
+    }
   });
   document.querySelectorAll('.panel').forEach(p => {
     const isTarget = p === targetPanel;
@@ -149,6 +154,9 @@ function activateTab(rawTabName, persist = false) {
     if (typeof renderDashboard === 'function') {
       renderDashboard();
     }
+    if (typeof initProfileQuoteTypewriter === 'function') {
+      initProfileQuoteTypewriter();
+    }
   }
 
   if (tabName === 'routine') {
@@ -164,12 +172,9 @@ function activateTab(rawTabName, persist = false) {
     if (typeof renderStudyChain === 'function') {
       renderStudyChain();
     }
-    if (typeof initProfileQuoteTypewriter === 'function') {
-      initProfileQuoteTypewriter();
-    }
   }
 
-  if (tabName === 'profile' || tabName === 'settings') {
+  if (tabName === 'profile') {
     try { if (typeof renderUserProfileUI === 'function') renderUserProfileUI(); } catch (e) { console.error('[CareerDesk] renderUserProfileUI error:', e); }
     try { if (typeof initProfileCockpit === 'function') initProfileCockpit(); } catch (e) { console.error('[CareerDesk] initProfileCockpit error:', e); }
     try { if (typeof renderProfileTrackCard === 'function') renderProfileTrackCard(); } catch (e) { console.error('[CareerDesk] renderProfileTrackCard error:', e); }
@@ -178,14 +183,19 @@ function activateTab(rawTabName, persist = false) {
     try { if (typeof renderSecurityVaultUI === 'function') renderSecurityVaultUI(); } catch (e) { console.error('[CareerDesk] renderSecurityVaultUI error:', e); }
     try { renderQuoteManager(); } catch (e) { console.error('[CareerDesk] renderQuoteManager error:', e); }
     try { syncQuoteSettings(); } catch (e) { console.error('[CareerDesk] syncQuoteSettings error:', e); }
-    try { if (typeof syncCockpitPreferencesUI === 'function') syncCockpitPreferencesUI(); } catch (e) { console.error('[CareerDesk] syncCockpitPreferencesUI error:', e); }
-
     // If navigated via #login or #signup directly, pop open the auth modal
     if (rawTabName === 'login' || rawTabName === 'signup') {
       if (typeof openAuthModal === 'function') {
         openAuthModal(rawTabName === 'signup' ? 'signup' : 'login');
       }
     }
+  }
+
+  if (tabName === 'settings') {
+    try { if (typeof initSettingsCockpit === 'function') initSettingsCockpit(); } catch (e) { console.error('[CareerDesk] initSettingsCockpit error:', e); }
+    try { if (typeof syncQuoteSettings === 'function') syncQuoteSettings(); } catch (e) { console.error('[CareerDesk] syncQuoteSettings error:', e); }
+    try { if (typeof renderQuoteManager === 'function') renderQuoteManager(); } catch (e) { console.error('[CareerDesk] renderQuoteManager error:', e); }
+    try { if (typeof syncCockpitPreferencesUI === 'function') syncCockpitPreferencesUI(); } catch (e) { console.error('[CareerDesk] syncCockpitPreferencesUI error:', e); }
   }
 
   if (tabName === 'tracker') {
@@ -199,9 +209,18 @@ function activateTab(rawTabName, persist = false) {
   }
 
   if (tabName === 'quiz') {
-    if (typeof renderMCQFilterBar === 'function') renderMCQFilterBar();
-    if (typeof renderMCQQuestion === 'function') renderMCQQuestion();
-    if (typeof updateMCQStatsBar === 'function') updateMCQStatsBar();
+    if (typeof loadQuestionBankForQuiz === 'function') {
+      loadQuestionBankForQuiz().catch(error => {
+        console.error('[CareerDesk] Could not load quiz question bank:', error);
+        if (typeof showToast === 'function') {
+          showToast('Quiz questions could not be loaded. Please check your connection and retry.', true);
+        }
+      });
+    } else {
+      if (typeof renderMCQFilterBar === 'function') renderMCQFilterBar();
+      if (typeof renderMCQQuestion === 'function') renderMCQQuestion();
+      if (typeof updateMCQStatsBar === 'function') updateMCQStatsBar();
+    }
   }
 
   if (window.lucide && typeof window.lucide.createIcons === 'function') {
@@ -244,24 +263,24 @@ window.addEventListener('hashchange', () => {
 
 // ===== Quick Command Palette (Ctrl + K / Cmd + K) =====
 function initCommandPalette() {
-  const modal = document.getElementById('commandPaletteModal');
   const input = document.getElementById('paletteSearchInput');
   const results = document.getElementById('paletteResults');
-  const btn = document.getElementById('commandPaletteBtn');
-  const closeBtn = document.getElementById('closePaletteBtn');
-  if (!modal || !input || !results) return;
+  const container = document.getElementById('commandPaletteBtn');
+  const resultsPanel = document.getElementById('commandPaletteResults');
+  if (!container || !input || !results || !resultsPanel) return;
 
   let selectedIndex = 0;
   let currentItems = [];
 
   const staticCommands = [
     { id: 'tab-home', category: 'Navigation', icon: 'layout-dashboard', title: 'Go to Dashboard', subtitle: 'Overview, analytics & quick stats', action: () => activateTab('home', true) },
-    { id: 'tab-routine', category: 'Navigation', icon: 'calendar-check', title: 'Go to Rutine', subtitle: 'Daily study schedule, chain & quote ticker', action: () => activateTab('routine', true) },
+    { id: 'tab-routine', category: 'Navigation', icon: 'calendar-check', title: 'Go to Rutine', subtitle: 'Daily study schedule and study chain', action: () => activateTab('routine', true) },
     { id: 'tab-tracker', category: 'Navigation', icon: 'timer', title: 'Go to Tracker & Focus', subtitle: 'Pomodoro timer & activity stats', action: () => activateTab('tracker', true) },
     { id: 'tab-quiz', category: 'Navigation', icon: 'brain', title: 'Go to BCS & Govt MCQ Quiz', subtitle: 'Practice randomized MCQs & model tests', action: () => activateTab('quiz', true) },
     { id: 'tab-countdown', category: 'Navigation', icon: 'calendar-clock', title: 'Go to Exam Targets', subtitle: 'Exam countdowns & milestones', action: () => activateTab('countdown', true) },
     { id: 'tab-syllabus', category: 'Navigation', icon: 'list-checks', title: 'Go to Syllabus', subtitle: 'BCS syllabus & topic progress', action: () => activateTab('syllabus', true) },
-    { id: 'tab-profile', category: 'Navigation', icon: 'user', title: 'Go to User Profile', subtitle: 'Cloud backup, sync & settings', action: () => activateTab('profile', true) },
+    { id: 'tab-profile', category: 'Navigation', icon: 'user', title: 'Go to User Profile', subtitle: 'Personal profile, study track & subjects', action: () => activateTab('profile', true) },
+    { id: 'tab-settings', category: 'Navigation', icon: 'settings-2', title: 'Go to Settings & Sync', subtitle: 'Workspace preferences, cloud sync & backups', action: () => activateTab('settings', true) },
     { id: 'tab-groupchat', category: 'Navigation', icon: 'messages-square', title: 'Go to Group Chat', subtitle: 'Join public study groups and chat in real time', action: () => activateTab('groupchat', true) },
     {
       id: 'act-pomodoro', category: 'Actions', icon: 'zap', title: 'Start 25m Pomodoro Focus', subtitle: 'Start 25-min deep focus session',
@@ -306,24 +325,37 @@ function initCommandPalette() {
     }
   ];
 
-  function openPalette() {
-    modal.style.display = 'flex';
-    void modal.offsetWidth;
-    modal.classList.add('open');
-    input.value = '';
+  function showPalette() {
+    resultsPanel.hidden = false;
+    input.setAttribute('aria-expanded', 'true');
     selectedIndex = 0;
-    renderItems('');
-    setTimeout(() => input.focus(), 50);
+    renderItems(input.value);
+    positionResultsPanel();
+  }
+
+  function openPalette() {
+    showPalette();
+    input.focus();
   }
 
   function closePalette() {
-    modal.classList.remove('open');
-    setTimeout(() => {
-      if (!modal.classList.contains('open')) {
-        modal.style.display = 'none';
-      }
-    }, 150);
+    resultsPanel.hidden = true;
+    input.setAttribute('aria-expanded', 'false');
     input.blur();
+  }
+
+  function togglePalette() {
+    if (resultsPanel.hidden) openPalette();
+    else closePalette();
+  }
+
+  function positionResultsPanel() {
+    const searchBounds = container.getBoundingClientRect();
+    resultsPanel.style.setProperty('left', `${searchBounds.left}px`, 'important');
+    resultsPanel.style.setProperty('top', `${searchBounds.bottom + 8}px`, 'important');
+    resultsPanel.style.setProperty('width', `${searchBounds.width}px`, 'important');
+    resultsPanel.style.setProperty('right', 'auto', 'important');
+    resultsPanel.style.setProperty('transform', 'none', 'important');
   }
 
   function renderItems(query) {
@@ -379,7 +411,7 @@ function initCommandPalette() {
       }
       const isSel = idx === selectedIndex ? 'selected' : '';
       html += `
-        <div class="palette-item ${isSel}" data-index="${idx}">
+        <div class="palette-item ${isSel}" data-index="${idx}" role="option" aria-selected="${idx === selectedIndex}">
           <div class="palette-item-left">
             <span class="palette-item-icon"><i data-lucide="${item.icon}"></i></span>
             <div>
@@ -404,6 +436,11 @@ function initCommandPalette() {
   input.addEventListener('input', (e) => {
     selectedIndex = 0;
     renderItems(e.target.value);
+  });
+  input.addEventListener('focus', showPalette);
+  container.addEventListener('click', (e) => {
+    if (e.target.closest('#shortcutsHelpBtn')) return;
+    if (e.target !== input) input.focus();
   });
 
   input.addEventListener('keydown', (e) => {
@@ -444,18 +481,19 @@ function initCommandPalette() {
     }
   });
 
-  if (btn) btn.addEventListener('click', openPalette);
-  if (closeBtn) closeBtn.addEventListener('click', closePalette);
-  modal.addEventListener('click', (e) => {
-    if (e.target === modal) closePalette();
-  });
-
   window.addEventListener('keydown', (e) => {
     if ((e.ctrlKey || e.metaKey) && (e.key === 'k' || e.key === 'K')) {
       e.preventDefault();
-      if (modal.classList.contains('open')) closePalette();
-      else openPalette();
+      togglePalette();
     }
+  });
+
+  window.addEventListener('resize', () => {
+    if (!resultsPanel.hidden) positionResultsPanel();
+  });
+
+  document.addEventListener('click', (e) => {
+    if (!container.contains(e.target) && !resultsPanel.contains(e.target)) closePalette();
   });
 }
 
@@ -463,6 +501,7 @@ function initCommandPalette() {
 (async function init() {
   await loadData();
   document.documentElement.setAttribute('data-theme', state.theme || 'dark');
+  if (typeof initSettingsCockpit === 'function') initSettingsCockpit();
   await initAutoSync();
   syncThemeButtons();
   initMonthDropdown();
@@ -539,7 +578,8 @@ function initKeyboardShortcutsPanel() {
         { keys: ['Alt', '3'], desc: 'Go to Quiz & Flashcards' },
         { keys: ['Alt', '4'], desc: 'Go to Exam Targets' },
         { keys: ['Alt', '5'], desc: 'Go to Syllabus' },
-        { keys: ['Alt', '6'], desc: 'Go to Profile & Settings' },
+        { keys: ['Alt', '6'], desc: 'Go to Profile' },
+        { keys: ['Alt', '7'], desc: 'Go to Settings & Sync' },
       ]
     },
     {
@@ -622,7 +662,7 @@ function initKeyboardShortcutsPanel() {
     }
     // Alt + Number = navigate tabs
     if (e.altKey && !e.ctrlKey && !e.metaKey) {
-      const tabMap = { '1': 'home', '2': 'tracker', '3': 'quiz', '4': 'countdown', '5': 'syllabus', '6': 'profile' };
+      const tabMap = { '1': 'home', '2': 'tracker', '3': 'quiz', '4': 'countdown', '5': 'syllabus', '6': 'profile', '7': 'settings' };
       if (tabMap[e.key]) { e.preventDefault(); activateTab(tabMap[e.key], true); }
     }
   });

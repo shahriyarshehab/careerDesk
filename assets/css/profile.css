@@ -88,7 +88,8 @@
 @media (max-width: 700px) {
   #panel-profile > #userProfileCard,
   #panel-profile .profile-track-card,
-  #panel-profile .data-management-card { padding: 18px !important; border-radius: 18px; }
+  #panel-profile .data-management-card,
+  #panel-settings .data-management-card { padding: 18px !important; border-radius: 18px; }
 }
 
 /* ==============================================
@@ -6741,5 +6742,246 @@ html[data-theme="light"] .profile-cover-banner {
     width: 100%;
     display: flex;
     justify-content: flex-end;
+  }
+}
+
+.settings-center-panel {
+  max-width: 1120px;
+  margin-inline: auto;
+}
+
+.settings-center-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin: 8px 0 18px;
+  padding: 22px 24px;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  background: linear-gradient(125deg, color-mix(in srgb, var(--accent1) 10%, var(--surface-strong)), var(--surface-strong));
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.045);
+}
+
+.settings-center-icon {
+  display: grid;
+  place-items: center;
+  flex: 0 0 44px;
+  width: 44px;
+  height: 44px;
+  border: 1px solid color-mix(in srgb, var(--accent1) 30%, var(--border));
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--accent1) 14%, transparent);
+  color: var(--accent1);
+}
+
+.settings-center-icon svg {
+  width: 21px;
+  height: 21px;
+}
+
+.settings-center-header h2 {
+  margin: 0;
+  color: var(--text);
+  font-family: var(--font-display);
+  font-size: clamp(19px, 2.2vw, 25px);
+  letter-spacing: -.03em;
+}
+
+.settings-center-header p {
+  margin: 5px 0 0;
+  color: var(--text-soft);
+  font-size: 12.5px;
+  line-height: 1.5;
+}
+
+.settings-center-nav {
+  position: sticky;
+  top: 76px;
+}
+
+.settings-center-content .cockpit-pane {
+  margin-top: 16px;
+}
+
+.settings-center-content #dataManagementCard,
+.settings-center-content #profilePreferencesCard {
+  padding: clamp(18px, 3vw, 30px) !important;
+  border: 1px solid color-mix(in srgb, var(--accent1) 15%, var(--border)) !important;
+  border-radius: 22px !important;
+  background:
+    radial-gradient(ellipse at 100% 0, color-mix(in srgb, var(--accent1) 7%, transparent), transparent 44%),
+    var(--surface-strong) !important;
+  box-shadow: 0 16px 38px rgba(2,6,23,.12), inset 0 1px 0 rgba(255,255,255,.045) !important;
+}
+
+.settings-center-content .settings-card-heading {
+  margin: 0 0 20px !important;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.settings-center-content .settings-card-heading .section-card-icon-badge {
+  color: var(--accent2) !important;
+  background: color-mix(in srgb, var(--accent2) 12%, transparent) !important;
+  border-color: color-mix(in srgb, var(--accent2) 26%, var(--border)) !important;
+}
+
+.settings-center-content .settings-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  margin: 12px 0 0;
+  padding: 18px 20px !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--surface) 74%, transparent);
+  transition: border-color .18s ease, background .18s ease, transform .18s ease;
+}
+
+.settings-center-content .settings-row:hover {
+  border-color: color-mix(in srgb, var(--accent1) 30%, var(--border)) !important;
+  background: color-mix(in srgb, var(--accent1) 4%, var(--surface));
+  transform: translateY(-1px);
+}
+
+.settings-row-title {
+  display: block;
+  margin-bottom: 5px;
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.settings-row-description {
+  display: block;
+  max-width: 640px;
+  color: var(--text-soft);
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.settings-sync-card {
+  border-color: color-mix(in srgb, #10b981 22%, var(--border)) !important;
+  background: linear-gradient(110deg, color-mix(in srgb, #10b981 6%, var(--surface)), var(--surface)) !important;
+}
+
+.settings-sync-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 9px;
+  border: 1px solid color-mix(in srgb, #10b981 28%, var(--border));
+  border-radius: 999px;
+  background: color-mix(in srgb, #10b981 9%, var(--surface));
+  color: #10b981;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.settings-actions {
+  flex: 0 0 auto;
+}
+
+.settings-danger-zone {
+  margin-top: 16px;
+  border: 1px solid color-mix(in srgb, #f43f5e 22%, var(--border));
+  border-radius: 15px;
+  background: color-mix(in srgb, #f43f5e 3%, var(--surface));
+}
+
+.settings-danger-zone summary {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 13px 16px;
+  color: var(--text-soft);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  list-style: none;
+}
+
+.settings-danger-zone summary::-webkit-details-marker {
+  display: none;
+}
+
+.settings-danger-zone summary svg:first-child {
+  width: 15px;
+  height: 15px;
+  color: #f43f5e;
+}
+
+.settings-danger-zone summary svg:last-child {
+  width: 14px;
+  height: 14px;
+  margin-left: auto;
+  transition: transform .18s ease;
+}
+
+.settings-danger-zone details[open] summary svg:last-child {
+  transform: rotate(180deg);
+}
+
+.settings-danger-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px;
+  border-top: 1px solid color-mix(in srgb, #f43f5e 16%, var(--border));
+}
+
+.settings-danger-content .pill.danger {
+  flex: 0 0 auto;
+  white-space: nowrap;
+  background: rgba(244,63,94,.1);
+  color: #f43f5e;
+  border-color: rgba(244,63,94,.26);
+}
+
+html[data-theme="light"] .settings-center-content #dataManagementCard,
+html[data-theme="light"] .settings-center-content #profilePreferencesCard {
+  background:
+    radial-gradient(ellipse at 100% 0, rgba(99,102,241,.045), transparent 44%),
+    #ffffff !important;
+  box-shadow: 0 14px 34px rgba(15,23,42,.07), inset 0 1px 0 #ffffff !important;
+}
+
+html[data-theme="light"] .settings-center-content .settings-row {
+  background: #ffffff;
+}
+
+html[data-theme="light"] .settings-center-content .settings-row:hover {
+  background: #fafaff;
+}
+
+@media (max-width: 700px) {
+  .settings-center-header {
+    gap: 12px;
+    padding: 16px;
+    border-radius: 16px;
+  }
+
+  .settings-center-icon {
+    flex-basis: 38px;
+    width: 38px;
+    height: 38px;
+    border-radius: 12px;
+  }
+
+  .settings-center-content .settings-row,
+  .settings-danger-content {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .settings-actions,
+  .settings-center-content .data-action-buttons {
+    width: 100%;
+  }
+
+  .settings-center-content .data-action-buttons > * {
+    flex: 1 1 auto;
   }
 }

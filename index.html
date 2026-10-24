@@ -18,10 +18,10 @@
   <link rel="stylesheet" href="assets/css/master.css">
 
   <!-- Firebase SDK (Compat) for Native Web Authentication & Cloud Sync -->
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-check-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+  <script defer src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script defer src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-check-compat.js"></script>
+  <script defer src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+  <script defer src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 
 
   <style id="study-chain-home-styles">
@@ -35,7 +35,7 @@
 </style>
 
   <!-- Screenshot layout alignment overrides (must load after all inline styles) -->
-  <link rel="stylesheet" href="assets/css/figma-layout-alignment.css?v=3">
+  <link rel="stylesheet" href="assets/css/figma-layout-alignment.css?v=8">
 </head>
 
 <body>
@@ -67,48 +67,41 @@
       <button class="tab-btn nav-link" data-tab="groupchat" role="tab" aria-selected="false" title="Group Chat"
         aria-label="Group Chat"><i data-lucide="messages-square"></i><span>Chat</span></button>
 
-      <button class="tab-btn nav-link" data-tab="profile" role="tab" aria-selected="false" title="Profile & Settings" aria-label="Profile" onclick="activateTab('profile', true)">
+      <button class="tab-btn nav-link" data-tab="profile" role="tab" aria-selected="false" title="Profile" aria-label="Profile" onclick="activateTab('profile', true)">
         <i data-lucide="user"></i><span>Profile</span>
       </button>
     </nav>
 
-    <!-- Top Bar: Search · Dark Mode · Zoom · Notification -->
+    <!-- Top Bar: Search and theme -->
     <div class="topbar" aria-label="Top controls">
-      <button class="nav-search-btn" id="commandPaletteBtn" type="button" title="Quick Commands &amp; Search (Ctrl+K)" aria-label="Quick Commands and Search">
-        <i data-lucide="search"></i><span>Search</span>
-      </button>
+      <div class="nav-search-btn" id="commandPaletteBtn">
+        <i data-lucide="search" aria-hidden="true"></i>
+        <input id="paletteSearchInput" type="search" role="combobox" aria-label="Search commands and syllabus" aria-expanded="false" aria-controls="paletteResults" placeholder="Search commands, topics, and tabs..." autocomplete="off">
+        <kbd class="nav-search-kbd">Ctrl K</kbd>
+        <button class="icon-action-btn watch-action topbar-shortcuts-btn" id="shortcutsHelpBtn" type="button" title="Keyboard Shortcuts (?)" aria-label="Keyboard Shortcuts">
+          <i data-lucide="keyboard"></i>
+        </button>
+      </div>
+      <div class="topbar-search-results" id="commandPaletteResults" hidden>
+        <div class="palette-body" id="paletteResults" role="listbox" aria-label="Search results"></div>
+        <div class="palette-footer">
+          <span><kbd>↑</kbd><kbd>↓</kbd> Navigate</span>
+          <span><kbd>↵</kbd> Select</span>
+          <span><kbd>ESC</kbd> Close</span>
+        </div>
+      </div>
       <button class="icon-action-btn" id="watchThemeToggle" type="button" title="Switch to light/dark mode" aria-label="Dark mode">
         <i data-lucide="sun"></i><span>Dark</span>
       </button>
-      <button class="icon-action-btn" id="zoomToggleBtn" type="button" title="Zoom" aria-label="Zoom">
-        <i data-lucide="zoom-in"></i><span>Zoom</span>
-      </button>
-      <button class="icon-action-btn nav-notif-btn" type="button" title="Notifications" onclick="activateTab('groupchat', true)" aria-label="Notifications">
-        <i data-lucide="bell"></i><span class="nav-notif-dot"></span><span>Notify</span>
-      </button>
     </div>
+
+    <div class="sidebar-tools-label" aria-hidden="true">TOOLS</div>
 
     <!-- Header Actions (Figma Style) -->
     <div class="header-actions brand-actions watch-actions" aria-label="Quick controls">
-      <button class="nav-search-btn" id="commandPaletteBtn" type="button" title="Quick Commands &amp; Search (Ctrl+K)" aria-label="Quick Commands and Search">
-        <i data-lucide="search"></i>
-        <span class="nav-search-text">Search...</span>
-        <kbd class="nav-search-kbd">Ctrl+K</kbd>
+      <button class="tab-btn nav-link sidebar-settings-link" data-tab="settings" type="button" title="Settings &amp; Sync" aria-label="Settings and sync">
+        <i data-lucide="settings-2"></i><span>Settings &amp; Sync</span>
       </button>
-
-      <button class="icon-action-btn watch-action nav-notif-btn" type="button" title="Community &amp; Notifications" onclick="activateTab('groupchat', true)" aria-label="Notifications">
-        <i data-lucide="bell"></i>
-        <span class="nav-notif-dot"></span>
-      </button>
-
-      <button class="icon-action-btn watch-action" id="watchThemeToggle" type="button" title="Switch to light mode" aria-label="Switch Theme">
-        <i data-lucide="sun"></i>
-      </button>
-
-      <button class="icon-action-btn watch-action" id="shortcutsHelpBtn" type="button" title="Keyboard Shortcuts (?)" aria-label="Keyboard Shortcuts" style="display:none;">
-        <i data-lucide="keyboard"></i>
-      </button>
-
       <button class="icon-action-btn watch-action" id="watchFullscreenToggle" type="button" title="Enter fullscreen" aria-label="Toggle Fullscreen" style="display:none;">
         <i data-lucide="maximize"></i>
       </button>
@@ -122,6 +115,25 @@
     <section class="panel active" id="panel-home">
 
       <div class="db-shell" id="dashboardOverview">
+
+        <!-- Daily quote ticker -->
+        <section class="home-quote-command quote-command-v2" id="homeQuoteCommand">
+          <div class="profile-quote-ticker-top quote-command-v2-stage" id="profileHeroQuoteTicker">
+            <div class="profile-quote-ticker-content">
+              <div class="profile-quote-mark-badge quote-command-v2-mark"><i data-lucide="quote"></i></div>
+              <div class="profile-quote-typing-area quote-command-v2-copy">
+                <span class="profile-quote-phrase"><span class="profile-quote-curly-open">“</span><span class="profile-quote-typed-text" id="profileQuoteTypedText"></span><span class="profile-quote-cursor" id="profileQuoteCursor"></span><span class="profile-quote-curly-close">”</span></span>
+                <span class="profile-quote-author-pill" id="profileQuoteAuthorPill">— CareerDesk</span>
+              </div>
+            </div>
+            <div class="profile-quote-controls quote-command-v2-controls">
+              <button type="button" class="profile-quote-lang-badge quote-command-v2-language" id="profileQuoteLangBadge" title="Switch quote language"><span class="lang-indicator-dot"></span><span id="profileQuoteLangText">EN</span></button>
+              <button type="button" class="profile-quote-ctrl-btn" id="btnToggleQuotePause" title="Pause / Resume"><i data-lucide="pause"></i></button>
+              <button type="button" class="profile-quote-ctrl-btn btn-cycle-profile-hero-quote" title="Next quote"><i data-lucide="skip-forward"></i></button>
+            </div>
+            <div class="profile-quote-progress-bar quote-command-v2-progress"><div class="profile-quote-progress-fill" id="profileQuoteProgressFill"></div></div>
+          </div>
+        </section>
 
         <!-- Top Greeting Header -->
         <header class="db-top-header">
@@ -156,7 +168,7 @@
                 <i data-lucide="play"></i> <span>Start Study Session</span>
               </button>
               <button class="db-btn-secondary" type="button" onclick="activateTab('routine', true)">
-                <i data-lucide="calendar"></i> <span>View Rutine</span>
+                <i data-lucide="calendar"></i> <span>View Routine</span>
               </button>
             </div>
           </div>
@@ -249,8 +261,8 @@
                 <i data-lucide="calendar-check" class="db-title-icon"></i>
                 <h3 class="db-card-heading">Today's Study Plan</h3>
               </div>
-              <button class="db-action-link" type="button" onclick="activateTab('routine', true)" title="Open Rutine Page">
-                <span>View Rutine</span> <i data-lucide="arrow-right"></i>
+              <button class="db-action-link" type="button" onclick="activateTab('routine', true)" title="Open Routine Page">
+                <span>View Routine</span> <i data-lucide="arrow-right"></i>
               </button>
             </div>
             <div class="db-plan-timeline" id="dbTodayPlanTimeline">
@@ -294,22 +306,6 @@
           </div>
         </div>
 
-        <!-- 4. Bottom Motivational Quote Card -->
-        <div class="db-quote-card glass">
-          <div class="db-quote-icon-badge">
-            <i data-lucide="quote"></i>
-          </div>
-          <div class="db-quote-body">
-            <p class="db-quote-text" id="dbQuoteText">"Discipline is choosing between what you want now and what you want most."</p>
-            <span class="db-quote-author" id="dbQuoteAuthor">— CareerDesk</span>
-          </div>
-          <div class="db-quote-actions">
-            <button class="db-quote-btn" id="dbQuoteNextBtn" type="button" title="Next Motivation">
-              <i data-lucide="shuffle"></i> <span>Next Quote</span>
-            </button>
-          </div>
-        </div>
-
       </div>
       <!-- END DASHBOARD OVERVIEW -->
 
@@ -319,26 +315,7 @@
     <section class="panel" id="panel-routine">
       <div class="home-container">
 
-        <!-- 1. Daily Motivational Quote Ticker (First on Homepage) -->
-        <section class="home-quote-command quote-command-v2" id="homeQuoteCommand">
-          <div class="profile-quote-ticker-top quote-command-v2-stage" id="profileHeroQuoteTicker">
-            <div class="profile-quote-ticker-content">
-              <div class="profile-quote-mark-badge quote-command-v2-mark"><i data-lucide="quote"></i></div>
-              <div class="profile-quote-typing-area quote-command-v2-copy">
-                <span class="profile-quote-phrase"><span class="profile-quote-curly-open">“</span><span class="profile-quote-typed-text" id="profileQuoteTypedText"></span><span class="profile-quote-cursor" id="profileQuoteCursor"></span><span class="profile-quote-curly-close">”</span></span>
-                <span class="profile-quote-author-pill" id="profileQuoteAuthorPill">— CareerDesk</span>
-              </div>
-            </div>
-            <div class="profile-quote-controls quote-command-v2-controls">
-              <button type="button" class="profile-quote-lang-badge quote-command-v2-language" id="profileQuoteLangBadge" title="Switch quote language"><span class="lang-indicator-dot"></span><span id="profileQuoteLangText">EN</span></button>
-              <button type="button" class="profile-quote-ctrl-btn" id="btnToggleQuotePause" title="Pause / Resume"><i data-lucide="pause"></i></button>
-              <button type="button" class="profile-quote-ctrl-btn btn-cycle-profile-hero-quote" title="Next quote"><i data-lucide="skip-forward"></i></button>
-            </div>
-            <div class="profile-quote-progress-bar quote-command-v2-progress"><div class="profile-quote-progress-fill" id="profileQuoteProgressFill"></div></div>
-          </div>
-        </section>
-
-        <!-- 2. Live Daily Study Chain -->
+        <!-- 1. Live Daily Study Chain -->
         <section class="study-chain-hero" aria-label="Study chain tracker">
           <div class="study-chain-copy">
             <span class="study-chain-kicker">TODAY · STUDY FLOW</span>
@@ -1052,7 +1029,7 @@
       </div>
     </section>
 
-    <!-- ===== USER PROFILE & SETTINGS COCKPIT ===== -->
+    <!-- ===== USER PROFILE ===== -->
     <section class="panel" id="panel-profile">
       <!-- 1. Master Profile Identity Deck -->
       <div class="glass user-profile-card" id="userProfileCard"></div>
@@ -1060,7 +1037,7 @@
       <!-- 2. Profile & Settings Cockpit Shell -->
       <div class="profile-cockpit-shell" id="profileCockpitShell">
         <!-- Cockpit Segmented Navigation Bar -->
-        <nav class="profile-cockpit-nav" id="profileCockpitNav" role="tablist" aria-label="Profile and Settings Sections">
+        <nav class="profile-cockpit-nav" id="profileCockpitNav" role="tablist" aria-label="Profile sections">
           <button type="button" class="cockpit-nav-btn active" data-cockpit-tab="overview" role="tab" aria-selected="true">
             <i data-lucide="compass"></i>
             <span>Overview &amp; Insights</span>
@@ -1076,14 +1053,6 @@
           <button type="button" class="cockpit-nav-btn" data-cockpit-tab="security" role="tab" aria-selected="false">
             <i data-lucide="shield-check"></i>
             <span>Security &amp; Privacy</span>
-          </button>
-          <button type="button" class="cockpit-nav-btn" data-cockpit-tab="cloud" role="tab" aria-selected="false">
-            <i data-lucide="cloud"></i>
-            <span>Cloud &amp; Backups</span>
-          </button>
-          <button type="button" class="cockpit-nav-btn" data-cockpit-tab="preferences" role="tab" aria-selected="false">
-            <i data-lucide="sliders-horizontal"></i>
-            <span>App Preferences</span>
           </button>
         </nav>
 
@@ -1153,32 +1122,32 @@
           <!-- Pane 5: Cloud Sync & Storage -->
           <div class="cockpit-pane" id="cockpitPaneCloud" role="tabpanel" style="display:none;">
             <div class="glass data-management-card" id="dataManagementCard">
-              <div class="section-card-header" style="margin-bottom:16px;">
+              <div class="section-card-header settings-card-heading">
                 <div class="section-card-title-group">
-                  <div class="section-card-icon-badge" style="color:var(--accent2); background:rgba(6,182,212,0.12); border-color:rgba(6,182,212,0.3);">
+                  <div class="section-card-icon-badge">
                     <i data-lucide="cloud"></i>
                   </div>
                   <div>
                     <h3 class="section-card-title">Cloud Sync &amp; Backups</h3>
-                    <p class="section-card-desc">Real-time Firestore synchronization, point-in-time snapshots, and JSON archives</p>
+                    <p class="section-card-desc">Keep your study data backed up and available across devices.</p>
                   </div>
                 </div>
               </div>
 
               <!-- Firestore Real-Time Cloud Sync Sub-Section -->
-              <div class="settings-row" style="border-top:none; padding-top:0; padding-bottom:14px; border-bottom:1px solid var(--border);">
+              <div class="settings-row settings-sync-card">
                 <div>
                   <div style="display:flex; align-items:center; gap:8px; margin-bottom:4px; flex-wrap:wrap;">
-                    <strong style="font-size:14.5px; color:var(--text);">Individual Cloud Storage</strong>
-                    <span class="pill subtle" id="cloudSyncLiveBadge" style="font-size:11px; padding:2px 8px; color:#10b981; border-color:rgba(16,185,129,0.3); background:rgba(16,185,129,0.08);">
+                    <strong class="settings-row-title">Automatic cloud sync</strong>
+                    <span class="pill subtle settings-sync-badge" id="cloudSyncLiveBadge">
                       <i data-lucide="check-circle" style="width:12px; height:12px;"></i> Auto-Sync Active
                     </span>
                   </div>
-                  <span style="font-size:12.5px; color:var(--text-soft);" id="cloudSyncStatusDesc">
-                    Your routines, syllabus progress, and mistake bank automatically sync with your personal Firestore account with offline resilience.
+                  <span class="settings-row-description" id="cloudSyncStatusDesc">
+                    Your routines, syllabus progress, and mistake bank sync with your personal account.
                   </span>
                 </div>
-                <div class="settings-btn-group data-action-buttons">
+                <div class="settings-btn-group settings-actions">
                   <button class="pill theme-action-btn" id="btnSyncFirestoreNow" type="button" title="Sync data to Firestore now">
                     <i data-lucide="refresh-cw"></i> <span>Sync Now</span>
                   </button>
@@ -1189,12 +1158,12 @@
               </div>
 
               <!-- Versioned Snapshots History Sub-Section -->
-              <div class="settings-row" style="margin-top:14px; padding-top:14px; border-top:none; border-bottom:1px solid var(--border); padding-bottom:14px;">
+              <div class="settings-row settings-snapshots-card">
                 <div style="flex:1; width:100%;">
                   <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px; flex-wrap:wrap; gap:8px;">
                     <div>
-                      <strong style="font-size:14.5px; display:block; color:var(--text); margin-bottom:2px;">Point-in-Time Cloud Snapshots</strong>
-                      <span style="font-size:12.5px; color:var(--text-soft);">Restore routines or syllabus from any previous automated snapshot.</span>
+                      <strong class="settings-row-title">Restore point snapshots</strong>
+                      <span class="settings-row-description">Create a restore point or recover routines and syllabus from an earlier snapshot.</span>
                     </div>
                     <button class="pill subtle" id="btnToggleSnapshotsList" type="button" style="font-size:12px; padding:4px 10px;">
                       <i data-lucide="history"></i> <span id="snapshotToggleText">View Snapshots (0)</span>
@@ -1209,10 +1178,10 @@
               </div>
 
               <!-- 1-Click JSON File Backup & Import Sub-Section -->
-              <div class="settings-row" style="margin-top:14px; padding-top:14px; border-top:none; border-bottom:1px solid var(--border); padding-bottom:14px;">
+              <div class="settings-row settings-json-card">
                 <div>
-                  <strong style="font-size:14.5px; display:block; color:var(--text); margin-bottom:2px;">JSON Cloud File Backup</strong>
-                  <span style="font-size:12.5px; color:var(--text-soft);">Download your complete cloud data package or restore from a previously saved JSON file.</span>
+                  <strong class="settings-row-title">Cloud data archive</strong>
+                  <span class="settings-row-description">Export a JSON copy or restore cloud data from an archive.</span>
                 </div>
                 <div class="settings-btn-group data-action-buttons">
                   <button class="pill theme-action-btn" id="btnExportCloudJSON" type="button" title="Download entire cloud backup as JSON">
@@ -1225,15 +1194,19 @@
                 </div>
               </div>
 
-              <!-- Delete Cloud Data Section -->
-              <div class="settings-row" style="margin-top:14px; padding-top:14px; border-top:none; border-bottom:none; padding-bottom:0;">
-                <div>
-                  <strong style="font-size:14.5px; display:block; color:#f43f5e; margin-bottom:2px;">Delete User Cloud Data</strong>
-                  <span style="font-size:12.5px; color:var(--text-soft);">Permanently remove synced routines, syllabus, and snapshots from Firestore cloud or purge local cached workspaces for a specific user.</span>
-                </div>
-                <button class="pill danger" id="btnDeleteCloudData" type="button" style="white-space:nowrap; background:rgba(244,63,94,0.12); color:#f43f5e; border-color:rgba(244,63,94,0.3);">
-                  <i data-lucide="cloud-off"></i> <span>Delete Cloud Data</span>
-                </button>
+              <div class="settings-danger-zone">
+                <details>
+                  <summary><i data-lucide="shield-alert"></i><span>Advanced account actions</span><i data-lucide="chevron-down"></i></summary>
+                  <div class="settings-danger-content">
+                    <div>
+                      <strong class="settings-row-title">Delete cloud data</strong>
+                      <span class="settings-row-description">Permanently remove synced data and snapshots from a selected account.</span>
+                    </div>
+                    <button class="pill danger" id="btnDeleteCloudData" type="button">
+                      <i data-lucide="cloud-off"></i> <span>Manage cloud deletion</span>
+                    </button>
+                  </div>
+                </details>
               </div>
             </div>
           </div>
@@ -1241,35 +1214,19 @@
           <!-- Pane 6: App Preferences & Data Management -->
           <div class="cockpit-pane" id="cockpitPanePreferences" role="tabpanel" style="display:none;">
             <div class="glass profile-section-card" id="profilePreferencesCard">
-              <div class="section-card-header" style="margin-bottom:18px;">
+              <div class="section-card-header settings-card-heading">
                 <div class="section-card-title-group">
                   <div class="section-card-icon-badge" style="color:var(--gold); background:rgba(245,158,11,0.12); border-color:rgba(245,158,11,0.3);">
                     <i data-lucide="sliders-horizontal"></i>
                   </div>
                   <div>
                     <h3 class="section-card-title">App Preferences &amp; Workspace</h3>
-                    <p class="section-card-desc">Theme personalization, daily study targets, quote ticker settings, and local workspace safety</p>
+                    <p class="section-card-desc">Daily study targets, quote settings, and local workspace backups.</p>
                   </div>
                 </div>
               </div>
 
-              <!-- 1. Theme Selection -->
-              <div class="settings-row" style="border-top:none; padding-top:0;">
-                <div>
-                  <strong style="font-size:14.5px; display:block; color:var(--text); margin-bottom:2px;">Visual Theme Mode</strong>
-                  <span style="font-size:12.5px; color:var(--text-soft);">Choose your preferred aesthetic. High-contrast dark glass or clean daytime daylight.</span>
-                </div>
-                <div class="segmented-toggle-group" id="cockpitThemeSwitch">
-                  <button type="button" class="chip btn-mode-switch" id="cockpitThemeDarkBtn" data-theme-val="dark">
-                    <i data-lucide="moon"></i> <span>Dark Mode</span>
-                  </button>
-                  <button type="button" class="chip btn-mode-switch" id="cockpitThemeLightBtn" data-theme-val="light">
-                    <i data-lucide="sun"></i> <span>Light Mode</span>
-                  </button>
-                </div>
-              </div>
-
-              <!-- 2. Daily Study Target Hours -->
+              <!-- Daily Study Target Hours -->
               <div class="settings-row">
                 <div>
                   <strong style="font-size:14.5px; display:block; color:var(--text); margin-bottom:2px;">Daily Study Target</strong>
@@ -1290,7 +1247,7 @@
                 </div>
               </div>
 
-              <!-- 3. Motivational Quotes Engine -->
+              <!-- Motivational Quotes Engine -->
               <div class="settings-row">
                 <div style="flex:1;">
                   <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; flex-wrap:wrap; gap:8px;">
@@ -1332,7 +1289,7 @@
                 </div>
               </div>
 
-              <!-- 4. Local Workspace Data & Danger Zone -->
+              <!-- Local Workspace Data & Danger Zone -->
               <div class="settings-row" style="border-bottom:none; padding-bottom:0;">
                 <div>
                   <strong style="font-size:14.5px; display:block; color:var(--text); margin-bottom:2px;">Offline Data Backup &amp; Danger Zone</strong>
@@ -1355,6 +1312,25 @@
           </div>
         </div>
       </div>
+    </section>
+
+    <section class="panel settings-center-panel" id="panel-settings" aria-labelledby="settingsCenterTitle">
+      <header class="settings-center-header">
+        <div class="settings-center-icon"><i data-lucide="settings-2"></i></div>
+        <div>
+          <h2 id="settingsCenterTitle">Settings &amp; Sync</h2>
+          <p>Manage your workspace preferences, local data, cloud sync, and backups.</p>
+        </div>
+      </header>
+      <nav class="profile-cockpit-nav settings-center-nav" id="settingsCockpitNav" role="tablist" aria-label="Settings sections">
+        <button type="button" class="cockpit-nav-btn active" data-settings-tab="cloud" role="tab" aria-selected="true">
+          <i data-lucide="cloud"></i><span>Cloud &amp; Backups</span>
+        </button>
+        <button type="button" class="cockpit-nav-btn" data-settings-tab="preferences" role="tab" aria-selected="false">
+          <i data-lucide="sliders-horizontal"></i><span>App Preferences</span>
+        </button>
+      </nav>
+      <div class="profile-cockpit-content settings-center-content" id="settingsCockpitContent"></div>
     </section>
 
   </main>
@@ -1965,30 +1941,13 @@
     </div>
   </div>
 
-  <!-- Command Palette Modal (Ctrl + K) -->
-  <div class="modal-overlay" id="commandPaletteModal" style="display:none;">
-    <div class="command-palette-card glass">
-      <div class="palette-header">
-        <i data-lucide="search" class="palette-search-icon"></i>
-        <input type="text" id="paletteSearchInput" placeholder="Type a command or search syllabus, tabs... (Ctrl+K)" autocomplete="off">
-        <kbd class="palette-esc-badge" id="closePaletteBtn">ESC</kbd>
-      </div>
-      <div class="palette-body" id="paletteResults"></div>
-      <div class="palette-footer">
-        <span><kbd>↑</kbd><kbd>↓</kbd> to navigate</span>
-        <span><kbd>↵</kbd> to select</span>
-        <span><kbd>ESC</kbd> to close</span>
-      </div>
-    </div>
-  </div>
-
   <div id="examOverlay" class="exam-overlay" style="display:none;"></div>
 
   <!-- Firebase Phone Auth Recaptcha Container (Invisible reCAPTCHA) -->
   <div id="phoneRecaptchaContainer"></div>
 
   <!-- Master Application Script (Project File - loads all modular subsystems) -->
-  <script src="assets/js/app/master.js"></script>
+  <script defer src="assets/js/master.js"></script>
 
   
   <div class="modal-overlay" id="groupchatCreateModal" style="display:none;" role="dialog" aria-modal="true" aria-labelledby="groupchatCreateHeading">

@@ -14,15 +14,6 @@
   let timerSelectedDuration = 25; // in minutes (0 for stopwatch)
   const CIRCLE_CIRCUMFERENCE = 2 * Math.PI * 82; // ~515.22px
 
-  const SAMPLE_QUOTES = [
-    { text: "Build your future, one focused session at a time.", author: "CareerDesk" },
-    { text: "Discipline is choosing between what you want now and what you want most.", author: "Abraham Lincoln" },
-    { text: "Consistency beats intensity every single time.", author: "James Clear" },
-    { text: "Success is the sum of small efforts, repeated day in and day out.", author: "Robert Collier" },
-    { text: "Focus is a muscle. The more you practice deep work, the easier it becomes.", author: "Cal Newport" }
-  ];
-  let currentQuoteIndex = 0;
-
   /* ── Helpers ───────────────────────────────────────────────────────────── */
   function pad(n) { return String(n).padStart(2, '0'); }
 
@@ -194,7 +185,7 @@
           <i data-lucide="calendar-plus"></i>
           <p style="margin:0; font-size:13px; font-weight:600; color:var(--text-soft);">No sessions scheduled for today</p>
           <button class="db-action-link" type="button" onclick="activateTab('routine', true)" style="margin-top:6px;">
-            <i data-lucide="plus"></i> <span>Add to Rutine</span>
+            <i data-lucide="plus"></i> <span>Add to Routine</span>
           </button>
         </div>`;
       if (window.lucide && typeof window.lucide.createIcons === 'function') window.lucide.createIcons();
@@ -224,7 +215,7 @@
       const taskText = item.task ? (typeof escapeHtml === 'function' ? escapeHtml(item.task) : item.task) : 'Standard review session';
 
       return `
-        <div class="db-plan-row" onclick="activateTab('routine', true)" style="cursor:pointer;" title="Click to view in Rutine">
+        <div class="db-plan-row" onclick="activateTab('routine', true)" style="cursor:pointer;" title="Click to view in Routine">
           <div class="db-plan-time-badge">${item.startTime || '--:--'} - ${item.endTime || '--:--'}</div>
           <div class="db-plan-info">
             <span class="db-plan-subject">${typeof escapeHtml === 'function' ? escapeHtml(subjectName) : subjectName}</span>
@@ -362,27 +353,6 @@
     updateDisplay();
   }
 
-  /* ── 5. Motivational Quote Rotation ───────────────────────────────────── */
-  function initQuotes() {
-    const textEl = document.getElementById('dbQuoteText');
-    const authorEl = document.getElementById('dbQuoteAuthor');
-    const nextBtn = document.getElementById('dbQuoteNextBtn');
-    if (!textEl || !nextBtn) return;
-
-    function renderQuote() {
-      const q = SAMPLE_QUOTES[currentQuoteIndex % SAMPLE_QUOTES.length];
-      textEl.textContent = `"${q.text}"`;
-      if (authorEl) authorEl.textContent = `— ${q.author}`;
-    }
-
-    nextBtn.addEventListener('click', () => {
-      currentQuoteIndex = (currentQuoteIndex + 1) % SAMPLE_QUOTES.length;
-      renderQuote();
-    });
-
-    renderQuote();
-  }
-
   /* ── 6. Master Render & Initialization ────────────────────────────────── */
   function renderDashboard() {
     syncNavUser();
@@ -393,7 +363,6 @@
   function init() {
     initClock();
     initFocusTimer();
-    initQuotes();
     renderDashboard();
 
     // Re-render whenever the active tab becomes home/dashboard

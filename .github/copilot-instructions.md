@@ -5,10 +5,10 @@
 CareerDesk is a zero-build, browser-first study and career-prep SPA. It runs as a set of plain HTML/CSS/JS modules in the browser, with optional Firebase sync for cloud backup and multi-device access.
 
 Key entry points:
-- `index.html` loads the app shell and includes `assets/css/master.css` and `assets/js/app/master.js`.
-- `assets/js/app/master.js` loads the feature modules in dependency order, so most app work is coordinated through shared globals and initialization.
-- `assets/js/core/core.js` owns the shared app state, storage adapter, default state, and the unified subject system (`masterSubjectList`, `canonicalSubjectName`, `renameSubject`, `syncAllSubjectSelects`).
-- `assets/js/app/app.js` handles tab routing, modals, command palette, and app bootstrap.
+- `index.html` loads the app shell and includes `assets/css/master.css` and `assets/js/master.js`.
+- `assets/js/master.js` loads the feature modules in dependency order, so most app work is coordinated through shared globals and initialization.
+- `assets/js/core.js` owns the shared app state, storage adapter, default state, and the unified subject system (`masterSubjectList`, `canonicalSubjectName`, `renameSubject`, `syncAllSubjectSelects`).
+- `assets/js/app.js` handles tab routing, modals, command palette, and app bootstrap.
 - `routine.js`, `tracker.js`, `syllabus.js`, `mcq.js`, `profile.js`, and related modules all operate on the same `state` object instead of separate stores.
 
 Primary persistence lives in browser `localStorage` under `jobprep-dashboard-data-v2`; Firebase is optional and should never be treated as the source of truth for local app behavior.
@@ -20,8 +20,8 @@ This repo does not define a dedicated test or lint script in `package.json`.
 Use these commands instead:
 - `npm start` — serves the app with `node serve.js` at `http://localhost:3000`.
 - `python -m http.server 8000` — lightweight alternative for local browser testing.
-- `node --check assets/js/app/master.js` — syntax validation for the main entry file.
-- `node --check assets/js/**/*.js` — closest equivalent to a project-wide JS validation pass.
+- `node --check assets/js/master.js` — syntax validation for the main entry file.
+- `Get-ChildItem assets/js -Recurse -Filter *.js | ForEach-Object { node --check $_.FullName }` — recursively syntax-check JavaScript modules in PowerShell.
 - `node --check assets/js/<module>.js` — targeted validation while iterating on one module; in the reorganized tree, use the real relative path under `assets/js/`.
 - `firebase login && firebase use careerdesk && firebase deploy` — only for optional Firebase deployment or sync work.
 
@@ -59,4 +59,3 @@ When making changes, think in terms of coordinated state updates. A rename, dele
 - `core.js` and `app.js` are foundational files before editing feature logic.
 
 When a shared concept changes (subject names, timers, storage schema, or sync behavior), verify the dependent modules that consume it rather than patching only one UI surface.
-

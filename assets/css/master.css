@@ -29,6 +29,3 @@
 
 /* CareerDesk modern responsive redesign overrides */
 @import url('careerdesk-redesign.css');
-
-/* Reference screenshot layout alignment — loaded last to correct positioning only */
-@import url('figma-layout-alignment.css');

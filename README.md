@@ -16,7 +16,7 @@ CareerDesk combines the tools a serious aspirant needs in one place:
 
 ## Core idea
 
-This project is built as a single-page app with shared state rather than independent framework components. Most logic runs from a central state model in `assets/js/core/core.js`, while feature modules share the same app data and subject system.
+This project is built as a single-page app with shared state rather than independent framework components. Most logic runs from a central state model in `assets/js/core.js`, while feature modules share the same app data and subject system.
 
 The app is intentionally local-first and privacy-aware:
 
@@ -40,6 +40,7 @@ The app is intentionally local-first and privacy-aware:
 - Timed exam mode with scoring logic
 - Mistake bank and revision flow
 - Question pool and custom import support
+- The bundled 1,000-question bank loads only when the Quiz tab is opened.
 - Target exam countdowns
 
 ### Knowledge management
@@ -68,112 +69,84 @@ No Node build tooling, bundler, or framework is required for normal use.
 
 ```text
 careerDesk/
-├── index.html
-├── README.md
-├── AGENTS.md
-├── DEVELOPER_CONTEXT.md
-├── .cursorrules
+├── index.html                     # SPA shell and page panels
+├── assets/
+│   ├── css/                       # Base, shared components, feature styles, master manifest
+│   ├── data/                      # Bundled question banks and sample data
+│   ├── icons/                     # App icon assets
+│   └── js/
+│       ├── master.js              # Ordered module loader
+│       ├── core.js                # Shared state, storage, subjects, utilities
+│       ├── app.js                 # Bootstrap, routing, modals, global UI
+│       ├── features/              # Dashboard, routine, tracker, MCQ, syllabus, etc.
+│       ├── integrations/          # Firebase sync/configuration and security
+│       └── lucide.min.js          # Bundled icon library
+├── docs/
+│   └── architecture/
+│       ├── GRAPHIFY_SETUP.md      # Graph generation and publishing guide
+│       ├── GRAPH_REPORT.md        # Generated architecture analysis
+│       ├── graph.html             # Interactive dependency map
+│       └── graph.json             # Machine-readable dependency graph
+├── scripts/
+│   └── build_graphify.py          # Regenerates architecture visualizations
 ├── .github/
+│   ├── workflows/
+│   │   └── graphify.yml           # Graph generation CI
 │   └── copilot-instructions.md
-├── package.json
-├── serve.js
-├── firebase.json
-├── firestore.rules
-├── firestore.indexes.json
-├── .firebaserc
-├── .gitignore
-├── LICENSE
+├── AGENTS.md                      # Contributor and agent architecture guide
+├── .cursorrules                   # Editor guidance
+├── package.json                   # Local static-server command
+├── serve.js                       # Zero-build development server
+├── firebase.json                  # Optional hosting configuration
+├── firestore.rules                # Optional cloud database rules
+├── firestore.indexes.json         # Optional cloud database indexes
+├── .firebaserc                    # Firebase project alias
 ├── SECURITY.md
 ├── BUG_REPORT.md
-├── assets/
-│   ├── css/
-│   │   ├── base.css
-│   │   ├── components.css
-│   │   ├── home.css
-│   │   ├── routine.css
-│   │   ├── tracker.css
-│   │   ├── syllabus.css
-│   │   ├── mcq.css
-│   │   ├── profile.css
-│   │   ├── quotes.css
-│   │   ├── security.css
-│   │   ├── modals.css
-│   │   ├── groupchat.css
-│   │   └── master.css
-│   ├── js/
-│   │   ├── app/
-│   │   │   ├── app.js
-│   │   │   └── master.js
-│   │   ├── core/
-│   │   │   └── core.js
-│   │   ├── features/
-│   │   │   ├── routine.js
-│   │   │   ├── tracker.js
-│   │   │   ├── syllabus.js
-│   │   │   ├── mcq.js
-│   │   │   ├── quotes.js
-│   │   │   ├── countdown.js
-│   │   │   ├── profile.js
-│   │   │   ├── home.js
-│   │   │   ├── flashcards.js
-│   │   │   ├── questions.js
-│   │   │   └── groupchat.js
-│   │   ├── integrations/
-│   │   │   ├── firebase-config.js
-│   │   │   ├── firebase-sync.js
-│   │   │   └── security.js
-│   │   ├── lucide.min.js
-│   │   └── app.js
-│   ├── data/
-│   │   ├── bcs-mcq-question-bank-1000.json
-│   │   └── careerdesk-backup.json
-│   ├── icons/
-│   └── images/
-└── .vscode/
-    └── settings.json
+├── LICENSE
+└── README.md
 ```
+
+Graphify also writes local working artifacts to the ignored `graphify-out/` directory. Published graph files live in `docs/architecture/`.
 
 ## Getting started
 
-### Option 1: quick run locally
+### Option 1: recommended local server
 
 ```bash
-cd careerDesk
-python -m http.server 8000
-```
-
-Then open:
-
-```text
-http://localhost:8000
-```
-
-### Option 2: use the project server script
-
-```bash
-cd careerDesk
 npm start
 ```
 
-This runs the local static server defined in `serve.js`.
+Open `http://localhost:3000`. This uses the repository's lightweight static server.
 
-### Option 3: open directly in a browser
+### Option 2: Python static server
 
-Open `index.html` directly in a browser. The app is designed to work as a static web app without a build step.
+```bash
+python -m http.server 8000
+```
+
+Open `http://localhost:8000`. A local server is recommended for browser APIs and data-file loading.
 
 ## Validation commands
 
-This repository does not define a dedicated test script. The practical project-level checks are:
+This repository does not define a dedicated test or lint script. The practical project-level checks are:
 
 ```bash
-node --check assets/js/app/master.js
-node --check assets/js/**/*.js
+node --check assets/js/master.js
+node --check assets/js/core.js
+node --check assets/js/app.js
 ```
 
 When iterating on a single file, target just that file:
 
 ```bash
 node --check assets/js/features/tracker.js
+```
+
+To validate all application JavaScript modules in PowerShell:
+
+```powershell
+Get-ChildItem assets\js -Recurse -Filter *.js | ForEach-Object { node --check $_.FullName }
 ```
 
 ## Firebase setup (optional)
@@ -197,22 +170,34 @@ This project has a few important repository-specific conventions:
 - keep the app zero-build and browser-native
 - use standard English digits for UI counters, timers, and percentages
 
+## Application modules
+
+`index.html` loads the CSS manifest and JavaScript manifest. `assets/js/master.js` loads the browser modules in dependency order:
+
+- `core.js` initializes shared state, local persistence, common helpers, and the unified subject system.
+- `app.js` initializes the application shell, routes, shared dialogs, and keyboard shortcuts.
+- `features/` contains the dashboard, routine, focus tracker, syllabus, questions, MCQ, profile, countdown, quotes, flashcards, and group-chat features.
+- `integrations/` contains optional Firebase sync and configuration plus client-side security features.
+
+The main application state is stored locally under `jobprep-dashboard-data-v2`. Firebase sync is optional and should not be required for normal local use.
+
 ## Architecture & Codebase Map
 
 An interactive AST dependency map and architectural report are generated via Graphify:
 - **Interactive Visual Map:** Open [`docs/architecture/graph.html`](docs/architecture/graph.html) in any browser to explore modules, functions, and cross-file dependencies.
 - **Architecture Report:** See [`docs/architecture/GRAPH_REPORT.md`](docs/architecture/GRAPH_REPORT.md) for core hub abstractions and community cohesion.
-- **Regeneration Guide:** See [`GRAPHIFY_SETUP.md`](GRAPHIFY_SETUP.md) for setup and build instructions.
+- **Regeneration Guide:** See [`docs/architecture/GRAPHIFY_SETUP.md`](docs/architecture/GRAPHIFY_SETUP.md) for setup and build instructions.
 
 ## Important files to know
 
 - `index.html` — app shell and entry page
-- `assets/js/app/master.js` — script loading order
-- `assets/js/core/core.js` — shared storage, state defaults, and global utilities
-- `assets/js/app/app.js` — app bootstrap, tab/router setup, command palette
-- `assets/js/features/*.js` — feature-specific modules
-- `assets/js/integrations/*.js` — Firebase and security logic
+- `assets/js/master.js` — script loading order
+- `assets/js/core.js` — shared storage, state defaults, and global utilities
+- `assets/js/app.js` — app bootstrap, tab/router setup, command palette
+- `assets/js/features/` — feature modules for the dashboard, study tools, and exam preparation
+- `assets/js/integrations/` — Firebase sync/configuration and security logic
 - `docs/architecture/graph.html` — interactive visual dependency map
+- `scripts/build_graphify.py` — deterministic code-graph generation
 
 ## License
 
