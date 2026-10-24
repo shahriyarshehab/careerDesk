@@ -179,7 +179,7 @@
     const streakBarEl = document.getElementById('dbKpiStreakProgressBar');
     if (streakEl) streakEl.textContent = `${streak} day${streak === 1 ? '' : 's'}`;
     if (streakBarEl) {
-      const streakPct = Math.min(100, Math.max(15, streak * 15));
+      const streakPct = Math.min(100, streak * 15);
       streakBarEl.style.width = `${streakPct}%`;
     }
 
@@ -195,9 +195,9 @@
     const focusScore = Math.round(studiedMins * 2.5 + quizPoints);
     const scoreEl = document.getElementById('dbKpiFocusScore');
     const scoreBarEl = document.getElementById('dbKpiScoreProgressBar');
-    if (scoreEl) scoreEl.textContent = focusScore > 0 ? focusScore : '425';
+    if (scoreEl) scoreEl.textContent = String(focusScore);
     if (scoreBarEl) {
-      const scorePct = Math.min(100, Math.max(25, Math.round((focusScore / 600) * 100)));
+      const scorePct = Math.min(100, Math.round((focusScore / 600) * 100));
       scoreBarEl.style.width = `${scorePct}%`;
     }
   }
@@ -227,6 +227,7 @@
   function renderStudyPlan() {
     const timelineEl = document.getElementById('dbTodayPlanTimeline');
     if (!timelineEl) return;
+    timelineEl.setAttribute('aria-busy', 'false');
 
     const now = new Date();
     const today = todayKey();
