@@ -169,7 +169,45 @@ function ensureBCSQuestionBankLoaded() {
   return questionBankPromise;
 }
 
+function renderQuizLoadingSkeleton() {
+  const quizCard = document.getElementById("quiz-card");
+  const qText = document.getElementById("q-text");
+  const optionsContainer = document.getElementById("options-container");
+  const filterBar = document.getElementById("filter-bar");
+
+  if (quizCard) quizCard.setAttribute("aria-busy", "true");
+
+  if (qText) {
+    qText.innerHTML = `<span class="sr-only" role="status" aria-live="polite">Loading questions…</span>
+      <span class="skeleton-stack" aria-hidden="true">
+        <span class="skeleton skeleton-line" style="width: 94%"></span>
+        <span class="skeleton skeleton-line" style="width: 66%"></span>
+      </span>`;
+  }
+
+  if (optionsContainer) {
+    optionsContainer.innerHTML = ["96%", "88%", "92%", "74%"]
+      .map(width => `<span class="skeleton skeleton-option" style="width: ${width}" aria-hidden="true"></span>`)
+      .join("");
+  }
+
+  if (filterBar) {
+    filterBar.setAttribute("aria-busy", "true");
+    filterBar.innerHTML = ["78px", "92px", "70px", "86px", "74px"]
+      .map(width => `<span class="skeleton skeleton-pill" style="width: ${width}" aria-hidden="true"></span>`)
+      .join("");
+  }
+}
+
+function clearQuizLoadingSkeleton() {
+  const quizCard = document.getElementById("quiz-card");
+  const filterBar = document.getElementById("filter-bar");
+  if (quizCard) quizCard.setAttribute("aria-busy", "false");
+  if (filterBar) filterBar.setAttribute("aria-busy", "false");
+}
+
 function loadQuestionBankForQuiz() {
+  if (!questionBankInitialized) renderQuizLoadingSkeleton();
   return ensureBCSQuestionBankLoaded().then(() => {
     if (!questionBankInitialized) {
       buildPracticePool(currentSelectedSubject);
@@ -178,6 +216,14 @@ function loadQuestionBankForQuiz() {
       updateMCQStatsBar();
       questionBankInitialized = true;
     }
+    clearQuizLoadingSkeleton();
+  }).catch(error => {
+    clearQuizLoadingSkeleton();
+    const qText = document.getElementById("q-text");
+    const optionsContainer = document.getElementById("options-container");
+    if (qText) qText.textContent = "Questions could not be loaded. Check your connection and try again.";
+    if (optionsContainer) optionsContainer.innerHTML = "";
+    throw error;
   });
 }
 
@@ -724,6 +770,7 @@ function renderMCQQuestion() {
 
   if (!quizCard) return;
   quizCard.style.display = "block";
+  quizCard.setAttribute("aria-busy", "false");
   if (summaryCard) summaryCard.style.display = "none";
 
   const q = getCurrentActiveQuestion();
@@ -1608,6 +1655,8 @@ window.loadMistakes = loadMistakes;
 window.renderMistakes = renderMistakes;
 window.initMCQEngine = initMCQEngine;
 window.loadQuestionBankForQuiz = loadQuestionBankForQuiz;
+window.renderQuizLoadingSkeleton = renderQuizLoadingSkeleton;
+window.clearQuizLoadingSkeleton = clearQuizLoadingSkeleton;
 window.renderMCQFilterBar = renderMCQFilterBar;
 window.renderMCQQuestion = renderMCQQuestion;
 window.updateMCQStatsBar = updateMCQStatsBar;

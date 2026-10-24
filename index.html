@@ -181,7 +181,7 @@
               <div class="db-kpi-icon"><i data-lucide="clock"></i></div>
             </div>
             <div class="db-kpi-main">
-              <span class="db-kpi-num" id="dbKpiStudyToday">0m</span>
+              <span class="db-kpi-num" id="dbKpiStudyToday"><span class="skeleton skeleton-kpi" aria-hidden="true"></span><span class="sr-only">Loading study time</span></span>
               <span class="db-kpi-sub" id="dbKpiStudySub">Goal: 4h 0m</span>
             </div>
             <div class="db-kpi-progress">
@@ -196,7 +196,7 @@
               <div class="db-kpi-icon"><i data-lucide="check-circle-2"></i></div>
             </div>
             <div class="db-kpi-main">
-              <span class="db-kpi-num" id="dbKpiTasksRatio">0 of 0</span>
+              <span class="db-kpi-num" id="dbKpiTasksRatio"><span class="skeleton skeleton-kpi" style="width: 84px;" aria-hidden="true"></span><span class="sr-only">Loading completed tasks</span></span>
               <span class="db-kpi-sub" id="dbKpiTasksSub">Today's routine</span>
             </div>
             <div class="db-kpi-progress">
@@ -211,11 +211,11 @@
               <div class="db-kpi-icon"><i data-lucide="flame"></i></div>
             </div>
             <div class="db-kpi-main">
-              <span class="db-kpi-num" id="dbKpiStreak">0 days</span>
+              <span class="db-kpi-num" id="dbKpiStreak"><span class="skeleton skeleton-kpi" style="width: 70px;" aria-hidden="true"></span><span class="sr-only">Loading study streak</span></span>
               <span class="db-kpi-sub">Consecutive study 🔥</span>
             </div>
             <div class="db-kpi-progress">
-              <div class="db-kpi-progress-bar bar-amber" id="dbKpiStreakProgressBar" style="width: 40%"></div>
+              <div class="db-kpi-progress-bar bar-amber" id="dbKpiStreakProgressBar" style="width: 0%"></div>
             </div>
           </div>
 
@@ -226,11 +226,11 @@
               <div class="db-kpi-icon"><i data-lucide="zap"></i></div>
             </div>
             <div class="db-kpi-main">
-              <span class="db-kpi-num" id="dbKpiFocusScore">425</span>
+              <span class="db-kpi-num" id="dbKpiFocusScore"><span class="skeleton skeleton-kpi" aria-hidden="true"></span><span class="sr-only">Loading focus score</span></span>
               <span class="db-kpi-sub" id="dbKpiScoreSub">Points earned</span>
             </div>
             <div class="db-kpi-progress">
-              <div class="db-kpi-progress-bar bar-blue" id="dbKpiScoreProgressBar" style="width: 70%"></div>
+              <div class="db-kpi-progress-bar bar-blue" id="dbKpiScoreProgressBar" style="width: 0%"></div>
             </div>
           </div>
         </div>
@@ -248,8 +248,11 @@
                 <span>View Routine</span> <i data-lucide="arrow-right"></i>
               </button>
             </div>
-            <div class="db-plan-timeline" id="dbTodayPlanTimeline">
-              <!-- Dynamically populated from state.routine -->
+            <div class="db-plan-timeline" id="dbTodayPlanTimeline" aria-busy="true">
+              <span class="sr-only" role="status" aria-live="polite">Loading today's study plan</span>
+              <div class="skeleton skeleton-plan-row" aria-hidden="true"></div>
+              <div class="skeleton skeleton-plan-row" aria-hidden="true"></div>
+              <div class="skeleton skeleton-plan-row" aria-hidden="true"></div>
             </div>
           </div>
 
@@ -724,7 +727,13 @@
             </div>
           </div>
 
-          <div class="q-text" id="q-text">Loading question...</div>
+          <div class="q-text" id="q-text">
+            <span class="sr-only" role="status" aria-live="polite">Loading questions</span>
+            <span class="skeleton-stack" aria-hidden="true">
+              <span class="skeleton skeleton-line" style="width: 94%"></span>
+              <span class="skeleton skeleton-line" style="width: 66%"></span>
+            </span>
+          </div>
 
           <div class="options-list" id="options-container">
             <!-- Dynamic Option Buttons -->

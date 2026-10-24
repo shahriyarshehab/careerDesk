@@ -383,8 +383,39 @@ function renderGroupChatAuth() {
   renderGroupChatInvite();
 }
 
+function renderGroupChatLoadingSkeletons() {
+  const list = document.getElementById('groupchatMyGroups');
+  if (list && !groupChatState.groups.length) {
+    list.setAttribute('aria-busy', 'true');
+    list.innerHTML = '<span class="sr-only" role="status" aria-live="polite">Loading your groups…</span>' +
+      Array.from({ length: 4 }).map(() => `
+        <div class="skeleton-row" aria-hidden="true" style="padding: 8px 10px;">
+          <span class="skeleton skeleton-avatar"></span>
+          <span class="skeleton-row-copy">
+            <span class="skeleton skeleton-line" style="width: 74%"></span>
+            <span class="skeleton skeleton-line" style="width: 40%"></span>
+          </span>
+        </div>`).join('');
+  }
+  renderGroupChatMessageSkeleton();
+}
+
+function renderGroupChatMessageSkeleton() {
+  const container = document.getElementById('groupchatMessages');
+  if (!container || groupChatState.messages.length) return;
+  container.setAttribute('aria-busy', 'true');
+  container.innerHTML = `<span class="sr-only" role="status" aria-live="polite">Loading messages…</span>
+    <div class="skeleton-stack" aria-hidden="true">
+      <span class="skeleton skeleton-bubble" style="width: 58%"></span>
+      <span class="skeleton skeleton-bubble is-own" style="width: 44%"></span>
+      <span class="skeleton skeleton-bubble" style="width: 68%"></span>
+      <span class="skeleton skeleton-bubble is-own" style="width: 36%"></span>
+    </div>`;
+}
+
 async function loadMyGroups() {
   if (!groupChatState.initialized) return;
+  renderGroupChatLoadingSkeletons();
   try {
     const user = await groupChatAuthUser();
     const db = groupChatDb();
@@ -445,6 +476,11 @@ async function loadMyGroups() {
       selectGroup(groupChatState.groups[0].id);
     }
   } catch (error) {
+    const list = document.getElementById('groupchatMyGroups');
+    if (list && !groupChatState.groups.length) {
+      list.setAttribute('aria-busy', 'false');
+      list.innerHTML = '<div class="groupchat-empty">Your groups could not be loaded.</div>';
+    }
     groupChatError(error, 'Unable to load your groups.');
   }
 }
@@ -452,6 +488,7 @@ async function loadMyGroups() {
 function renderMyGroups() {
   const list = document.getElementById('groupchatMyGroups');
   if (!list) return;
+  list.setAttribute('aria-busy', 'false');
   if (!groupChatState.groups.length) {
     list.innerHTML = '<div class="groupchat-empty">You have not joined a group yet.</div>';
     return;
@@ -1307,10 +1344,7 @@ async function groupChatShareInvite(group) {
 async function subscribeToMessages(groupId) {
   try {
     const user = await groupChatAuthUser();
-    const container = document.getElementById('groupchatMessages');
-    if (container && !groupChatState.messages.length) {
-      container.innerHTML = '<div class="groupchat-empty">Loading messages...</div>';
-    }
+    renderGroupChatMessageSkeleton();
     groupChatState.hasMoreOlder = true;
     groupChatState.olderMessages = [];
     groupChatState.recentMessages = [];
@@ -1325,7 +1359,14 @@ async function subscribeToMessages(groupId) {
         recombineMessages(user.uid, isInitialLoad);
         isInitialLoad = false;
         saveGroupChatUiState();
-      }, error => groupChatError(error, 'Unable to load group messages.'));
+      }, error => {
+        const container = document.getElementById('groupchatMessages');
+        if (container) {
+          container.setAttribute('aria-busy', 'false');
+          container.innerHTML = '<div class="groupchat-empty">Messages could not be loaded.</div>';
+        }
+        groupChatError(error, 'Unable to load group messages.');
+      });
   } catch (error) { groupChatError(error, 'Unable to open this group.'); }
 }
 
@@ -1424,6 +1465,7 @@ function groupChatFormatDateBadge(createdAt) {
 function renderMessages(uid) {
   const container = document.getElementById('groupchatMessages');
   if (!container) return;
+  container.setAttribute('aria-busy', 'false');
   const isOwner = groupChatState.activeGroup?.role === 'owner';
 
   if (!groupChatState.messages.length) {
@@ -1807,4 +1849,6 @@ function initGroupChat() {
 
 window.initGroupChat = initGroupChat;
 window.destroyGroupChatListeners = destroyGroupChatListeners;
+window.renderGroupChatLoadingSkeletons = renderGroupChatLoadingSkeletons;
+window.renderGroupChatMessageSkeleton = renderGroupChatMessageSkeleton;
 window.addEventListener('careerdesk-auth-state-changed', renderGroupChatAuth);
