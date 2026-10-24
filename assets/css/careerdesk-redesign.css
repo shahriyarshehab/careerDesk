@@ -203,6 +203,83 @@ html[data-theme="light"] .nav-link:hover:not(.active) {
   flex-shrink: 0 !important;
 }
 
+.topbar-clock {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 96px;
+  height: 42px;
+  padding: 0 14px;
+  border: 1px solid rgba(104, 223, 189, .34);
+  border-radius: 12px;
+  background:
+    linear-gradient(115deg, rgba(104, 223, 189, .1), rgba(113, 152, 255, .13) 55%, rgba(104, 223, 189, .07)),
+    rgba(9, 16, 31, .72);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, .12),
+    inset 0 0 18px rgba(113, 152, 255, .08),
+    0 0 18px rgba(99, 102, 241, .12);
+  color: var(--cd-text, #e2e8f0);
+  font-variant-numeric: tabular-nums;
+  flex: 0 0 auto;
+  animation: topbarClockGlow 4s ease-in-out infinite;
+}
+.topbar-clock::before {
+  position: absolute;
+  z-index: -1;
+  inset: 0 auto 0 -65%;
+  width: 45%;
+  content: "";
+  background: linear-gradient(90deg, transparent, rgba(104, 223, 189, .14), rgba(113, 152, 255, .2), transparent);
+  transform: skewX(-22deg);
+  animation: topbarClockSweep 5s ease-in-out infinite;
+}
+.topbar-clock time {
+  color: #d9fff6;
+  font-family: var(--font-mono, "SFMono-Regular", Consolas, monospace);
+  font-size: 15px;
+  font-weight: 750;
+  letter-spacing: .1em;
+  line-height: 1;
+  text-shadow: 0 0 10px rgba(104, 223, 189, .4), 0 0 22px rgba(113, 152, 255, .22);
+  white-space: nowrap;
+}
+@keyframes topbarClockSweep {
+  0%, 18% { left: -65%; opacity: 0; }
+  28% { opacity: .8; }
+  52%, 100% { left: 125%; opacity: 0; }
+}
+@keyframes topbarClockGlow {
+  0%, 100% { border-color: rgba(104, 223, 189, .3); }
+  50% { border-color: rgba(113, 152, 255, .48); }
+}
+html[data-theme="light"] .topbar-clock {
+  border-color: rgba(77, 111, 190, .28);
+  background:
+    linear-gradient(115deg, rgba(104, 223, 189, .13), rgba(113, 152, 255, .14) 55%, rgba(104, 223, 189, .1)),
+    rgba(255, 255, 255, .88);
+  box-shadow: inset 0 1px 0 #fff, inset 0 0 18px rgba(113, 152, 255, .08), 0 0 16px rgba(99, 102, 241, .1);
+}
+html[data-theme="light"] .topbar-clock time {
+  color: #243867;
+  text-shadow: 0 0 10px rgba(99, 102, 241, .2);
+}
+@media (max-width: 520px) {
+  .topbar-clock {
+    min-width: 82px;
+    height: 38px;
+    padding: 0 10px;
+  }
+  .topbar-clock time { font-size: 12px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .topbar-clock,
+  .topbar-clock::before { animation: none; }
+}
+
 /* Figma Search Input Button */
 .nav-search-btn {
   display: inline-flex;

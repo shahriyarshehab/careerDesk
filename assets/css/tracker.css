@@ -429,6 +429,67 @@
   border-radius: 99px;
 }
 
+.subj-plan-row .subj-bar-track {
+  position: relative;
+}
+
+.subject-plan-help {
+  margin: -6px 0 14px;
+  color: var(--text-muted);
+  font-size: 11px;
+}
+
+.subj-plan-track,
+.subj-plan-fill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  border-radius: inherit;
+}
+
+.subj-plan-track {
+  background: color-mix(in srgb, var(--accent2) 18%, var(--surface-strong));
+}
+
+.subj-plan-fill {
+  background: linear-gradient(90deg, var(--accent2), var(--accent1));
+  transition: width .5s ease;
+}
+
+.subj-plan-details {
+  margin-top: 4px;
+  color: var(--text-muted);
+  font-size: 11px;
+}
+
+.subj-plan-status {
+  padding: 2px 7px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.subj-plan-status--complete {
+  color: #34d399;
+  border-color: rgba(52, 211, 153, .35);
+  background: rgba(16, 185, 129, .1);
+}
+
+.subj-plan-status--not-complete {
+  color: #fbbf8a;
+  border-color: rgba(245, 158, 11, .3);
+  background: rgba(245, 158, 11, .1);
+}
+
+.subj-plan-status--in-progress,
+.subj-plan-status--upcoming,
+.subj-plan-status--time-not-set,
+.subj-plan-status--unplanned {
+  color: var(--text-soft);
+}
+
 @media (max-width: 700px) {
   #panel-tracker .session-card,
   #panel-tracker .target-card,

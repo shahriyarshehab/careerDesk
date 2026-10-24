@@ -23,17 +23,6 @@
   <script defer src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
   <script defer src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 
-
-  <style id="study-chain-home-styles">
-/* Study Chain — vertical journey with a focused active card */
-.study-chain-hero{position:relative;isolation:isolate;overflow:hidden;display:flex;flex-direction:column;gap:20px;margin:0 0 20px;padding:clamp(17px,2.5vw,28px);border:1px solid var(--border-color,rgba(111,154,255,.2));border-radius:24px;background:radial-gradient(ellipse at 92% 0%,rgba(72,117,238,.17),transparent 43%),radial-gradient(ellipse at 0% 100%,rgba(45,185,160,.07),transparent 40%),var(--card-bg,linear-gradient(135deg,#111b30,#0d1321));box-shadow:0 14px 36px rgba(0,0,0,.12)}
-.study-chain-copy{min-width:0;display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:22px;align-items:center}.study-chain-kicker{grid-column:1/-1;display:inline-flex;align-items:center;gap:8px;color:#72dcbc;font-size:10px;font-weight:800;letter-spacing:.14em;text-transform:uppercase}.study-chain-kicker:before{content:"";width:7px;height:7px;border-radius:50%;background:#63ddb4;box-shadow:0 0 10px #63ddb4}.study-chain-copy h2{margin:8px 0 6px;color:var(--text-primary,#f5f8ff);font-size:clamp(24px,3vw,32px);line-height:1.08;letter-spacing:-.04em;font-weight:800}.study-chain-copy h2 span{color:#81aaff}.study-chain-copy p{max-width:440px;margin:0;color:var(--text-secondary,#9eabc2);font-size:12px;line-height:1.6}.study-chain-stats{display:flex;justify-content:flex-end;gap:clamp(14px,2.5vw,30px);flex-wrap:wrap;margin-top:0}.study-chain-stat{min-width:70px}.study-chain-stat strong{display:block;color:var(--text-primary,#f4f7ff);font-size:clamp(16px,2vw,22px);line-height:1.2;letter-spacing:-.03em}.study-chain-stat span{display:block;margin-top:5px;color:var(--text-secondary,#8493ad);font-size:10px}
-.study-chain-visual{min-width:0;width:100%;padding:clamp(12px,2vw,21px);border:1px solid var(--border-color,rgba(152,177,226,.16));border-radius:20px;background:rgba(7,13,25,.3)}.study-chain-visual-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:0 2px 16px;color:var(--text-primary,#eaf0ff);font-size:10px;font-weight:900;letter-spacing:.12em}.study-chain-clock{color:var(--text-secondary,#90a9d5);font-size:12px;font-weight:700;letter-spacing:0;white-space:nowrap}.study-chain-wheel-controls{display:flex;gap:6px;align-items:center}.study-chain-wheel-controls button{display:grid;place-items:center;width:34px;height:34px;border:1px solid var(--border-color,rgba(145,170,220,.22));border-radius:11px;background:rgba(120,150,220,.08);color:var(--text-primary,#eef3ff);font-size:17px;cursor:pointer;transition:background .2s,transform .2s}.study-chain-wheel-controls button:hover:not(:disabled){background:rgba(100,145,255,.2);transform:translateY(-1px)}.study-chain-wheel-controls button:disabled{opacity:.28;cursor:not-allowed}
-.study-chain-list{display:flex;flex-direction:column;gap:11px;align-items:stretch;min-height:100px;position:relative}.study-chain-item{position:relative;display:grid;grid-template-columns:42px minmax(0,1fr);gap:14px;align-items:start;min-width:0;padding:15px 17px;border:1px solid var(--border-color,rgba(133,157,198,.15));border-radius:16px;background:rgba(255,255,255,.022);opacity:.76;transform:scale(.99);transition:transform .22s,border-color .22s,background .22s,opacity .22s,box-shadow .22s;overflow:hidden}.study-chain-item:before{content:"";position:absolute;left:37px;top:49px;bottom:-13px;width:2px;background:rgba(139,163,210,.17)}.study-chain-item:last-child:before{display:none}.study-chain-item.wheel-center{opacity:1;transform:scale(1);padding:19px 20px;border-color:rgba(100,151,255,.76);background:linear-gradient(110deg,rgba(65,113,219,.22),rgba(68,104,173,.055));box-shadow:0 10px 28px rgba(39,93,204,.14),inset 3px 0 0 rgba(112,155,255,.8)}.study-chain-item.wheel-past,.study-chain-item.wheel-next{background:rgba(255,255,255,.018)}.study-chain-wheel-top{display:flex;flex-direction:column;align-items:center;gap:7px;position:relative;z-index:1}.study-chain-node{display:grid;place-items:center;flex:0 0 39px;width:39px;height:39px;border-radius:13px;color:#a7b5cf;background:rgba(130,150,190,.1);border:1px solid rgba(143,164,203,.18);font-size:14px;font-weight:800}.study-chain-position{color:var(--text-secondary,#8493ad);font-size:8px;font-weight:900;letter-spacing:.06em;white-space:nowrap;writing-mode:vertical-rl;transform:rotate(180deg);max-height:65px}.study-chain-item.wheel-center .study-chain-position{color:#a9c2ff}.study-chain-item.complete .study-chain-node{color:#76e2b8;background:rgba(53,191,139,.12);border-color:rgba(94,226,176,.3)}.study-chain-item.incomplete .study-chain-node{color:#ffbd8a;background:rgba(245,142,73,.12);border-color:rgba(245,142,73,.3)}.study-chain-item.active .study-chain-node{color:#fff;background:linear-gradient(135deg,#588aff,#806dff);border-color:rgba(160,180,255,.5);box-shadow:0 4px 15px rgba(88,138,255,.25)}.study-chain-item-main{min-width:0}.study-chain-subject{overflow-wrap:anywhere;color:var(--text-primary,#f0f4ff);font-size:15px;font-weight:800;line-height:1.4}.study-chain-item.wheel-center .study-chain-subject{font-size:17px}.study-chain-time{display:block;margin-top:5px;color:var(--text-secondary,#8b9bb8);font-size:11px;line-height:1.5}.study-chain-status{display:inline-flex;margin-top:10px;padding:5px 9px;border-radius:7px;background:rgba(145,164,205,.08);color:var(--text-secondary,#8f9db6);font-size:9px;font-weight:900;letter-spacing:.07em;line-height:1.4}.study-chain-item.complete .study-chain-status{color:#69dcae;background:rgba(53,191,139,.1)}.study-chain-item.incomplete .study-chain-status{color:#ffb780;background:rgba(245,142,73,.1)}.study-chain-item.active .study-chain-status{color:#a9c2ff;background:rgba(91,141,255,.13)}.study-chain-item.future .study-chain-status{color:#a5b7da}.study-chain-progress{height:5px;margin-top:11px;overflow:hidden;border-radius:9px;background:rgba(146,165,202,.16)}.study-chain-progress span{display:block;height:100%;border-radius:9px;background:linear-gradient(90deg,#5b8dff,#8a7bff);transition:width .3s}.study-chain-item.complete .study-chain-progress span{background:#5bd4a4}.study-chain-item.incomplete .study-chain-progress span{background:#f2a06a}.study-chain-progress-label{display:flex;justify-content:space-between;gap:8px;margin-top:6px;color:var(--text-secondary,#8495b5);font-size:10px}.study-chain-task{margin-top:7px;color:var(--text-secondary,#8f9fbe);font-size:11px;line-height:1.5;overflow-wrap:anywhere}.study-chain-empty{display:flex;align-items:center;gap:12px;padding:17px;color:var(--text-primary,#dce6fa);border:1px dashed var(--border-color,rgba(111,154,255,.25));border-radius:14px}.study-chain-empty-icon{display:grid;place-items:center;flex:0 0 36px;width:36px;height:36px;border-radius:11px;color:#8baaff;background:rgba(111,154,255,.08);font-size:19px}.study-chain-empty strong{display:block;font-size:12px}.study-chain-empty p{margin:4px 0 0;color:var(--text-secondary,#91a0bc);font-size:11px;line-height:1.5}
-@media(max-width:760px){.study-chain-hero{gap:14px;padding:14px;border-radius:18px}.study-chain-copy{grid-template-columns:minmax(0,1fr);gap:0}.study-chain-copy h2{font-size:25px}.study-chain-stats{justify-content:flex-start;gap:18px;margin-top:14px}.study-chain-stat{min-width:60px}.study-chain-visual{padding:10px;border-radius:15px}.study-chain-visual-head{margin-bottom:11px;font-size:9px;letter-spacing:.08em}.study-chain-item{grid-template-columns:34px minmax(0,1fr);gap:10px;padding:12px}.study-chain-item.wheel-center{padding:15px 12px}.study-chain-item:before{left:28px;top:42px}.study-chain-node{width:31px;height:31px;flex-basis:31px;border-radius:10px}.study-chain-subject{font-size:13px}.study-chain-item.wheel-center .study-chain-subject{font-size:15px}.study-chain-time{font-size:10px}.study-chain-position{font-size:7px}.study-chain-progress-label{font-size:9px}.study-chain-clock{font-size:10px}.study-chain-wheel-controls button{width:30px;height:30px}}
-@media(prefers-reduced-motion:no-preference){.study-chain-item.wheel-center{animation:studyChainGlow 3.2s ease-in-out infinite}@keyframes studyChainGlow{50%{box-shadow:inset 3px 0 0 rgba(87,139,255,.6),0 6px 17px rgba(39,93,204,.1)}}}
-</style>
-
   <!-- Screenshot layout alignment overrides (must load after all inline styles) -->
   <link rel="stylesheet" href="assets/css/figma-layout-alignment.css?v=8">
 </head>
@@ -67,9 +56,6 @@
       <button class="tab-btn nav-link" data-tab="groupchat" role="tab" aria-selected="false" title="Group Chat"
         aria-label="Group Chat"><i data-lucide="messages-square"></i><span>Chat</span></button>
 
-      <button class="tab-btn nav-link" data-tab="profile" role="tab" aria-selected="false" title="Profile" aria-label="Profile" onclick="activateTab('profile', true)">
-        <i data-lucide="user"></i><span>Profile</span>
-      </button>
     </nav>
 
     <!-- Top Bar: Search and theme -->
@@ -90,15 +76,21 @@
           <span><kbd>ESC</kbd> Close</span>
         </div>
       </div>
-      <button class="icon-action-btn" id="watchThemeToggle" type="button" title="Switch to light/dark mode" aria-label="Dark mode">
-        <i data-lucide="sun"></i><span>Dark</span>
-      </button>
+      <div class="topbar-clock" aria-label="Local time">
+        <time id="topbarClockTime">--:--</time>
+      </div>
     </div>
 
     <div class="sidebar-tools-label" aria-hidden="true">TOOLS</div>
 
     <!-- Header Actions (Figma Style) -->
     <div class="header-actions brand-actions watch-actions" aria-label="Quick controls">
+      <button class="tab-btn nav-link sidebar-profile-link" data-tab="profile" type="button" title="Profile" aria-label="Profile">
+        <i data-lucide="user"></i><span>Profile</span>
+      </button>
+      <button class="tab-btn nav-link sidebar-subjects-link" data-tab="subjects" type="button" title="Subject Manager" aria-label="Subject Manager">
+        <i data-lucide="layers"></i><span>Subject Manager</span>
+      </button>
       <button class="tab-btn nav-link sidebar-settings-link" data-tab="settings" type="button" title="Settings &amp; Sync" aria-label="Settings and sync">
         <i data-lucide="settings-2"></i><span>Settings &amp; Sync</span>
       </button>
@@ -135,59 +127,10 @@
           </div>
         </section>
 
-        <!-- Top Greeting Header -->
-        <header class="db-top-header">
-          <div class="db-header-left">
-            <span class="db-breadcrumb">STUDY WORKSPACE · OVERVIEW</span>
-            <h1 class="db-headline" id="dbGreetingHeadline">Let's make today count.</h1>
-            <p class="db-subheadline" id="dbGreetingSub">A little progress each day adds up to big results.</p>
-          </div>
-          <div class="db-header-right">
-            <div class="db-header-stat-pill">
-              <i data-lucide="clock"></i>
-              <span id="dbTopHeaderStudy">0m today</span>
-            </div>
-            <div class="db-header-clock-pill">
-              <span id="dbLiveClock">--:--</span>
-              <span class="db-header-date" id="dbLiveDate">--</span>
-            </div>
-          </div>
-        </header>
-
-        <!-- 1. Hero Feature Banner Card -->
-        <div class="db-feature-hero glass">
-          <div class="db-feature-content">
-            <div class="db-feature-kicker">
-              <span class="db-kicker-dot"></span>
-              <span>STUDY FLOW</span>
-            </div>
-            <h2 class="db-feature-title">Build your future,<br>one focused session at a time.</h2>
-            <p class="db-feature-sub">Maintain your daily rhythm and momentum to hit your target milestones.</p>
-            <div class="db-feature-actions">
-              <button class="db-btn-primary" id="dbHeroStartBtn" type="button" onclick="activateTab('tracker', true)">
-                <i data-lucide="play"></i> <span>Start Study Session</span>
-              </button>
-              <button class="db-btn-secondary" type="button" onclick="activateTab('routine', true)">
-                <i data-lucide="calendar"></i> <span>View Routine</span>
-              </button>
-            </div>
-          </div>
-          <div class="db-feature-visual" aria-hidden="true">
-            <div class="db-orbital-target">
-              <div class="db-orbit-ring ring-3"></div>
-              <div class="db-orbit-ring ring-2"></div>
-              <div class="db-orbit-ring ring-1"></div>
-              <div class="db-orbit-center">
-                <i data-lucide="sparkles"></i>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- 2. "Your progress at a glance" Section Header + 4 Metric Cards -->
+        <!-- Your progress at a glance -->
         <div class="db-section-header">
           <h3 class="db-section-title">Your progress at a glance</h3>
-          <span class="db-section-badge" id="dbTargetGoalSummary">Daily Target: 4h</span>
+          <span class="db-section-badge" id="dbTargetGoalSummary">Routine Goal: 4h</span>
         </div>
 
         <div class="db-kpi-grid">
@@ -270,37 +213,62 @@
             </div>
           </div>
 
-          <!-- Right: Focus Timer Widget -->
-          <div class="db-timer-card glass">
+          <!-- Right: shared Tracker timer -->
+          <div class="db-timer-card glass" id="dbTimerCard">
             <div class="db-card-head">
               <div class="db-card-title-group">
                 <i data-lucide="timer" class="db-title-icon"></i>
-                <h3 class="db-card-heading">Focus Timer</h3>
+                <h3 class="db-card-heading">Study Tracker</h3>
               </div>
-              <span class="db-card-badge" id="dbTimerModeLabel">Pomodoro</span>
+              <button class="db-action-link" id="dbTimerOpenTracker" type="button" title="Open the full Tracker page">
+                <span>Open Tracker</span> <i data-lucide="arrow-up-right"></i>
+              </button>
             </div>
-            <div class="db-timer-modes">
-              <button class="db-timer-mode-btn active" data-dur="25" type="button">25:00</button>
-              <button class="db-timer-mode-btn" data-dur="50" type="button">50:00</button>
-              <button class="db-timer-mode-btn" data-dur="15" type="button">15:00</button>
-              <button class="db-timer-mode-btn" data-dur="0" type="button">Stopwatch</button>
+            <div class="db-timer-modes" aria-label="Study or break timer">
+              <button class="db-timer-mode-btn active" data-dashboard-timer-mode="study" type="button">Study</button>
+              <button class="db-timer-mode-btn" data-dashboard-timer-mode="break" type="button">Break</button>
+            </div>
+            <div class="db-timer-subject-row" data-dashboard-study-control>
+              <select id="dbTimerSubjectSelect" aria-label="Study subject"></select>
+              <input id="dbTimerCustomSubject" type="text" placeholder="Enter a subject" hidden>
+            </div>
+            <div class="db-timer-subject-row" data-dashboard-break-control hidden>
+              <select id="dbTimerBreakReason" aria-label="Break reason">
+                <option value="Refreshment">Refreshment</option>
+                <option value="Meal">Meal</option>
+                <option value="Walk">Walk</option>
+                <option value="Prayer or Mindfulness">Prayer or Mindfulness</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+            <div class="db-timer-modes db-timer-durations" data-dashboard-study-control aria-label="Study duration">
+              <button class="db-timer-mode-btn active" data-dashboard-timer-duration="0" type="button">Stopwatch</button>
+              <button class="db-timer-mode-btn" data-dashboard-timer-duration="15" type="button">15m</button>
+              <button class="db-timer-mode-btn" data-dashboard-timer-duration="25" type="button">25m</button>
+              <button class="db-timer-mode-btn" data-dashboard-timer-duration="45" type="button">45m</button>
+              <button class="db-timer-mode-btn" data-dashboard-timer-duration="60" type="button">60m</button>
+            </div>
+            <div class="db-timer-modes db-timer-durations" data-dashboard-break-control hidden aria-label="Break duration">
+              <button class="db-timer-mode-btn active" data-dashboard-timer-duration="5" type="button">5m</button>
+              <button class="db-timer-mode-btn" data-dashboard-timer-duration="10" type="button">10m</button>
+              <button class="db-timer-mode-btn" data-dashboard-timer-duration="15" type="button">15m</button>
+              <button class="db-timer-mode-btn" data-dashboard-timer-duration="20" type="button">20m</button>
+              <button class="db-timer-mode-btn" data-dashboard-timer-duration="30" type="button">30m</button>
             </div>
             <div class="db-timer-ring-container">
               <svg class="db-timer-svg" viewBox="0 0 200 200">
                 <circle class="db-timer-track" cx="100" cy="100" r="82" fill="none" stroke-width="8"></circle>
-                <circle class="db-timer-circle" id="dbTimerCircle" cx="100" cy="100" r="82" fill="none" stroke-width="8" stroke-dasharray="515.2" stroke-dashoffset="0" stroke-linecap="round"></circle>
               </svg>
               <div class="db-timer-center-content">
-                <div class="db-timer-digits" id="dbTimerDigits">25:00</div>
-                <div class="db-timer-subject" id="dbTimerSubject">Ready to focus</div>
+                <div class="db-timer-digits" id="dbTimerDigits">00:00:00</div>
               </div>
             </div>
             <div class="db-timer-actions">
               <button class="db-timer-btn-start" id="dbTimerStartBtn" type="button">
-                <i data-lucide="play" id="dbTimerBtnIcon"></i> <span id="dbTimerBtnText">Start Focus</span>
+                <i data-lucide="play"></i> <span>Start Studying</span>
               </button>
-              <button class="db-timer-btn-reset" id="dbTimerResetBtn" type="button" title="Reset Timer">
-                <i data-lucide="rotate-ccw"></i>
+              <button class="db-timer-btn-start db-timer-btn-stop" id="dbTimerStopBtn" type="button" hidden>
+                <i data-lucide="square"></i> <span>Finish Session</span>
               </button>
             </div>
           </div>
@@ -315,25 +283,7 @@
     <section class="panel" id="panel-routine">
       <div class="home-container">
 
-        <!-- 1. Live Daily Study Chain -->
-        <section class="study-chain-hero" aria-label="Study chain tracker">
-          <div class="study-chain-copy">
-            <span class="study-chain-kicker">TODAY · STUDY FLOW</span>
-            <h2>Study Chain<br><span>Stay in rhythm.</span></h2>
-            <p>Live from your routine and study tracker. No extra widgets, no wasted space.</p>
-            <div class="study-chain-stats">
-              <div class="study-chain-stat"><strong>0</strong><span>Study sessions</span></div>
-              <div class="study-chain-stat"><strong>0 min</strong><span>Planned study time</span></div>
-              <div class="study-chain-stat"><strong>0 min</strong><span>Tracker logged</span></div>
-            </div>
-          </div>
-          <div class="study-chain-visual">
-            <div class="study-chain-visual-head"><span>STUDY JOURNEY · PAST / FOCUS / NEXT</span><div style="display:flex;align-items:center;gap:9px"><span class="study-chain-clock">◷ --:--</span><div class="study-chain-wheel-controls"><button type="button" data-chain-move="-1" aria-label="Previous study block" title="Previous block">↑</button><button type="button" data-chain-move="1" aria-label="Next study block" title="Next block">↓</button></div></div></div>
-            <div class="study-chain-list" id="studyChainList" aria-live="polite"></div>
-          </div>
-        </section>
-
-        <!-- 3. Full-Width Daily Study Routine Card -->
+        <!-- Full-Width Daily Study Routine Card -->
         <section class="home-routine-card glass" id="homeRoutineSection">
           <div class="routine-card-header">
             <div class="routine-hero-copy routine-title-box">
@@ -414,6 +364,9 @@
 
       <div class="tracker-top">
         <div class="session-card glass">
+          <button class="db-action-link tracker-dashboard-link" type="button" onclick="activateTab('home', true)" title="Use the shared timer from Dashboard">
+            <i data-lucide="layout-dashboard"></i><span>Dashboard timer</span>
+          </button>
           <div class="timer-mode-selector segmented-toggle-group" id="timerModeSelector" aria-label="Choose timer mode">
             <button class="chip timer-mode-chip btn-mode-switch active" data-mode="study" type="button">
               <i data-lucide="book-open"></i> <span>Study</span>
@@ -465,7 +418,7 @@
 
         <div class="target-card glass">
           <div class="target-row">
-            <span>Daily Goal</span>
+            <span id="trackerGoalLabel">Daily Goal</span>
             <input type="number" id="targetHours" min="0" max="16" step="0.5">
             <span>hours</span>
           </div>
@@ -545,6 +498,7 @@
       <!-- Subject Breakdown Chart Card -->
       <div class="glass" style="padding:20px; margin-bottom:18px;">
         <h2 class="section-title" style="font-size:17px; margin-bottom:12px;">Today's Subject Distribution</h2>
+        <p class="subject-plan-help">Complete means at least 90% of the scheduled time was tracked, after the block ends.</p>
         <div class="subject-bars" id="subjectBars"></div>
       </div>
 
@@ -1042,14 +996,6 @@
             <i data-lucide="compass"></i>
             <span>Overview &amp; Insights</span>
           </button>
-          <button type="button" class="cockpit-nav-btn" data-cockpit-tab="track" role="tab" aria-selected="false">
-            <i data-lucide="graduation-cap"></i>
-            <span>Curriculum &amp; Track</span>
-          </button>
-          <button type="button" class="cockpit-nav-btn" data-cockpit-tab="subjects" role="tab" aria-selected="false">
-            <i data-lucide="layers"></i>
-            <span>Subject Manager</span>
-          </button>
           <button type="button" class="cockpit-nav-btn" data-cockpit-tab="security" role="tab" aria-selected="false">
             <i data-lucide="shield-check"></i>
             <span>Security &amp; Privacy</span>
@@ -1061,57 +1007,6 @@
           <!-- Pane 1: Overview & Aspirant Mission Control -->
           <div class="cockpit-pane active" id="cockpitPaneOverview" role="tabpanel">
             <div id="profileAspirantHub"></div>
-          </div>
-
-          <!-- Pane 2: Curriculum & Academic Track -->
-          <div class="cockpit-pane" id="cockpitPaneTrack" role="tabpanel" style="display:none;">
-            <div class="glass profile-track-card" id="profileTrackCard"></div>
-          </div>
-
-          <!-- Pane 3: Master Subject Manager -->
-          <div class="cockpit-pane" id="cockpitPaneSubjects" role="tabpanel" style="display:none;">
-            <div class="glass profile-section-card" id="profileSubjectsCockpitCard">
-              <div class="section-card-header">
-                <div class="section-card-title-group">
-                  <div class="section-card-icon-badge">
-                    <i data-lucide="layers"></i>
-                  </div>
-                  <div>
-                    <h3 class="section-card-title">
-                      <span>Master Subject Manager</span>
-                      <span class="subject-count-badge" id="cockpitSubjectCountBadge">0 Active</span>
-                    </h3>
-                    <p class="section-card-desc">Centralized repository for Routine, Focus Tracker, Syllabus curriculum, and Quizzes</p>
-                  </div>
-                </div>
-                <button class="pill subtle" id="btnResetDefaultSubjectsCockpit" type="button" title="Reset standard Bangladesh curriculum subjects">
-                  <i data-lucide="rotate-ccw"></i> <span>Reset Defaults</span>
-                </button>
-              </div>
-
-              <!-- Add Subject Bar -->
-              <div class="cockpit-subject-add-bar">
-                <div class="cockpit-input-wrap">
-                  <i data-lucide="plus-circle" class="input-icon"></i>
-                  <input type="text" id="cockpitNewSubjectInput" placeholder="Add custom subject (e.g. ICT, Higher Math, General Science)..." autocomplete="off">
-                </div>
-                <button class="pill solid" id="cockpitAddSubjectBtn" type="button">
-                  <i data-lucide="plus"></i> <span>Add Subject</span>
-                </button>
-              </div>
-
-              <!-- Active Subject List Container -->
-              <div id="cockpitSubjectManagerList" class="cockpit-subjects-list"></div>
-
-              <!-- Inactive / Hidden Subjects Container -->
-              <div id="cockpitDeletedSubjectSection" class="cockpit-inactive-section" style="display:none;">
-                <div class="cockpit-inactive-header">
-                  <i data-lucide="eye-off"></i>
-                  <h4>Inactive / Hidden Subjects</h4>
-                </div>
-                <div id="cockpitDeletedSubjectList" class="cockpit-subjects-list"></div>
-              </div>
-            </div>
           </div>
 
           <!-- Pane 4: Security & Privacy Vault -->
@@ -1221,29 +1116,23 @@
                   </div>
                   <div>
                     <h3 class="section-card-title">App Preferences &amp; Workspace</h3>
-                    <p class="section-card-desc">Daily study targets, quote settings, and local workspace backups.</p>
+                    <p class="section-card-desc">Manage quote pools and local workspace backups.</p>
                   </div>
                 </div>
               </div>
 
-              <!-- Daily Study Target Hours -->
               <div class="settings-row">
                 <div>
-                  <strong style="font-size:14.5px; display:block; color:var(--text); margin-bottom:2px;">Daily Study Target</strong>
-                  <span style="font-size:12.5px; color:var(--text-soft);">Sets the completion threshold for your daily focus bar and streak calculations.</span>
+                  <strong style="font-size:14.5px; display:block; color:var(--text); margin-bottom:2px;">Appearance</strong>
+                  <span style="font-size:12.5px; color:var(--text-soft);">Choose the workspace color theme.</span>
                 </div>
-                <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
-                  <div class="cockpit-target-presets">
-                    <button type="button" class="chip cockpit-target-chip" data-hours="2">2h</button>
-                    <button type="button" class="chip cockpit-target-chip" data-hours="4">4h</button>
-                    <button type="button" class="chip cockpit-target-chip" data-hours="6">6h</button>
-                    <button type="button" class="chip cockpit-target-chip" data-hours="8">8h</button>
-                  </div>
-                  <div style="display:inline-flex; align-items:center; gap:6px;">
-                    <input type="number" id="targetHoursSettings" min="0.5" max="18" step="0.5" value="4"
-                      style="width:72px; padding:7px 10px; border-radius:10px; border:1px solid var(--border); background:var(--surface); color:var(--text); font-size:14px; font-weight:700; text-align:center;">
-                    <span style="font-size:13px; color:var(--text-soft); font-weight:600;">hours / day</span>
-                  </div>
+                <div class="theme-mode-toggle-group" role="group" aria-label="Color theme">
+                  <button type="button" class="btn-mode-switch" id="themeDarkBtn" aria-pressed="false">
+                    <i data-lucide="moon" aria-hidden="true"></i><span>Dark</span>
+                  </button>
+                  <button type="button" class="btn-mode-switch" id="themeLightBtn" aria-pressed="false">
+                    <i data-lucide="sun" aria-hidden="true"></i><span>Light</span>
+                  </button>
                 </div>
               </div>
 
@@ -1252,21 +1141,12 @@
                 <div style="flex:1;">
                   <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; flex-wrap:wrap; gap:8px;">
                     <div>
-                      <strong style="font-size:14.5px; display:block; color:var(--text); margin-bottom:2px;">Motivational Quotes &amp; Ticker</strong>
-                      <span style="font-size:12.5px; color:var(--text-soft);">Bilingual quote rotation speed, source pool, and custom inspirational quote management.</span>
+                      <strong style="font-size:14.5px; display:block; color:var(--text); margin-bottom:2px;">Motivational Quote Pool</strong>
+                      <span style="font-size:12.5px; color:var(--text-soft);">Manage the quotes used by the automatic ticker.</span>
                     </div>
-                    <div style="display:flex; gap:8px; align-items:center;">
-                      <select id="quoteIntervalSelect" class="pill" style="font-size:12px; padding:6px 10px;" aria-label="Rotation Interval">
-                        <option value="30">30 Seconds</option>
-                        <option value="60">1 Minute</option>
-                        <option value="120">2 Minutes</option>
-                        <option value="300" selected>5 Minutes</option>
-                        <option value="900">15 Minutes</option>
-                      </select>
-                      <button type="button" class="pill subtle" id="toggleQuoteFormBtn" style="font-size:12px; padding:6px 12px;">
-                        <i data-lucide="plus"></i> <span>New Quote</span>
-                      </button>
-                    </div>
+                    <button type="button" class="pill subtle" id="toggleQuoteFormBtn" style="font-size:12px; padding:6px 12px;">
+                      <i data-lucide="plus"></i> <span>New Quote</span>
+                    </button>
                   </div>
 
                   <!-- New Quote Collapsible Box -->
@@ -1311,6 +1191,74 @@
             </div>
           </div>
         </div>
+      </div>
+    </section>
+
+    <section class="panel settings-center-panel" id="panel-subjects" aria-labelledby="subjectsCenterTitle">
+      <header class="subjects-page-hero">
+        <div class="subjects-page-hero-icon"><i data-lucide="layers"></i></div>
+        <div class="subjects-page-hero-copy">
+          <span class="subjects-page-eyebrow">YOUR STUDY WORKSPACE</span>
+          <h2 id="subjectsCenterTitle">Subjects &amp; Curriculum</h2>
+          <p>Manage your subjects and tailor a study track that fits your goals.</p>
+        </div>
+        <div class="subjects-page-hero-orbit" aria-hidden="true"></div>
+      </header>
+
+      <nav class="subjects-workspace-nav" id="subjectsWorkspaceNav" role="tablist" aria-label="Subject workspace">
+        <button type="button" class="subjects-workspace-tab active" data-subjects-view="manager" role="tab" aria-selected="true" aria-controls="subjectsManagerView">
+          <i data-lucide="layers"></i><span>Subject Manager</span>
+        </button>
+        <button type="button" class="subjects-workspace-tab" data-subjects-view="curriculum" role="tab" aria-selected="false" aria-controls="subjectsCurriculumView">
+          <i data-lucide="graduation-cap"></i><span>Curriculum &amp; Track</span>
+        </button>
+      </nav>
+
+      <div class="subjects-workspace-content">
+        <section class="subjects-workspace-view active" id="subjectsManagerView" role="tabpanel">
+        <div class="glass profile-section-card subjects-manager-card" id="profileSubjectsCockpitCard">
+          <div class="section-card-header">
+            <div class="section-card-title-group">
+              <div class="section-card-icon-badge">
+                <i data-lucide="layers"></i>
+              </div>
+              <div>
+                <h3 class="section-card-title">
+                  <span>All Subjects</span>
+                  <span class="subject-count-badge" id="cockpitSubjectCountBadge">0 Active</span>
+                </h3>
+                <p class="section-card-desc">Changes here stay synchronized across your study tools.</p>
+              </div>
+            </div>
+            <button class="pill subtle" id="btnResetDefaultSubjectsCockpit" type="button" title="Reset standard Bangladesh curriculum subjects">
+              <i data-lucide="rotate-ccw"></i> <span>Reset Defaults</span>
+            </button>
+          </div>
+
+          <div class="cockpit-subject-add-bar">
+            <div class="cockpit-input-wrap">
+              <i data-lucide="plus-circle" class="input-icon"></i>
+              <input type="text" id="cockpitNewSubjectInput" placeholder="Add a subject (e.g. ICT, Higher Math, General Science)..." autocomplete="off">
+            </div>
+            <button class="pill solid" id="cockpitAddSubjectBtn" type="button">
+              <i data-lucide="plus"></i> <span>Add Subject</span>
+            </button>
+          </div>
+
+          <div id="cockpitSubjectManagerList" class="cockpit-subjects-list"></div>
+
+          <div id="cockpitDeletedSubjectSection" class="cockpit-inactive-section" style="display:none;">
+            <div class="cockpit-inactive-header">
+              <i data-lucide="eye-off"></i>
+              <h4>Inactive / Hidden Subjects</h4>
+            </div>
+            <div id="cockpitDeletedSubjectList" class="cockpit-subjects-list"></div>
+          </div>
+        </div>
+        </section>
+        <section class="subjects-workspace-view" id="subjectsCurriculumView" role="tabpanel" hidden>
+          <div class="glass profile-track-card subjects-track-card" id="profileTrackCard"></div>
+        </section>
       </div>
     </section>
 

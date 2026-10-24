@@ -189,8 +189,6 @@ function getDefaultState() {
     dailyTargetMinutes: 240,
     syllabus: [],
     flashcards: [],
-    quoteCarouselEnabled: true,
-    quoteCarouselInterval: 300,
     deletedSubjects: [],
     permanentlyDeletedSubjects: [],
     customSubjects: [],
@@ -261,7 +259,6 @@ let state = {
   routine: null, customQuotes: [], quoteIdx: 0, quoteSource: 'all', theme: 'dark',
   sessions: [], activeSession: null, dailyTargetMinutes: 240,
   syllabus: [], flashcards: [],
-  quoteCarouselEnabled: true, quoteCarouselInterval: 300,
   deletedSubjects: [], permanentlyDeletedSubjects: [], customSubjects: [], deletedQuotes: [],
   userTrack: { ...DEFAULT_USER_TRACK }
 };
@@ -308,8 +305,6 @@ function initCrossTabSync() {
           state.quoteIdx = newState.quoteIdx;
           state.quoteSource = newState.quoteSource;
           state.theme = newState.theme;
-          state.quoteCarouselEnabled = newState.quoteCarouselEnabled;
-          state.quoteCarouselInterval = newState.quoteCarouselInterval;
           state.userTrack = newState.userTrack;
           
           // Refresh all UI components
@@ -412,8 +407,6 @@ async function loadData() {
       state.flashcards = Array.isArray(p.flashcards)
         ? p.flashcards.filter(f => f && !isMockFlashcard(f))
         : [];
-      state.quoteCarouselEnabled = typeof p.quoteCarouselEnabled === 'boolean' ? p.quoteCarouselEnabled : true;
-      state.quoteCarouselInterval = typeof p.quoteCarouselInterval === 'number' ? p.quoteCarouselInterval : 300;
       state.deletedSubjects = Array.isArray(p.deletedSubjects) ? p.deletedSubjects : [];
       state.permanentlyDeletedSubjects = Array.isArray(p.permanentlyDeletedSubjects) ? p.permanentlyDeletedSubjects : [];
       state.customSubjects = Array.isArray(p.customSubjects) ? p.customSubjects : [];
@@ -588,7 +581,7 @@ function saveData() {
     'routine', 'sessions', 'syllabus', 'flashcards', 
     'customQuotes', 'customSubjects', 'deletedSubjects', 'deletedQuotes',
     'dailyTargetMinutes', 'quoteIdx', 'quoteSource', 'theme', 
-    'quoteCarouselEnabled', 'quoteCarouselInterval', 'userTrack'
+    'userTrack'
   ];
   
   syncTypes.forEach(type => {
@@ -1301,4 +1294,3 @@ function syncAllSubjectSelects() {
     if (curVal && subs.includes(curVal)) newSubjSel.value = curVal;
   }
 }
-

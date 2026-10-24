@@ -182,7 +182,7 @@ const BILINGUAL_QUOTES = [
 // ===== Quotes Manager =====
 const quoteTextEl = document.getElementById('quoteText');
 const quoteAuthorEl = document.getElementById('quoteAuthor');
-const quoteIntervals = [10, 30, 60, 120, 300, 600, 900, 1800, 3600];
+const QUOTE_ROTATION_INTERVAL_MS = 300000;
 let quoteRotationTimer = null;
 let editingQuoteId = null;
 
@@ -305,44 +305,7 @@ function nextQuote() {
 
 function startQuoteRotation() {
   clearInterval(quoteRotationTimer);
-  const interval = typeof state.quoteCarouselInterval === 'number' && state.quoteCarouselInterval >= 5
-    ? state.quoteCarouselInterval
-    : 300;
-  state.quoteCarouselInterval = interval;
-  quoteRotationTimer = setInterval(nextQuote, interval * 1000);
-}
-
-function syncQuoteSettings() {
-  const intervalSelect = document.getElementById('quoteIntervalSelect');
-  if (intervalSelect) {
-    const current = typeof state.quoteCarouselInterval === 'number' ? state.quoteCarouselInterval : 300;
-    let opt = intervalSelect.querySelector(`option[value="${current}"]`);
-    if (opt) {
-      intervalSelect.value = String(current);
-    } else {
-      const newOpt = document.createElement('option');
-      newOpt.value = String(current);
-      newOpt.textContent = current < 60 ? `${current} Seconds` : `${Math.round(current / 60)} Minutes`;
-      intervalSelect.appendChild(newOpt);
-      intervalSelect.value = String(current);
-    }
-  }
-}
-
-// Alias for compatibility
-function startQuoteCarousel() { startQuoteRotation(); }
-function syncCarouselControls() { syncQuoteSettings(); }
-
-const quoteIntervalSelect = document.getElementById('quoteIntervalSelect');
-if (quoteIntervalSelect) {
-  quoteIntervalSelect.addEventListener('change', (event) => {
-    const val = parseInt(event.target.value, 10) || 300;
-    state.quoteCarouselInterval = val;
-    startQuoteRotation();
-    saveData();
-    const label = val < 60 ? `${val} seconds` : `${Math.round(val / 60)} minutes`;
-    showToast(`Quotes rotation interval set to ${label}`);
-  });
+  quoteRotationTimer = setInterval(nextQuote, QUOTE_ROTATION_INTERVAL_MS);
 }
 
 // ===== Toggle & Add New Quote (Settings) =====
@@ -842,5 +805,4 @@ function initProfileQuoteTypewriter() {
 window.initProfileQuoteTypewriter = initProfileQuoteTypewriter;
 window.skipToNextQuoteTypewriter = skipToNextQuoteTypewriter;
 window.toggleQuoteTypewriterPause = toggleQuoteTypewriterPause;
-
 

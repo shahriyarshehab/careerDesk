@@ -234,19 +234,6 @@
     flex-shrink: 0;
   }
 
-  .quote-interval-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 14px;
-    flex-wrap: wrap;
-    margin-top: 16px;
-    padding: 12px 14px;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-  }
-
   .quote-list-wrapper {
     display: flex;
     flex-direction: column;
@@ -649,4 +636,3 @@
     left: 10px;
   }
 }
-

@@ -48,7 +48,7 @@ CareerDesk/
 - **`assets/css/master.css`**: Master Stylesheet Project File. Uses `@import` to load all modular CSS stylesheets.
 - **`assets/js/master.js`**: Master JavaScript Project File. Central manifest that synchronously loads all modular JS engines.
 - **`assets/js/core.js`**: Central storage adapter, state initialization (`getDefaultState`), global utilities (`escapeHtml`, `escapeAttr`, `toBnDigits`, `dateKey`), and the Unified Subject Control System (`masterSubjectList`, `canonicalSubjectName`, `renameSubject`, `syncAllSubjectSelects`).
-- **`assets/js/features/`**: Routine, tracker, quotes, countdown, syllabus, questions, MCQ, profile, home, and group-chat modules.
+- **`assets/js/features/`**: Routine, tracker, quotes, countdown, syllabus, MCQ, profile, dashboard, home, group-chat, and navigation modules.
 - **`assets/js/integrations/`**: Security and optional Firebase integrations.
 - **`assets/js/lucide.min.js`**: Replaces `<i data-lucide="...">` with SVG icons on startup. In dynamically generated JS templates, use the inline `ICON` object from `core.js`.
 
@@ -105,8 +105,6 @@ interface AppState {
   customQuotes: Array<{ id: number; text: string; author: string | null; source: string }>;
   quoteIdx: number;
   quoteSource: 'all' | 'curated' | 'custom';
-  quoteCarouselEnabled: boolean;
-  quoteCarouselInterval: number; // in seconds
   deletedQuotes: number[];
 }
 ```

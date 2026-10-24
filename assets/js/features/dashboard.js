@@ -6,14 +6,9 @@
 (function () {
   'use strict';
 
-  /* ── State & Variables ─────────────────────────────────────────────────── */
-  let timerInterval = null;
-  let timerSecondsLeft = 25 * 60;
-  let timerTotalSeconds = 25 * 60;
-  let timerIsRunning = false;
-  let timerSelectedDuration = 25; // in minutes (0 for stopwatch)
-  const CIRCLE_CIRCUMFERENCE = 2 * Math.PI * 82; // ~515.22px
+  const PLAN_COMPLETION_RATIO = 0.9;
 
+  /* ── State & Variables ─────────────────────────────────────────────────── */
   /* ── Helpers ───────────────────────────────────────────────────────────── */
   function pad(n) { return String(n).padStart(2, '0'); }
 
@@ -29,45 +24,103 @@
   }
 
   function minutesFromTimeStr(str) {
-    if (!str || !str.includes(':')) return 0;
-    const parts = str.split(':').map(Number);
-    return parts[0] * 60 + (parts[1] || 0);
+    const match = /^([01]\d|2[0-3]):([0-5]\d)$/.exec(String(str || ''));
+    return match ? Number(match[1]) * 60 + Number(match[2]) : null;
   }
 
-  /* ── 1. Live Clock & Greeting ──────────────────────────────────────────── */
-  function initClock() {
-    const clockEl = document.getElementById('dbLiveClock');
-    const dateEl = document.getElementById('dbLiveDate');
-    if (!clockEl) return;
+  function subjectKey(value) {
+    const subject = String(value || '').trim();
+    return typeof canonicalSubjectName === 'function' ? canonicalSubjectName(subject).toLowerCase() : subject.toLowerCase();
+  }
 
-    function tick() {
-      const now = new Date();
-      const h = now.getHours();
-      const m = now.getMinutes();
-      const ampm = h >= 12 ? 'PM' : 'AM';
-      const h12 = h % 12 || 12;
-      clockEl.textContent = `${pad(h12)}:${pad(m)} ${ampm}`;
-      if (dateEl) {
-        dateEl.textContent = now.toLocaleDateString('en-US', {
-          weekday: 'short', month: 'short', day: 'numeric'
-        });
-      }
+  function routineForDate(date) {
+    return (Array.isArray(state.routine) ? state.routine : [])
+      .filter(item => item && item.date === date);
+  }
+
+  function plannedMinutesFor(routine) {
+    return routine.reduce((total, item) => {
+      const start = minutesFromTimeStr(item.startTime);
+      const end = minutesFromTimeStr(item.endTime);
+      return total + (start !== null && end !== null && end > start ? end - start : 0);
+    }, 0);
+  }
+
+  function trackedMinutesFor(item, startMinute, endMinute, sessions, now) {
+    if (startMinute === null || endMinute === null || endMinute <= startMinute) return 0;
+    const blockStart = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, startMinute).getTime();
+    const blockEnd = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, endMinute).getTime();
+    const key = subjectKey(item.subject);
+    const intervals = sessions.reduce((matches, session) => {
+      if (subjectKey(session.subject) !== key) return matches;
+      const sessionStart = Number(session.start);
+      const sessionEnd = Number(session.end) || sessionStart + Math.max(0, Number(session.duration) || 0) * 60000;
+      if (!Number.isFinite(sessionStart) || !Number.isFinite(sessionEnd) || sessionEnd <= sessionStart) return matches;
+      const start = Math.max(sessionStart, blockStart);
+      const end = Math.min(sessionEnd, blockEnd);
+      if (end > start) matches.push({ start, end });
+      return matches;
+    }, []);
+
+    const active = typeof window.getActiveTrackerStudySession === 'function'
+      ? window.getActiveTrackerStudySession()
+      : state.activeSession;
+    if (active && subjectKey(active.subject) === key) {
+      const sessionStart = Number(active.start);
+      const sessionEnd = Number(active.end) || now.getTime();
+      const start = Math.max(sessionStart, blockStart);
+      const end = Math.min(sessionEnd, blockEnd);
+      if (Number.isFinite(start) && Number.isFinite(end) && end > start) intervals.push({ start, end });
     }
-    tick();
-    setInterval(tick, 15000);
+
+    intervals.sort((a, b) => a.start - b.start);
+    let tracked = 0;
+    let current = null;
+    intervals.forEach(interval => {
+      if (!current || interval.start > current.end) {
+        if (current) tracked += current.end - current.start;
+        current = { ...interval };
+      } else {
+        current.end = Math.max(current.end, interval.end);
+      }
+    });
+    if (current) tracked += current.end - current.start;
+    return Math.min(endMinute - startMinute, tracked / 60000);
   }
 
-  /* ── 1b. Sync Navbar User Profile ──────────────────────────────────────── */
-  function syncNavUser() {
-    const nameEl = document.getElementById('navUserName');
-    const initEl = document.getElementById('navUserInitial');
-    if (!nameEl || typeof state === 'undefined') return;
-    const name = (typeof state.profile?.name === 'string' && state.profile.name.trim())
-      ? state.profile.name.trim()
-      : 'Shahriyar';
-    nameEl.textContent = name.split(' ')[0];
-    if (initEl) initEl.textContent = name.charAt(0).toUpperCase();
+  function getTodayStudyPlanProgress(now = new Date()) {
+    const today = todayKey();
+    const nowMinutes = now.getHours() * 60 + now.getMinutes();
+    const sessions = Array.isArray(state.sessions) ? state.sessions : [];
+
+    return routineForDate(today).map(item => {
+      const startMinute = minutesFromTimeStr(item.startTime);
+      const endMinute = minutesFromTimeStr(item.endTime);
+      const duration = startMinute !== null && endMinute !== null && endMinute > startMinute
+        ? endMinute - startMinute
+        : 0;
+      const trackedMinutes = trackedMinutesFor(item, startMinute, endMinute, sessions, now);
+      let status = 'upcoming';
+
+      if (!duration) {
+        status = 'time-not-set';
+      } else if (nowMinutes >= endMinute) {
+        status = trackedMinutes / duration >= PLAN_COMPLETION_RATIO ? 'complete' : 'not-complete';
+      } else if (nowMinutes >= startMinute) {
+        status = 'in-progress';
+      }
+
+      return {
+        ...item,
+        duration,
+        trackedMinutes,
+        progress: duration ? Math.min(100, Math.round((trackedMinutes / duration) * 100)) : 0,
+        status
+      };
+    });
   }
+
+  window.getTodayStudyPlanProgress = getTodayStudyPlanProgress;
 
   /* ── 2. Render Metrics & KPI Cards ─────────────────────────────────────── */
   function renderMetrics() {
@@ -75,34 +128,33 @@
     const today = todayKey();
 
     // 1. Study Time Today
-    const todaySessions = (state.sessions || []).filter(s => {
+    const sessions = Array.isArray(state.sessions) ? state.sessions : [];
+    const todaySessions = sessions.filter(s => {
       const d = new Date(s.start);
       return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}` === today;
     });
     const studiedMins = todaySessions.reduce((acc, s) => acc + (s.duration || 0), 0);
-    const targetMins = state.dailyTargetMinutes || 240;
+    const todayRoutine = routineForDate(today);
+    const routineGoal = plannedMinutesFor(todayRoutine);
+    const targetMins = routineGoal || state.dailyTargetMinutes || 240;
     const targetPct = Math.min(100, Math.round((studiedMins / targetMins) * 100));
 
     const studyTodayEl = document.getElementById('dbKpiStudyToday');
     const studySubEl = document.getElementById('dbKpiStudySub');
     const studyBarEl = document.getElementById('dbKpiStudyProgressBar');
-    const topStudyEl = document.getElementById('dbTopHeaderStudy');
-
+    const targetSummaryEl = document.getElementById('dbTargetGoalSummary');
     if (studyTodayEl) studyTodayEl.textContent = formatMins(studiedMins);
-    if (studySubEl) studySubEl.textContent = `Goal: ${formatMins(targetMins)} (${targetPct}%)`;
+    if (studySubEl) studySubEl.textContent = `${routineGoal ? 'Routine goal' : 'Daily goal'}: ${formatMins(targetMins)} (${targetPct}%)`;
     if (studyBarEl) studyBarEl.style.width = `${targetPct}%`;
-    if (topStudyEl) topStudyEl.textContent = `${formatMins(studiedMins)} today`;
+    if (targetSummaryEl) targetSummaryEl.textContent = `${routineGoal ? 'Routine' : 'Daily'} Goal: ${formatMins(targetMins)}`;
 
     // 2. Tasks / Routine Completed
-    const todayRoutine = (state.routine || []).filter(r => r.date === today);
-    const nowMinutes = new Date().getHours() * 60 + new Date().getMinutes();
+    const now = new Date();
     let completedCount = 0;
 
-    todayRoutine.forEach(r => {
-      const endMins = minutesFromTimeStr(r.endTime);
-      if (endMins && endMins < nowMinutes) {
-        completedCount++;
-      }
+    const todayPlanProgress = getTodayStudyPlanProgress(now);
+    todayPlanProgress.forEach(block => {
+      if (block.status === 'complete') completedCount++;
     });
 
     const tasksRatioEl = document.getElementById('dbKpiTasksRatio');
@@ -176,15 +228,17 @@
     const timelineEl = document.getElementById('dbTodayPlanTimeline');
     if (!timelineEl) return;
 
+    const now = new Date();
     const today = todayKey();
-    const routine = (state.routine || []).filter(r => r.date === today);
-
+    const previousScrollTop = timelineEl.scrollTop;
+    const routine = getTodayStudyPlanProgress(now)
+      .sort((a, b) => (minutesFromTimeStr(a.startTime) ?? 1440) - (minutesFromTimeStr(b.startTime) ?? 1440));
     if (!routine.length) {
       timelineEl.innerHTML = `
         <div class="db-empty-plan">
           <i data-lucide="calendar-plus"></i>
-          <p style="margin:0; font-size:13px; font-weight:600; color:var(--text-soft);">No sessions scheduled for today</p>
-          <button class="db-action-link" type="button" onclick="activateTab('routine', true)" style="margin-top:6px;">
+          <p>No sessions scheduled for today</p>
+          <button class="db-action-link" type="button" onclick="activateTab('routine', true)">
             <i data-lucide="plus"></i> <span>Add to Routine</span>
           </button>
         </div>`;
@@ -192,187 +246,260 @@
       return;
     }
 
-    // Sort by startTime
-    const sorted = [...routine].sort((a, b) => (a.startTime || '').localeCompare(b.startTime || ''));
-    const nowMins = new Date().getHours() * 60 + new Date().getMinutes();
-
-    timelineEl.innerHTML = sorted.map(item => {
+    timelineEl.innerHTML = routine.map(item => {
       const startMins = minutesFromTimeStr(item.startTime);
       const endMins = minutesFromTimeStr(item.endTime);
-
-      let statusClass = 'db-status--upcoming';
-      let statusText = 'Upcoming';
-
-      if (endMins && endMins < nowMins) {
-        statusClass = 'db-status--done';
-        statusText = 'Completed';
-      } else if (startMins && endMins && nowMins >= startMins && nowMins <= endMins) {
-        statusClass = 'db-status--active';
-        statusText = 'In Progress';
-      }
+      const duration = item.duration;
+      const trackedMinutes = item.trackedMinutes;
+      const progress = item.progress;
+      const statusClass = {
+        complete: 'db-status--done',
+        'not-complete': 'db-status--missed',
+        'in-progress': 'db-status--active',
+        upcoming: 'db-status--upcoming',
+        'time-not-set': 'db-status--upcoming'
+      }[item.status];
+      const statusText = {
+        complete: 'Complete',
+        'not-complete': 'Not complete',
+        'in-progress': 'In Progress · Tracker',
+        upcoming: 'Upcoming',
+        'time-not-set': 'Time not set'
+      }[item.status];
 
       const subjectName = typeof canonicalSubjectName === 'function' ? canonicalSubjectName(item.subject || 'Study block') : (item.subject || 'Study block');
+      const safeSubject = typeof escapeHtml === 'function' ? escapeHtml(subjectName) : subjectName;
       const taskText = item.task ? (typeof escapeHtml === 'function' ? escapeHtml(item.task) : item.task) : 'Standard review session';
+      const timeLabel = startMins === null || endMins === null ? 'Time not set' : `${item.startTime} – ${item.endTime}`;
+      const progressLabel = duration ? `${Math.round(trackedMinutes)} / ${duration} min tracked` : 'Add a time to track progress';
 
+      const isActive = statusClass === 'db-status--active';
       return `
-        <div class="db-plan-row" onclick="activateTab('routine', true)" style="cursor:pointer;" title="Click to view in Routine">
-          <div class="db-plan-time-badge">${item.startTime || '--:--'} - ${item.endTime || '--:--'}</div>
+        <button class="db-plan-row${isActive ? ' is-active' : ''}" type="button"${isActive ? ` data-tracker-subject="${typeof escapeAttr === 'function' ? escapeAttr(subjectName) : subjectName}" aria-label="Open Tracker for ${safeSubject}" title="Track ${safeSubject} in Tracker"` : ` onclick="activateTab('routine', true)" title="Open this block in Routine"`}>
+          <div class="db-plan-time-badge">${timeLabel}</div>
           <div class="db-plan-info">
-            <span class="db-plan-subject">${typeof escapeHtml === 'function' ? escapeHtml(subjectName) : subjectName}</span>
+            <span class="db-plan-subject">${safeSubject}</span>
             <span class="db-plan-task">${taskText}</span>
+            <div class="db-plan-progress" role="progressbar" aria-label="${safeSubject} tracked time" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${progress}">
+              <span style="width:${progress}%"></span>
+            </div>
+            <span class="db-plan-progress-label">${progressLabel}</span>
           </div>
           <span class="db-status-pill ${statusClass}">${statusText}</span>
-        </div>`;
+        </button>`;
     }).join('');
+    timelineEl.querySelectorAll('[data-tracker-subject]').forEach(button => {
+      button.addEventListener('click', () => {
+        activateTab('tracker', true);
+        const subjectSelect = document.getElementById('sessionSubject');
+        if (!subjectSelect) return;
 
-    if (window.lucide && typeof window.lucide.createIcons === 'function') window.lucide.createIcons();
+        const subject = button.dataset.trackerSubject;
+        let option = Array.from(subjectSelect.options).find(item => subjectKey(item.value) === subjectKey(subject));
+        if (!option) {
+          option = document.createElement('option');
+          option.value = subject;
+          option.textContent = subject;
+          subjectSelect.appendChild(option);
+        }
+        subjectSelect.value = option.value;
+        subjectSelect.dispatchEvent(new Event('change', { bubbles: true }));
+      });
+    });
+    timelineEl.scrollTop = previousScrollTop;
   }
 
-  /* ── 4. Interactive Focus Timer Widget ─────────────────────────────────── */
+  /* ── 4. Dashboard controls for the shared Tracker timer ────────────────── */
   function initFocusTimer() {
-    const circle = document.getElementById('dbTimerCircle');
-    const digits = document.getElementById('dbTimerDigits');
-    const startBtn = document.getElementById('dbTimerStartBtn');
-    const resetBtn = document.getElementById('dbTimerResetBtn');
-    const modeBtns = document.querySelectorAll('.db-timer-mode-btn');
-    const btnText = document.getElementById('dbTimerBtnText');
-    const btnIcon = document.getElementById('dbTimerBtnIcon');
+    const card = document.getElementById('dbTimerCard');
+    if (!card) return;
 
-    if (!circle || !digits || !startBtn) return;
+    const trackerSubject = document.getElementById('sessionSubject');
+    const dashboardSubject = document.getElementById('dbTimerSubjectSelect');
+    const trackerCustom = document.getElementById('sessionCustomSubject');
+    const dashboardCustom = document.getElementById('dbTimerCustomSubject');
+    const trackerBreak = document.getElementById('breakReason');
+    const dashboardBreak = document.getElementById('dbTimerBreakReason');
+    let hasManualSubjectSelection = false;
+    let applyingRoutineSubject = false;
+    let lastLivePlanRefreshKey = '';
 
-    function updateRing() {
-      if (timerSelectedDuration === 0) {
-        // Stopwatch mode: animate pulsing stroke
-        circle.style.strokeDashoffset = '0';
-        return;
+    function syncSubjects() {
+      if (!trackerSubject || !dashboardSubject) return;
+      const options = Array.from(trackerSubject.options)
+        .map(option => `<option value="${typeof escapeAttr === 'function' ? escapeAttr(option.value) : option.value}">${typeof escapeHtml === 'function' ? escapeHtml(option.textContent) : option.textContent}</option>`)
+        .join('');
+      if (dashboardSubject.innerHTML !== options) dashboardSubject.innerHTML = options;
+      dashboardSubject.value = trackerSubject.value;
+      if (dashboardCustom && trackerCustom) {
+        dashboardCustom.value = trackerCustom.value;
+        dashboardCustom.hidden = trackerCustom.hidden || trackerCustom.style.display === 'none';
       }
-      const fraction = timerSecondsLeft / timerTotalSeconds;
-      const offset = CIRCLE_CIRCUMFERENCE * (1 - fraction);
-      circle.style.strokeDashoffset = String(offset);
     }
 
-    function updateDisplay() {
-      const m = Math.floor(timerSecondsLeft / 60);
-      const s = timerSecondsLeft % 60;
-      digits.textContent = `${pad(m)}:${pad(s)}`;
-      updateRing();
-    }
+    function selectCurrentRoutineSubject() {
+      if (!trackerSubject || hasManualSubjectSelection || state.activeSession || (window.trackerTimerMode || 'study') !== 'study') return;
 
-    function startTimer() {
-      if (timerIsRunning) return;
-      timerIsRunning = true;
-      startBtn.classList.add('running');
-      if (btnText) btnText.textContent = 'Pause';
-      if (btnIcon) btnIcon.setAttribute('data-lucide', 'pause');
-      if (window.lucide && typeof window.lucide.createIcons === 'function') window.lucide.createIcons();
-
-      timerInterval = setInterval(() => {
-        if (timerSelectedDuration === 0) {
-          // Stopwatch counts up
-          timerSecondsLeft++;
-          updateDisplay();
-        } else {
-          // Countdown counts down
-          if (timerSecondsLeft > 0) {
-            timerSecondsLeft--;
-            updateDisplay();
-          } else {
-            // Completed!
-            pauseTimer();
-            if (typeof showToast === 'function') {
-              showToast('🎉 Focus session completed! Great work.');
-            }
-            // Log session if state is available
-            logCompletedSession(timerSelectedDuration);
-            resetTimer();
-          }
-        }
-      }, 1000);
-    }
-
-    function pauseTimer() {
-      timerIsRunning = false;
-      clearInterval(timerInterval);
-      timerInterval = null;
-      startBtn.classList.remove('running');
-      if (btnText) btnText.textContent = 'Resume';
-      if (btnIcon) btnIcon.setAttribute('data-lucide', 'play');
-      if (window.lucide && typeof window.lucide.createIcons === 'function') window.lucide.createIcons();
-    }
-
-    function resetTimer() {
-      pauseTimer();
-      timerSecondsLeft = timerTotalSeconds;
-      if (btnText) btnText.textContent = 'Start Focus';
-      updateDisplay();
-    }
-
-    function logCompletedSession(mins) {
-      if (typeof state === 'undefined' || !mins) return;
-      if (!Array.isArray(state.sessions)) state.sessions = [];
-      const now = Date.now();
-      state.sessions.push({
-        id: now,
-        subject: 'General Study',
-        start: now - mins * 60000,
-        end: now,
-        duration: mins
+      const now = new Date();
+      const nowMinute = now.getHours() * 60 + now.getMinutes();
+      const currentBlock = routineForDate(todayKey()).find(item => {
+        const start = minutesFromTimeStr(item.startTime);
+        const end = minutesFromTimeStr(item.endTime);
+        return start !== null && end !== null && end > start && nowMinute >= start && nowMinute < end;
       });
-      if (typeof saveData === 'function') saveData();
-      renderMetrics();
-    }
+      if (!currentBlock || !currentBlock.subject) return;
 
-    startBtn.addEventListener('click', () => {
-      if (timerIsRunning) {
-        pauseTimer();
-      } else {
-        startTimer();
+      const subject = typeof canonicalSubjectName === 'function'
+        ? canonicalSubjectName(currentBlock.subject)
+        : currentBlock.subject;
+      let option = Array.from(trackerSubject.options).find(item => subjectKey(item.value) === subjectKey(subject));
+      if (!option) {
+        option = document.createElement('option');
+        option.value = subject;
+        option.textContent = subject;
+        trackerSubject.appendChild(option);
       }
-    });
+      if (trackerSubject.value === option.value) return;
 
-    if (resetBtn) {
-      resetBtn.addEventListener('click', resetTimer);
+      applyingRoutineSubject = true;
+      trackerSubject.value = option.value;
+      trackerSubject.dispatchEvent(new Event('change', { bubbles: true }));
+      applyingRoutineSubject = false;
+      syncSubjects();
     }
 
-    modeBtns.forEach(btn => {
-      btn.addEventListener('click', () => {
-        modeBtns.forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        const dur = Number(btn.dataset.dur);
-        timerSelectedDuration = dur;
-        timerTotalSeconds = dur === 0 ? 0 : dur * 60;
-        timerSecondsLeft = timerTotalSeconds;
-        const modeLabel = document.getElementById('dbTimerModeLabel');
-        if (modeLabel) {
-          modeLabel.textContent = dur === 0 ? 'Stopwatch' : (dur === 50 ? 'Deep Work' : (dur === 15 ? 'Short Break' : 'Pomodoro'));
-        }
-        resetTimer();
+    function clickTrackerDuration(duration) {
+      const mode = window.trackerTimerMode || 'study';
+      const group = mode === 'break' ? 'breakDurationOptions' : 'studyDurationOptions';
+      const button = document.querySelector(`#${group} .timer-dur-chip[data-duration="${duration}"]`);
+      if (button) button.click();
+    }
+
+    card.querySelectorAll('[data-dashboard-timer-mode]').forEach(button => {
+      button.addEventListener('click', () => {
+        const modeButton = document.querySelector(`#timerModeSelector [data-mode="${button.dataset.dashboardTimerMode}"]`);
+        if (modeButton) modeButton.click();
       });
     });
 
-    updateDisplay();
+    card.querySelectorAll('[data-dashboard-timer-duration]').forEach(button => {
+      button.addEventListener('click', () => clickTrackerDuration(button.dataset.dashboardTimerDuration));
+    });
+
+    if (dashboardSubject && trackerSubject) {
+      dashboardSubject.addEventListener('change', () => {
+        hasManualSubjectSelection = true;
+        trackerSubject.value = dashboardSubject.value;
+        trackerSubject.dispatchEvent(new Event('change', { bubbles: true }));
+        if (typeof window.syncDashboardTrackerTimer === 'function') window.syncDashboardTrackerTimer();
+      });
+      trackerSubject.addEventListener('change', () => {
+        if (!applyingRoutineSubject) hasManualSubjectSelection = true;
+        if (typeof window.syncDashboardTrackerTimer === 'function') window.syncDashboardTrackerTimer();
+      });
+    }
+    if (dashboardCustom && trackerCustom) {
+      dashboardCustom.addEventListener('input', () => {
+        trackerCustom.value = dashboardCustom.value;
+        trackerCustom.dispatchEvent(new Event('input', { bubbles: true }));
+      });
+      trackerCustom.addEventListener('input', () => {
+        if (typeof window.syncDashboardTrackerTimer === 'function') window.syncDashboardTrackerTimer();
+      });
+    }
+    if (dashboardBreak && trackerBreak) {
+      dashboardBreak.addEventListener('change', () => {
+        trackerBreak.value = dashboardBreak.value;
+        trackerBreak.dispatchEvent(new Event('change', { bubbles: true }));
+      });
+      trackerBreak.addEventListener('change', () => {
+        if (typeof window.syncDashboardTrackerTimer === 'function') window.syncDashboardTrackerTimer();
+      });
+    }
+
+    const start = document.getElementById('dbTimerStartBtn');
+    const stop = document.getElementById('dbTimerStopBtn');
+    const openTracker = document.getElementById('dbTimerOpenTracker');
+    if (start) start.addEventListener('click', () => document.getElementById('startBtn')?.click());
+    if (stop) stop.addEventListener('click', () => document.getElementById('stopBtn')?.click());
+    if (openTracker) openTracker.addEventListener('click', () => activateTab('tracker', true));
+
+    window.syncDashboardTrackerTimer = function () {
+      syncSubjects();
+      selectCurrentRoutineSubject();
+      syncSubjects();
+      if (dashboardBreak && trackerBreak) dashboardBreak.value = trackerBreak.value;
+
+      const actualDisplay = document.getElementById('timerDisplay');
+      const display = document.getElementById('dbTimerDigits');
+      const actualStart = document.getElementById('startBtn');
+      const actualStop = document.getElementById('stopBtn');
+      const mode = window.trackerTimerMode || 'study';
+      const running = !!(state.activeSession || window.isCustomCountdownActive);
+
+      if (display && actualDisplay) display.textContent = actualDisplay.textContent;
+      if (start) {
+        start.hidden = running;
+        start.disabled = actualStart ? actualStart.disabled : false;
+        const startLabel = start.querySelector('span');
+        if (startLabel) startLabel.textContent = mode === 'break' ? 'Start Break' : 'Start Studying';
+      }
+      if (stop) {
+        stop.hidden = !running;
+        const stopLabel = stop.querySelector('span');
+        if (stopLabel) stopLabel.textContent = mode === 'break' ? 'Finish Break' : 'Finish Session';
+      }
+
+      card.querySelectorAll('[data-dashboard-timer-mode]').forEach(button => {
+        button.classList.toggle('active', button.dataset.dashboardTimerMode === mode);
+      });
+      card.querySelectorAll('[data-dashboard-timer-duration]').forEach(button => {
+        const activeMode = mode === 'break' ? 'breakDurationOptions' : 'studyDurationOptions';
+        const actualButton = document.querySelector(`#${activeMode} .timer-dur-chip.active`);
+        button.classList.toggle('active', button.dataset.dashboardTimerDuration === (actualButton?.dataset.duration || selectedDuration));
+      });
+      card.querySelectorAll('[data-dashboard-study-control]').forEach(control => {
+        control.hidden = mode === 'break';
+      });
+      card.querySelectorAll('[data-dashboard-break-control]').forEach(control => {
+        control.hidden = mode !== 'break';
+      });
+
+      const dashboard = document.getElementById('panel-home');
+      const activeStudy = typeof window.getActiveTrackerStudySession === 'function'
+        ? window.getActiveTrackerStudySession()
+        : null;
+      const refreshKey = activeStudy
+        ? `${subjectKey(activeStudy.subject)}:${Math.floor(Date.now() / 60000)}`
+        : '';
+      if (dashboard?.classList.contains('active') && refreshKey !== lastLivePlanRefreshKey) {
+        lastLivePlanRefreshKey = refreshKey;
+        renderStudyPlan();
+      }
+
+    };
+
+    syncSubjects();
+    selectCurrentRoutineSubject();
+    if (typeof window.syncDashboardTrackerTimer === 'function') window.syncDashboardTrackerTimer();
   }
 
   /* ── 6. Master Render & Initialization ────────────────────────────────── */
   function renderDashboard() {
-    syncNavUser();
     renderMetrics();
     renderStudyPlan();
+    if (typeof window.renderTrackerSubjectBars === 'function') window.renderTrackerSubjectBars();
+    if (typeof window.syncDashboardTrackerTimer === 'function') window.syncDashboardTrackerTimer();
   }
 
   function init() {
-    initClock();
     initFocusTimer();
     renderDashboard();
 
-    // Re-render whenever the active tab becomes home/dashboard
-    document.addEventListener('careerdesk:tabchange', e => {
-      if (e.detail === 'home') renderDashboard();
-    });
-
-    // Auto-update plan and stats every 60 seconds while visible
+    // Refresh only while the dashboard is open to avoid background work.
     setInterval(() => {
-      if (document.getElementById('dashboardOverview')) {
+      const dashboard = document.getElementById('panel-home');
+      if (dashboard && dashboard.classList.contains('active')) {
         renderDashboard();
       }
     }, 60000);

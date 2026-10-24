@@ -520,9 +520,9 @@
   }
 
   /* 4. Quiz / Flashcards: Hyper Violet / Cyber Magenta */
-  .tab-btn[data-tab="flashcards"]:hover:not(.active) i[data-lucide],
-  .tab-btn[data-tab="flashcards"]:hover:not(.active) svg,
-  .tab-btn[data-tab="flashcards"]:hover:not(.active) .lucide {
+  .tab-btn[data-tab="quiz"]:hover:not(.active) i[data-lucide],
+  .tab-btn[data-tab="quiz"]:hover:not(.active) svg,
+  .tab-btn[data-tab="quiz"]:hover:not(.active) .lucide {
     color: #c084fc !important;
     stroke: #c084fc !important;
     filter: drop-shadow(0 0 6px rgba(192, 132, 252, 0.8));
@@ -591,9 +591,9 @@
     filter: drop-shadow(0 0 4px rgba(5, 150, 105, 0.5));
   }
 
-  html[data-theme="light"] .tab-btn[data-tab="flashcards"]:hover:not(.active) i[data-lucide],
-  html[data-theme="light"] .tab-btn[data-tab="flashcards"]:hover:not(.active) svg,
-  html[data-theme="light"] .tab-btn[data-tab="flashcards"]:hover:not(.active) .lucide {
+  html[data-theme="light"] .tab-btn[data-tab="quiz"]:hover:not(.active) i[data-lucide],
+  html[data-theme="light"] .tab-btn[data-tab="quiz"]:hover:not(.active) svg,
+  html[data-theme="light"] .tab-btn[data-tab="quiz"]:hover:not(.active) .lucide {
     color: #9333ea !important;
     stroke: #9333ea !important;
     filter: drop-shadow(0 0 4px rgba(147, 51, 234, 0.5));

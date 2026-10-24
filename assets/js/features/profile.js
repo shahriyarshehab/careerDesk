@@ -187,14 +187,6 @@ function renderSubjectManager() {
     window.lucide.createIcons();
   }
 
-  // Also keep the embedded profile track card in sync
-  const trackCard = document.getElementById('profileTrackCard');
-  if (trackCard && typeof renderProfileTrackCard === 'function') {
-    const curTab = localStorage.getItem('careerdesk_track_active_tab') || 'curriculum';
-    if (curTab === 'subjects' || curTab === 'inactive') {
-      renderProfileTrackCard();
-    }
-  }
 }
 
 // Global click delegation for Subject Manager actions (Open, Close, Rename, Delete, Restore)
@@ -203,19 +195,9 @@ document.addEventListener('click', (e) => {
   const openTrackBtn = e.target.closest('#btnOpenSubjectManagerFromHero, #btnOpenSubjectManagerFromGuest, #btnOpenSubjectManagerFromTrack, .manage-subjects-link');
   if (openTrackBtn) {
     e.preventDefault();
-    localStorage.setItem('careerdesk_track_active_tab', 'subjects');
-    localStorage.setItem('careerdesk_track_card_collapsed', 'false');
     if (typeof activateTab === 'function') {
-      activateTab('profile');
-    }
-    renderProfileTrackCard();
-    const card = document.getElementById('profileTrackCard');
-    if (card) {
-      card.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      setTimeout(() => {
-        const searchInput = card.querySelector('#trackSubjSearchInput');
-        if (searchInput) searchInput.focus();
-      }, 350);
+      activateTab('subjects', true);
+      if (typeof switchSubjectsWorkspaceTab === 'function') switchSubjectsWorkspaceTab('manager');
     }
     return;
   }
@@ -412,8 +394,6 @@ if (importDataInputEl) {
           dailyTargetMinutes: typeof rawState.dailyTargetMinutes === 'number' ? rawState.dailyTargetMinutes : 240,
           syllabus: Array.isArray(rawState.syllabus) ? rawState.syllabus : [],
           flashcards: Array.isArray(rawState.flashcards) ? rawState.flashcards : [],
-          quoteCarouselEnabled: typeof rawState.quoteCarouselEnabled === 'boolean' ? rawState.quoteCarouselEnabled : true,
-          quoteCarouselInterval: typeof rawState.quoteCarouselInterval === 'number' ? rawState.quoteCarouselInterval : 300,
           deletedSubjects: Array.isArray(rawState.deletedSubjects) ? rawState.deletedSubjects : [],
           customSubjects: Array.isArray(rawState.customSubjects) ? rawState.customSubjects : [],
           deletedQuotes: Array.isArray(rawState.deletedQuotes) ? rawState.deletedQuotes : []
@@ -766,7 +746,6 @@ if (resetAllBtnEl) {
       routine: [], customQuotes: [], quoteIdx: 0, quoteSource: 'all', theme: keepTheme,
       sessions: [], activeSession: null, dailyTargetMinutes: 240,
       syllabus: [], flashcards: [],
-      quoteCarouselEnabled: true, quoteCarouselInterval: 300,
       deletedSubjects: [], customSubjects: [], deletedQuotes: []
     };
     state.theme = keepTheme;
@@ -807,9 +786,6 @@ function renderProfileTrackCard() {
   const currentClassId = track.studentClass || 'ssc_science';
   const currentJobType = track.jobType || 'govt';
   const isCollapsed = localStorage.getItem('careerdesk_track_card_collapsed') === 'true';
-
-  let activeTab = localStorage.getItem('careerdesk_track_active_tab') || 'curriculum';
-  if (!['curriculum', 'subjects', 'inactive'].includes(activeTab)) activeTab = 'curriculum';
 
   const activeSubjects = typeof masterSubjectList === 'function' ? masterSubjectList(false) : [];
   const activeSet = new Set(activeSubjects.map(s => canonicalSubjectName(s).toLowerCase()));
@@ -1275,23 +1251,8 @@ function renderProfileTrackCard() {
     </div>
 
     <div class="track-content-body" style="${isCollapsed ? 'display:none;' : ''}">
-      <!-- Shifted Triggers in New Toolbar Design: Subnav, Language Switcher, Role Switcher & Edit Mode -->
+      <!-- Curriculum controls -->
       <div class="track-toolbar-row">
-        <!-- Segmented Subnavigation Bar -->
-        <div class="track-subnav-bar segmented-group">
-          <button type="button" class="pill track-subnav-btn ${activeTab === 'curriculum' ? 'active solid' : ''}" data-track-tab="curriculum">
-            <i data-lucide="compass"></i> <span>Curriculum</span>
-          </button>
-          <button type="button" class="pill track-subnav-btn ${activeTab === 'subjects' ? 'active solid' : ''}" data-track-tab="subjects">
-            <i data-lucide="layers"></i> <span>Subject Manager</span>
-            <span class="track-tab-badge">${activeSubjects.length}</span>
-          </button>
-          <button type="button" class="pill track-subnav-btn ${activeTab === 'inactive' ? 'active solid' : ''}" data-track-tab="inactive">
-            <i data-lucide="archive"></i> <span>Inactive</span>
-            ${deletedSubjects.length > 0 ? `<span class="track-tab-badge danger">${deletedSubjects.length}</span>` : ''}
-          </button>
-        </div>
-
         <div class="track-toolbar-actions">
           <!-- Subject Display Language Toggle -->
           <div class="track-lang-switch segmented-group" title="Subject Display Language / বিষয় প্রদর্শনের ভাষা">
@@ -1314,17 +1275,14 @@ function renderProfileTrackCard() {
           </div>
 
           <!-- Edit Track toggle button -->
-          ${activeTab === 'curriculum' ? `
-            <button type="button" class="pill subtle btn-track-edit-toggle ${isTrackEditMode ? 'active solid' : ''}" id="btnToggleTrackEditMode" title="${isTrackEditMode ? 'Done editing' : 'Edit track subjects'}" style="padding:6px 12px; font-size:12px; display:inline-flex; align-items:center; gap:5px; cursor:pointer;">
-              <i data-lucide="${isTrackEditMode ? 'check' : 'edit-2'}" style="width:13px; height:13px;"></i>
-              <span>${isTrackEditMode ? 'Done' : 'Edit Track'}</span>
-            </button>
-          ` : ''}
+          <button type="button" class="pill subtle btn-track-edit-toggle ${isTrackEditMode ? 'active solid' : ''}" id="btnToggleTrackEditMode" title="${isTrackEditMode ? 'Done editing' : 'Edit track subjects'}" style="padding:6px 12px; font-size:12px; display:inline-flex; align-items:center; gap:5px; cursor:pointer;">
+            <i data-lucide="${isTrackEditMode ? 'check' : 'edit-2'}" style="width:13px; height:13px;"></i>
+            <span>${isTrackEditMode ? 'Done' : 'Edit Track'}</span>
+          </button>
         </div>
       </div>
 
-      ${activeTab === 'curriculum' ? `
-        ${isTrackEditMode ? `
+      ${isTrackEditMode ? `
           <div class="track-edit-banner" style="background:rgba(99,102,241,0.08); border:1px solid rgba(99,102,241,0.25); border-radius:12px; padding:10px 16px; margin-bottom:16px; display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap;">
             <div style="display:flex; align-items:center; gap:8px;">
               <i data-lucide="edit-3" style="width:16px; height:16px; color:var(--accent1);"></i>
@@ -1332,23 +1290,22 @@ function renderProfileTrackCard() {
             </div>
             <button type="button" class="pill solid" id="btnDoneTrackEditInline" style="font-size:12px; padding:4px 12px;">Done Editing</button>
           </div>
-        ` : ''}
+      ` : ''}
 
-        ${curriculumHtml}
+      ${curriculumHtml}
 
-        <div class="track-custom-add-box">
-          <div style="display:flex; align-items:center; gap:8px;">
-            <i data-lucide="plus-circle" style="color:var(--accent1); width:16px; height:16px;"></i>
-            <span style="font-size:13px; font-weight:600; color:var(--text);">Add Custom Subject:</span>
-          </div>
-          <div class="track-custom-input-group">
-            <input type="text" id="trackCustomSubjectInput" placeholder="e.g. Higher Math, Finance, Law..." class="track-custom-input">
-            <button type="button" class="pill solid" id="btnTrackAddCustomSubject">
-              <i data-lucide="plus"></i> <span>Add Subject</span>
-            </button>
-          </div>
+      <div class="track-custom-add-box">
+        <div style="display:flex; align-items:center; gap:8px;">
+          <i data-lucide="plus-circle" style="color:var(--accent1); width:16px; height:16px;"></i>
+          <span style="font-size:13px; font-weight:600; color:var(--text);">Add Custom Subject:</span>
         </div>
-      ` : activeTab === 'subjects' ? subjectsHtml : inactiveHtml}
+        <div class="track-custom-input-group">
+          <input type="text" id="trackCustomSubjectInput" placeholder="e.g. Higher Math, Finance, Law..." class="track-custom-input">
+          <button type="button" class="pill solid" id="btnTrackAddCustomSubject">
+            <i data-lucide="plus"></i> <span>Add Subject</span>
+          </button>
+        </div>
+      </div>
     </div>
   `;
 
@@ -1370,24 +1327,15 @@ function attachTrackCardListeners(container, track) {
     });
   }
 
-  // Subnavigation Tab Switcher (Curriculum / Subject Manager / Inactive)
-  container.querySelectorAll('.track-subnav-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const tab = btn.getAttribute('data-track-tab');
-      if (tab) {
-        localStorage.setItem('careerdesk_track_active_tab', tab);
-        renderProfileTrackCard();
-      }
-    });
-  });
-
   // Jump to Subject Manager shortcut in Curriculum tab
   const jumpBtn = container.querySelector('#btnJumpToSubjectManager');
   if (jumpBtn) {
     jumpBtn.addEventListener('click', (e) => {
       e.preventDefault();
-      localStorage.setItem('careerdesk_track_active_tab', 'subjects');
-      renderProfileTrackCard();
+      if (typeof activateTab === 'function') {
+        activateTab('subjects', true);
+        if (typeof switchSubjectsWorkspaceTab === 'function') switchSubjectsWorkspaceTab('manager');
+      }
     });
   }
 
@@ -1721,7 +1669,7 @@ window.renderProfileTrackCard = renderProfileTrackCard;
 // =========================================================================
 
 function switchProfileCockpitTab(tabKey) {
-  const validTabs = ['overview', 'track', 'subjects', 'security'];
+  const validTabs = ['overview', 'security'];
   const targetKey = validTabs.includes(tabKey) ? tabKey : 'overview';
 
   // 1. Update navigation buttons
@@ -1735,8 +1683,6 @@ function switchProfileCockpitTab(tabKey) {
   // 2. Switch visible pane
   const paneMap = {
     overview: 'cockpitPaneOverview',
-    track: 'cockpitPaneTrack',
-    subjects: 'cockpitPaneSubjects',
     security: 'cockpitPaneSecurity'
   };
 
@@ -1757,10 +1703,6 @@ function switchProfileCockpitTab(tabKey) {
   // 4. Trigger pane renderers
   if (targetKey === 'overview' && typeof renderProfileAspirantHub === 'function') {
     renderProfileAspirantHub();
-  } else if (targetKey === 'track' && typeof renderProfileTrackCard === 'function') {
-    renderProfileTrackCard();
-  } else if (targetKey === 'subjects' && typeof renderSubjectManager === 'function') {
-    renderSubjectManager();
   } else if (targetKey === 'security' && typeof renderSecurityVaultUI === 'function') {
     renderSecurityVaultUI();
   }
@@ -1800,9 +1742,7 @@ function switchSettingsCockpitTab(tabKey) {
   }
 
   if (targetKey === 'preferences') {
-    if (typeof syncQuoteSettings === 'function') syncQuoteSettings();
     if (typeof renderQuoteManager === 'function') renderQuoteManager();
-    syncCockpitPreferencesUI();
   }
 
   if (window.lucide && typeof window.lucide.createIcons === 'function') {
@@ -1821,20 +1761,6 @@ function initSettingsCockpit() {
   switchSettingsCockpitTab(savedTab);
 }
 window.initSettingsCockpit = initSettingsCockpit;
-
-function syncCockpitPreferencesUI() {
-  // Sync Daily target input & chips
-  const targetMins = (state && typeof state.dailyTargetMinutes === 'number') ? state.dailyTargetMinutes : 240;
-  const targetHours = (targetMins / 60);
-  const targetInput = document.getElementById('targetHoursSettings');
-  if (targetInput) targetInput.value = targetHours.toString();
-
-  document.querySelectorAll('.cockpit-target-chip').forEach(chip => {
-    const chipVal = parseFloat(chip.dataset.hours);
-    chip.classList.toggle('active', chipVal === targetHours);
-  });
-}
-window.syncCockpitPreferencesUI = syncCockpitPreferencesUI;
 
 // Bind Cockpit Event Listeners
 document.addEventListener('click', (e) => {
@@ -1888,21 +1814,6 @@ document.addEventListener('click', (e) => {
     return;
   }
 
-  // 4. Cockpit Target Preset Chips
-  const targetChip = e.target.closest('.cockpit-target-chip');
-  if (targetChip) {
-    e.preventDefault();
-    const hrs = parseFloat(targetChip.dataset.hours) || 4;
-    if (typeof setDailyTarget === 'function') {
-      setDailyTarget(hrs);
-    } else {
-      state.dailyTargetMinutes = Math.round(hrs * 60);
-      saveData();
-    }
-    syncCockpitPreferencesUI();
-    if (typeof showToast === 'function') showToast(`Daily study target set to ${hrs} hours.`);
-    return;
-  }
 });
 
 // Cockpit Subject Input Enter key support

@@ -1342,8 +1342,7 @@ async function collectUserDataFromFirestore(user = null) {
 const SYNC_TYPES = [
   'routine', 'sessions', 'syllabus', 'flashcards', 
   'customQuotes', 'customSubjects', 'deletedSubjects', 'dailyTargetMinutes',
-  'quoteIdx', 'quoteSource', 'theme', 'quoteCarouselEnabled', 'quoteCarouselInterval',
-  'deletedQuotes', 'userTrack'
+  'quoteIdx', 'quoteSource', 'theme', 'deletedQuotes', 'userTrack'
 ];
 
 let realtimeUnsubscribers = [];
@@ -1434,12 +1433,6 @@ function applyRemoteChange(dataType, payload, remoteTimestamp) {
       break;
     case 'theme':
       state.theme = payload || state.theme;
-      break;
-    case 'quoteCarouselEnabled':
-      state.quoteCarouselEnabled = typeof payload === 'boolean' ? payload : state.quoteCarouselEnabled;
-      break;
-    case 'quoteCarouselInterval':
-      state.quoteCarouselInterval = typeof payload === 'number' ? payload : state.quoteCarouselInterval;
       break;
     case 'userTrack':
       state.userTrack = payload || state.userTrack;

@@ -16,8 +16,10 @@ function syncThemeButtons() {
     const isDark = state.theme === 'dark';
     darkBtn.classList.toggle('active', isDark);
     darkBtn.classList.toggle('active-theme', isDark);
+    darkBtn.setAttribute('aria-pressed', String(isDark));
     lightBtn.classList.toggle('active', !isDark);
     lightBtn.classList.toggle('active-theme', !isDark);
+    lightBtn.setAttribute('aria-pressed', String(!isDark));
   }
   syncWatchControls();
 }
@@ -28,15 +30,7 @@ if (lightBtn) lightBtn.addEventListener('click', () => setTheme('light'));
 
 // ===== Fullscreen & Theme watch controls =====
 function syncWatchControls() {
-  const themeBtn = document.getElementById('watchThemeToggle');
   const fullscreenBtn = document.getElementById('watchFullscreenToggle');
-  if (themeBtn) {
-    const isDark = state.theme === 'dark';
-    const themeLabel = isDark ? 'Switch to light mode' : 'Switch to dark mode';
-    themeBtn.title = themeLabel;
-    themeBtn.setAttribute('aria-label', themeLabel);
-    themeBtn.innerHTML = `<i data-lucide="${isDark ? 'sun' : 'moon'}"></i>`;
-  }
   if (fullscreenBtn) {
     const isFull = !!document.fullscreenElement;
     const fullscreenLabel = isFull ? 'Exit fullscreen' : 'Enter fullscreen';
@@ -59,11 +53,6 @@ function toggleFullscreen() {
 
 const fullscreenToggleSettings = document.getElementById('fullscreenToggleSettings');
 if (fullscreenToggleSettings) fullscreenToggleSettings.addEventListener('click', toggleFullscreen);
-
-const watchThemeToggle = document.getElementById('watchThemeToggle');
-if (watchThemeToggle) {
-  watchThemeToggle.addEventListener('click', () => setTheme(state.theme === 'dark' ? 'light' : 'dark'));
-}
 
 const watchFullscreenToggle = document.getElementById('watchFullscreenToggle');
 if (watchFullscreenToggle) watchFullscreenToggle.addEventListener('click', toggleFullscreen);
@@ -102,165 +91,6 @@ document.addEventListener('click', (e) => {
   if (e.target.classList.contains('modal-overlay') && e.target.classList.contains('open')) { e.target.classList.remove('open'); }
 });
 
-// ===== Tabs =====
-
-function normalizeTabName(tabName) {
-  if (!tabName) return 'home';
-  if (tabName === 'dashboard') return 'home';
-  if (tabName === 'routine' || tabName === 'rutine') return 'routine';
-  if (tabName === 'flashcards' || tabName === 'quiz' || tabName === 'mcq') return 'quiz';
-  if (tabName === 'exams') return 'countdown';
-  if (tabName === 'auth' || tabName === 'login' || tabName === 'signup' || tabName === 'register') return 'profile';
-  return tabName;
-}
-
-function activateTab(rawTabName, persist = false) {
-  const tabName = normalizeTabName(rawTabName);
-  const targetPanel = document.getElementById('panel-' + tabName) ||
-                      (tabName === 'quiz' ? document.getElementById('panel-flashcards') : null);
-  if (!targetPanel) return;
-
-  document.querySelectorAll('.tab-btn').forEach(b => {
-    const bTab = normalizeTabName(b.dataset.tab);
-    const isActive = bTab === tabName;
-    b.classList.toggle('active', isActive);
-    if (b.getAttribute('role') === 'tab') {
-      b.setAttribute('aria-selected', String(isActive));
-    } else if (isActive) {
-      b.setAttribute('aria-current', 'page');
-    } else {
-      b.removeAttribute('aria-current');
-    }
-  });
-  document.querySelectorAll('.panel').forEach(p => {
-    const isTarget = p === targetPanel;
-    p.classList.toggle('active', isTarget);
-  });
-  document.body.classList.toggle('tab-groupchat-active', tabName === 'groupchat');
-
-  // Notify other modules of the active tab
-  document.dispatchEvent(new CustomEvent('careerdesk:tabchange', { detail: tabName }));
-
-  if (rawTabName !== 'routine' && rawTabName !== 'rutine') {
-    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
-  }
-
-  if (persist) {
-    try { localStorage.setItem(ACTIVE_TAB_KEY, tabName); } catch (e) { }
-    try { if (window.location.hash !== '#' + tabName) history.replaceState(null, '', '#' + tabName); } catch (e) { }
-  }
-
-  if (tabName === 'home') {
-    if (typeof renderDashboard === 'function') {
-      renderDashboard();
-    }
-    if (typeof initProfileQuoteTypewriter === 'function') {
-      initProfileQuoteTypewriter();
-    }
-  }
-
-  if (tabName === 'routine') {
-    if (typeof renderHomeDashboard === 'function') {
-      renderHomeDashboard();
-    }
-    if (typeof renderRoutine === 'function') {
-      renderRoutine();
-    }
-    if (typeof renderDateSlider === 'function') {
-      renderDateSlider();
-    }
-    if (typeof renderStudyChain === 'function') {
-      renderStudyChain();
-    }
-  }
-
-  if (tabName === 'profile') {
-    try { if (typeof renderUserProfileUI === 'function') renderUserProfileUI(); } catch (e) { console.error('[CareerDesk] renderUserProfileUI error:', e); }
-    try { if (typeof initProfileCockpit === 'function') initProfileCockpit(); } catch (e) { console.error('[CareerDesk] initProfileCockpit error:', e); }
-    try { if (typeof renderProfileTrackCard === 'function') renderProfileTrackCard(); } catch (e) { console.error('[CareerDesk] renderProfileTrackCard error:', e); }
-    try { if (typeof renderProfileAspirantHub === 'function') renderProfileAspirantHub(); } catch (e) { console.error('[CareerDesk] renderProfileAspirantHub error:', e); }
-    try { renderSubjectManager(); } catch (e) { console.error('[CareerDesk] renderSubjectManager error:', e); }
-    try { if (typeof renderSecurityVaultUI === 'function') renderSecurityVaultUI(); } catch (e) { console.error('[CareerDesk] renderSecurityVaultUI error:', e); }
-    try { renderQuoteManager(); } catch (e) { console.error('[CareerDesk] renderQuoteManager error:', e); }
-    try { syncQuoteSettings(); } catch (e) { console.error('[CareerDesk] syncQuoteSettings error:', e); }
-    // If navigated via #login or #signup directly, pop open the auth modal
-    if (rawTabName === 'login' || rawTabName === 'signup') {
-      if (typeof openAuthModal === 'function') {
-        openAuthModal(rawTabName === 'signup' ? 'signup' : 'login');
-      }
-    }
-  }
-
-  if (tabName === 'settings') {
-    try { if (typeof initSettingsCockpit === 'function') initSettingsCockpit(); } catch (e) { console.error('[CareerDesk] initSettingsCockpit error:', e); }
-    try { if (typeof syncQuoteSettings === 'function') syncQuoteSettings(); } catch (e) { console.error('[CareerDesk] syncQuoteSettings error:', e); }
-    try { if (typeof renderQuoteManager === 'function') renderQuoteManager(); } catch (e) { console.error('[CareerDesk] renderQuoteManager error:', e); }
-    try { if (typeof syncCockpitPreferencesUI === 'function') syncCockpitPreferencesUI(); } catch (e) { console.error('[CareerDesk] syncCockpitPreferencesUI error:', e); }
-  }
-
-  if (tabName === 'tracker') {
-    renderTrackerAll();
-  }
-
-  if (tabName === 'groupchat' && typeof initGroupChat === 'function') {
-    initGroupChat();
-  } else if (tabName !== 'groupchat' && typeof destroyGroupChatListeners === 'function') {
-    destroyGroupChatListeners();
-  }
-
-  if (tabName === 'quiz') {
-    if (typeof loadQuestionBankForQuiz === 'function') {
-      loadQuestionBankForQuiz().catch(error => {
-        console.error('[CareerDesk] Could not load quiz question bank:', error);
-        if (typeof showToast === 'function') {
-          showToast('Quiz questions could not be loaded. Please check your connection and retry.', true);
-        }
-      });
-    } else {
-      if (typeof renderMCQFilterBar === 'function') renderMCQFilterBar();
-      if (typeof renderMCQQuestion === 'function') renderMCQQuestion();
-      if (typeof updateMCQStatsBar === 'function') updateMCQStatsBar();
-    }
-  }
-
-  if (window.lucide && typeof window.lucide.createIcons === 'function') {
-    window.lucide.createIcons();
-  }
-}
-
-document.querySelectorAll('.tab-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    activateTab(btn.dataset.tab, true);
-    const navMenu = document.querySelector('nav.tabs, .nav-menu');
-    if (navMenu) navMenu.classList.remove('expanded');
-    if (navMenu) navMenu.classList.add('collapsed');
-  });
-});
-
-// Click section expands nav back / collapses cleanly
-document.querySelectorAll('.panel').forEach(panel => {
-  panel.addEventListener('click', () => {
-    const navMenu = document.querySelector('nav.tabs, .nav-menu');
-    if (navMenu) {
-      navMenu.classList.remove('collapsed');
-      navMenu.classList.add('expanded');
-    }
-  });
-});
-
-try {
-  const hashTab = window.location.hash ? window.location.hash.replace('#', '') : null;
-  const savedTab = localStorage.getItem(ACTIVE_TAB_KEY);
-  const initialTab = normalizeTabName(hashTab || savedTab || 'home');
-  if (initialTab) activateTab(initialTab, false);
-} catch (e) { }
-
-window.addEventListener('hashchange', () => {
-  const rawTab = window.location.hash ? window.location.hash.replace('#', '') : 'home';
-  activateTab(normalizeTabName(rawTab), false);
-});
-
-
 // ===== Quick Command Palette (Ctrl + K / Cmd + K) =====
 function initCommandPalette() {
   const input = document.getElementById('paletteSearchInput');
@@ -274,11 +104,12 @@ function initCommandPalette() {
 
   const staticCommands = [
     { id: 'tab-home', category: 'Navigation', icon: 'layout-dashboard', title: 'Go to Dashboard', subtitle: 'Overview, analytics & quick stats', action: () => activateTab('home', true) },
-    { id: 'tab-routine', category: 'Navigation', icon: 'calendar-check', title: 'Go to Rutine', subtitle: 'Daily study schedule and study chain', action: () => activateTab('routine', true) },
+    { id: 'tab-routine', category: 'Navigation', icon: 'calendar-check', title: 'Go to Rutine', subtitle: 'Daily study schedule', action: () => activateTab('routine', true) },
     { id: 'tab-tracker', category: 'Navigation', icon: 'timer', title: 'Go to Tracker & Focus', subtitle: 'Pomodoro timer & activity stats', action: () => activateTab('tracker', true) },
     { id: 'tab-quiz', category: 'Navigation', icon: 'brain', title: 'Go to BCS & Govt MCQ Quiz', subtitle: 'Practice randomized MCQs & model tests', action: () => activateTab('quiz', true) },
     { id: 'tab-countdown', category: 'Navigation', icon: 'calendar-clock', title: 'Go to Exam Targets', subtitle: 'Exam countdowns & milestones', action: () => activateTab('countdown', true) },
     { id: 'tab-syllabus', category: 'Navigation', icon: 'list-checks', title: 'Go to Syllabus', subtitle: 'BCS syllabus & topic progress', action: () => activateTab('syllabus', true) },
+    { id: 'tab-subjects', category: 'Navigation', icon: 'layers', title: 'Go to Subject Manager', subtitle: 'Manage subjects across study tools', action: () => activateTab('subjects', true) },
     { id: 'tab-profile', category: 'Navigation', icon: 'user', title: 'Go to User Profile', subtitle: 'Personal profile, study track & subjects', action: () => activateTab('profile', true) },
     { id: 'tab-settings', category: 'Navigation', icon: 'settings-2', title: 'Go to Settings & Sync', subtitle: 'Workspace preferences, cloud sync & backups', action: () => activateTab('settings', true) },
     { id: 'tab-groupchat', category: 'Navigation', icon: 'messages-square', title: 'Go to Group Chat', subtitle: 'Join public study groups and chat in real time', action: () => activateTab('groupchat', true) },
@@ -509,7 +340,6 @@ function initCommandPalette() {
   renderRoutine();
   renderQuote();
   renderQuoteManager();
-  syncQuoteSettings();
   startQuoteRotation();
   renderTrackerAll();
   renderCategories();
@@ -526,11 +356,13 @@ function initCommandPalette() {
   initCommandPalette();
   renderStudyHeatmap();
   syncMiniTimerWidget();
+  updateTopbarClock();
 
   // Unified application 1-second heartbeat (synchronizes study timer and target countdowns)
   tickInterval = setInterval(() => {
     tickTimer();
     renderExams();
+    updateTopbarClock();
   }, 1000);
 
   if (typeof renderHomeDashboard === 'function') {
@@ -558,6 +390,19 @@ function initCommandPalette() {
   // Feature #4: MCQ Quick Subject Pre-Filter
   initMCQQuickFilter();
 })();
+
+const topbarClockTimeFormatter = new Intl.DateTimeFormat(undefined, {
+  hour: 'numeric',
+  minute: '2-digit'
+});
+function updateTopbarClock() {
+  const timeEl = document.getElementById('topbarClockTime');
+  if (!timeEl) return;
+
+  const now = new Date();
+  timeEl.dateTime = now.toISOString();
+  timeEl.textContent = topbarClockTimeFormatter.format(now);
+}
 
 /* ==========================================================================
    Feature #14 — Keyboard Shortcuts Panel

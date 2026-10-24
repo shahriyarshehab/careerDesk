@@ -13,7 +13,6 @@
     'assets/js/lucide.min.js',
     'assets/js/core.js',
     'assets/js/features/routine.js',
-    'assets/js/features/study-chain.js',
     'assets/js/features/quotes.js',
     'assets/js/features/tracker.js',
     'assets/js/features/countdown.js',
@@ -26,6 +25,7 @@
     'assets/js/features/dashboard.js',
     'assets/js/features/home.js',
     'assets/js/features/groupchat.js',
+    'assets/js/features/navigation.js',
     'assets/js/app.js'
   ];
 

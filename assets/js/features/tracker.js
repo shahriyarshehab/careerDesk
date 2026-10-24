@@ -256,7 +256,6 @@ if (startBtn) {
     state.activeSession = { subject: canonical, start: Date.now() };
     saveData();
     renderTrackerAll();
-    if (typeof window.renderStudyChain === 'function') window.renderStudyChain();
   });
 }
 
@@ -267,17 +266,25 @@ if (stopBtn) {
     if (selectedDuration !== 0) return;
     if (!state.activeSession) return;
     const end = Date.now();
-    const durationMin = Math.max(1, Math.round((end - state.activeSession.start) / 60000));
+    const elapsedMs = Math.max(0, end - Number(state.activeSession.start));
+    if (elapsedMs < STOPWATCH_MIN_DURATION_MS) {
+      state.activeSession = null;
+      saveData();
+      renderTrackerAll();
+      showToast('Stopwatch session under 1 minute was not counted.');
+      return;
+    }
+    const durationMin = Math.round(elapsedMs / 60000);
     state.sessions.push({ id: Date.now(), subject: state.activeSession.subject, start: state.activeSession.start, end, duration: durationMin });
     state.activeSession = null;
     saveData();
     renderTrackerAll();
-    if (typeof window.renderStudyChain === 'function') window.renderStudyChain();
     showToast('Stopwatch session saved!');
   });
 }
 
 function setDailyTarget(hours) {
+  if (getRoutineGoalMinutes(todayKey())) return;
   const v = parseFloat(hours);
   state.dailyTargetMinutes = isNaN(v) || v < 0 ? 240 : Math.round(v * 60);
   renderProgress();
@@ -287,14 +294,15 @@ if (targetHoursInput) {
   targetHoursInput.addEventListener('change', () => setDailyTarget(targetHoursInput.value));
   targetHoursInput.addEventListener('input', () => setDailyTarget(targetHoursInput.value));
 }
-const targetHoursSettingsEl = document.getElementById('targetHoursSettings');
-if (targetHoursSettingsEl) {
-  targetHoursSettingsEl.addEventListener('change', (e) => setDailyTarget(e.target.value));
-  targetHoursSettingsEl.addEventListener('input', (e) => setDailyTarget(e.target.value));
-}
-
 function tickTimer() {
-  if (window.isCustomCountdownActive || (window.selectedTimerDuration && window.selectedTimerDuration > 0)) return;
+  const now = new Date();
+  const refreshKey = `${dateKey(now.getTime())}:${now.getHours()}:${now.getMinutes()}`;
+  if (refreshKey !== lastSubjectBarsRefreshKey) renderSubjectBars();
+
+  if (window.isCustomCountdownActive || (window.selectedTimerDuration && window.selectedTimerDuration > 0)) {
+    if (typeof window.syncDashboardTrackerTimer === 'function') window.syncDashboardTrackerTimer();
+    return;
+  }
   const orb = document.getElementById('clockOrb');
   if (!timerDisplay) return;
   if (!state.activeSession) {
@@ -304,6 +312,7 @@ function tickTimer() {
     }
     if (orb) orb.classList.remove('active');
     syncMiniTimerWidget();
+    if (typeof window.syncDashboardTrackerTimer === 'function') window.syncDashboardTrackerTimer();
     return;
   }
   if (orb) orb.classList.add('active');
@@ -314,6 +323,7 @@ function tickTimer() {
   }
   syncMiniTimerWidget();
   renderTodaySessions();
+  if (typeof window.syncDashboardTrackerTimer === 'function') window.syncDashboardTrackerTimer();
 }
 
 function renderTodaySessions() {
@@ -348,7 +358,8 @@ function renderTodaySessions() {
   box.innerHTML = list.map(s => {
     const st = new Date(s.start), en = s.end ? new Date(s.end) : new Date();
     const timeStr = st.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) + ' – ' + en.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
-    const pct = Math.min(100, Math.max(8, Math.round((s.duration / Math.max(1, state.dailyTargetMinutes)) * 100)));
+    const goal = getRoutineGoalMinutes(todayKey()) || state.dailyTargetMinutes || 240;
+    const pct = Math.min(100, Math.max(8, Math.round((s.duration / Math.max(1, goal)) * 100)));
     const isBreak = s.entryType === 'break' || s.entryType === 'active-break';
     const isActive = s.entryType === 'active-study' || s.entryType === 'active-break';
     const label = isBreak ? `${escapeHtml(s.subject)} Break` : escapeHtml(s.subject);
@@ -386,27 +397,31 @@ if (todaySessionsBox) {
 
 function renderProgress() {
   const todayTotal = state.sessions.filter(s => dateKey(s.start) === todayKey()).reduce((a, s) => a + s.duration, 0);
-  const target = state.dailyTargetMinutes || 1;
+  const routineGoal = getRoutineGoalMinutes(todayKey());
+  const target = routineGoal || state.dailyTargetMinutes || 240;
   const pct = Math.min(100, Math.round((todayTotal / target) * 100));
 
   const progressFill = document.getElementById('progressFill');
   const progressLabelLeft = document.getElementById('progressLabelLeft');
   const progressLabelRight = document.getElementById('progressLabelRight');
+  const goalLabel = document.getElementById('trackerGoalLabel');
   const streakLine = document.getElementById('streakLine');
   const verdict = document.getElementById('verdictBox');
 
   if (progressFill) progressFill.style.width = pct + '%';
   if (progressLabelLeft) progressLabelLeft.textContent = fmtHM(todayTotal) + ' studied';
   if (progressLabelRight) progressLabelRight.textContent = pct + '%';
-  if (targetHoursInput) targetHoursInput.value = (state.dailyTargetMinutes / 60).toString();
-  const settingsTargetInput = document.getElementById('targetHoursSettings');
-  if (settingsTargetInput) settingsTargetInput.value = (state.dailyTargetMinutes / 60).toString();
-
+  if (goalLabel) goalLabel.textContent = routineGoal ? "Today's Routine Goal" : 'Daily Goal';
+  if (targetHoursInput) {
+    targetHoursInput.value = (target / 60).toString();
+    targetHoursInput.readOnly = !!routineGoal;
+    targetHoursInput.title = routineGoal ? 'Automatically set from today’s timed routine blocks' : 'Set a daily goal when no timed routine is scheduled';
+  }
   if (verdict) {
     if (todayTotal === 0) {
       verdict.textContent = 'No study logged yet today — start your first session, you can do it!';
     } else if (pct >= 100) {
-      verdict.textContent = 'Daily target completed! Outstanding effort today.';
+      verdict.textContent = routineGoal ? 'Today’s routine goal completed! Outstanding effort.' : 'Daily target completed! Outstanding effort today.';
     } else if (pct >= 75) {
       verdict.textContent = 'Almost there — just a little more focus to reach your goal.';
     } else if (pct >= 40) {
@@ -421,7 +436,8 @@ function renderProgress() {
     const d = new Date(); d.setDate(d.getDate() - i);
     const key = dateKey(d.getTime());
     const total = state.sessions.filter(s => dateKey(s.start) === key).reduce((a, s) => a + s.duration, 0);
-    if (total >= target) streak++; else break;
+    const dayGoal = getRoutineGoalMinutes(key) || state.dailyTargetMinutes || 240;
+    if (total >= dayGoal) streak++; else break;
   }
   if (pct >= 100) streak++;
   if (streakLine) {
@@ -431,13 +447,143 @@ function renderProgress() {
   }
 }
 
+function getRoutineGoalMinutes(date = todayKey()) {
+  if (!Array.isArray(state.routine)) return 0;
+  return state.routine.reduce((total, item) => {
+    if (!item || item.date !== date) return total;
+    const start = /^([01]\d|2[0-3]):([0-5]\d)$/.exec(String(item.startTime || ''));
+    const end = /^([01]\d|2[0-3]):([0-5]\d)$/.exec(String(item.endTime || ''));
+    if (!start || !end) return total;
+    const startMinute = Number(start[1]) * 60 + Number(start[2]);
+    const endMinute = Number(end[1]) * 60 + Number(end[2]);
+    return total + (endMinute > startMinute ? endMinute - startMinute : 0);
+  }, 0);
+}
+
+
+let lastSubjectBarsRefreshKey = '';
 
 function renderSubjectBars() {
   const box = document.getElementById('subjectBars');
   if (!box) return;
+  const now = new Date();
+  lastSubjectBarsRefreshKey = `${dateKey(now.getTime())}:${now.getHours()}:${now.getMinutes()}`;
+  const plan = typeof window.getTodayStudyPlanProgress === 'function'
+    ? window.getTodayStudyPlanProgress()
+    : [];
+  if (plan.length) {
+    const subjects = new Map();
+    plan.forEach(block => {
+      const subject = typeof canonicalSubjectName === 'function'
+        ? canonicalSubjectName(block.subject || 'Study block')
+        : (block.subject || 'Study block');
+      const key = subject.trim().toLowerCase();
+      const entry = subjects.get(key) || {
+        subject,
+        plannedMinutes: 0,
+        trackedMinutes: 0,
+        blocks: []
+      };
+      entry.plannedMinutes += block.duration;
+      entry.trackedMinutes += block.trackedMinutes;
+      entry.blocks.push(block);
+      subjects.set(key, entry);
+    });
+
+    const plannedSubjects = new Set(subjects.keys());
+    const unplannedSubjects = new Map();
+    (Array.isArray(state.sessions) ? state.sessions : [])
+      .filter(session => session && dateKey(session.start) === todayKey())
+      .forEach(session => {
+        const subject = typeof canonicalSubjectName === 'function'
+          ? canonicalSubjectName(session.subject || 'General')
+          : (session.subject || 'General');
+        const key = subject.trim().toLowerCase();
+        if (plannedSubjects.has(key)) return;
+        unplannedSubjects.set(key, {
+          subject,
+          trackedMinutes: (unplannedSubjects.get(key)?.trackedMinutes || 0) + Math.max(0, Number(session.duration) || 0)
+        });
+      });
+    const activeStudy = typeof window.getActiveTrackerStudySession === 'function'
+      ? window.getActiveTrackerStudySession()
+      : null;
+    if (activeStudy && Number.isFinite(Number(activeStudy.start))) {
+      const subject = typeof canonicalSubjectName === 'function'
+        ? canonicalSubjectName(activeStudy.subject || 'General')
+        : (activeStudy.subject || 'General');
+      const key = subject.trim().toLowerCase();
+      if (!plannedSubjects.has(key)) {
+        const elapsedMinutes = Math.max(0, (now.getTime() - Number(activeStudy.start)) / 60000);
+        unplannedSubjects.set(key, {
+          subject,
+          trackedMinutes: (unplannedSubjects.get(key)?.trackedMinutes || 0) + elapsedMinutes
+        });
+      }
+    }
+
+    const entries = [...subjects.values()].map(entry => {
+      const completeCount = entry.blocks.filter(block => block.status === 'complete').length;
+      const hasIncompleteBlock = entry.blocks.some(block => block.status === 'not-complete');
+      const hasActiveBlock = entry.blocks.some(block => block.status === 'in-progress');
+      const hasUpcomingBlock = entry.blocks.some(block => block.status === 'upcoming');
+      let status = 'time-not-set';
+      if (hasIncompleteBlock) status = 'not-complete';
+      else if (hasActiveBlock) status = 'in-progress';
+      else if (hasUpcomingBlock) status = 'upcoming';
+      else if (entry.blocks.every(block => block.status === 'complete')) status = 'complete';
+      return { ...entry, completeCount, status };
+    });
+    const chartEntries = [
+      ...entries,
+      ...[...unplannedSubjects.values()].map(entry => ({ ...entry, status: 'unplanned' }))
+    ].sort((a, b) => b.trackedMinutes - a.trackedMinutes || a.subject.localeCompare(b.subject));
+
+    const max = Math.max(...chartEntries.map(entry => entry.plannedMinutes || entry.trackedMinutes), 1);
+    const statusLabels = {
+      complete: 'Complete',
+      'not-complete': 'Not complete',
+      'in-progress': 'In progress',
+      upcoming: 'Upcoming',
+      'time-not-set': 'Time not set',
+      unplanned: 'No plan'
+    };
+    box.innerHTML = chartEntries.map(entry => {
+      const progress = entry.plannedMinutes
+        ? Math.min(100, Math.round((entry.trackedMinutes / entry.plannedMinutes) * 100))
+        : 0;
+      const details = entry.blocks?.length
+        ? `${entry.completeCount}/${entry.blocks.length} blocks complete · ${fmtHM(Math.round(entry.trackedMinutes))} / ${fmtHM(entry.plannedMinutes)}`
+        : `${fmtHM(Math.round(entry.trackedMinutes))} tracked · no planned block`;
+      const plannedWidth = Math.round(((entry.plannedMinutes || entry.trackedMinutes) / max) * 100);
+      const trackedWidth = Math.round((entry.trackedMinutes / max) * 100);
+      return `
+        <div class="subj-bar-row subj-plan-row">
+          <div class="subj-bar-label">
+            <span>${escapeHtml(entry.subject)}</span>
+            <span class="subj-plan-status subj-plan-status--${entry.status}">${statusLabels[entry.status]}</span>
+          </div>
+          <div class="subj-bar-track" role="progressbar" aria-label="${escapeAttr(entry.subject)} study plan progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${progress}">
+            <span class="subj-plan-track" style="width:${plannedWidth}%"></span>
+            <span class="subj-plan-fill" style="width:${trackedWidth}%"></span>
+          </div>
+          <div class="subj-plan-details">${details}</div>
+        </div>
+      `;
+    }).join('');
+    return;
+  }
+
   const today = state.sessions.filter(s => dateKey(s.start) === todayKey());
   const byTotal = {};
   today.forEach(s => { byTotal[s.subject] = (byTotal[s.subject] || 0) + s.duration; });
+  const activeStudy = typeof window.getActiveTrackerStudySession === 'function'
+    ? window.getActiveTrackerStudySession()
+    : null;
+  if (activeStudy?.subject) {
+    const elapsedMinutes = Math.max(0, (Date.now() - Number(activeStudy.start)) / 60000);
+    byTotal[activeStudy.subject] = (byTotal[activeStudy.subject] || 0) + elapsedMinutes;
+  }
   const entries = Object.entries(byTotal).sort((a, b) => b[1] - a[1]);
   if (!entries.length) { box.innerHTML = '<div class="empty-state">No study sessions logged today yet.</div>'; return; }
   const max = Math.max(...entries.map(e => e[1]));
@@ -448,6 +594,8 @@ function renderSubjectBars() {
     </div>
   `).join('');
 }
+
+window.renderTrackerSubjectBars = renderSubjectBars;
 
 // ===== Customizable review period =====
 let reviewPeriod = 'week';
@@ -515,7 +663,7 @@ function buildReviewBuckets() {
 
 function renderWeekChart() {
   const box = document.getElementById('weekChart');
-  const target = state.dailyTargetMinutes || 1;
+  const target = getRoutineGoalMinutes(todayKey()) || state.dailyTargetMinutes || 1;
   const buckets = buildReviewBuckets();
   let maxVal = Math.max(1, target, ...buckets.map(b => b.total));
   box.innerHTML = buckets.map(b => {
@@ -568,9 +716,12 @@ function renderStudyHeatmap() {
 
   if (state.activeSession && state.activeSession.start) {
     const todayDk = dateKey(Date.now());
-    const liveMins = Math.max(1, Math.floor((Date.now() - state.activeSession.start) / 60000));
-    dailyMinutes[todayDk] = (dailyMinutes[todayDk] || 0) + liveMins;
-    dailySessionsCount[todayDk] = (dailySessionsCount[todayDk] || 0) + 1;
+    const elapsedMs = Date.now() - Number(state.activeSession.start);
+    if (elapsedMs >= STOPWATCH_MIN_DURATION_MS) {
+      const liveMins = Math.floor(elapsedMs / 60000);
+      dailyMinutes[todayDk] = (dailyMinutes[todayDk] || 0) + liveMins;
+      dailySessionsCount[todayDk] = (dailySessionsCount[todayDk] || 0) + 1;
+    }
   }
 
   const allMins = Object.values(dailyMinutes).reduce((a, b) => a + b, 0);
@@ -661,6 +812,10 @@ function renderTrackerAll() {
   update24hActivityUI();
   renderStudyHeatmap();
   syncMiniTimerWidget();
+  if (typeof window.syncDashboardTrackerTimer === 'function') window.syncDashboardTrackerTimer();
+  if (document.getElementById('panel-home')?.classList.contains('active') && typeof window.renderDashboard === 'function') {
+    window.renderDashboard();
+  }
 }
 
 
@@ -671,8 +826,21 @@ let selectedDuration = 0;
 let timerMode = 'study';
 let customCountdownInterval = null;
 let customCountdownSecs = 0;
+let customCountdownSubject = '';
+const STOPWATCH_MIN_DURATION_MS = 60000;
 window.selectedTimerDuration = 0;
 window.isCustomCountdownActive = false;
+window.getActiveTrackerStudySession = function () {
+  const now = Date.now();
+  if (timerMode === 'break') return null;
+  if (state.activeSession) {
+    if (now - Number(state.activeSession.start) < STOPWATCH_MIN_DURATION_MS) return null;
+    return { subject: state.activeSession.subject, start: Number(state.activeSession.start), end: now };
+  }
+  if (!window.isCustomCountdownActive || selectedDuration <= 0) return null;
+  const elapsedMs = Math.max(0, (selectedDuration * 60 - customCountdownSecs) * 1000);
+  return { subject: customCountdownSubject || currentSubjectValue(), start: now - elapsedMs, end: now };
+};
 
 
 function getTodayBreakMinutes() {
@@ -754,6 +922,7 @@ const breakReasonRow = document.getElementById('breakReasonRow');
 
 function syncTimerModeFields() {
   const hasMode = timerMode === 'study' || timerMode === 'break';
+  window.trackerTimerMode = timerMode;
   if (studySubjectRow) studySubjectRow.hidden = timerMode !== 'study';
   const quickSubjectContainer = document.getElementById('quickSubjectContainer');
   if (quickSubjectContainer) quickSubjectContainer.hidden = timerMode !== 'study';
@@ -774,6 +943,7 @@ function syncTimerModeFields() {
   } else {
     refreshTimerSub();
   }
+  if (typeof window.syncDashboardTrackerTimer === 'function') window.syncDashboardTrackerTimer();
 }
 
 syncTimerModeFields();
@@ -794,6 +964,7 @@ if (timerModeSelector) {
     if (breakOptEl) breakOptEl.hidden = timerMode !== 'break';
     const firstDuration = document.querySelector(`#${timerMode === 'break' ? 'breakDurationOptions' : 'studyDurationOptions'} .timer-dur-chip`);
     if (firstDuration) firstDuration.click();
+    if (typeof window.syncDashboardTrackerTimer === 'function') window.syncDashboardTrackerTimer();
   });
 
   // Restore saved tracker sub-nav
@@ -842,6 +1013,7 @@ if (durationSelector) {
       if (display) display.textContent = `${mStr}:00`;
       if (sub) sub.innerHTML = `<strong>${escapeHtml(subject)}</strong> — ${selectedDuration} min focus session`;
     }
+    if (typeof window.syncDashboardTrackerTimer === 'function') window.syncDashboardTrackerTimer();
   });
 }
 
@@ -889,7 +1061,10 @@ function startCustomCountdown() {
       showToast('Please enter or select a study subject', true);
       return;
     }
+    customCountdownSubject = subj;
     if (typeof addSubject === 'function') addSubject(subj);
+  } else {
+    customCountdownSubject = '';
   }
   window.isCustomCountdownActive = true;
   const display = document.getElementById('timerDisplay');
@@ -921,6 +1096,7 @@ function startCustomCountdown() {
       renderTodaySessions();
       renderProgress();
       syncMiniTimerWidget();
+      if (typeof window.syncDashboardTrackerTimer === 'function') window.syncDashboardTrackerTimer();
     } else {
       clearInterval(customCountdownInterval);
       stopCustomCountdown(true);
@@ -928,6 +1104,8 @@ function startCustomCountdown() {
   }, 1000);
 
   syncMiniTimerWidget();
+  if (typeof window.syncDashboardTrackerTimer === 'function') window.syncDashboardTrackerTimer();
+  renderSubjectBars();
 }
 
 function stopCustomCountdown(isCompleted = false) {
@@ -944,7 +1122,7 @@ function stopCustomCountdown(isCompleted = false) {
   if (orb) orb.classList.remove('active');
   syncMiniTimerWidget();
 
-  const subject = currentSubjectValue() || 'General';
+  const subject = customCountdownSubject || currentSubjectValue() || 'General';
   const reason = document.getElementById('breakReason')?.value || 'Refreshment';
 
   if (timerMode === 'break') {
@@ -988,6 +1166,9 @@ function stopCustomCountdown(isCompleted = false) {
   update24hActivityUI();
   renderTodaySessions();
   refreshTimerSub();
+  customCountdownSubject = '';
+  if (typeof window.syncDashboardTrackerTimer === 'function') window.syncDashboardTrackerTimer();
+  renderSubjectBars();
 }
 
 document.addEventListener('click', (e) => {
@@ -1060,4 +1241,3 @@ if (headerMiniTimerEl) {
     activateTab('tracker', true);
   });
 }
-

@@ -175,8 +175,8 @@ This project has a few important repository-specific conventions:
 `index.html` loads the CSS manifest and JavaScript manifest. `assets/js/master.js` loads the browser modules in dependency order:
 
 - `core.js` initializes shared state, local persistence, common helpers, and the unified subject system.
-- `app.js` initializes the application shell, routes, shared dialogs, and keyboard shortcuts.
-- `features/` contains the dashboard, routine, focus tracker, syllabus, questions, MCQ, profile, countdown, quotes, flashcards, and group-chat features.
+- `app.js` initializes the application shell, shared dialogs, and keyboard shortcuts; `features/navigation.js` owns tab routing.
+- `features/` contains dashboard, routine, focus tracker, syllabus, MCQ, profile, countdown, quotes, group-chat, and navigation modules.
 - `integrations/` contains optional Firebase sync and configuration plus client-side security features.
 
 The main application state is stored locally under `jobprep-dashboard-data-v2`. Firebase sync is optional and should not be required for normal local use.
