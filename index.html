@@ -63,7 +63,7 @@
       <div class="nav-search-btn" id="commandPaletteBtn">
         <i data-lucide="search" aria-hidden="true"></i>
         <input id="paletteSearchInput" type="search" role="combobox" aria-label="Search commands and syllabus" aria-expanded="false" aria-controls="paletteResults" placeholder="Search commands, topics, and tabs..." autocomplete="off">
-        <kbd class="nav-search-kbd">Ctrl K</kbd>
+        <kbd class="nav-search-kbd">Alt + /</kbd>
         <button class="icon-action-btn watch-action topbar-shortcuts-btn" id="shortcutsHelpBtn" type="button" title="Keyboard Shortcuts (?)" aria-label="Keyboard Shortcuts">
           <i data-lucide="keyboard"></i>
         </button>
@@ -748,19 +748,49 @@
 
     <!-- ===== SYLLABUS ===== -->
     <section class="panel" id="panel-syllabus">
-      <h2 class="section-title">Syllabus Tracker</h2>
-      <div class="syllabus-overall glass">
-        <div class="overall-label"><span id="syllabusOverallLabel">0 / 0 topics completed</span><span id="syllabusOverallPct">0%</span></div>
-        <div class="progress-track"><div class="progress-fill" id="syllabusOverallFill" style="width:0%"></div></div>
+      <div class="syllabus-hero">
+        <div>
+          <span class="syllabus-eyebrow"><i data-lucide="route"></i> PREPARATION ROADMAP</span>
+          <h2 class="section-title">Syllabus planner</h2>
+          <p>Break your exam preparation into subjects and track each topic as you learn.</p>
+        </div>
+        <div class="syllabus-head-mark" aria-hidden="true"><i data-lucide="list-checks"></i></div>
       </div>
-      <div class="entry-form">
-        <div class="syllabus-form-row">
-          <input type="text" id="newCategoryInput" list="appSubjectDatalist" placeholder="Category / Subject Name (Choose or type)" class="syllabus-subject-input">
-          <input type="text" id="newTopicInput" placeholder="First Topic (Optional)" class="syllabus-topic-input">
-          <button class="pill solid" id="addCategoryBtn" type="button"><i data-lucide="plus"></i> <span>Add Category</span></button>
+
+      <div class="syllabus-overview-grid">
+        <div class="syllabus-overall glass">
+          <div class="syllabus-summary-top">
+            <span class="syllabus-card-kicker">OVERALL PROGRESS</span>
+            <span class="syllabus-progress-percent" id="syllabusOverallPct">0%</span>
+          </div>
+          <strong class="syllabus-summary-count" id="syllabusOverallLabel">0 / 0 topics completed</strong>
+          <div class="progress-track syllabus-progress-track"><div class="progress-fill" id="syllabusOverallFill" style="width:0%"></div></div>
+          <span class="syllabus-summary-note"><i data-lucide="sparkles"></i> Every topic completed moves you closer to your goal.</span>
+        </div>
+
+        <div class="entry-form syllabus-create-card">
+          <div class="syllabus-create-heading">
+            <span class="syllabus-create-icon"><i data-lucide="folder-plus"></i></span>
+            <div>
+              <h3>Add to your roadmap</h3>
+              <p>Create a subject and optionally start with a topic.</p>
+            </div>
+          </div>
+          <div class="syllabus-form-row">
+            <input type="text" id="newCategoryInput" list="appSubjectDatalist" aria-label="Subject or category name" placeholder="Subject or category" class="syllabus-subject-input">
+            <input type="text" id="newTopicInput" aria-label="First topic, optional" placeholder="First topic (optional)" class="syllabus-topic-input">
+            <button class="pill solid" id="addCategoryBtn" type="button"><i data-lucide="plus"></i> <span>Add subject</span></button>
+          </div>
         </div>
       </div>
-      <div id="categoryList"></div>
+
+      <div class="syllabus-section-heading">
+        <div>
+          <h3>Your subjects</h3>
+          <p>Choose a topic to mark it complete. Double-click a subject or topic to edit.</p>
+        </div>
+      </div>
+      <div id="categoryList" class="syllabus-category-grid"></div>
     </section>
 
     <!-- ===== GROUP CHAT ===== -->

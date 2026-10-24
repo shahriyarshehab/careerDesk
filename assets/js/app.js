@@ -91,7 +91,7 @@ document.addEventListener('click', (e) => {
   if (e.target.classList.contains('modal-overlay') && e.target.classList.contains('open')) { e.target.classList.remove('open'); }
 });
 
-// ===== Quick Command Palette (Ctrl + K / Cmd + K) =====
+// ===== Quick Command Palette (Alt + /) =====
 function initCommandPalette() {
   const input = document.getElementById('paletteSearchInput');
   const results = document.getElementById('paletteResults');
@@ -313,7 +313,10 @@ function initCommandPalette() {
   });
 
   window.addEventListener('keydown', (e) => {
-    if ((e.ctrlKey || e.metaKey) && (e.key === 'k' || e.key === 'K')) {
+    const target = e.target instanceof Element ? e.target : null;
+    const isEditing = target?.closest('input, textarea, select, [contenteditable="true"]');
+    const isPaletteShortcut = e.key === '/' || e.key === '?' || e.code === 'Slash';
+    if (!e.defaultPrevented && e.altKey && !e.ctrlKey && !e.metaKey && isPaletteShortcut && !isEditing) {
       e.preventDefault();
       togglePalette();
     }
@@ -430,7 +433,7 @@ function initKeyboardShortcutsPanel() {
     {
       group: 'Quick Actions',
       shortcuts: [
-        { keys: ['Ctrl', 'K'], desc: 'Open Command Palette' },
+        { keys: ['Alt', '/'], desc: 'Open Command Palette' },
         { keys: ['?'], desc: 'Open Keyboard Shortcuts Panel' },
         { keys: ['F'], desc: 'Toggle Fullscreen' },
         { keys: ['T'], desc: 'Toggle Dark / Light Theme' },

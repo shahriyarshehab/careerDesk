@@ -1435,3 +1435,126 @@
     box-shadow: 0 2px 8px rgba(15,23,42,.05) !important;
   }
 }
+
+@media (min-width: 1000px) {
+  header.main-header .topbar,
+  .main-header .topbar {
+    background: rgba(13, 20, 36, .96) !important;
+    border: 0 !important;
+    border-radius: 0 0 16px 16px !important;
+    box-shadow: none !important;
+  }
+
+  html[data-theme="light"] header.main-header .topbar,
+  html[data-theme="light"] .main-header .topbar {
+    background: rgba(255, 255, 255, .96) !important;
+  }
+}
+
+.topbar-clock {
+  min-width: 0 !important;
+  height: auto !important;
+  padding: 0 !important;
+  overflow: visible !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: none !important;
+  box-shadow: none !important;
+  animation: none !important;
+}
+
+.topbar-clock::before {
+  display: none !important;
+}
+
+.topbar-clock time {
+  background: linear-gradient(135deg, #ffffff 30%, #00e5ff 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent !important;
+  -webkit-text-fill-color: transparent;
+  font-family: var(--font-display) !important;
+  font-size: 16px !important;
+  font-weight: 800 !important;
+  letter-spacing: -.02em !important;
+  text-shadow: none !important;
+}
+
+html[data-theme="light"] .topbar-clock time {
+  background-image: linear-gradient(135deg, #0f172a 30%, #0284c7 100%);
+}
+
+header.main-header .topbar > .nav-search-btn,
+.main-header .topbar > .nav-search-btn {
+  border: 1px solid color-mix(in srgb, var(--accent1) 18%, var(--border)) !important;
+  border-radius: 15px !important;
+  background: color-mix(in srgb, var(--surface-strong) 82%, var(--bg) 18%) !important;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, .12), inset 0 1px 0 rgba(255, 255, 255, .045) !important;
+  transition: border-color .18s ease, background .18s ease, box-shadow .18s ease !important;
+}
+
+header.main-header .topbar > .nav-search-btn:focus-within,
+.main-header .topbar > .nav-search-btn:focus-within {
+  border-color: color-mix(in srgb, var(--accent1) 62%, var(--accent2)) !important;
+  background: color-mix(in srgb, var(--surface-strong) 90%, var(--accent1) 10%) !important;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent1) 16%, transparent), 0 8px 24px rgba(0, 0, 0, .14) !important;
+}
+
+header.main-header .topbar > .nav-search-btn > :is(i, svg),
+.main-header .topbar > .nav-search-btn > :is(i, svg) {
+  flex: 0 0 auto !important;
+  color: var(--accent2, #06b6d4) !important;
+}
+
+header.main-header .topbar > .nav-search-btn input,
+.main-header .topbar > .nav-search-btn input {
+  font-family: var(--font-sans) !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+}
+
+header.main-header .topbar > .nav-search-btn .nav-search-kbd,
+.main-header .topbar > .nav-search-btn .nav-search-kbd {
+  padding: 3px 7px !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 7px !important;
+  background: var(--surface) !important;
+  color: var(--text-soft) !important;
+  opacity: 1 !important;
+}
+
+header.main-header .topbar .topbar-shortcuts-btn,
+.main-header .topbar .topbar-shortcuts-btn {
+  border: 0 !important;
+  border-radius: 9px !important;
+  background: var(--surface) !important;
+  color: var(--text-soft) !important;
+  transition: color .18s ease, background .18s ease !important;
+}
+
+header.main-header .topbar .topbar-shortcuts-btn:hover,
+header.main-header .topbar .topbar-shortcuts-btn:focus-visible,
+.main-header .topbar .topbar-shortcuts-btn:hover,
+.main-header .topbar .topbar-shortcuts-btn:focus-visible {
+  background: color-mix(in srgb, var(--accent1) 14%, var(--surface)) !important;
+  color: var(--text) !important;
+  outline: none !important;
+}
+
+@media (min-width: 1000px) {
+  header.main-header .topbar > .nav-search-btn,
+  .main-header .topbar > .nav-search-btn {
+    top: 11px !important;
+    width: min(520px, 58%) !important;
+    height: 46px !important;
+    padding: 0 14px !important;
+  }
+}
+
+@media (max-width: 999px) {
+  header.main-header .topbar > .nav-search-btn,
+  .main-header .topbar > .nav-search-btn {
+    height: 44px !important;
+    padding: 0 12px !important;
+  }
+}
