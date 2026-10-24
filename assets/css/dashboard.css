@@ -849,3 +849,54 @@ html[data-theme="light"] .db-plan-row {
     max-height: 340px;
   }
 }
+
+
+/* ── Stopwatch ring: brief glow, then a clean static ring ───────────────── */
+.db-timer-ring-container::before {
+  content: "";
+  position: absolute;
+  inset: -5px;
+  border: 1px solid rgba(6, 182, 212, 0.52);
+  border-radius: 50%;
+  pointer-events: none;
+  opacity: 0;
+  box-shadow: 0 0 0 1px rgba(99, 102, 241, 0.12), 0 0 18px rgba(6, 182, 212, 0.28);
+  animation: dbTimerRingGlow 2.2s ease-out 1 both;
+}
+
+.db-timer-track {
+  stroke: rgba(148, 163, 184, 0.28);
+  transition: stroke 300ms ease;
+}
+
+.db-timer-ring-container:focus-within::before,
+.db-timer-ring-container:hover::before {
+  animation: none;
+  opacity: 0.3;
+  box-shadow: 0 0 10px rgba(6, 182, 212, 0.16);
+}
+
+@keyframes dbTimerRingGlow {
+  0% {
+    opacity: 0;
+    transform: scale(0.94);
+    box-shadow: 0 0 0 rgba(6, 182, 212, 0);
+  }
+  22% {
+    opacity: 0.9;
+    transform: scale(1);
+    box-shadow: 0 0 22px rgba(6, 182, 212, 0.3);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.035);
+    box-shadow: 0 0 4px rgba(6, 182, 212, 0.04);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .db-timer-ring-container::before {
+    animation: none;
+    opacity: 0;
+  }
+}
