@@ -25,6 +25,7 @@
 
   <!-- Screenshot layout alignment overrides (must load after all inline styles) -->
   <link rel="stylesheet" href="assets/css/figma-layout-alignment.css?v=8">
+  <link rel="stylesheet" href="assets/css/mobile-experience.css">
 </head>
 
 <body>
@@ -99,6 +100,45 @@
       </button>
     </div>
   </header>
+
+  <nav class="mobile-dock" aria-label="Mobile navigation">
+    <button class="tab-btn nav-link" data-tab="home" type="button" aria-label="Dashboard" aria-current="page">
+      <i data-lucide="layout-dashboard" aria-hidden="true"></i><span>Home</span>
+    </button>
+    <button class="tab-btn nav-link" data-tab="routine" type="button" aria-label="Routine">
+      <i data-lucide="calendar-days" aria-hidden="true"></i><span>Routine</span>
+    </button>
+    <button class="tab-btn nav-link" data-tab="tracker" type="button" aria-label="Focus tracker">
+      <i data-lucide="timer" aria-hidden="true"></i><span>Focus</span>
+    </button>
+    <button class="tab-btn nav-link" data-tab="quiz" type="button" aria-label="Quiz">
+      <i data-lucide="brain" aria-hidden="true"></i><span>Quiz</span>
+    </button>
+    <button class="tab-btn nav-link" data-tab="syllabus" type="button" aria-label="Syllabus">
+      <i data-lucide="list-checks" aria-hidden="true"></i><span>Syllabus</span>
+    </button>
+    <button class="mobile-more-trigger" id="mobileMoreTrigger" type="button" aria-label="More sections" aria-controls="mobileMoreMenu" aria-expanded="false">
+      <i data-lucide="ellipsis" aria-hidden="true"></i><span>More</span>
+    </button>
+  </nav>
+
+  <nav class="mobile-more-menu" id="mobileMoreMenu" aria-label="More sections" hidden>
+    <button class="tab-btn mobile-more-link" data-tab="countdown" type="button">
+      <i data-lucide="calendar-clock" aria-hidden="true"></i><span>Exam targets</span>
+    </button>
+    <button class="tab-btn mobile-more-link" data-tab="groupchat" type="button">
+      <i data-lucide="messages-square" aria-hidden="true"></i><span>Group chat</span>
+    </button>
+    <button class="tab-btn mobile-more-link" data-tab="profile" type="button">
+      <i data-lucide="user" aria-hidden="true"></i><span>Profile</span>
+    </button>
+    <button class="tab-btn mobile-more-link" data-tab="subjects" type="button">
+      <i data-lucide="layers" aria-hidden="true"></i><span>Subject manager</span>
+    </button>
+    <button class="tab-btn mobile-more-link" data-tab="settings" type="button">
+      <i data-lucide="settings-2" aria-hidden="true"></i><span>Settings &amp; sync</span>
+    </button>
+  </nav>
 
   <main>
     <datalist id="appSubjectDatalist"></datalist>
@@ -778,7 +818,7 @@
           </div>
           <div class="syllabus-form-row">
             <input type="text" id="newCategoryInput" list="appSubjectDatalist" aria-label="Subject or category name" placeholder="Subject or category" class="syllabus-subject-input">
-            <input type="text" id="newTopicInput" aria-label="First topic, optional" placeholder="First topic (optional)" class="syllabus-topic-input">
+            <input type="text" id="newTopicInput" aria-label="First topic or topics, optional; separate topics with a vertical bar" placeholder="First topic (optional; use | between topics)" class="syllabus-topic-input">
             <button class="pill solid" id="addCategoryBtn" type="button"><i data-lucide="plus"></i> <span>Add subject</span></button>
           </div>
         </div>

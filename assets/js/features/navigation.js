@@ -152,6 +152,45 @@ document.querySelectorAll('.tab-btn').forEach(button => {
   button.addEventListener('click', () => activateTab(button.dataset.tab, true));
 });
 
+const mobileMoreTrigger = document.getElementById('mobileMoreTrigger');
+const mobileMoreMenu = document.getElementById('mobileMoreMenu');
+const mobilePrimaryTabs = new Set(['home', 'routine', 'tracker', 'quiz', 'syllabus']);
+
+function setMobileMoreMenuOpen(isOpen, restoreFocus = false) {
+  if (!mobileMoreTrigger || !mobileMoreMenu) return;
+  mobileMoreMenu.hidden = !isOpen;
+  mobileMoreTrigger.setAttribute('aria-expanded', String(isOpen));
+  if (restoreFocus) mobileMoreTrigger.focus();
+}
+
+if (mobileMoreTrigger && mobileMoreMenu) {
+  mobileMoreTrigger.addEventListener('click', () => {
+    setMobileMoreMenuOpen(mobileMoreMenu.hidden);
+  });
+
+  document.addEventListener('click', event => {
+    if (!mobileMoreMenu.hidden &&
+      !mobileMoreMenu.contains(event.target) &&
+      !mobileMoreTrigger.contains(event.target)) {
+      setMobileMoreMenuOpen(false);
+    }
+  });
+
+  document.addEventListener('keydown', event => {
+    if (event.key === 'Escape' && !mobileMoreMenu.hidden) {
+      setMobileMoreMenuOpen(false, true);
+    }
+  });
+
+  document.addEventListener('careerdesk:tabchange', event => {
+    const isSecondaryTab = !mobilePrimaryTabs.has(event.detail);
+    mobileMoreTrigger.classList.toggle('active', isSecondaryTab);
+    if (isSecondaryTab) mobileMoreTrigger.setAttribute('aria-current', 'page');
+    else mobileMoreTrigger.removeAttribute('aria-current');
+    setMobileMoreMenuOpen(false);
+  });
+}
+
 try {
   const hashTab = window.location.hash ? window.location.hash.replace('#', '') : null;
   const savedTab = localStorage.getItem(ACTIVE_TAB_KEY);
