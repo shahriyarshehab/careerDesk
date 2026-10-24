@@ -294,12 +294,64 @@ if (targetHoursInput) {
   targetHoursInput.addEventListener('change', () => setDailyTarget(targetHoursInput.value));
   targetHoursInput.addEventListener('input', () => setDailyTarget(targetHoursInput.value));
 }
+function playTimerBeep() {
+  try {
+    const ctx = window.AudioContext || window.webkitAudioContext;
+    if (!ctx) return;
+    const audioContext = new ctx();
+    const oscillator = audioContext.createOscillator();
+    const gainNode = audioContext.createGain();
+    oscillator.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+    oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+    oscillator.frequency.exponentialRampToValueAtTime(400, audioContext.currentTime + 0.2);
+    gainNode.gain.setValueAtTime(0.5, audioContext.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
+    oscillator.start(audioContext.currentTime);
+    oscillator.stop(audioContext.currentTime + 0.2);
+  } catch (e) { /* non-critical */ }
+}
+
+function playTimerRing() {
+  try {
+    const ctx = window.AudioContext || window.webkitAudioContext;
+    if (!ctx) return;
+    const audioContext = new ctx();
+    // Create a rich, professional ringing sound using multiple oscillators
+    const oscillator1 = audioContext.createOscillator();
+    const oscillator2 = audioContext.createOscillator();
+    const oscillator3 = audioContext.createOscillator();
+    const gainNode = audioContext.createGain();
+    oscillator1.connect(gainNode);
+    oscillator2.connect(gainNode);
+    oscillator3.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+    // Fundamental frequency (220Hz A3 note)
+    oscillator1.frequency.setValueAtTime(220, audioContext.currentTime);
+    oscillator1.frequency.exponentialRampToValueAtTime(440, audioContext.currentTime + 1.5);
+    // Harmonic 2nd (octave above)
+    oscillator2.frequency.setValueAtTime(440, audioContext.currentTime);
+    oscillator2.frequency.exponentialRampToValueAtTime(880, audioContext.currentTime + 1.5);
+    // Harmonic 3rd (fifth above)
+    oscillator3.frequency.setValueAtTime(330, audioContext.currentTime);
+    oscillator3.frequency.exponentialRampToValueAtTime(660, audioContext.currentTime + 1.5);
+    // Envelope: quick attack, long decay for ring effect
+    gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 1.5);
+    oscillator1.start(audioContext.currentTime);
+    oscillator2.start(audioContext.currentTime);
+    oscillator3.start(audioContext.currentTime);
+    oscillator1.stop(audioContext.currentTime + 1.5);
+    oscillator2.stop(audioContext.currentTime + 1.5);
+    oscillator3.stop(audioContext.currentTime + 1.5);
+  } catch (e) { /* non-critical */ }
+}
+
 function tickTimer() {
   const now = new Date();
   const refreshKey = `${dateKey(now.getTime())}:${now.getHours()}:${now.getMinutes()}`;
   if (refreshKey !== lastSubjectBarsRefreshKey) renderSubjectBars();
-
-  if (window.isCustomCountdownActive || (window.selectedTimerDuration && window.selectedTimerDuration > 0)) {
+ if (window.isCustomCountdownActive || (window.selectedTimerDuration && window.selectedTimerDuration > 0)) {
     if (typeof window.syncDashboardTrackerTimer === 'function') window.syncDashboardTrackerTimer();
     return;
   }
@@ -307,6 +359,7 @@ function tickTimer() {
   if (!timerDisplay) return;
   if (!state.activeSession) {
     timerDisplay.textContent = '00:00:00';
+    playTimerBeep();
     if (timerSub && !timerSub.textContent.trim()) {
       timerSub.innerHTML = 'Select a subject and duration to begin focus session';
     }
@@ -1111,6 +1164,9 @@ function startCustomCountdown() {
 function stopCustomCountdown(isCompleted = false) {
   clearInterval(customCountdownInterval);
   window.isCustomCountdownActive = false;
+
+  // Professional ring/beep when timer ends
+  playTimerRing();
 
   const display = document.getElementById('timerDisplay');
   const startBtn = document.getElementById('startBtn');

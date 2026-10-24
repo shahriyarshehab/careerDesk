@@ -48,40 +48,14 @@ main:has(#panel-groupchat.active) {
   height: 100%;
   max-height: 100%;
   overflow: hidden;
-}
-
-#panel-groupchat > .panel-header-row {
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 7px 16px;
-  margin-bottom: 8px;
-  border-radius: 14px;
-  background: linear-gradient(120deg, rgba(30,41,59,.85), rgba(15,23,42,.7));
-  border: 1px solid rgba(129,140,248,.22);
-  box-shadow: 0 4px 16px rgba(2,6,23,.14);
-}
-
-#panel-groupchat > .panel-header-row .section-title {
-  font-size: 17px;
-  margin: 0;
-  letter-spacing: -.03em;
-}
-
-#panel-groupchat > .panel-header-row .panel-subtitle {
-  font-size: 11px;
-  margin: 1px 0 0;
-  color: var(--text-soft);
-}
-
-#groupchatAuthRequired[hidden],
+}#groupchatAuthRequired[hidden],
 #groupchatApp[hidden],
 #groupchatComposer[hidden] {
   display: none !important;
 }
 
 .groupchat-invite-landing[hidden] { display: none !important; }
+
 .groupchat-invite-landing {
   display: grid;
   grid-template-columns: 42px minmax(0, 1fr) auto;
@@ -94,6 +68,7 @@ main:has(#panel-groupchat.active) {
   background: var(--surface);
   box-shadow: 0 8px 24px rgba(2, 6, 23, .12);
 }
+
 .groupchat-invite-mark {
   width: 38px;
   height: 38px;
@@ -104,8 +79,11 @@ main:has(#panel-groupchat.active) {
   background: linear-gradient(135deg, var(--accent1), var(--accent2));
   color: #fff;
 }
+
 .groupchat-invite-mark svg { width: 19px; height: 19px; }
+
 .groupchat-invite-copy { min-width: 0; }
+
 .groupchat-invite-eyebrow {
   display: block;
   margin-bottom: 2px;
@@ -114,6 +92,7 @@ main:has(#panel-groupchat.active) {
   font-weight: 700;
   letter-spacing: .08em;
 }
+
 .groupchat-invite-copy h3 {
   margin: 0;
   color: var(--text);
@@ -121,6 +100,7 @@ main:has(#panel-groupchat.active) {
   line-height: 1.35;
   overflow-wrap: anywhere;
 }
+
 .groupchat-invite-copy p {
   margin: 2px 0 0;
   color: var(--text-soft);
@@ -128,6 +108,7 @@ main:has(#panel-groupchat.active) {
   line-height: 1.45;
   overflow-wrap: anywhere;
 }
+
 .groupchat-invite-action { flex-shrink: 0; }
 
 @media (max-width: 560px) {
@@ -138,6 +119,15 @@ main:has(#panel-groupchat.active) {
   }
   .groupchat-invite-mark { width: 36px; height: 36px; }
   .groupchat-invite-action { grid-column: 1 / -1; width: 100%; justify-content: center; }
+}
+
+@media (min-width: 1000px) {
+  body:has(#panel-groupchat.active) main:has(#panel-groupchat.active) {
+    width: auto !important; max-width: none !important;
+    margin-right: 0 !important; margin-bottom: 0 !important;
+    padding: calc(var(--cd-topbar-height, 68px) + 8px) 0 0 !important;
+    height: 100dvh !important; max-height: 100dvh !important;
+  }
 }
 
 /* ================================================================
@@ -2036,12 +2026,7 @@ html[data-theme="light"] .chat-bubble:not(.me) {
     }
   }
 
-  #panel-groupchat > .panel-header-row {
-    display: none !important;
-  }
-}
-
-@media (max-width: 820px) {
+  @media (max-width: 820px) {
   .groupchat-shell {
     grid-template-columns: 260px 1fr;
     gap: 8px;

@@ -1565,7 +1565,6 @@ function initGroupChat() {
   if (groupChatState.initialized) { renderGroupChatAuth(); return; }
   groupChatState.initialized = true;
   const search = document.getElementById('groupchatSearchInput');
-  const createButton = document.getElementById('groupchatCreateBtn');
   const loginButton = document.getElementById('groupchatLoginBtn');
   const createForm = document.getElementById('groupchatCreateForm');
   const composer = document.getElementById('groupchatComposer');
@@ -1610,18 +1609,6 @@ function initGroupChat() {
       }
     });
   });
-  if (createButton) {
-    createButton.dataset.groupchatBound = 'true';
-    createButton.addEventListener('click', async () => {
-    try {
-      await groupChatAuthUser();
-      openGroupChatCreateModal();
-    } catch (error) {
-      groupChatError(error, 'Please sign in first.');
-      if (typeof openAuthModal === 'function') openAuthModal('login');
-    }
-    });
-  }
   if (loginButton) loginButton.addEventListener('click', () => { if (typeof openAuthModal === 'function') openAuthModal('login'); });
   if (createForm) createForm.addEventListener('submit', async event => {
     event.preventDefault();

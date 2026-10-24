@@ -435,17 +435,14 @@
           <div class="timer-duration-selector" id="timerDurationSelector" aria-label="Select timer duration">
             <div class="timer-duration-group" id="studyDurationOptions">
               <button class="chip timer-dur-chip active" data-duration="0" type="button">Stopwatch</button>
-              <button class="chip timer-dur-chip" data-duration="15" type="button">15m</button>
-              <button class="chip timer-dur-chip" data-duration="25" type="button">25m (Pomodoro)</button>
-              <button class="chip timer-dur-chip" data-duration="45" type="button">45m Deep Work</button>
+              <button class="chip timer-dur-chip" data-duration="30" type="button">30m</button>
               <button class="chip timer-dur-chip" data-duration="60" type="button">60m</button>
+              <button class="chip timer-dur-chip" data-duration="90" type="button">1.5h</button>
+              <button class="chip timer-dur-chip" data-duration="120" type="button">2h</button>
             </div>
             <div class="timer-duration-group" id="breakDurationOptions" hidden>
               <button class="chip timer-dur-chip active" data-duration="5" type="button">5m</button>
-              <button class="chip timer-dur-chip" data-duration="10" type="button">10m</button>
               <button class="chip timer-dur-chip" data-duration="15" type="button">15m</button>
-              <button class="chip timer-dur-chip" data-duration="20" type="button">20m</button>
-              <button class="chip timer-dur-chip" data-duration="30" type="button">30m</button>
             </div>
           </div>
           <div class="clock-orb" id="clockOrb" style="margin-top:16px;">
@@ -844,13 +841,7 @@
 
     <!-- ===== GROUP CHAT ===== -->
     <section class="panel" id="panel-groupchat">
-      <div class="panel-header-row">
-        <div>
-          <h2 class="section-title" style="margin-bottom:4px;">Group Chat</h2>
-          <p class="panel-subtitle">Join public study groups and learn together.</p>
-        </div>
-        <button class="pill solid" id="groupchatCreateBtn" type="button"><i data-lucide="plus"></i><span>Create Group</span></button>
-      </div>
+      <h2 class="sr-only" id="groupchatSectionTitle">Group Chat</h2>
       <div id="groupchatInviteLanding" class="groupchat-invite-landing" role="region" aria-live="polite" hidden>
         <div class="groupchat-invite-mark"><i data-lucide="users-round"></i></div>
         <div class="groupchat-invite-copy">
