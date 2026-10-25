@@ -439,6 +439,18 @@
       const running = !!(state.activeSession || window.isCustomCountdownActive);
 
       if (display && actualDisplay) display.textContent = actualDisplay.textContent;
+      if (typeof window.updateCareerDeskTimerRings === 'function') {
+        const durationSeconds = Number(window.selectedTimerDuration || 0) * 60;
+        const countdownActive = !!window.isCustomCountdownActive && durationSeconds > 0;
+        const stopwatchActive = !!state.activeSession && mode !== 'break';
+        const ringTotal = countdownActive ? durationSeconds : 60;
+        const countdownMatch = /^([0-9]{1,3}):([0-5][0-9])$/.exec(actualDisplay?.textContent?.trim() || '');
+        const displayedCountdown = countdownMatch ? Number(countdownMatch[1]) * 60 + Number(countdownMatch[2]) : 0;
+        const ringRemaining = countdownActive
+          ? displayedCountdown
+          : stopwatchActive ? Math.max(0, 60 - (Math.floor((Date.now() - Number(state.activeSession.start)) / 1000) % 60)) : 0;
+        window.updateCareerDeskTimerRings(ringRemaining, ringTotal, countdownActive || stopwatchActive);
+      }
       if (start) {
         start.hidden = running;
         start.disabled = actualStart ? actualStart.disabled : false;
