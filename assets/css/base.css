@@ -278,13 +278,6 @@
     flex-shrink: 0;
   }
 
-  .mini-timer-widget:hover {
-    background: rgba(6, 182, 212, 0.18);
-    border-color: var(--accent2);
-    transform: translateY(-1px);
-    box-shadow: 0 4px 14px rgba(6, 182, 212, 0.2);
-  }
-
   .mini-timer-dot {
     width: 7px;
     height: 7px;

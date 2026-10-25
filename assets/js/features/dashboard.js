@@ -439,6 +439,11 @@
       const running = !!(state.activeSession || window.isCustomCountdownActive);
 
       if (display && actualDisplay) display.textContent = actualDisplay.textContent;
+      const trackerOrb = document.getElementById('clockOrb');
+      const dbOrb = document.getElementById('dbTimerRingContainer');
+      if (dbOrb && trackerOrb) {
+        dbOrb.style.setProperty('--glow-angle', trackerOrb.style.getPropertyValue('--glow-angle') || '0deg');
+      }
       if (typeof window.syncCareerDeskTimerRings === 'function') window.syncCareerDeskTimerRings();
       if (start) {
         start.hidden = running;
@@ -452,6 +457,10 @@
         if (stopLabel) stopLabel.textContent = mode === 'break' ? 'Finish Break' : 'Finish Session';
       }
 
+      const timerSwitchGroups = new Map();
+      card.querySelectorAll('.db-timer-modes').forEach(group => {
+        timerSwitchGroups.set(group, group.querySelector('.db-timer-mode-btn.active'));
+      });
       card.querySelectorAll('[data-dashboard-timer-mode]').forEach(button => {
         button.classList.toggle('active', button.dataset.dashboardTimerMode === mode);
       });
@@ -466,6 +475,11 @@
       card.querySelectorAll('[data-dashboard-break-control]').forEach(control => {
         control.hidden = mode !== 'break';
       });
+      if (typeof slideTimerSwitchBubble === 'function') {
+        timerSwitchGroups.forEach((previous, group) => {
+          slideTimerSwitchBubble(previous, group.querySelector('.db-timer-mode-btn.active'));
+        });
+      }
 
       const dashboard = document.getElementById('panel-home');
       const activeStudy = typeof window.getActiveTrackerStudySession === 'function'

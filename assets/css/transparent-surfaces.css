@@ -1,0 +1,89 @@
+/* ==========================================================================
+   CareerDesk — Transparent Surfaces
+   Every content container across the app now shares the same translucent
+   surface as the Group Chat cards: one --surface wash (plus blur) instead of
+   solid --surface-strong fills and opaque gradients.
+   Loaded last from master.css so it beats the per-tab stylesheets and the
+   theme gallery. Modal and sign-in dialog cards are deliberately left out so
+   they keep a readable fill above the dimmed overlay.
+   ========================================================================== */
+
+/* Soften the opaque surface token so any card still driven by it follows the
+   same rule automatically. The --cd-* tokens are left alone on purpose: they
+   also paint selects, <option> popups and small controls, which need a solid
+   fill to stay readable.
+   Vision and Synaptix already ship a translucent tinted --surface, so only
+   the opaque dark/light tokens need softening here. */
+html[data-theme="dark"] {
+  --surface-strong: rgba(255, 255, 255, 0.055);
+}
+
+html[data-theme="light"] {
+  --surface-strong: rgba(255, 255, 255, 0.62);
+}
+
+/* One shared glass surface for every card, panel, widget and row.
+   The html[data-theme] body prefix keeps this above the class-level
+   !important fills in profile.css (e.g. .settings-sync-card,
+   .subjects-manager-card and its light-theme variant). */
+html[data-theme] body :is(
+  /* Shared shells */
+  .glass, .card, .section-shell, .entry-form,
+  /* Dashboard & home */
+  .home-hero, .home-card, .home-widget, .home-stat-card, .home-pillar-card,
+  .home-routine-card, .home-timeline-item, .home-mistake-item,
+  .home-next-routine-strip, .home-motivation-strip, .home-quote-command,
+  .review-card, .notes-v2-hero,
+  .db-kpi-card, .db-plan-card, .db-timer-card, .db-plan-row,
+  /* Routine */
+  .routine-hero, .routine-card, .monthly-routine-card, .routine-empty-card,
+  .routine-table-container,
+  /* Tracker & focus */
+  .tracker-card, .tracker-routine-item, .tracker-routine-track,
+  .session-card, .session-item, .target-card, .onboarding-card,
+  .study-heatmap-card, .activity-box,
+  /* Exam countdown */
+  .countdown-card, .exam-card, .exam-summary-wrapper, .time-box,
+  /* Quiz & flashcards */
+  .mcq-v2-hero, .mcq-v2-switch-row, .mcq-top-bar, .filter-bar, .stat-card,
+  .mcq-card, .mistake-card, .exam-score-hero, .exam-stat-box,
+  .mcq-palette-container,
+  /* Syllabus */
+  .syllabus-card, .category-card, .syllabus-create-card, .syllabus-tip-card,
+  .topic-tile, .category-mini-track,
+  /* Quotes */
+  .quote-ticker, .quote-manager-panel, .quote-manager-card, .quote-manager-box,
+  .quote-manager-item, .quote-item-card, .quote-command-v2, .quote-add-box,
+  /* Profile, subjects & settings */
+  .user-profile-card, .profile-section-card, .profile-stat-card,
+  .profile-track-card, .authenticated-profile-hero, .authenticated-profile-stats,
+  .profile-inline-edit-card, .profile-login-landing, .profile-quote-ticker-top,
+  .profile-hero-quote-bar, .cloud-action-card, .cloud-sync-status-card,
+  .cloud-backup-banner, .data-management-card, .settings-row, .settings-sync-card,
+  .settings-snapshots-card, .settings-json-card, .settings-center-header,
+  .settings-danger-zone, .subjects-page-hero, .subjects-manager-card,
+  .subject-manager-row, .theme-card,
+  /* Notes & security */
+  .note-card, .security-card, .security-module-card, .security-vault-card,
+  .security-trust-strip, .security-audit-item, .privacy-lock-card,
+  /* Group chat */
+  .groupchat-card, .groupchat-info-card, .groupchat-info-hero,
+  .groupchat-group-item, .groupchat-search-item, .groupchat-invite-landing
+) {
+  background: var(--surface) !important;
+  backdrop-filter: blur(14px) saturate(150%);
+  -webkit-backdrop-filter: blur(14px) saturate(150%);
+}
+
+/* State colours stay meaningful on the transparent surface. */
+html[data-theme] body :is(
+  .db-plan-row.is-active, .home-timeline-item.live-now,
+  .groupchat-group-item.active, .track-primary-card.active,
+  .track-subject-chip.active, .stat-streak-card.active-streak
+) {
+  background: color-mix(in srgb, var(--accent2) 12%, var(--surface)) !important;
+}
+
+html[data-theme] body :is(.subject-manager-row.subject-deleted, .home-mistake-item) {
+  background: color-mix(in srgb, var(--accent3) 6%, var(--surface)) !important;
+}

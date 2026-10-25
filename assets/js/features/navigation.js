@@ -51,19 +51,26 @@ document.addEventListener('click', event => {
   if (tab) switchSubjectsWorkspaceTab(tab.dataset.subjectsView);
 });
 
+/* The bubble only animates real switches, not the tab restored on page load. */
+let navTabBubblesEnabled = false;
+
 function activateTab(rawTabName, persist = false) {
   const tabName = normalizeTabName(rawTabName);
-  // Color plate: navigate to separate palette page
-  if (tabName === 'colorplate') {
-    try {
-      window.open('../docs/palette.html', '_blank');
-      return;
-    } catch (e) {}
-  }
   const targetPanel = document.getElementById('panel-' + tabName) ||
     (tabName === 'quiz' ? document.getElementById('panel-flashcards') : null);
   if (!targetPanel) return;
 
+  /* Only containers whose tabs are direct siblings (sidebar rail, dock, More menu)
+     get a travelling bubble; nested wrappers such as <header> are skipped. */
+  const navSwitchGroups = new Map();
+  document.querySelectorAll('.tab-btn').forEach(button => {
+    const parent = button.parentElement;
+    if (!parent || navSwitchGroups.has(parent)) return;
+    const directTabs = parent.querySelectorAll(':scope > .tab-btn');
+    if (directTabs.length > 1 && directTabs.length === parent.querySelectorAll('.tab-btn').length) {
+      navSwitchGroups.set(parent, parent.querySelector('.tab-btn.active'));
+    }
+  });
   document.querySelectorAll('.tab-btn').forEach(button => {
     const isActive = normalizeTabName(button.dataset.tab) === tabName;
     button.classList.toggle('active', isActive);
@@ -75,6 +82,11 @@ function activateTab(rawTabName, persist = false) {
       button.removeAttribute('aria-current');
     }
   });
+  if (navTabBubblesEnabled && typeof slideNavTabBubble === 'function') {
+    navSwitchGroups.forEach((previous, parent) => {
+      slideNavTabBubble(previous, parent.querySelector('.tab-btn.active'));
+    });
+  }
   document.querySelectorAll('.panel').forEach(panel => {
     panel.classList.toggle('active', panel === targetPanel);
   });
@@ -204,6 +216,7 @@ try {
   const initialTab = normalizeTabName(hashTab || savedTab || 'home');
   if (initialTab) activateTab(initialTab, false);
 } catch (error) { }
+navTabBubblesEnabled = true;
 
 window.addEventListener('hashchange', () => {
   const rawTab = window.location.hash ? window.location.hash.replace('#', '') : 'home';

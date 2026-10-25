@@ -50,11 +50,6 @@ html[data-theme="dark"] body {
   box-shadow: 0 12px 30px rgba(0,0,0,.12), inset 0 1px rgba(255,255,255,.025);
   transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease;
 }
-#panel-home .glass:hover, #panel-home .home-card:hover, #panel-home .review-card:hover {
-  transform: translateY(-2px);
-  border-color: rgba(113,152,255,.38);
-  box-shadow: 0 18px 38px rgba(0,0,0,.19);
-}
 #panel-home .home-next-routine-strip {
   padding: 13px 16px;
   border-radius: 14px;

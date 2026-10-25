@@ -109,13 +109,6 @@ header.main-header {
   transition: border-color .22s ease, transform .22s var(--cd-ease), box-shadow .22s ease;
 }
 
-.home-stat-card:hover, .home-widget:hover, .home-pillar-card:hover,
-.home-routine-card:hover, .review-card:hover, .session-card:hover,
-.target-card:hover, .study-heatmap-card:hover {
-  border-color: color-mix(in srgb, var(--accent1) 34%, var(--border));
-  box-shadow: 0 14px 36px rgba(0,0,0,.10);
-}
-
 .home-stat-value { letter-spacing: -.055em; font-variant-numeric: tabular-nums; }
 .home-widget-header { margin-bottom: 16px; }
 .home-widget-title, .section-title { letter-spacing: -.035em; }
@@ -170,7 +163,6 @@ button.solid:hover, .btn.solid:hover { transform: translateY(-1px); }
 
 .notes-grid { gap: 18px; }
 .note-card { transition: transform .2s var(--cd-ease), box-shadow .2s ease; }
-.note-card:hover { transform: translateY(-3px); }
 
 #panel-notes, #panel-tracker, #panel-countdown, #panel-quiz,
 #panel-syllabus, #panel-groupchat {

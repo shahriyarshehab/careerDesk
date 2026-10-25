@@ -76,12 +76,6 @@
     position: relative;
   }
 
-  .heatmap-cell:hover {
-    transform: scale(1.35);
-    z-index: 5;
-    border-color: #ffffff;
-  }
-
   .heatmap-cell.lvl-0 {
     background: var(--surface-strong);
   }
@@ -149,9 +143,6 @@
 
   .heatmap-legend .heatmap-cell {
     cursor: default;
-  }
-  .heatmap-legend .heatmap-cell:hover {
-    transform: none;
   }
 
   /* Routine Empty State Card */
@@ -283,60 +274,25 @@
     outline-offset: 2px;
   }
 
-  .timer-mode-selector {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
+  /* Mode + duration pickers reuse the Dashboard timer's segmented control
+     (classes live in index.html; sizing/colour comes from dashboard.css). */
+  #timerModeSelector {
     margin-top: 10px;
-    padding: 4px;
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    background: var(--surface-strong);
   }
 
-  .timer-mode-chip {
-    min-width: 82px;
-    padding: 7px 14px;
-    border: 0;
-    border-radius: 10px;
-    background: transparent;
-    color: var(--text-soft);
-    cursor: pointer;
-    font: 700 12px var(--font-sans);
-  }
-
-  .timer-mode-chip.active {
-    background: linear-gradient(135deg, var(--cdp-brand-600), var(--cdp-brand-700));
-    color: #fff;
-    box-shadow: 0 4px 12px rgba(6, 182, 212, 0.2);
-  }
-
-  .timer-duration-selector {
-    display: flex;
-    justify-content: center;
-    gap: 6px;
+  #timerDurationSelector {
     margin-top: 8px;
-    flex-wrap: wrap;
   }
 
-  .timer-duration-group {
-    display: flex;
-    justify-content: center;
-    gap: 6px;
-    flex-wrap: wrap;
-  }
-
-  .timer-duration-group[hidden] {
-    display: none;
-  }
-
-  .session-row[hidden],
-  .timer-duration-selector[hidden] {
+  .session-row[hidden] {
     display: none !important;
   }
 
-  #breakDurationOptions .chip.active {
-    background: linear-gradient(135deg, var(--gold), var(--accent3));
+  /* Breaks stay amber, exactly like the Dashboard timer's break durations. */
+  #breakDurationOptions .timer-dur-chip.active {
+    background: linear-gradient(135deg, var(--cdp-warning), var(--cdp-warning-strong));
+    color: #FFFFFF;
+    box-shadow: 0 6px 16px rgba(245, 158, 11, .28);
   }
 
   .routine-view-btn {
@@ -393,27 +349,6 @@
 #panel-tracker .target-card {
   padding: 26px;
   background: linear-gradient(145deg, color-mix(in srgb, var(--cdp-cyan-400) 10%, transparent), var(--cd-surface));
-}
-
-#panel-tracker .timer-mode-selector,
-#panel-tracker .timer-duration-selector {
-  padding: 5px;
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  background: rgba(255,255,255,.025);
-}
-
-#panel-tracker .clock-orb {
-  width: min(260px, 70vw);
-  height: min(260px, 70vw);
-  margin-inline: auto;
-  border: 1px solid rgba(103,232,249,.3);
-  box-shadow: 0 0 0 12px rgba(6,182,212,.035), 0 0 60px rgba(6,182,212,.14);
-}
-
-#panel-tracker .timer-display {
-  font-size: clamp(32px, 5vw, 48px);
-  letter-spacing: -.06em;
 }
 
 #panel-tracker .activity-box,
@@ -638,14 +573,6 @@
     border-radius: 50%;
     background: var(--bg);
     z-index: -1;
-  }
-
-  .clock-orb.active {
-    animation: orbBreathe 3.2s ease-in-out infinite;
-  }
-
-  .clock-orb.active::before {
-    animation: spin 5s linear infinite;
   }
 
   @keyframes spin {
@@ -887,11 +814,6 @@
     width: 100%;
     box-sizing: border-box;
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
-  }
-
-  .session-item:hover {
-    transform: translateY(-1px);
-    border-color: var(--accent1);
   }
 
   .session-item-header {
@@ -1198,12 +1120,6 @@
     user-select: none;
   }
 
-  .onboarding-subject-item:hover {
-    border-color: rgba(99, 102, 241, 0.5);
-    background: var(--cd-border);
-    transform: translateY(-1px);
-  }
-
   .onboarding-subject-item.selected {
     border-color: var(--accent1);
     background: color-mix(in srgb, var(--cdp-brand-500) 12%, transparent);
@@ -1270,18 +1186,21 @@
 .timer-ring-stop-end { stop-color: var(--cdp-cyan-500); }
 html[data-theme="light"] .timer-ring-stop-start { stop-color: var(--cdp-brand-600); }
 
+/* Ring geometry, glow and readout mirror the Dashboard timer exactly. */
 #panel-tracker .clock-orb {
   position: relative;
   isolation: isolate;
   display: grid;
   place-items: center;
+  justify-content: normal;
+  /* Ring size keeps the original reference geometry. */
   width: min(264px, 68vw);
-  height: auto;
-  aspect-ratio: 1;
+  height: min(264px, 68vw);
   margin: 18px auto 10px;
   border: 0;
   border-radius: 50%;
-  radial-gradient(circle at 50% 42%, color-mix(in srgb, var(--cd-surface-raised) 86%, transparent) 0%, transparent 72%);
+  background: radial-gradient(circle at 50% 50%, rgba(99, 102, 241, .12) 0%, rgba(6, 182, 212, .04) 50%, transparent 72%);
+  filter: drop-shadow(0 0 18px rgba(6, 182, 212, .18));
   box-shadow: none;
   transition: box-shadow .45s ease;
 }
@@ -1297,8 +1216,8 @@ html[data-theme="light"] .timer-ring-stop-start { stop-color: var(--cdp-brand-60
   animation: none;
 }
 
-#panel-tracker .clock-orb.is-running { box-shadow: 0 0 30px color-mix(in srgb, var(--cdp-cyan-500) 16%, transparent); }
-#panel-tracker .clock-orb.is-complete { box-shadow: 0 0 30px color-mix(in srgb, var(--cdp-success-strong) 20%, transparent); }
+#panel-tracker .clock-orb.is-running { box-shadow: 0 0 26px rgba(6, 182, 212, .14); }
+#panel-tracker .clock-orb.is-complete { box-shadow: 0 0 26px rgba(16, 185, 129, .18); }
 
 #panel-tracker .tracker-timer-svg {
   position: absolute;
@@ -1312,7 +1231,10 @@ html[data-theme="light"] .timer-ring-stop-start { stop-color: var(--cdp-brand-60
 #panel-tracker .tracker-timer-track,
 #panel-tracker .tracker-timer-progress { fill: none; stroke-width: 7; }
 
-#panel-tracker .tracker-timer-track { stroke: rgba(148, 163, 184, .2); }
+#panel-tracker .tracker-timer-track {
+  stroke: rgba(148, 163, 184, .2);
+  transition: stroke 300ms ease;
+}
 
 #panel-tracker .tracker-timer-progress {
   stroke: url(#trackerRingGradient);
@@ -1320,66 +1242,54 @@ html[data-theme="light"] .timer-ring-stop-start { stop-color: var(--cdp-brand-60
   stroke-dasharray: 515.22;
   stroke-dashoffset: 515.22;
   transition: stroke-dashoffset .45s linear;
-  filter: drop-shadow(0 0 6px rgba(6, 182, 212, .28));
+  filter: drop-shadow(0 0 6px rgba(6, 182, 212, .26));
 }
 
 #panel-tracker .clock-orb.is-running .tracker-timer-progress {
-  filter: drop-shadow(0 0 8px rgba(6, 182, 212, .42));
-}
-
-#panel-tracker .tracker-timer-glow-dot {
-  position: absolute;
-  left: 50%;
-  bottom: 9%;
-  width: 9px;
-  height: 9px;
-  border-radius: 50%;
-  background: #fff;
-  transform: translate(-50%, 50%);
-  pointer-events: none;
-  opacity: .32;
-  transition: opacity .3s ease;
-  box-shadow: 0 0 8px 3px var(--cdp-white), 0 0 20px 6px var(--cdp-cyan-500);
-}
-
-#panel-tracker .clock-orb.is-running .tracker-timer-glow-dot {
-  opacity: 1;
-  animation: careerDeskTimerDotPulse 2s ease-in-out infinite;
+  filter: drop-shadow(0 0 8px rgba(6, 182, 212, .4));
 }
 
 #panel-tracker .timer-center {
-  position: relative;
+  position: absolute;
+  inset: 0;
   z-index: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 3px;
-  padding: 0 14px;
+  justify-content: center;
+  gap: 2px;
+  padding: 0 10px;
   text-align: center;
 }
 
 #panel-tracker .timer-display {
-  font-size: clamp(32px, 9vw, 46px) !important;
-  letter-spacing: -.045em !important;
-  line-height: 1.05 !important;
+  font-size: 32px !important;
+  letter-spacing: -.03em !important;
+  line-height: 1 !important;
+  background: linear-gradient(180deg, #FFFFFF 25%, #CBD5E1 100%) !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, .45));
+}
+
+html[data-theme="light"] #panel-tracker .timer-display {
+  background: linear-gradient(180deg, #0F172A 25%, #475569 100%) !important;
+  filter: drop-shadow(0 2px 8px rgba(15, 23, 42, .18));
 }
 
 #panel-tracker .timer-ring-label {
-  font-size: 11px;
+  font-size: 9.5px;
   font-weight: 700;
-  letter-spacing: .085em;
+  letter-spacing: .08em;
   text-transform: uppercase;
   color: var(--text-soft, #94a3b8);
 }
 
 #panel-tracker .timer-ring-meta {
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 600;
   color: color-mix(in srgb, var(--text-soft, #94a3b8) 78%, transparent);
-}
-
-html[data-theme="light"] #panel-tracker .clock-orb {
-  radial-gradient(circle at 50% 42%, rgba(255, 255, 255, .95) 0%, transparent 72%);
 }
 
 html[data-theme="light"] #panel-tracker .tracker-timer-track { stroke: rgba(100, 116, 139, .22); }
@@ -1387,17 +1297,12 @@ html[data-theme="light"] #panel-tracker .tracker-timer-track { stroke: rgba(100,
 @media (max-width: 420px) {
   #panel-tracker .clock-orb {
     width: min(236px, 64vw) !important;
-    height: auto !important;
+    height: min(236px, 64vw) !important;
     margin: 14px auto 8px;
   }
   #panel-tracker .timer-display { font-size: clamp(30px, 9vw, 38px) !important; }
 }
 
-@keyframes careerDeskTimerDotPulse {
-  50% { box-shadow: 0 0 5px 2px rgba(255, 255, 255, .4), 0 0 12px 4px rgba(6, 182, 212, .16); }
-}
-
 @media (prefers-reduced-motion: reduce) {
   #panel-tracker .tracker-timer-progress { transition: none; }
-  #panel-tracker .clock-orb.is-running .tracker-timer-glow-dot { animation: none; }
 }

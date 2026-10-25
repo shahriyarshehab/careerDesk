@@ -100,11 +100,6 @@ html[data-theme="light"] .security-audit-item {
   background: rgba(255, 255, 255, 0.8);
 }
 
-.security-audit-item:hover {
-  border-color: rgba(16, 185, 129, 0.4);
-  transform: translateY(-1px);
-}
-
 .audit-item-info {
   display: flex;
   align-items: center;

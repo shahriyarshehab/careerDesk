@@ -56,7 +56,6 @@
         aria-label="Syllabus"><i data-lucide="list-checks"></i><span>Syllabus</span></button>
       <button class="tab-btn nav-link" data-tab="groupchat" role="tab" aria-selected="false" title="Group Chat"
         aria-label="Group Chat"><i data-lucide="messages-square"></i><span>Chat</span></button>
-      <button class="tab-btn nav-link" data-tab="colorplate" role="tab" aria-selected="false" title="Color Plate" aria-label="Color Plate"><i data-lucide="sparkles"></i><span>Palette</span></button>
 
     </nav>
 
@@ -95,9 +94,6 @@
       </button>
       <button class="tab-btn nav-link sidebar-settings-link" data-tab="settings" type="button" title="Settings &amp; Sync" aria-label="Settings and sync">
         <i data-lucide="settings-2"></i><span>Settings &amp; Sync</span>
-      </button>
-      <button class="pill solid" title="Color Plate" aria-label="Color Plate" style="flex-shrink:0;">
-        <i data-lucide="sparkles"></i><span>Palette</span>
       </button>
       <button class="icon-action-btn watch-action" id="watchFullscreenToggle" type="button" title="Enter fullscreen" aria-label="Toggle Fullscreen" style="display:none;">
         <i data-lucide="maximize"></i>
@@ -290,17 +286,14 @@
             </div>
             <div class="db-timer-modes db-timer-durations" data-dashboard-study-control aria-label="Study duration">
               <button class="db-timer-mode-btn active" data-dashboard-timer-duration="0" type="button">Stopwatch</button>
-              <button class="db-timer-mode-btn" data-dashboard-timer-duration="15" type="button">15m</button>
-              <button class="db-timer-mode-btn" data-dashboard-timer-duration="25" type="button">25m</button>
-              <button class="db-timer-mode-btn" data-dashboard-timer-duration="45" type="button">45m</button>
-              <button class="db-timer-mode-btn" data-dashboard-timer-duration="60" type="button">1h</button>
+              <button class="db-timer-mode-btn" data-dashboard-timer-duration="30" type="button">30m</button>
+              <button class="db-timer-mode-btn" data-dashboard-timer-duration="60" type="button">60m</button>
+              <button class="db-timer-mode-btn" data-dashboard-timer-duration="90" type="button">1.5h</button>
+              <button class="db-timer-mode-btn" data-dashboard-timer-duration="120" type="button">2h</button>
             </div>
             <div class="db-timer-modes db-timer-durations" data-dashboard-break-control hidden aria-label="Break duration">
               <button class="db-timer-mode-btn active" data-dashboard-timer-duration="5" type="button">5m</button>
-              <button class="db-timer-mode-btn" data-dashboard-timer-duration="10" type="button">10m</button>
               <button class="db-timer-mode-btn" data-dashboard-timer-duration="15" type="button">15m</button>
-              <button class="db-timer-mode-btn" data-dashboard-timer-duration="20" type="button">20m</button>
-              <button class="db-timer-mode-btn" data-dashboard-timer-duration="30" type="button">30m</button>
             </div>
             <div class="db-timer-ring-container" data-careerdesk-timer-ring-container>
               <svg class="db-timer-svg" viewBox="0 0 200 200" role="img" aria-label="Session progress">
@@ -313,7 +306,6 @@
                 <circle class="db-timer-track" cx="100" cy="100" r="82" fill="none" stroke-width="7"></circle>
                 <circle class="db-timer-progress" data-careerdesk-timer-ring cx="100" cy="100" r="82" fill="none" stroke-width="7"></circle>
               </svg>
-              <span class="db-timer-glow-dot" aria-hidden="true"></span>
               <div class="db-timer-center-content">
                 <div class="db-timer-digits" id="dbTimerDigits">00:00:00</div>
                 <div class="db-timer-ring-label" data-careerdesk-timer-label>Ready to focus</div>
@@ -390,14 +382,7 @@
               </div>
 
               <!-- Compact Header Action Buttons -->
-              <div class="routine-actions" style="display:flex; gap:8px;">
-                <button type="button" class="pill subtle" id="routineLoadDefaultsBtn" title="Load Default Routine" aria-label="Load default routine">
-                  <i data-lucide="layout-dashboard"></i> Default
-                </button>
-                <button type="button" class="pill subtle" id="routineSameDayBtn" title="Same as Yesterday" aria-label="Same as yesterday routine">
-                  <i data-lucide="calendar"></i> Same Day
-                </button>
-              </div>
+              <div class="routine-actions" style="display:none;"></div>
             </div>
           </div>
 
@@ -431,11 +416,11 @@
           <button class="db-action-link tracker-dashboard-link" type="button" onclick="activateTab('home', true)" title="Use the shared timer from Dashboard">
             <i data-lucide="layout-dashboard"></i><span>Dashboard timer</span>
           </button>
-          <div class="timer-mode-selector segmented-toggle-group" id="timerModeSelector" aria-label="Choose timer mode">
-            <button class="chip timer-mode-chip btn-mode-switch active" data-mode="study" type="button">
+          <div class="db-timer-modes" id="timerModeSelector" aria-label="Choose timer mode">
+            <button class="db-timer-mode-btn timer-mode-chip active" data-mode="study" type="button">
               <i data-lucide="book-open"></i> <span>Study</span>
             </button>
-            <button class="chip timer-mode-chip btn-mode-switch" data-mode="break" type="button">
+            <button class="db-timer-mode-btn timer-mode-chip" data-mode="break" type="button">
               <i data-lucide="coffee"></i> <span>Break</span>
             </button>
           </div>
@@ -453,17 +438,17 @@
               <option value="Other">Other</option>
             </select>
           </div>
-          <div class="timer-duration-selector" id="timerDurationSelector" aria-label="Select timer duration">
-            <div class="timer-duration-group" id="studyDurationOptions">
-              <button class="chip timer-dur-chip active" data-duration="0" type="button">Stopwatch</button>
-              <button class="chip timer-dur-chip" data-duration="30" type="button">30m</button>
-              <button class="chip timer-dur-chip" data-duration="60" type="button">1h</button>
-              <button class="chip timer-dur-chip" data-duration="90" type="button">1.5h</button>
-              <button class="chip timer-dur-chip" data-duration="120" type="button">2h</button>
+          <div id="timerDurationSelector" aria-label="Select timer duration">
+            <div class="db-timer-modes db-timer-durations" id="studyDurationOptions">
+              <button class="db-timer-mode-btn timer-dur-chip active" data-duration="0" type="button">Stopwatch</button>
+              <button class="db-timer-mode-btn timer-dur-chip" data-duration="30" type="button">30m</button>
+              <button class="db-timer-mode-btn timer-dur-chip" data-duration="60" type="button">60m</button>
+              <button class="db-timer-mode-btn timer-dur-chip" data-duration="90" type="button">1.5h</button>
+              <button class="db-timer-mode-btn timer-dur-chip" data-duration="120" type="button">2h</button>
             </div>
-            <div class="timer-duration-group" id="breakDurationOptions" hidden>
-              <button class="chip timer-dur-chip active" data-duration="5" type="button">5m</button>
-              <button class="chip timer-dur-chip" data-duration="15" type="button">15m</button>
+            <div class="db-timer-modes db-timer-durations" id="breakDurationOptions" hidden>
+              <button class="db-timer-mode-btn timer-dur-chip active" data-duration="5" type="button">5m</button>
+              <button class="db-timer-mode-btn timer-dur-chip" data-duration="15" type="button">15m</button>
             </div>
           </div>
           <div class="clock-orb" id="clockOrb" data-careerdesk-timer-ring-container style="margin-top:16px;">
@@ -477,7 +462,6 @@
               <circle class="tracker-timer-track" cx="100" cy="100" r="82"></circle>
               <circle class="tracker-timer-progress" data-careerdesk-timer-ring cx="100" cy="100" r="82"></circle>
             </svg>
-            <span class="tracker-timer-glow-dot" aria-hidden="true"></span>
             <div class="timer-center">
               <div class="timer-display" id="timerDisplay">00:00:00</div>
               <div class="timer-ring-label" data-careerdesk-timer-label>Ready to focus</div>
@@ -1227,18 +1211,101 @@
                 </div>
               </div>
 
-              <div class="settings-row">
-                <div>
-                  <strong style="font-size:14.5px; display:block; color:var(--text); margin-bottom:2px;">Appearance</strong>
-                  <span style="font-size:12.5px; color:var(--text-soft);">Choose the workspace color theme.</span>
+              <!-- Workspace Theme Gallery -->
+              <div class="settings-row" style="flex-direction:column; align-items:flex-start; gap:14px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; width:100%; flex-wrap:wrap; gap:8px;">
+                  <div>
+                    <strong style="font-size:15px; display:block; color:var(--text); margin-bottom:2px;">Workspace Theme Style</strong>
+                    <span style="font-size:12.5px; color:var(--text-soft);">Select your preferred glassmorphism aesthetic and ambient color scheme.</span>
+                  </div>
+                  <div class="theme-mode-toggle-group" role="group" aria-label="Quick theme switch">
+                    <button type="button" class="btn-mode-switch" id="themeDarkBtn" aria-pressed="false" title="Dark Mode">
+                      <i data-lucide="moon" aria-hidden="true"></i><span>Dark</span>
+                    </button>
+                    <button type="button" class="btn-mode-switch" id="themeLightBtn" aria-pressed="false" title="Light Mode">
+                      <i data-lucide="sun" aria-hidden="true"></i><span>Light</span>
+                    </button>
+                  </div>
                 </div>
-                <div class="theme-mode-toggle-group" role="group" aria-label="Color theme">
-                  <button type="button" class="btn-mode-switch" id="themeDarkBtn" aria-pressed="false">
-                    <i data-lucide="moon" aria-hidden="true"></i><span>Dark</span>
-                  </button>
-                  <button type="button" class="btn-mode-switch" id="themeLightBtn" aria-pressed="false">
-                    <i data-lucide="sun" aria-hidden="true"></i><span>Light</span>
-                  </button>
+
+                <div class="settings-theme-gallery" style="width:100%;">
+                  <div class="theme-card-grid">
+                    <!-- 1. Vision Frosted (Netflix Obsidian Glass) -->
+                    <div class="theme-card" data-set-theme="vision" role="button" tabindex="0" aria-label="Select Vision Frosted Theme">
+                      <div class="theme-card-banner theme-preview-vision">
+                        <div class="theme-card-dots">
+                          <span class="theme-dot" style="background:#E50914; color:#E50914;"></span>
+                          <span class="theme-dot" style="background:#10B981; color:#10B981;"></span>
+                          <span class="theme-dot" style="background:#F59E0B; color:#F59E0B;"></span>
+                        </div>
+                        <span class="theme-card-badge">Vision OS</span>
+                      </div>
+                      <div class="theme-card-body">
+                        <div class="theme-card-title">
+                          <span>Vision Frosted</span>
+                          <i data-lucide="check-circle-2" class="theme-card-check"></i>
+                        </div>
+                        <span class="theme-card-desc">Obsidian charcoal frosted glass with specular rims, cinematic red &amp; emerald match accents.</span>
+                      </div>
+                    </div>
+
+                    <!-- 2. Synaptix Cyber (Deep Violet) -->
+                    <div class="theme-card" data-set-theme="synaptix" role="button" tabindex="0" aria-label="Select Synaptix Cyber Theme">
+                      <div class="theme-card-banner theme-preview-synaptix">
+                        <div class="theme-card-dots">
+                          <span class="theme-dot" style="background:#A855F7; color:#A855F7;"></span>
+                          <span class="theme-dot" style="background:#38BDF8; color:#38BDF8;"></span>
+                          <span class="theme-dot" style="background:#EC4899; color:#EC4899;"></span>
+                        </div>
+                        <span class="theme-card-badge">Cyber AI</span>
+                      </div>
+                      <div class="theme-card-body">
+                        <div class="theme-card-title">
+                          <span>Synaptix Cyber</span>
+                          <i data-lucide="check-circle-2" class="theme-card-check"></i>
+                        </div>
+                        <span class="theme-card-desc">Deep midnight violet canvas with electric purple to cyan gradients &amp; glowing neon auras.</span>
+                      </div>
+                    </div>
+
+                    <!-- 3. Classic Cyber Indigo -->
+                    <div class="theme-card" data-set-theme="dark" role="button" tabindex="0" aria-label="Select Classic Indigo Theme">
+                      <div class="theme-card-banner theme-preview-dark">
+                        <div class="theme-card-dots">
+                          <span class="theme-dot" style="background:#6366F1; color:#6366F1;"></span>
+                          <span class="theme-dot" style="background:#06B6D4; color:#06B6D4;"></span>
+                          <span class="theme-dot" style="background:#3B82F6; color:#3B82F6;"></span>
+                        </div>
+                        <span class="theme-card-badge">Default</span>
+                      </div>
+                      <div class="theme-card-body">
+                        <div class="theme-card-title">
+                          <span>Classic Indigo</span>
+                          <i data-lucide="check-circle-2" class="theme-card-check"></i>
+                        </div>
+                        <span class="theme-card-desc">Deep navy glassmorphism with indigo &amp; cyan glowing highlights and ambient mesh lights.</span>
+                      </div>
+                    </div>
+
+                    <!-- 4. Frosted White (Light) -->
+                    <div class="theme-card" data-set-theme="light" role="button" tabindex="0" aria-label="Select Frosted White Theme">
+                      <div class="theme-card-banner theme-preview-light">
+                        <div class="theme-card-dots">
+                          <span class="theme-dot" style="background:#4F46E5; color:#4F46E5;"></span>
+                          <span class="theme-dot" style="background:#0891B2; color:#0891B2;"></span>
+                          <span class="theme-dot" style="background:#94A3B8; color:#94A3B8;"></span>
+                        </div>
+                        <span class="theme-card-badge" style="background:rgba(0,0,0,0.06); color:#334155; border-color:rgba(0,0,0,0.1);">Daylight</span>
+                      </div>
+                      <div class="theme-card-body">
+                        <div class="theme-card-title">
+                          <span>Frosted White</span>
+                          <i data-lucide="check-circle-2" class="theme-card-check"></i>
+                        </div>
+                        <span class="theme-card-desc">Clean daylight frosted white glass with high readability, subtle slate text and indigo borders.</span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
 

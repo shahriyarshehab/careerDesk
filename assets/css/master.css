@@ -32,3 +32,7 @@
 
 /* CareerDesk brand color plate: load last so buttons and accents resolve to it */
 @import url('palette.css');
+@import url('themes-gallery.css');
+
+/* Transparent glass surfaces: loaded last so every tab shares the Group Chat card fill */
+@import url('transparent-surfaces.css');

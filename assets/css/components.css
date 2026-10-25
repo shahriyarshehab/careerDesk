@@ -780,11 +780,6 @@
     position: relative;
   }
 
-  .preview-control-capsule:hover {
-    border-color: rgba(99, 102, 241, 0.4);
-    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.28), 0 0 24px rgba(99, 102, 241, 0.18);
-  }
-
   .preview-control-capsule .control-item {
     height: 100%;
     display: inline-flex;
@@ -936,16 +931,15 @@ html[data-theme="light"] .toggle-form-btn:focus-visible {
   border: 0;
 }
 
+/* Loading placeholders. Every theme (dark, light, vision, synaptix) supplies
+   --skeleton-base / --skeleton-shine, so the same markup reads correctly in all
+   of them; the fallbacks keep any future theme usable too. */
 .skeleton {
   position: relative;
   display: block;
   overflow: hidden;
   border-radius: 8px;
-  background: rgba(148, 163, 184, 0.16);
-}
-
-html[data-theme="light"] .skeleton {
-  background: rgba(100, 116, 139, 0.18);
+  background: var(--skeleton-base, rgba(148, 163, 184, 0.16));
 }
 
 .skeleton::after {
@@ -953,12 +947,8 @@ html[data-theme="light"] .skeleton {
   position: absolute;
   inset: 0;
   transform: translateX(-100%);
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.14), transparent);
+  background: linear-gradient(90deg, transparent, var(--skeleton-shine, rgba(255, 255, 255, 0.14)), transparent);
   animation: skeleton-sweep 1.4s ease-in-out infinite;
-}
-
-html[data-theme="light"] .skeleton::after {
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.75), transparent);
 }
 
 @keyframes skeleton-sweep {
@@ -981,3 +971,21 @@ html[data-theme="light"] .skeleton::after {
   .skeleton::after { animation: none; opacity: 0; }
 }
 
+
+/* Liquid switch bubble, shared by the timer switches and the nav tabs. Its size,
+   colour, radius and position are set by slideSwitchBubble() in core.js. */
+.switch-bubble {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 3;
+  pointer-events: none;
+  will-change: transform;
+}
+
+/* Fallback fill for tabs whose active state is an indicator, not a background
+   (the mobile dock). */
+.nav-tab-bubble {
+  border-radius: 12px;
+  background: linear-gradient(135deg, #6366f1, #06b6d4);
+}

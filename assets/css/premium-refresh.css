@@ -127,6 +127,15 @@ main {
   border-radius: var(--cd-radius-md);
 }
 
+:where(.glass, .section-shell, .routine-hero, .routine-card, .note-card,
+       .stat-card, .monthly-routine-card, .exam-card, .countdown-card,
+       .syllabus-card, .category-card, .profile-card, .tracker-card,
+       .mcq-card, .quiz-card, .quote-ticker, .entry-form,
+       .home-card, .home-widget, .home-routine-card, .session-card, .target-card) {
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
 .glass {
   background: var(--surface);
   backdrop-filter: blur(16px);
@@ -143,11 +152,6 @@ main {
 }
 
 @media (hover: hover) {
-  :where(.note-card, .monthly-routine-card, .stat-card):hover {
-    transform: translateY(-2px);
-    border-color: color-mix(in srgb, var(--accent1) 40%, var(--border));
-    box-shadow: 0 16px 32px rgba(0, 0, 0, .10);
-  }
 }
 
 :where(button, .btn, .pill, .micro-btn, .toggle-form-btn, .routine-view-btn) {

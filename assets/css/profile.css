@@ -75,12 +75,6 @@
   transition: border-color .18s ease, background .18s ease, transform .18s ease;
 }
 
-#panel-profile .cloud-action-card:hover {
-  transform: translateY(-2px);
-  border-color: rgba(103,232,249,.42);
-  background: rgba(6,182,212,.06);
-}
-
 #panel-profile .data-action-buttons,
 #panel-profile .settings-btn-group {
   flex-wrap: wrap;
@@ -138,7 +132,6 @@
 .authenticated-profile-hero .profile-hero-left { animation: profileContentIn .8s .15s both; }
 .authenticated-profile-hero .profile-hero-right { animation: profileContentIn .8s .28s both; }
 .authenticated-profile-stats .profile-stat-card { transition: transform .25s ease, border-color .25s ease, box-shadow .25s ease; }
-.authenticated-profile-stats .profile-stat-card:hover { transform: translateY(-5px); border-color: rgba(6,182,212,.42) !important; box-shadow: 0 14px 28px rgba(6,182,212,.1); }
 @keyframes profilePanelRise { from { opacity: 0; transform: translateY(16px) scale(.985); } to { opacity: 1; transform: translateY(0) scale(1); } }
 @keyframes profileContentIn { from { opacity: 0; transform: translateX(-12px); } to { opacity: 1; transform: translateX(0); } }
 @keyframes profileLogoFloat { 0%,100% { transform: translateY(0) rotate(0); } 50% { transform: translateY(-3px) rotate(2deg); } }
@@ -1324,29 +1317,14 @@ html[data-theme="light"] .profile-card-body {
   text-align: left;
 }
 
-.cloud-action-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 8px 24px rgba(0,0,0,0.15);
-}
-
 .cloud-action-card.upload-card {
   background: linear-gradient(135deg, rgba(99,102,241,0.1), rgba(6,182,212,0.08));
   border-color: rgba(99,102,241,0.28);
 }
 
-.cloud-action-card.upload-card:hover {
-  border-color: var(--accent1);
-  box-shadow: 0 8px 24px rgba(99,102,241,0.2);
-}
-
 .cloud-action-card.restore-card {
   background: linear-gradient(135deg, rgba(16,185,129,0.08), rgba(6,182,212,0.06));
   border-color: rgba(16,185,129,0.25);
-}
-
-.cloud-action-card.restore-card:hover {
-  border-color: #10b981;
-  box-shadow: 0 8px 24px rgba(16,185,129,0.18);
 }
 
 .cloud-action-icon {
@@ -1403,12 +1381,6 @@ html[data-theme="light"] .profile-card-body {
   border: 1px solid var(--border);
   text-align: center;
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.profile-stat-card:hover {
-  transform: translateY(-2px);
-  border-color: rgba(99,102,241,0.4);
-  box-shadow: 0 6px 18px rgba(0,0,0,0.15);
 }
 
 .profile-stat-val {
@@ -2563,11 +2535,6 @@ html[data-theme="light"] .auth-guest-landing-card {
   background: var(--surface);
   border: 1px solid var(--border);
   transition: transform 0.2s ease, border-color 0.2s ease;
-}
-
-.auth-feature-card:hover {
-  transform: translateY(-2px);
-  border-color: rgba(99, 102, 241, 0.35);
 }
 
 .auth-feature-icon {
@@ -3880,12 +3847,6 @@ html[data-theme="light"] .inline-auth-container .verification-view {
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.track-metric-card:hover {
-  border-color: rgba(99, 102, 241, 0.35);
-  transform: translateY(-1.5px);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
-}
-
 .track-metric-icon {
   width: 36px;
   height: 36px;
@@ -4022,13 +3983,6 @@ html[data-theme="light"] .inline-auth-container .verification-view {
   width: 4px;
   background: var(--subj-accent, var(--accent1));
   opacity: 0.85;
-}
-
-.track-manager-card:hover {
-  border-color: rgba(99, 102, 241, 0.35);
-  background: var(--surface-hover, rgba(255, 255, 255, 0.05));
-  transform: translateY(-1px);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
 }
 
 .track-manager-card-info {
@@ -4788,9 +4742,7 @@ html[data-theme="light"] .track-subject-manager-btn:hover {
   box-shadow: 0 8px 24px rgba(0, 0, 0, .08);
 }
 
-.profile-track-card .track-subject-chip:hover,
-.profile-track-card .track-primary-card:hover,
-.profile-track-card .track-manager-card:hover {
+.profile-track-card .track-subject-chip:hover {
   transform: translateY(-2px);
   border-color: color-mix(in srgb, var(--accent1) 55%, var(--border));
   box-shadow: 0 12px 28px rgba(0, 0, 0, .14);
@@ -5261,12 +5213,6 @@ html[data-theme="light"] .profile-track-card .track-header-banner {
   background: rgba(255, 255, 255, .035);
 }
 
-#subjectManagerModal .subject-manager-row:hover {
-  transform: translateY(-2px);
-  border-color: rgba(103, 232, 249, .30);
-  background: rgba(255, 255, 255, .06);
-}
-
 #subjectManagerModal .subject-manager-row.subject-deleted {
   background: rgba(244, 63, 94, .055);
 }
@@ -5530,11 +5476,6 @@ label.pill:hover {
   border: 1px solid var(--border);
   border-radius: 10px;
   transition: all 0.18s ease;
-}
-
-.subject-manager-row:hover {
-  border-color: rgba(103, 232, 249, 0.3);
-  background: rgba(255, 255, 255, 0.03);
 }
 
 .subject-info {
@@ -5934,13 +5875,6 @@ html[data-theme="light"] .subject-manager-list::-webkit-scrollbar-thumb {
   overflow: hidden;
   transition: transform .3s ease, border-color .3s ease, box-shadow .3s ease;
   animation: profilePanelRise .7s .22s cubic-bezier(.16,1,.3,1) both;
-}
-
-.profile-track-card:hover,
-.data-management-card:hover {
-  transform: translateY(-3px);
-  border-color: rgba(99,102,241,.4);
-  box-shadow: 0 26px 70px rgba(2,6,23,.22), 0 0 30px rgba(99,102,241,.06);
 }
 
 .track-header-banner {
@@ -6439,12 +6373,6 @@ html[data-theme="light"] .profile-cover-banner {
   transition: border-color 0.18s ease, background 0.18s ease, transform 0.18s ease;
 }
 
-.subject-manager-row:hover {
-  border-color: rgba(99, 102, 241, 0.35);
-  background: rgba(255, 255, 255, 0.025);
-  transform: translateX(2px);
-}
-
 .subject-info {
   display: flex;
   flex-direction: column;
@@ -6532,11 +6460,6 @@ html[data-theme="light"] .profile-cover-banner {
   justify-content: space-between;
   gap: 14px;
   transition: border-color 0.2s ease, transform 0.2s ease;
-}
-
-.security-module-card:hover {
-  border-color: rgba(16, 185, 129, 0.35);
-  transform: translateY(-2px);
 }
 
 .security-module-head {
@@ -6817,12 +6740,6 @@ html[data-theme="light"] .profile-cover-banner {
   transition: border-color .18s ease, background .18s ease, transform .18s ease;
 }
 
-.settings-center-content .settings-row:hover {
-  border-color: color-mix(in srgb, var(--accent1) 30%, var(--border)) !important;
-  background: color-mix(in srgb, var(--accent1) 4%, var(--surface));
-  transform: translateY(-1px);
-}
-
 .settings-row-title {
   display: block;
   margin-bottom: 5px;
@@ -6928,10 +6845,6 @@ html[data-theme="light"] .settings-center-content #profilePreferencesCard {
 
 html[data-theme="light"] .settings-center-content .settings-row {
   background: #ffffff;
-}
-
-html[data-theme="light"] .settings-center-content .settings-row:hover {
-  background: #fafaff;
 }
 
 #panel-subjects {
@@ -7122,12 +7035,6 @@ html[data-theme="light"] .settings-center-content .settings-row:hover {
   border-radius: 16px;
   background: linear-gradient(145deg, color-mix(in srgb, var(--surface) 88%, var(--accent1)), var(--surface));
   transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease;
-}
-
-.subjects-manager-card .subject-manager-row:hover {
-  transform: translateY(-2px);
-  border-color: color-mix(in srgb, var(--accent2) 42%, var(--border));
-  box-shadow: 0 10px 24px rgba(2, 6, 23, .12);
 }
 
 .subjects-manager-card .subject-manager-row.subject-deleted {

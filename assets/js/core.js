@@ -52,9 +52,10 @@ function fmtHM(mins) {
   return h > 0 ? (`${h}h ${m}m`) : (`${m}m`);
 }
 function fmtClock(secs) {
+  const h = String(Math.floor(secs / 3600)).padStart(2, '0');
   const m = String(Math.floor((secs % 3600) / 60)).padStart(2, '0');
   const s = String(Math.floor(secs % 60)).padStart(2, '0');
-  return m + ':' + s;
+  return h + ':' + m + ':' + s;
 }
 
 
@@ -396,7 +397,8 @@ async function loadData() {
       state.customQuotes = normalizeCustomQuotes(Array.isArray(p.customQuotes) ? p.customQuotes : []);
       state.quoteIdx = typeof p.quoteIdx === 'number' ? p.quoteIdx : 0;
       state.quoteSource = p.quoteSource || 'all';
-      state.theme = p.theme === 'light' ? 'light' : 'dark';
+      const validThemes = ['dark', 'light', 'vision', 'synaptix'];
+      state.theme = (p && validThemes.includes(p.theme)) ? p.theme : 'dark';
       state.sessions = Array.isArray(p.sessions) ? p.sessions : [];
       state.activeSession = p.activeSession || null;
       state.dailyTargetMinutes = typeof p.dailyTargetMinutes === 'number' ? p.dailyTargetMinutes : 240;
@@ -1276,6 +1278,95 @@ function permanentlyDeleteAllInactiveSubjects() {
   if (typeof renderProfileAspirantHub === 'function') renderProfileAspirantHub();
   if (typeof renderSubjectManager === 'function') renderSubjectManager();
   showToast(`All ${count} inactive subjects permanently deleted.`);
+}
+
+/* Liquid switch indicator shared by the timer switches and the nav tabs: when a
+   control turns on, a bubble of its fill slides over from the control that was
+   on, bulges mid-flight and wobbles as it lands. */
+function slideSwitchBubble(previousButton, nextButton, bubbleClass) {
+  if (!previousButton || !nextButton || previousButton === nextButton) return;
+  const group = nextButton.parentElement;
+  if (!group) return;
+  if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+  const groupRect = group.getBoundingClientRect();
+  const fromRect = previousButton.getBoundingClientRect();
+  const toRect = nextButton.getBoundingClientRect();
+  if (!fromRect.width || !toRect.width) return; // group is hidden
+
+  if (getComputedStyle(group).position === 'static') group.style.position = 'relative';
+
+  const className = bubbleClass || 'switch-bubble';
+  group.querySelectorAll(':scope > .' + className).forEach(stale => stale.remove());
+
+  /* Read the settled "on" look with transitions muted, so the bubble never picks
+     up a mid-transition value. The control itself is already showing it. */
+  const priorTransition = nextButton.style.getPropertyValue('transition');
+  const priorTransitionPriority = nextButton.style.getPropertyPriority('transition');
+  nextButton.style.setProperty('transition', 'none', 'important');
+  const activeStyle = getComputedStyle(nextButton);
+  const activeLook = {
+    borderRadius: activeStyle.borderRadius,
+    backgroundColor: activeStyle.backgroundColor,
+    backgroundImage: activeStyle.backgroundImage,
+    boxShadow: activeStyle.boxShadow,
+    borderStyle: activeStyle.borderStyle,
+    borderWidth: activeStyle.borderWidth,
+    borderColor: activeStyle.borderColor
+  };
+  if (priorTransition) nextButton.style.setProperty('transition', priorTransition, priorTransitionPriority);
+  else nextButton.style.removeProperty('transition');
+
+  const tint = activeLook.backgroundColor;
+  const filled = activeLook.backgroundImage !== 'none'
+    || (tint && tint !== 'transparent' && tint !== 'rgba(0, 0, 0, 0)');
+  const bubble = document.createElement('span');
+  bubble.className = 'switch-bubble ' + className;
+  bubble.setAttribute('aria-hidden', 'true');
+  bubble.style.width = fromRect.width + 'px';
+  bubble.style.height = fromRect.height + 'px';
+  bubble.style.borderRadius = activeLook.borderRadius;
+  bubble.style.backgroundImage = filled ? activeLook.backgroundImage : 'linear-gradient(135deg, #6366f1, #06b6d4)';
+  bubble.style.backgroundColor = filled ? tint : 'transparent';
+  bubble.style.boxShadow = activeLook.boxShadow === 'none' ? '' : activeLook.boxShadow;
+  if (activeLook.borderStyle !== 'none' && parseFloat(activeLook.borderWidth) > 0) {
+    bubble.style.border = `${activeLook.borderWidth} ${activeLook.borderStyle} ${activeLook.borderColor}`;
+  }
+  group.appendChild(bubble);
+
+  const startX = fromRect.left - groupRect.left;
+  const startY = fromRect.top - groupRect.top;
+  const dx = toRect.left - fromRect.left;
+  const dy = toRect.top - fromRect.top;
+  const scaleX = toRect.width / fromRect.width;
+  const scaleY = toRect.height / fromRect.height;
+  const place = (x, y, sx, sy) => `translate(${x}px, ${y}px) scale(${sx}, ${sy})`;
+
+  bubble.style.transform = place(startX, startY, 1, 1);
+
+  /* Straight slide: the fill travels and resizes in one smooth move, no mid-flight
+     bulge and no landing squash. */
+  const animation = bubble.animate([
+    { transform: place(startX, startY, 1, 1) },
+    { transform: place(startX + dx, startY + dy, scaleX, scaleY) }
+  ], { duration: 160, easing: 'cubic-bezier(.4, 0, .2, 1)', fill: 'forwards' });
+
+  /* The bubble is disposable: it comes off as soon as it lands, and the control
+     underneath is already showing its own active fill. */
+  const cleanup = () => bubble.remove();
+  animation.addEventListener('cancel', cleanup);
+  animation.finished.then(cleanup, cleanup);
+}
+
+/* Timer switches (Study/Break, Stopwatch/30m/...) on the dashboard and tracker. */
+function slideTimerSwitchBubble(previousButton, nextButton) {
+  if (!nextButton || !nextButton.parentElement || !nextButton.parentElement.classList.contains('db-timer-modes')) return;
+  slideSwitchBubble(previousButton, nextButton, 'db-timer-bubble');
+}
+
+/* Primary navigation tabs (sidebar, mobile dock and the More menu). */
+function slideNavTabBubble(previousButton, nextButton) {
+  slideSwitchBubble(previousButton, nextButton, 'nav-tab-bubble');
 }
 
 function syncAllSubjectSelects() {

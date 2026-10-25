@@ -377,7 +377,7 @@ function tickTimer() {
   const orb = document.getElementById('clockOrb');
   if (!timerDisplay) return;
   if (!state.activeSession) {
-    timerDisplay.textContent = '00:00:00';
+    timerDisplay.textContent = selectedDuration === 0 ? '∞' : '00:00:00';
     if (timerSub && !timerSub.textContent.trim()) {
       timerSub.innerHTML = 'Select a subject and duration to begin focus session';
     }
@@ -1027,7 +1027,9 @@ if (timerModeSelector) {
     if (!modeChip || state.activeSession || window.isCustomCountdownActive) return;
     timerMode = modeChip.dataset.mode === 'break' ? 'break' : 'study';
     try { localStorage.setItem('careerdesk_subnav_tracker', timerMode); } catch (err) { }
+    const previousModeChip = timerModeSelector.querySelector('.timer-mode-chip.active');
     timerModeSelector.querySelectorAll('.timer-mode-chip').forEach(chip => chip.classList.toggle('active', chip === modeChip));
+    if (typeof slideTimerSwitchBubble === 'function') slideTimerSwitchBubble(previousModeChip, modeChip);
     syncTimerModeFields();
     const studyOptEl = document.getElementById('studyDurationOptions');
     const breakOptEl = document.getElementById('breakDurationOptions');
@@ -1061,8 +1063,10 @@ if (durationSelector) {
       return;
     }
 
+    const previousDurationChip = durationSelector.querySelector('.timer-dur-chip.active');
     durationSelector.querySelectorAll('.timer-dur-chip').forEach(c => c.classList.remove('active'));
     chip.classList.add('active');
+    if (typeof slideTimerSwitchBubble === 'function') slideTimerSwitchBubble(previousDurationChip, chip);
 
     selectedDuration = parseInt(chip.dataset.duration, 10) || 0;
     window.selectedTimerDuration = selectedDuration;
@@ -1077,7 +1081,7 @@ if (durationSelector) {
       if (display) display.textContent = `${String(selectedDuration).padStart(2, '0')}:00`;
       if (sub) sub.innerHTML = `<strong>${selectedDuration}-minute ${escapeHtml(reason.toLowerCase())}</strong> break — recharge before your next focus block`;
     } else if (selectedDuration === 0) {
-      if (display) display.textContent = '00:00:00';
+      if (display) display.textContent = '∞';
       if (sub) sub.innerHTML = `<strong>${escapeHtml(subject)}</strong> — Stopwatch mode active`;
     } else {
       customCountdownSecs = selectedDuration * 60;
@@ -1086,6 +1090,8 @@ if (durationSelector) {
       if (sub) sub.innerHTML = `<strong>${escapeHtml(subject)}</strong> — ${selectedDuration} min focus session`;
     }
     syncTimerRingUI();
+    const orb = document.getElementById('clockOrb');
+    if (orb) orb.classList.toggle('is-long', selectedDuration >= 60);
     if (typeof window.syncDashboardTrackerTimer === 'function') window.syncDashboardTrackerTimer();
   });
 }
@@ -1170,6 +1176,17 @@ function startCustomCountdown() {
       renderTodaySessions();
       renderProgress();
       syncMiniTimerWidget();
+      const orb = document.getElementById('clockOrb');
+      if (orb) {
+        if (window.isCustomCountdownActive && selectedDuration > 0) {
+          const totalSecs = Math.max(1, selectedDuration * 60);
+          const pct = Math.max(0, Math.min(1, customCountdownSecs / totalSecs));
+          const angle = 135 + 270 * (1 - pct);
+          orb.style.setProperty('--glow-angle', `${angle}deg`);
+        } else {
+          orb.style.setProperty('--glow-angle', '0deg');
+        }
+      }
       if (typeof window.syncDashboardTrackerTimer === 'function') window.syncDashboardTrackerTimer();
     } else {
       clearInterval(customCountdownInterval);

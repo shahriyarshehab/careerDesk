@@ -1329,11 +1329,6 @@
     transition: all 0.2s ease;
   }
 
-  .review-card:hover {
-    border-color: var(--accent1) !important;
-    transform: translateY(-1px);
-  }
-
   /* Explanation Box */
   .explanation-box {
     background: rgba(99, 102, 241, 0.08);
@@ -1484,10 +1479,6 @@
     padding: 14px 12px;
     text-align: center;
     transition: transform 0.2s ease;
-  }
-
-  .exam-stat-box:hover {
-    transform: translateY(-2px);
   }
 
   .exam-stat-box .stat-num {

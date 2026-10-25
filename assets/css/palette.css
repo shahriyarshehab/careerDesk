@@ -87,28 +87,32 @@ html[data-theme="dark"] {
   --cd-primary-strong: var(--cdp-brand-600);
   --cd-accent: var(--cdp-cyan-400);
 
-  /* Surfaces pick up brand indigo instead of flat slate. */
-  --surface: rgba(24, 32, 60, .84);
-  --surface-strong: #18203C;
-  --surface-hover: #1E2749;
-  --border: rgba(129, 140, 248, .17);
+  /* Authentic Glassmorphism: Translucent dark surface with subtle borders */
+  --surface: rgba(255, 255, 255, 0.04);
+  --surface-strong: #0F172A;
+  --surface-hover: rgba(255, 255, 255, 0.08);
+  --border: rgba(255, 255, 255, 0.08);
   --select-bg: #131A31;
   --select-option-bg: #18203C;
   --select-border: rgba(129, 140, 248, .24);
   --card-quote-a: #171C44;
   --card-quote-b: #0D2B41;
 
-  /* Legacy refresh tokens used by the home cards and header. */
-  --cd-panel: rgba(24, 32, 60, .84);
-  --cd-panel-solid: #18203C;
-  --cd-line: rgba(129, 140, 248, .17);
+  /* Loading placeholders: base block + sweeping shine */
+  --skeleton-base: rgba(148, 163, 184, .16);
+  --skeleton-shine: rgba(255, 255, 255, .14);
+
+  /* Harmonized tokens for glassmorphism home cards, panels, and widgets */
+  --cd-panel: rgba(255, 255, 255, 0.04);
+  --cd-panel-solid: #0F172A;
+  --cd-line: rgba(255, 255, 255, 0.08);
   --cd-blue: var(--cdp-brand-400);
   --cd-mint: var(--cdp-cyan-400);
-  --cd-border: rgba(129, 140, 248, .17);
-  --cd-border-strong: rgba(129, 140, 248, .26);
-  --cd-surface: rgba(24, 32, 60, .84);
-  --cd-surface-raised: #18203C;
-  --cd-surface-soft: rgba(24, 32, 60, .72);
+  --cd-border: rgba(255, 255, 255, 0.08);
+  --cd-border-strong: rgba(255, 255, 255, 0.14);
+  --cd-surface: rgba(255, 255, 255, 0.04);
+  --cd-surface-raised: #0F172A;
+  --cd-surface-soft: rgba(255, 255, 255, 0.025);
 }
 
 html[data-theme="light"] {
@@ -121,27 +125,31 @@ html[data-theme="light"] {
   --cd-primary-strong: var(--cdp-brand-700);
   --cd-accent: var(--cdp-cyan-700);
 
-  /* Light cards stay white with indigo-tinted borders. */
-  --surface: rgba(255, 255, 255, .90);
-  --surface-strong: #F7F9FF;
+  /* Authentic Glassmorphism: Frosted white cards with subtle borders */
+  --surface: rgba(255, 255, 255, 0.75);
+  --surface-strong: #F8FAFC;
   --surface-hover: #FFFFFF;
-  --border: rgba(79, 70, 229, .15);
+  --border: rgba(226, 232, 240, 0.85);
   --select-bg: #FFFFFF;
   --select-option-bg: #F7F9FF;
   --select-border: rgba(79, 70, 229, .20);
   --card-quote-a: #EEF1FF;
   --card-quote-b: #E9FAFF;
 
-  --cd-panel: rgba(255, 255, 255, .92);
+  /* Loading placeholders: base block + sweeping shine */
+  --skeleton-base: rgba(100, 116, 139, .18);
+  --skeleton-shine: rgba(255, 255, 255, .78);
+
+  --cd-panel: rgba(255, 255, 255, 0.75);
   --cd-panel-solid: #FFFFFF;
-  --cd-line: rgba(79, 70, 229, .15);
+  --cd-line: rgba(226, 232, 240, 0.85);
   --cd-blue: var(--cdp-brand-600);
   --cd-mint: var(--cdp-cyan-600);
-  --cd-border: rgba(79, 70, 229, .14);
-  --cd-border-strong: rgba(79, 70, 229, .22);
-  --cd-surface: #FFFFFF;
-  --cd-surface-raised: #F7F9FF;
-  --cd-surface-soft: rgba(255, 255, 255, .88);
+  --cd-border: rgba(226, 232, 240, 0.85);
+  --cd-border-strong: rgba(203, 213, 225, 0.9);
+  --cd-surface: rgba(255, 255, 255, 0.75);
+  --cd-surface-raised: #F8FAFC;
+  --cd-surface-soft: rgba(255, 255, 255, 0.65);
 }
 
 /* ── Primary actions ──────────────────────────────────────────────────────
@@ -251,6 +259,80 @@ button.pill.danger:hover {
   box-shadow: 0 6px 16px rgba(245, 158, 11, .28);
 }
 
+/* ── Universal button skin ────────────────────────────────────────────────
+   One fill for every ordinary button: the theme's glass surface (--surface),
+   which is already tinted per theme, plus one transformation — the button
+   lifts on hover with the accent rim and squashes on press.
+
+   Left out of the fill on purpose, so the colour hierarchy survives:
+     • accent controls — .solid / .primary / .danger / .btn-exam20
+     • "on" states — .active / .active-theme
+     • answer options, chat send and auth submit CTAs
+     • grouped switches that sit inside their own tinted track (nav tabs,
+       segmented mode toggles, track pills) and the timer chips, whose
+       geometry the sliding switch bubble measures.
+   Those still get the transformation from the second rule set below. */
+html[data-theme] :is(button, a.pill, label.pill):not(.solid):not(.primary):not(.primary-btn):not(.btn-primary):not(.danger):not(.active):not(.active-theme):not(.tab-btn):not(.nav-link):not(.mobile-more-trigger):not(.mobile-more-link):not(.btn-mode-switch):not(.track-lang-btn):not(.track-role-btn):not(.track-sector-btn):not(.db-timer-mode-btn):not(.db-timer-btn-start):not(.db-timer-btn-stop):not(.quiz-opt-btn):not(.groupchat-send-btn):not(.btn-submit):not(.btn-social):not(.theme-card) {
+  background-color: var(--surface);
+  background-image: none;
+  border-color: var(--border);
+  color: var(--text-soft);
+  /* Blink-fast: one tenth of a second for every button transition, and
+     !important so no module-level transition can slow a single control down. */
+  transition: background-color .1s ease, border-color .1s ease, color .1s ease,
+              box-shadow .1s ease, transform .1s var(--cd-ease, cubic-bezier(.2, .8, .2, 1)) !important;
+}
+
+html[data-theme] :is(button, a.pill, label.pill):not(.solid):not(.primary):not(.primary-btn):not(.btn-primary):not(.danger):not(.active):not(.active-theme):not(.tab-btn):not(.nav-link):not(.mobile-more-trigger):not(.mobile-more-link):not(.btn-mode-switch):not(.track-lang-btn):not(.track-role-btn):not(.track-sector-btn):not(.db-timer-mode-btn):not(.db-timer-btn-start):not(.db-timer-btn-stop):not(.quiz-opt-btn):not(.groupchat-send-btn):not(.btn-submit):not(.btn-social):not(.theme-card):hover:not(:disabled) {
+  background-color: var(--surface-hover);
+  border-color: color-mix(in srgb, var(--accent1) 55%, transparent);
+  color: var(--text);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 22px -12px var(--border-glow, rgba(99, 102, 241, .42));
+}
+
+html[data-theme] :is(button, a.pill, label.pill):not(.solid):not(.primary):not(.primary-btn):not(.btn-primary):not(.danger):not(.active):not(.active-theme):not(.tab-btn):not(.nav-link):not(.mobile-more-trigger):not(.mobile-more-link):not(.btn-mode-switch):not(.track-lang-btn):not(.track-role-btn):not(.track-sector-btn):not(.db-timer-mode-btn):not(.db-timer-btn-start):not(.db-timer-btn-stop):not(.quiz-opt-btn):not(.groupchat-send-btn):not(.btn-submit):not(.btn-social):not(.theme-card):active:not(:disabled) {
+  transform: translateY(0) scale(.96);
+  box-shadow: 0 2px 8px -6px var(--border-glow, rgba(99, 102, 241, .42));
+}
+
+button:not(.solid):not(.primary):not(.db-timer-btn-start):not(.db-timer-btn-stop):disabled {
+  opacity: .55;
+  transform: none;
+  cursor: not-allowed;
+}
+
+/* ── Shared transformation for the grouped switches ───────────────────────
+   Mode toggles, track pills and the mobile "More" trigger keep their own
+   fill (they live inside a tinted track) but move like every other button. */
+html[data-theme] :is(.btn-mode-switch, .track-lang-btn, .track-role-btn, .track-sector-btn, .mobile-more-trigger, .mobile-more-link):not(:disabled) {
+  transition: background-color .1s ease, border-color .1s ease, color .1s ease,
+              box-shadow .1s ease, transform .1s var(--cd-ease, cubic-bezier(.2, .8, .2, 1)) !important;
+}
+
+html[data-theme] :is(.btn-mode-switch, .track-lang-btn, .track-role-btn, .track-sector-btn, .mobile-more-trigger, .mobile-more-link):not(:disabled):hover {
+  transform: translateY(-2px);
+}
+
+html[data-theme] :is(.btn-mode-switch, .track-lang-btn, .track-role-btn, .track-sector-btn, .mobile-more-trigger, .mobile-more-link):not(:disabled):active {
+  transform: translateY(0) scale(.96);
+}
+
+/* Same blink speed for the controls that keep their own fill (accent CTAs,
+   answer options, filter pills, timer chips): only the timing is normalised. */
+html[data-theme] body :is(button, a.pill, label.pill, .chip, .filter-pill, .quiz-opt-btn) {
+  transition-duration: .1s !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html[data-theme] :is(button, a.pill, label.pill):hover,
+  html[data-theme] :is(button, a.pill, label.pill):active,
+  html[data-theme] :is(.btn-mode-switch, .track-lang-btn, .track-role-btn, .track-sector-btn, .mobile-more-trigger, .mobile-more-link):hover,
+  html[data-theme] :is(.btn-mode-switch, .track-lang-btn, .track-role-btn, .track-sector-btn, .mobile-more-trigger, .mobile-more-link):active {
+    transform: none !important;
+  }
+}
+
 /* ── Secondary controls ───────────────────────────────────────────────────
    Neutral by default; brand colour only on hover/focus. */
 button.pill:not(.solid):not(.danger):hover,
@@ -281,19 +363,26 @@ html[data-theme="light"] .timer-ring-stop-start { stop-color: var(--cdp-brand-60
 html[data-theme="light"] .timer-ring-stop-end { stop-color: var(--cdp-cyan-600); }
 
 /* ── Backdrop ─────────────────────────────────────────────────────────────
-   Indigo wash at the top-left, cyan at the top-right: the app's own light. */
+   Modern ambient aura mesh: glowing indigo/cyan lights pinned behind glass. */
 html[data-theme="dark"] body {
-  background:
-    radial-gradient(ellipse at 12% -6%, color-mix(in srgb, var(--cdp-brand-500) 18%, transparent), transparent 42%),
-    radial-gradient(ellipse at 92% 2%, color-mix(in srgb, var(--cdp-cyan-400) 10%, transparent), transparent 38%),
-    var(--bg, #0B0F19);
+  background-color: #060911;
+  background-image:
+    radial-gradient(circle 850px at 18% -5%, rgba(99, 102, 241, 0.32), transparent 70%),
+    radial-gradient(circle 750px at 85% 8%, rgba(6, 182, 212, 0.26), transparent 65%),
+    radial-gradient(circle 950px at 45% 80%, rgba(139, 92, 246, 0.20), transparent 70%),
+    radial-gradient(circle 650px at 88% 85%, rgba(14, 165, 233, 0.18), transparent 65%);
+  background-attachment: fixed;
+  background-repeat: no-repeat;
 }
 
 html[data-theme="light"] body {
-  background:
-    radial-gradient(ellipse at 6% -4%, color-mix(in srgb, var(--cdp-brand-500) 9%, transparent), transparent 40%),
-    radial-gradient(ellipse at 94% 0%, color-mix(in srgb, var(--cdp-cyan-600) 6%, transparent), transparent 36%),
-    var(--bg, #F4F7FB);
+  background-color: #F8FAFC;
+  background-image:
+    radial-gradient(circle 800px at 10% -5%, rgba(99, 102, 241, 0.14), transparent 65%),
+    radial-gradient(circle 700px at 90% 5%, rgba(6, 182, 212, 0.12), transparent 60%),
+    radial-gradient(circle 800px at 50% 95%, rgba(79, 70, 229, 0.09), transparent 70%);
+  background-attachment: fixed;
+  background-repeat: no-repeat;
 }
 
 /* Drifting backdrop blobs: brand indigo + cyan only, amber retired. */
@@ -302,17 +391,38 @@ html[data-theme="light"] body {
 .aurora span:nth-child(3) { background: var(--cdp-brand-800); opacity: .30; }
 
 /* ── Cards ────────────────────────────────────────────────────────────────
-   Glass cards keep their translucency but pick up a brand-tinted sheen. */
-.glass {
+   Modern Glassmorphism: layered specular highlight, deep ambient shadow,
+   and hardware-accelerated 24px blur with saturation boost. */
+.glass,
+.db-kpi-card,
+.db-plan-card,
+.db-timer-card {
   background:
-    linear-gradient(158deg, color-mix(in srgb, var(--cdp-brand-500) 8%, transparent), transparent 46%),
-    var(--surface);
+    linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.02) 100%),
+    rgba(15, 23, 42, 0.55);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow:
+    0 20px 45px -10px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.18),
+    inset 0 0 20px rgba(99, 102, 241, 0.04);
+  transition: transform 0.24s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.24s ease, box-shadow 0.24s ease;
 }
 
-html[data-theme="light"] .glass {
+html[data-theme="light"] .glass,
+html[data-theme="light"] .db-kpi-card,
+html[data-theme="light"] .db-plan-card,
+html[data-theme="light"] .db-timer-card {
   background:
-    linear-gradient(158deg, color-mix(in srgb, var(--cdp-brand-500) 4%, transparent), transparent 46%),
-    var(--surface);
+    linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.82) 100%),
+    rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid rgba(226, 232, 240, 0.95);
+  box-shadow:
+    0 14px 34px -4px rgba(15, 23, 42, 0.07),
+    inset 0 1px 0 rgba(255, 255, 255, 1);
 }
 
 /* ── Floating header ──────────────────────────────────────────────────────

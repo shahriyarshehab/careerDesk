@@ -10,10 +10,11 @@ function setTheme(newTheme) {
   saveData();
 }
 function syncThemeButtons() {
+  const currentTheme = state.theme || 'dark';
   const darkBtn = document.getElementById('themeDarkBtn');
   const lightBtn = document.getElementById('themeLightBtn');
   if (darkBtn && lightBtn) {
-    const isDark = state.theme === 'dark';
+    const isDark = currentTheme !== 'light';
     darkBtn.classList.toggle('active', isDark);
     darkBtn.classList.toggle('active-theme', isDark);
     darkBtn.setAttribute('aria-pressed', String(isDark));
@@ -21,12 +22,39 @@ function syncThemeButtons() {
     lightBtn.classList.toggle('active-theme', !isDark);
     lightBtn.setAttribute('aria-pressed', String(!isDark));
   }
+  // Synchronize all theme cards in settings gallery
+  document.querySelectorAll('.theme-card[data-set-theme]').forEach(card => {
+    const themeName = card.getAttribute('data-set-theme');
+    const isActive = themeName === currentTheme;
+    card.classList.toggle('active-theme', isActive);
+    card.setAttribute('aria-pressed', String(isActive));
+  });
   syncWatchControls();
 }
 const darkBtn = document.getElementById('themeDarkBtn');
 if (darkBtn) darkBtn.addEventListener('click', () => setTheme('dark'));
 const lightBtn = document.getElementById('themeLightBtn');
 if (lightBtn) lightBtn.addEventListener('click', () => setTheme('light'));
+
+// Global theme gallery card click handler
+document.addEventListener('click', (e) => {
+  const themeCard = e.target.closest('[data-set-theme]');
+  if (themeCard) {
+    const targetTheme = themeCard.getAttribute('data-set-theme');
+    if (targetTheme) {
+      setTheme(targetTheme);
+      if (typeof showToast === 'function') {
+        const themeLabels = {
+          vision: 'Vision Frosted (Obsidian Glass) Theme Active',
+          synaptix: 'Synaptix Cyber (Deep Violet) Theme Active',
+          dark: 'Classic Cyber Indigo Theme Active',
+          light: 'Frosted White (Light) Theme Active'
+        };
+        showToast(themeLabels[targetTheme] || 'Theme Updated!');
+      }
+    }
+  }
+});
 
 // ===== Fullscreen & Theme watch controls =====
 function syncWatchControls() {
@@ -143,10 +171,20 @@ function initCommandPalette() {
       }
     },
     {
-      id: 'act-theme', category: 'Actions', icon: 'sun-moon', title: 'Toggle Dark / Light Theme', subtitle: 'Switch color theme',
-      action: () => {
-        setTheme(state.theme === 'dark' ? 'light' : 'dark');
-      }
+      id: 'act-theme-vision', category: 'Themes', icon: 'sparkles', title: 'Theme: Vision Frosted (Netflix Glass)', subtitle: 'Obsidian charcoal glass with crimson & emerald accents',
+      action: () => setTheme('vision')
+    },
+    {
+      id: 'act-theme-synaptix', category: 'Themes', icon: 'zap', title: 'Theme: Synaptix Cyber (Deep Violet)', subtitle: 'Deep midnight violet with electric purple & cyan glows',
+      action: () => setTheme('synaptix')
+    },
+    {
+      id: 'act-theme-dark', category: 'Themes', icon: 'moon', title: 'Theme: Classic Cyber Indigo (Dark)', subtitle: 'Deep navy glassmorphism with indigo & cyan',
+      action: () => setTheme('dark')
+    },
+    {
+      id: 'act-theme-light', category: 'Themes', icon: 'sun', title: 'Theme: Frosted White (Light)', subtitle: 'Clean daytime frosted glass with crisp borders',
+      action: () => setTheme('light')
     },
     {
       id: 'act-fullscreen', category: 'Actions', icon: 'maximize', title: 'Toggle Fullscreen', subtitle: 'Distraction-free fullscreen view',
@@ -334,30 +372,19 @@ function initCommandPalette() {
 // ===== Init =====
 (async function init() {
   await loadData();
+  try {
+    const urlParams = new URLSearchParams(window.location.search);
+    const urlTheme = urlParams.get('theme');
+    if (urlTheme && ['dark', 'light', 'vision', 'synaptix'].includes(urlTheme)) {
+      state.theme = urlTheme;
+    }
+  } catch (e) {}
   document.documentElement.setAttribute('data-theme', state.theme || 'dark');
   if (typeof initSettingsCockpit === 'function') initSettingsCockpit();
   await initAutoSync();
   syncThemeButtons();
   initMonthDropdown();
   renderDateSlider();
-  // Load default routine if none exists
-  if (!state.routine || state.routine.length === 0) {
-    const todayTarget = dateKey(Date.now());
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored) {
-      const data = JSON.parse(stored);
-      const yesterdayTarget = dateKey(Date.now() - 86400000);
-      const yesterdayR = data.routine && data.routine.find(r => r.date === yesterdayTarget);
-      if (yesterdayR) {
-        state.routine = [yesterdayR];
-        saveData();
-      }
-    }
-    if (!state.routine || state.routine.length === 0) {
-      state.routine = buildDefaultRoutine(todayTarget);
-      saveData();
-    }
-  }
   renderRoutine();
   renderQuote();
   renderQuoteManager();

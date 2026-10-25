@@ -23,8 +23,29 @@
 
   #profileHeroQuoteTicker {
     background:
-      linear-gradient(120deg, rgba(49,46,129,.6), rgba(15,23,42,.8)),
-      radial-gradient(circle at 88% 18%, rgba(34,211,238,.2), transparent 34%);
+      radial-gradient(ellipse 600px 300px at 85% 15%, rgba(6, 182, 212, 0.16), transparent 60%),
+      radial-gradient(ellipse 500px 300px at 15% 20%, rgba(99, 102, 241, 0.20), transparent 65%),
+      linear-gradient(145deg, rgba(255, 255, 255, 0.06) 0%, rgba(255, 255, 255, 0.015) 100%),
+      rgba(11, 16, 28, 0.65);
+    backdrop-filter: blur(20px) saturate(160%);
+    -webkit-backdrop-filter: blur(20px) saturate(160%);
+    border: 1px solid rgba(255, 255, 255, 0.10);
+    box-shadow:
+      0 16px 36px -8px rgba(0, 0, 0, 0.42),
+      inset 0 1px 0 rgba(255, 255, 255, 0.15),
+      0 0 24px rgba(99, 102, 241, 0.12);
+  }
+
+  html[data-theme="light"] #profileHeroQuoteTicker {
+    background:
+      radial-gradient(ellipse 600px 300px at 85% 15%, rgba(6, 182, 212, 0.10), transparent 60%),
+      radial-gradient(ellipse 500px 300px at 15% 20%, rgba(99, 102, 241, 0.10), transparent 65%),
+      linear-gradient(145deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.85) 100%),
+      rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(226, 232, 240, 0.95);
+    box-shadow:
+      0 12px 28px -6px rgba(15, 23, 42, 0.07),
+      inset 0 1px 0 rgba(255, 255, 255, 1);
   }
 
   .quote-manager-panel {
@@ -36,12 +57,6 @@
     border-radius: 16px;
     border-color: rgba(148,163,184,.18);
     transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease;
-  }
-
-  .quote-item-card:hover {
-    transform: translateY(-3px);
-    border-color: rgba(103,232,249,.4);
-    box-shadow: 0 12px 26px rgba(2,6,23,.15);
   }
 
   .chip {
@@ -314,12 +329,6 @@
     border: 1px solid var(--border);
     border-radius: 10px;
     transition: all 0.18s ease;
-  }
-
-  .quote-item-card:hover {
-    border-color: rgba(103, 232, 249, 0.35);
-    background: rgba(255, 255, 255, 0.04);
-    transform: translateY(-1px);
   }
 
   .quote-item-body {

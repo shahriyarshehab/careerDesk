@@ -1,0 +1,408 @@
+/* ==========================================================================
+   CareerDesk — Custom Theme Gallery
+   Themes:
+   1. Vision Frosted (Netflix Obsidian Glass — inspired by theem.webp)
+   2. Synaptix Cyber (Deep Violet & Electric Cyan — inspired by theme blue.webp)
+   ========================================================================== */
+
+/* ══════════════════════════════════════════════════════════════════════════
+   1. VISION FROSTED THEME (Obsidian Glass, Specular Highlights, Crimson & Emerald)
+   ══════════════════════════════════════════════════════════════════════════ */
+html[data-theme="vision"] {
+  color-scheme: dark;
+
+  --bg: #090C10;
+  --bg-deep: #05070A;
+  --surface: rgba(20, 24, 30, 0.72);
+  --surface-strong: #14171F;
+  --surface-hover: rgba(255, 255, 255, 0.08);
+  --border: rgba(255, 255, 255, 0.12);
+  --border-subtle: rgba(255, 255, 255, 0.06);
+  --border-glow: rgba(229, 9, 20, 0.45);
+
+  --accent1: #E50914; /* Netflix Crimson */
+  --accent2: #10B981; /* Emerald Match Tag */
+  --accent3: #F59E0B; /* Amber */
+  --gold: #F59E0B;
+
+  --text: #F8FAFC;
+  --text-soft: #94A3B8;
+  --text-muted: #64748B;
+
+  --cd-primary: #E50914;
+  --cd-primary-strong: #B91C1C;
+  --cd-accent: #10B981;
+
+  --cd-panel: rgba(20, 24, 30, 0.72);
+  --cd-panel-solid: #14171F;
+  --cd-line: rgba(255, 255, 255, 0.10);
+  --cd-blue: #E50914;
+  --cd-mint: #10B981;
+  --cd-border: rgba(255, 255, 255, 0.12);
+  --cd-border-strong: rgba(255, 255, 255, 0.20);
+  --cd-surface: rgba(20, 24, 30, 0.72);
+  --cd-surface-raised: #14171F;
+  --cd-surface-soft: rgba(20, 24, 30, 0.55);
+
+  --select-bg: #12151B;
+  --select-option-bg: #14171F;
+  --select-border: rgba(255, 255, 255, 0.14);
+
+  --card-quote-a: #1E1215;
+  --card-quote-b: #101F1A;
+
+  /* Loading placeholders */
+  --skeleton-base: rgba(148, 163, 184, .15);
+  --skeleton-shine: rgba(255, 255, 255, .15);
+}
+
+html[data-theme="vision"] body {
+  background-color: #07090D;
+  background-image:
+    radial-gradient(circle 850px at 15% 5%, rgba(229, 9, 20, 0.16), transparent 70%),
+    radial-gradient(circle 800px at 85% 10%, rgba(16, 185, 129, 0.14), transparent 65%),
+    radial-gradient(circle 950px at 50% 85%, rgba(245, 158, 11, 0.10), transparent 70%),
+    radial-gradient(circle 600px at 85% 75%, rgba(229, 9, 20, 0.10), transparent 60%);
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+}
+
+html[data-theme="vision"] :is(.glass, .db-kpi-card, .db-plan-card, .db-timer-card, .session-card, .routine-card, .home-card, .note-card) {
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.02) 100%),
+    rgba(18, 22, 28, 0.72) !important;
+  backdrop-filter: blur(28px) saturate(170%) !important;
+  -webkit-backdrop-filter: blur(28px) saturate(170%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  box-shadow:
+    0 20px 48px -10px rgba(0, 0, 0, 0.6),
+    inset 0 1px 0 rgba(255, 255, 255, 0.22),
+    inset 0 0 20px rgba(229, 9, 20, 0.025) !important;
+}
+
+html[data-theme="vision"] header.main-header,
+html[data-theme="vision"] header.masthead {
+  background:
+    linear-gradient(135deg, rgba(229, 9, 20, 0.10), rgba(16, 185, 129, 0.05)),
+    rgba(14, 17, 22, 0.88) !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.12) !important;
+}
+
+html[data-theme="vision"] .nav-link.active,
+html[data-theme="vision"] .tab-btn.active {
+  background: rgba(255, 255, 255, 0.14) !important;
+  border: 1px solid rgba(255, 255, 255, 0.20) !important;
+  color: #FFFFFF !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.28), 0 4px 16px rgba(0, 0, 0, 0.35) !important;
+}
+
+html[data-theme="vision"] :is(button.solid, .btn.solid, .primary-btn, .btn-primary, .pill.solid, button.pill.solid, .db-timer-btn-start) {
+  background-color: #E50914 !important;
+  background-image: linear-gradient(135deg, #E50914, #B91C1C) !important;
+  color: #FFFFFF !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  box-shadow: 0 6px 20px rgba(229, 9, 20, 0.45) !important;
+}
+
+html[data-theme="vision"] .db-section-badge {
+  color: #10B981 !important;
+  background: rgba(16, 185, 129, 0.12) !important;
+  border-color: rgba(16, 185, 129, 0.32) !important;
+  box-shadow: 0 0 14px rgba(16, 185, 129, 0.25) !important;
+}
+
+html[data-theme="vision"] .db-timer-mode-btn.active {
+  background: linear-gradient(135deg, #E50914, #10B981) !important;
+  color: #FFFFFF !important;
+  box-shadow: 0 4px 14px rgba(229, 9, 20, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
+}
+
+html[data-theme="vision"] .timer-ring-stop-start { stop-color: #FFFFFF; }
+html[data-theme="vision"] .timer-ring-stop-end { stop-color: #E50914; }
+
+html[data-theme="vision"] #profileHeroQuoteTicker {
+  background:
+    radial-gradient(ellipse 600px 300px at 85% 15%, rgba(16, 185, 129, 0.16), transparent 60%),
+    radial-gradient(ellipse 500px 300px at 15% 20%, rgba(229, 9, 20, 0.18), transparent 65%),
+    linear-gradient(145deg, rgba(255, 255, 255, 0.07) 0%, rgba(255, 255, 255, 0.015) 100%),
+    rgba(18, 22, 28, 0.72) !important;
+  border: 1px solid rgba(255, 255, 255, 0.14) !important;
+  box-shadow: 0 16px 36px -8px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.18), 0 0 24px rgba(229, 9, 20, 0.15) !important;
+}
+
+html[data-theme="vision"] .profile-quote-mark-badge {
+  background: linear-gradient(135deg, #E50914, #B91C1C) !important;
+  box-shadow: 0 0 20px rgba(229, 9, 20, 0.5) !important;
+}
+
+html[data-theme="vision"] .profile-quote-author-pill {
+  color: #10B981 !important;
+  background: rgba(16, 185, 129, 0.12) !important;
+  border: 1px solid rgba(16, 185, 129, 0.3) !important;
+  box-shadow: 0 0 12px rgba(16, 185, 129, 0.2) !important;
+}
+
+
+/* ══════════════════════════════════════════════════════════════════════════
+   2. SYNAPTIX CYBER THEME (Deep Violet, Electric Cyan, Neon Purple Glows)
+   ══════════════════════════════════════════════════════════════════════════ */
+html[data-theme="synaptix"] {
+  color-scheme: dark;
+
+  --bg: #090514;
+  --bg-deep: #05020B;
+  --surface: rgba(22, 13, 38, 0.68);
+  --surface-strong: #160B2A;
+  --surface-hover: rgba(168, 85, 247, 0.15);
+  --border: rgba(168, 85, 247, 0.22);
+  --border-subtle: rgba(168, 85, 247, 0.12);
+  --border-glow: rgba(168, 85, 247, 0.55);
+
+  --accent1: #A855F7; /* Electric Violet */
+  --accent2: #38BDF8; /* Cyber Cyan */
+  --accent3: #EC4899; /* Neon Pink */
+  --gold: #F59E0B;
+
+  --text: #F8FAFC;
+  --text-soft: #C4B5FD; /* Soft Lavender */
+  --text-muted: #8B5CF6;
+
+  --cd-primary: #9333EA;
+  --cd-primary-strong: #7E22CE;
+  --cd-accent: #38BDF8;
+
+  --cd-panel: rgba(22, 13, 38, 0.68);
+  --cd-panel-solid: #160B2A;
+  --cd-line: rgba(168, 85, 247, 0.18);
+  --cd-blue: #A855F7;
+  --cd-mint: #38BDF8;
+  --cd-border: rgba(168, 85, 247, 0.22);
+  --cd-border-strong: rgba(168, 85, 247, 0.35);
+  --cd-surface: rgba(22, 13, 38, 0.68);
+  --cd-surface-raised: #160B2A;
+  --cd-surface-soft: rgba(22, 13, 38, 0.50);
+
+  --select-bg: #130B24;
+  --select-option-bg: #160B2A;
+  --select-border: rgba(168, 85, 247, 0.28);
+
+  --card-quote-a: #200E38;
+  --card-quote-b: #0B1930;
+
+  /* Loading placeholders: violet block with a cyber-cyan sweep */
+  --skeleton-base: rgba(168, 85, 247, .18);
+  --skeleton-shine: rgba(56, 189, 248, .22);
+}
+
+html[data-theme="synaptix"] body {
+  background-color: #070310;
+  background-image:
+    radial-gradient(circle 900px at 15% -5%, rgba(168, 85, 247, 0.36), transparent 70%),
+    radial-gradient(circle 750px at 85% 8%, rgba(59, 130, 246, 0.28), transparent 65%),
+    radial-gradient(circle 950px at 45% 80%, rgba(147, 51, 234, 0.24), transparent 70%),
+    radial-gradient(circle 650px at 88% 85%, rgba(6, 182, 212, 0.18), transparent 65%);
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+}
+
+html[data-theme="synaptix"] :is(.glass, .db-kpi-card, .db-plan-card, .db-timer-card, .session-card, .routine-card, .home-card, .note-card) {
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.015) 100%),
+    rgba(20, 11, 35, 0.68) !important;
+  backdrop-filter: blur(26px) saturate(190%) !important;
+  -webkit-backdrop-filter: blur(26px) saturate(190%) !important;
+  border: 1px solid rgba(168, 85, 247, 0.24) !important;
+  box-shadow:
+    0 20px 48px -10px rgba(5, 2, 12, 0.7),
+    inset 0 1px 0 rgba(255, 255, 255, 0.20),
+    0 0 24px rgba(168, 85, 247, 0.10) !important;
+}
+
+html[data-theme="synaptix"] header.main-header,
+html[data-theme="synaptix"] header.masthead {
+  background:
+    linear-gradient(135deg, rgba(168, 85, 247, 0.18), rgba(59, 130, 246, 0.08)),
+    rgba(14, 8, 26, 0.88) !important;
+  border-color: rgba(168, 85, 247, 0.26) !important;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.12) !important;
+}
+
+html[data-theme="synaptix"] .nav-link.active,
+html[data-theme="synaptix"] .tab-btn.active {
+  background: linear-gradient(135deg, #8B5CF6, #6366F1) !important;
+  border: 1px solid rgba(255, 255, 255, 0.25) !important;
+  color: #FFFFFF !important;
+  box-shadow: 0 4px 18px rgba(139, 92, 246, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
+}
+
+html[data-theme="synaptix"] :is(button.solid, .btn.solid, .primary-btn, .btn-primary, .pill.solid, button.pill.solid, .db-timer-btn-start) {
+  background-color: #9333EA !important;
+  background-image: linear-gradient(135deg, #9333EA, #4F46E5) !important;
+  color: #FFFFFF !important;
+  border: 1px solid rgba(255, 255, 255, 0.22) !important;
+  box-shadow: 0 6px 22px rgba(147, 51, 234, 0.45) !important;
+}
+
+html[data-theme="synaptix"] .db-section-badge {
+  color: #38BDF8 !important;
+  background: rgba(56, 189, 248, 0.14) !important;
+  border-color: rgba(56, 189, 248, 0.35) !important;
+  box-shadow: 0 0 16px rgba(56, 189, 248, 0.28) !important;
+}
+
+html[data-theme="synaptix"] .db-timer-mode-btn.active {
+  background: linear-gradient(135deg, #A855F7, #38BDF8) !important;
+  color: #FFFFFF !important;
+  box-shadow: 0 4px 16px rgba(168, 85, 247, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
+}
+
+html[data-theme="synaptix"] .timer-ring-stop-start { stop-color: #C084FC; }
+html[data-theme="synaptix"] .timer-ring-stop-end { stop-color: #38BDF8; }
+
+html[data-theme="synaptix"] #profileHeroQuoteTicker {
+  background:
+    radial-gradient(ellipse 600px 300px at 85% 15%, rgba(56, 189, 248, 0.20), transparent 60%),
+    radial-gradient(ellipse 500px 300px at 15% 20%, rgba(168, 85, 247, 0.25), transparent 65%),
+    linear-gradient(145deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.015) 100%),
+    rgba(20, 11, 35, 0.70) !important;
+  border: 1px solid rgba(168, 85, 247, 0.28) !important;
+  box-shadow: 0 16px 36px -8px rgba(5, 2, 12, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.18), 0 0 28px rgba(168, 85, 247, 0.20) !important;
+}
+
+html[data-theme="synaptix"] .profile-quote-mark-badge {
+  background: linear-gradient(135deg, #A855F7, #6366F1) !important;
+  box-shadow: 0 0 22px rgba(168, 85, 247, 0.55) !important;
+}
+
+html[data-theme="synaptix"] .profile-quote-author-pill {
+  color: #38BDF8 !important;
+  background: rgba(56, 189, 248, 0.14) !important;
+  border: 1px solid rgba(56, 189, 248, 0.32) !important;
+  box-shadow: 0 0 14px rgba(56, 189, 248, 0.22) !important;
+}
+
+
+/* ══════════════════════════════════════════════════════════════════════════
+   3. SETTINGS THEME GALLERY UI COMPONENTS
+   ══════════════════════════════════════════════════════════════════════════ */
+.settings-theme-gallery {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  margin-top: 6px;
+}
+
+.theme-card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 14px;
+}
+
+.theme-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px;
+  border-radius: 18px;
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  cursor: pointer;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  user-select: none;
+  text-align: left;
+}
+
+.theme-card.active-theme {
+  border-color: var(--accent1);
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.09) 0%, rgba(255, 255, 255, 0.02) 100%), var(--surface-strong);
+  box-shadow: 0 0 0 2px var(--accent1), 0 16px 38px -6px rgba(0, 0, 0, 0.45);
+}
+
+.theme-card-banner {
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 14px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.theme-preview-vision {
+  background: linear-gradient(135deg, #090C10 0%, #18202A 50%, #E50914 150%);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.theme-preview-synaptix {
+  background: linear-gradient(135deg, #090514 0%, #1A0E32 50%, #A855F7 150%);
+  border: 1px solid rgba(168, 85, 247, 0.3);
+}
+
+.theme-preview-dark {
+  background: linear-gradient(135deg, #080B14 0%, #141C30 50%, #6366F1 150%);
+  border: 1px solid rgba(99, 102, 241, 0.3);
+}
+
+.theme-preview-light {
+  background: linear-gradient(135deg, #F8FAFC 0%, #EEF2FF 50%, #6366F1 150%);
+  border: 1px solid rgba(99, 102, 241, 0.2);
+}
+
+.theme-card-dots {
+  display: flex;
+  gap: 6px;
+}
+
+.theme-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  box-shadow: 0 0 8px currentColor;
+}
+
+.theme-card-badge {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 9px;
+  border-radius: 99px;
+  background: rgba(0, 0, 0, 0.4);
+  color: #FFFFFF;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.theme-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.theme-card-title {
+  font-size: 14.5px;
+  font-weight: 700;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.theme-card-check {
+  display: none;
+  width: 18px;
+  height: 18px;
+  color: var(--accent1);
+}
+
+.theme-card.active-theme .theme-card-check {
+  display: inline-block;
+}
+
+.theme-card-desc {
+  font-size: 12px;
+  color: var(--text-soft);
+  line-height: 1.45;
+}

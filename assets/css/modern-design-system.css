@@ -99,12 +99,6 @@ p, .muted, .subtitle, .routine-lead { color: var(--cd-muted); }
 .routine-card, .notes-v2-hero, .mcq-v2-hero {
   box-shadow: 0 8px 28px rgba(0,0,0,.07), inset 0 1px 0 rgba(255,255,255,.025);
 }
-.home-stat-card:hover, .home-widget:hover, .home-pillar-card:hover,
-.review-card:hover, .session-card:hover, .target-card:hover,
-.study-heatmap-card:hover, .note-card:hover {
-  border-color: color-mix(in srgb, var(--cd-primary) 42%, var(--cd-border));
-  box-shadow: var(--cd-shadow);
-}
 .home-stat-value { font-variant-numeric: tabular-nums; letter-spacing: -.05em; }
 .home-widget-title, .section-title { line-height: 1.2; }
 .home-container { gap: 22px; }
@@ -151,7 +145,6 @@ hr, .divider { border-color: var(--cd-border); }
 .date-nav-btn, .month-nav-btn { border: 1px solid var(--cd-border); background: var(--cd-surface-raised); color: var(--cd-text); }
 .date-nav-btn:hover, .month-nav-btn:hover { border-color: var(--cd-primary); color: var(--cd-primary); }
 .note-card { overflow: hidden; }
-.note-card:hover { transform: translateY(-2px); }
 .notes-v2-eyebrow, .notes-v2-kicker { color: var(--cd-primary); font-weight: 750; letter-spacing: .06em; text-transform: uppercase; }
 .notes-v2-subtitle { max-width: 62ch; line-height: 1.75; }
 
