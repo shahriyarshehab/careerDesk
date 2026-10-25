@@ -3,6 +3,18 @@
    ========================================================================== */
 
 // ===== Tracker =====
+/* Shared progress-ring renderer for the dashboard and tracker clocks. */
+window.updateCareerDeskTimerRings = function (remainingSeconds, totalSeconds, running) {
+  const total = Math.max(1, Number(totalSeconds) || 60);
+  const remaining = Math.max(0, Math.min(total, Number(remainingSeconds) || 0));
+  const elapsedRatio = running ? (totalSeconds > 0 ? 1 - remaining / total : 0) : 0;
+  document.querySelectorAll('[data-careerdesk-timer-ring]').forEach((ring) => {
+    const circumference = 2 * Math.PI * Number(ring.getAttribute('r') || 82);
+    ring.style.strokeDasharray = String(circumference);
+    ring.style.strokeDashoffset = String(circumference * (1 - elapsedRatio));
+  });
+};
+
 const sessionSubjectSel = document.getElementById('sessionSubject');
 const sessionCustomInput = document.getElementById('sessionCustomSubject');
 const timerDisplay = document.getElementById('timerDisplay');
