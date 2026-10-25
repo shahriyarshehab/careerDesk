@@ -298,14 +298,22 @@
               <button class="db-timer-mode-btn" data-dashboard-timer-duration="20" type="button">20m</button>
               <button class="db-timer-mode-btn" data-dashboard-timer-duration="30" type="button">30m</button>
             </div>
-            <div class="db-timer-ring-container">
-              <svg class="db-timer-svg" viewBox="0 0 200 200" aria-hidden="true">
-                <circle class="db-timer-track" cx="100" cy="100" r="82" fill="none" stroke-width="8"></circle>
-                <circle class="db-timer-progress" data-careerdesk-timer-ring cx="100" cy="100" r="82" fill="none" stroke-width="8"></circle>
+            <div class="db-timer-ring-container" data-careerdesk-timer-ring-container>
+              <svg class="db-timer-svg" viewBox="0 0 200 200" role="img" aria-label="Session progress">
+                <defs>
+                  <linearGradient id="dbTimerRingGradient" x1="0" y1="0" x2="1" y2="1">
+                    <stop class="timer-ring-stop-start" offset="0%"></stop>
+                    <stop class="timer-ring-stop-end" offset="100%"></stop>
+                  </linearGradient>
+                </defs>
+                <circle class="db-timer-track" cx="100" cy="100" r="82" fill="none" stroke-width="7"></circle>
+                <circle class="db-timer-progress" data-careerdesk-timer-ring cx="100" cy="100" r="82" fill="none" stroke-width="7"></circle>
               </svg>
               <span class="db-timer-glow-dot" aria-hidden="true"></span>
               <div class="db-timer-center-content">
                 <div class="db-timer-digits" id="dbTimerDigits">00:00:00</div>
+                <div class="db-timer-ring-label" data-careerdesk-timer-label>Ready to focus</div>
+                <div class="db-timer-ring-meta" data-careerdesk-timer-meta>Stopwatch</div>
               </div>
             </div>
             <div class="db-timer-actions">
@@ -447,13 +455,23 @@
               <button class="chip timer-dur-chip" data-duration="15" type="button">15m</button>
             </div>
           </div>
-          <div class="clock-orb" id="clockOrb" style="margin-top:16px;">
-            <svg class="tracker-timer-svg" viewBox="0 0 200 200" aria-hidden="true">
+          <div class="clock-orb" id="clockOrb" data-careerdesk-timer-ring-container style="margin-top:16px;">
+            <svg class="tracker-timer-svg" viewBox="0 0 200 200" role="img" aria-label="Session progress">
+              <defs>
+                <linearGradient id="trackerRingGradient" x1="0" y1="0" x2="1" y2="1">
+                  <stop class="timer-ring-stop-start" offset="0%"></stop>
+                  <stop class="timer-ring-stop-end" offset="100%"></stop>
+                </linearGradient>
+              </defs>
               <circle class="tracker-timer-track" cx="100" cy="100" r="82"></circle>
               <circle class="tracker-timer-progress" data-careerdesk-timer-ring cx="100" cy="100" r="82"></circle>
             </svg>
             <span class="tracker-timer-glow-dot" aria-hidden="true"></span>
-            <div class="timer-display" id="timerDisplay">00:00:00</div>
+            <div class="timer-center">
+              <div class="timer-display" id="timerDisplay">00:00:00</div>
+              <div class="timer-ring-label" data-careerdesk-timer-label>Ready to focus</div>
+              <div class="timer-ring-meta" data-careerdesk-timer-meta>Stopwatch</div>
+            </div>
           </div>
           <div class="timer-sub" id="timerSub">Select a subject and duration to begin focus session</div>
           <div class="session-btn-row">

@@ -1260,82 +1260,146 @@
   }
 
 
-/* ── Focus timer ring: quick glow, then a quiet outline ─────────────────── */
+
+/* ══════════════════════════════════════════════════════════════════════════
+   Focus clock — reference treatment: gradient progress arc, soft glow and a
+   centered readout. A chosen duration is a countdown, so the arc starts full
+   and depletes as the session is spent.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+/* Shared gradient stops for the tracker and dashboard clock SVGs. */
+.timer-ring-stop-start { stop-color: #ffffff; }
+.timer-ring-stop-end { stop-color: var(--accent2, #06b6d4); }
+html[data-theme="light"] .timer-ring-stop-start { stop-color: var(--accent1, #6366f1); }
+
 #panel-tracker .clock-orb {
+  position: relative;
   isolation: isolate;
-  border: 1px solid rgba(148, 163, 184, .28);
-  box-shadow: none;
-  background: radial-gradient(circle, color-mix(in srgb, var(--surface-strong) 88%, transparent), var(--surface));
-}
-#panel-tracker .clock-orb::before {
-  content: "";
-  position: absolute;
-  inset: -6px;
-  z-index: -1;
-  border: 1px solid rgba(6, 182, 212, .55);
+  display: grid;
+  place-items: center;
+  width: min(264px, 68vw);
+  height: auto;
+  aspect-ratio: 1;
+  margin: 18px auto 10px;
+  border: 0;
   border-radius: 50%;
-  pointer-events: none;
-  opacity: 0;
-  box-shadow: 0 0 0 1px rgba(99, 102, 241, .12), 0 0 20px rgba(6, 182, 212, .26);
-  animation: trackerTimerRingGlow 2.2s ease-out 1 both;
-}
-#panel-tracker .clock-orb:focus-within::before,
-#panel-tracker .clock-orb:hover::before {
-  animation: none;
-  opacity: .28;
-  box-shadow: 0 0 10px rgba(6, 182, 212, .14);
-}
-@keyframes trackerTimerRingGlow {
-  0% { opacity: 0; transform: scale(.94); box-shadow: 0 0 0 rgba(6, 182, 212, 0); }
-  22% { opacity: .9; transform: scale(1); box-shadow: 0 0 22px rgba(6, 182, 212, .3); }
-  100% { opacity: 0; transform: scale(1.035); box-shadow: 0 0 4px rgba(6, 182, 212, .04); }
-}
-html[data-theme="light"] #panel-tracker .clock-orb {
-  border-color: rgba(100, 116, 139, .28);
-}
-@media (prefers-reduced-motion: reduce) {
-  #panel-tracker .clock-orb::before { animation: none; opacity: 0; }
-}
-
-
-/* Focus timer reference treatment: circular progress, brief glow, quiet outline */
-#panel-tracker .clock-orb {
-  position: relative; isolation: isolate; display: grid; place-items: center;
-  width: min(100%, 270px); aspect-ratio: 1; height: auto; margin-inline: auto;
-  border: 0; border-radius: 50%;
-  background: radial-gradient(circle, var(--surface-strong, rgba(255,255,255,.06)) 0%, transparent 69%);
+  background: radial-gradient(circle at 50% 42%, color-mix(in srgb, var(--surface-strong) 86%, transparent) 0%, transparent 72%);
   box-shadow: none;
+  transition: box-shadow .45s ease;
 }
+
+/* The retired orb decorations would sit on top of the new ring. */
+#panel-tracker .clock-orb::before,
+#panel-tracker .clock-orb::after {
+  content: none;
+  display: none;
+  border: 0;
+  background: none;
+  box-shadow: none;
+  animation: none;
+}
+
+#panel-tracker .clock-orb.is-running { box-shadow: 0 0 30px rgba(6, 182, 212, .16); }
+#panel-tracker .clock-orb.is-complete { box-shadow: 0 0 30px rgba(16, 185, 129, .2); }
+
 #panel-tracker .tracker-timer-svg {
-  position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; transform: rotate(-90deg);
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  transform: rotate(-90deg);
 }
-#panel-tracker .tracker-timer-track, #panel-tracker .tracker-timer-progress { fill: none; stroke-width: 6; }
-#panel-tracker .tracker-timer-track { stroke: rgba(148,163,184,.25); }
+
+#panel-tracker .tracker-timer-track,
+#panel-tracker .tracker-timer-progress { fill: none; stroke-width: 7; }
+
+#panel-tracker .tracker-timer-track { stroke: rgba(148, 163, 184, .2); }
+
 #panel-tracker .tracker-timer-progress {
-  stroke: var(--accent2, #06b6d4); stroke-linecap: round;
-  stroke-dasharray: 515.22; stroke-dashoffset: 515.22;
-  transition: stroke-dashoffset .35s linear; filter: drop-shadow(0 0 5px rgba(6,182,212,.22));
+  stroke: url(#trackerRingGradient);
+  stroke-linecap: round;
+  stroke-dasharray: 515.22;
+  stroke-dashoffset: 515.22;
+  transition: stroke-dashoffset .45s linear;
+  filter: drop-shadow(0 0 6px rgba(6, 182, 212, .28));
 }
+
+#panel-tracker .clock-orb.is-running .tracker-timer-progress {
+  filter: drop-shadow(0 0 8px rgba(6, 182, 212, .42));
+}
+
 #panel-tracker .tracker-timer-glow-dot {
-  position: absolute; bottom: 14%; left: 50%; width: 9px; height: 9px; border-radius: 50%;
-  background: #fff; box-shadow: 0 0 8px 3px rgba(255,255,255,.55), 0 0 22px 7px rgba(6,182,212,.28);
-  transform: translateX(-50%); pointer-events: none; animation: careerDeskTimerDotPulse 2s ease-in-out infinite;
+  position: absolute;
+  left: 50%;
+  bottom: 9%;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #fff;
+  transform: translate(-50%, 50%);
+  pointer-events: none;
+  opacity: .32;
+  transition: opacity .3s ease;
+  box-shadow: 0 0 8px 3px rgba(255, 255, 255, .55), 0 0 20px 6px rgba(6, 182, 212, .25);
 }
-#panel-tracker .clock-orb::before {
-  content: ""; position: absolute; inset: -5px; border: 1px solid rgba(6,182,212,.5);
-  border-radius: 50%; pointer-events: none; opacity: 0; animation: careerDeskTimerRingGlow 2.2s ease-out 1 both;
+
+#panel-tracker .clock-orb.is-running .tracker-timer-glow-dot {
+  opacity: 1;
+  animation: careerDeskTimerDotPulse 2s ease-in-out infinite;
 }
-#panel-tracker .clock-orb.active::before { animation: none; opacity: .12; }
-#panel-tracker .timer-display { position: relative; z-index: 1; }
-@keyframes careerDeskTimerRingGlow {
-  0% { opacity: 0; transform: scale(.94); box-shadow: 0 0 0 rgba(6,182,212,0); }
-  22% { opacity: .8; transform: scale(1); box-shadow: 0 0 20px rgba(6,182,212,.25); }
-  100% { opacity: 0; transform: scale(1.035); box-shadow: 0 0 4px rgba(6,182,212,.03); }
+
+#panel-tracker .timer-center {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 0 14px;
+  text-align: center;
 }
+
+#panel-tracker .timer-display {
+  font-size: clamp(32px, 9vw, 46px) !important;
+  letter-spacing: -.045em !important;
+  line-height: 1.05 !important;
+}
+
+#panel-tracker .timer-ring-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .085em;
+  text-transform: uppercase;
+  color: var(--text-soft, #94a3b8);
+}
+
+#panel-tracker .timer-ring-meta {
+  font-size: 11px;
+  font-weight: 600;
+  color: color-mix(in srgb, var(--text-soft, #94a3b8) 78%, transparent);
+}
+
+html[data-theme="light"] #panel-tracker .clock-orb {
+  background: radial-gradient(circle at 50% 42%, rgba(255, 255, 255, .95) 0%, transparent 72%);
+}
+
+html[data-theme="light"] #panel-tracker .tracker-timer-track { stroke: rgba(100, 116, 139, .22); }
+
+@media (max-width: 420px) {
+  #panel-tracker .clock-orb {
+    width: min(236px, 64vw) !important;
+    height: auto !important;
+    margin: 14px auto 8px;
+  }
+  #panel-tracker .timer-display { font-size: clamp(30px, 9vw, 38px) !important; }
+}
+
 @keyframes careerDeskTimerDotPulse {
-  50% { box-shadow: 0 0 5px 2px rgba(255,255,255,.45), 0 0 12px 4px rgba(6,182,212,.18); }
+  50% { box-shadow: 0 0 5px 2px rgba(255, 255, 255, .4), 0 0 12px 4px rgba(6, 182, 212, .16); }
 }
+
 @media (prefers-reduced-motion: reduce) {
-  #panel-tracker .clock-orb::before, #panel-tracker .tracker-timer-glow-dot { animation: none; }
   #panel-tracker .tracker-timer-progress { transition: none; }
+  #panel-tracker .clock-orb.is-running .tracker-timer-glow-dot { animation: none; }
 }

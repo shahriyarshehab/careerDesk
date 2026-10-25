@@ -3,17 +3,76 @@
    ========================================================================== */
 
 // ===== Tracker =====
-/* Shared progress-ring renderer for the dashboard and tracker clocks. */
-window.updateCareerDeskTimerRings = function (remainingSeconds, totalSeconds, running) {
-  const total = Math.max(1, Number(totalSeconds) || 60);
-  const remaining = Math.max(0, Math.min(total, Number(remainingSeconds) || 0));
-  const elapsedRatio = running ? (totalSeconds > 0 ? 1 - remaining / total : 0) : 0;
+/* ── Shared timer clock: dashboard + tracker rings ─────────────────────────
+   One renderer drives both clocks so the ring, the digits and the status
+   line always agree. A chosen duration is a countdown: the ring starts full
+   and depletes as the time is spent. Stopwatch mode has no target, so the
+   ring sweeps toward empty once per minute. */
+window.getCareerDeskTimerRingState = function () {
+  const breakMode = window.trackerTimerMode === 'break';
+  const selectedMinutes = Number(typeof selectedDuration === 'number' ? selectedDuration : 0) || 0;
+  const countdownTotal = Math.max(0, selectedMinutes) * 60;
+  const countdownActive = !!window.isCustomCountdownActive && countdownTotal > 0;
+
+  if (countdownActive) {
+    const remaining = Math.max(0, Math.min(countdownTotal, Number(customCountdownSecs) || 0));
+    return { mode: 'countdown', breakMode, running: true, remaining, total: countdownTotal };
+  }
+
+  const active = (typeof state !== 'undefined' && state) ? state.activeSession : null;
+  if (active && !breakMode) {
+    const elapsed = Math.max(0, Math.floor((Date.now() - Number(active.start)) / 1000));
+    return { mode: 'stopwatch', breakMode: false, running: true, remaining: 60 - (elapsed % 60), total: 60 };
+  }
+
+  if (countdownTotal > 0) {
+    return { mode: 'countdown', breakMode, running: false, remaining: countdownTotal, total: countdownTotal };
+  }
+
+  return { mode: 'stopwatch', breakMode: false, running: false, remaining: 0, total: 60 };
+};
+
+window.updateCareerDeskTimerRings = function (snapshot) {
+  const ringState = snapshot || window.getCareerDeskTimerRingState();
+  const total = Math.max(1, Number(ringState.total) || 60);
+  const remaining = Math.max(0, Math.min(total, Number(ringState.remaining) || 0));
+  const remainingRatio = remaining / total;
+  const complete = ringState.mode === 'countdown' && remaining <= 0;
+
   document.querySelectorAll('[data-careerdesk-timer-ring]').forEach((ring) => {
     const circumference = 2 * Math.PI * Number(ring.getAttribute('r') || 82);
     ring.style.strokeDasharray = String(circumference);
-    ring.style.strokeDashoffset = String(circumference * (1 - elapsedRatio));
+    ring.style.strokeDashoffset = String(circumference * (1 - remainingRatio));
   });
+
+  document.querySelectorAll('[data-careerdesk-timer-ring-container]').forEach((el) => {
+    el.classList.toggle('is-running', !!ringState.running);
+    el.classList.toggle('is-countdown', ringState.mode === 'countdown');
+    el.classList.toggle('is-stopwatch', ringState.mode === 'stopwatch');
+    el.classList.toggle('is-complete', complete);
+  });
+
+  const label = complete
+    ? 'Session complete'
+    : ringState.running
+      ? (ringState.breakMode ? 'On a break' : (ringState.mode === 'stopwatch' ? 'Tracking your time' : 'Stay focused'))
+      : 'Ready to focus';
+  const minutes = Math.round(total / 60);
+  const unit = ringState.breakMode ? 'break' : (ringState.running ? 'focus' : 'session');
+  const meta = ringState.mode === 'countdown' ? `${minutes} min ${unit}` : 'Stopwatch';
+
+  document.querySelectorAll('[data-careerdesk-timer-label]').forEach((el) => { el.textContent = label; });
+  document.querySelectorAll('[data-careerdesk-timer-meta]').forEach((el) => { el.textContent = meta; });
 };
+
+window.syncCareerDeskTimerRings = function () {
+  window.updateCareerDeskTimerRings();
+};
+
+/* Re-render both clocks after any tracker state change. */
+function syncTimerRingUI() {
+  if (typeof window.syncCareerDeskTimerRings === 'function') window.syncCareerDeskTimerRings();
+}
 
 const sessionSubjectSel = document.getElementById('sessionSubject');
 const sessionCustomInput = document.getElementById('sessionCustomSubject');
@@ -306,60 +365,8 @@ if (targetHoursInput) {
   targetHoursInput.addEventListener('change', () => setDailyTarget(targetHoursInput.value));
   targetHoursInput.addEventListener('input', () => setDailyTarget(targetHoursInput.value));
 }
-function playTimerBeep() {
-  try {
-    const ctx = window.AudioContext || window.webkitAudioContext;
-    if (!ctx) return;
-    const audioContext = new ctx();
-    const oscillator = audioContext.createOscillator();
-    const gainNode = audioContext.createGain();
-    oscillator.connect(gainNode);
-    gainNode.connect(audioContext.destination);
-    oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
-    oscillator.frequency.exponentialRampToValueAtTime(400, audioContext.currentTime + 0.2);
-    gainNode.gain.setValueAtTime(0.5, audioContext.currentTime);
-    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
-    oscillator.start(audioContext.currentTime);
-    oscillator.stop(audioContext.currentTime + 0.2);
-  } catch (e) { /* non-critical */ }
-}
-
-function playTimerRing() {
-  try {
-    const ctx = window.AudioContext || window.webkitAudioContext;
-    if (!ctx) return;
-    const audioContext = new ctx();
-    // Create a rich, professional ringing sound using multiple oscillators
-    const oscillator1 = audioContext.createOscillator();
-    const oscillator2 = audioContext.createOscillator();
-    const oscillator3 = audioContext.createOscillator();
-    const gainNode = audioContext.createGain();
-    oscillator1.connect(gainNode);
-    oscillator2.connect(gainNode);
-    oscillator3.connect(gainNode);
-    gainNode.connect(audioContext.destination);
-    // Fundamental frequency (220Hz A3 note)
-    oscillator1.frequency.setValueAtTime(220, audioContext.currentTime);
-    oscillator1.frequency.exponentialRampToValueAtTime(440, audioContext.currentTime + 1.5);
-    // Harmonic 2nd (octave above)
-    oscillator2.frequency.setValueAtTime(440, audioContext.currentTime);
-    oscillator2.frequency.exponentialRampToValueAtTime(880, audioContext.currentTime + 1.5);
-    // Harmonic 3rd (fifth above)
-    oscillator3.frequency.setValueAtTime(330, audioContext.currentTime);
-    oscillator3.frequency.exponentialRampToValueAtTime(660, audioContext.currentTime + 1.5);
-    // Envelope: quick attack, long decay for ring effect
-    gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 1.5);
-    oscillator1.start(audioContext.currentTime);
-    oscillator2.start(audioContext.currentTime);
-    oscillator3.start(audioContext.currentTime);
-    oscillator1.stop(audioContext.currentTime + 1.5);
-    oscillator2.stop(audioContext.currentTime + 1.5);
-    oscillator3.stop(audioContext.currentTime + 1.5);
-  } catch (e) { /* non-critical */ }
-}
-
 function tickTimer() {
+  syncTimerRingUI();
   const now = new Date();
   const refreshKey = `${dateKey(now.getTime())}:${now.getHours()}:${now.getMinutes()}`;
   if (refreshKey !== lastSubjectBarsRefreshKey) renderSubjectBars();
@@ -371,7 +378,6 @@ function tickTimer() {
   if (!timerDisplay) return;
   if (!state.activeSession) {
     timerDisplay.textContent = '00:00:00';
-    playTimerBeep();
     if (timerSub && !timerSub.textContent.trim()) {
       timerSub.innerHTML = 'Select a subject and duration to begin focus session';
     }
@@ -1029,6 +1035,7 @@ if (timerModeSelector) {
     if (breakOptEl) breakOptEl.hidden = timerMode !== 'break';
     const firstDuration = document.querySelector(`#${timerMode === 'break' ? 'breakDurationOptions' : 'studyDurationOptions'} .timer-dur-chip`);
     if (firstDuration) firstDuration.click();
+    syncTimerRingUI();
     if (typeof window.syncDashboardTrackerTimer === 'function') window.syncDashboardTrackerTimer();
   });
 
@@ -1078,6 +1085,7 @@ if (durationSelector) {
       if (display) display.textContent = `${mStr}:00`;
       if (sub) sub.innerHTML = `<strong>${escapeHtml(subject)}</strong> — ${selectedDuration} min focus session`;
     }
+    syncTimerRingUI();
     if (typeof window.syncDashboardTrackerTimer === 'function') window.syncDashboardTrackerTimer();
   });
 }
@@ -1132,6 +1140,7 @@ function startCustomCountdown() {
     customCountdownSubject = '';
   }
   window.isCustomCountdownActive = true;
+  syncTimerRingUI();
   const display = document.getElementById('timerDisplay');
   const startBtn = document.getElementById('startBtn');
   const stopBtn = document.getElementById('stopBtn');
@@ -1176,9 +1185,7 @@ function startCustomCountdown() {
 function stopCustomCountdown(isCompleted = false) {
   clearInterval(customCountdownInterval);
   window.isCustomCountdownActive = false;
-
-  // Professional ring/beep when timer ends
-  playTimerRing();
+  syncTimerRingUI();
 
   const display = document.getElementById('timerDisplay');
   const startBtn = document.getElementById('startBtn');

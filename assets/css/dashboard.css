@@ -851,114 +851,122 @@ html[data-theme="light"] .db-plan-row {
 }
 
 
-/* ── Stopwatch ring: brief glow, then a clean static ring ───────────────── */
-.db-timer-ring-container::before {
-  content: "";
-  position: absolute;
-  inset: -5px;
-  border: 1px solid rgba(6, 182, 212, 0.52);
-  border-radius: 50%;
-  pointer-events: none;
-  opacity: 0;
-  box-shadow: 0 0 0 1px rgba(99, 102, 241, 0.12), 0 0 18px rgba(6, 182, 212, 0.28);
-  animation: dbTimerRingGlow 2.2s ease-out 1 both;
-}
 
-.db-timer-track {
-  stroke: rgba(148, 163, 184, 0.28);
-  transition: stroke 300ms ease;
-}
+/* ══════════════════════════════════════════════════════════════════════════
+   Study Tracker clock — same reference treatment as the Tracker page:
+   gradient arc, soft glow dot and a centered readout. With a duration set the
+   arc depletes, so what is left on the ring is what is left to study.
+   ══════════════════════════════════════════════════════════════════════════ */
 
-.db-timer-ring-container:focus-within::before,
-.db-timer-ring-container:hover::before {
-  animation: none;
-  opacity: 0.3;
-  box-shadow: 0 0 10px rgba(6, 182, 212, 0.16);
-}
-
-@keyframes dbTimerRingGlow {
-  0% {
-    opacity: 0;
-    transform: scale(0.94);
-    box-shadow: 0 0 0 rgba(6, 182, 212, 0);
-  }
-  22% {
-    opacity: 0.9;
-    transform: scale(1);
-    box-shadow: 0 0 22px rgba(6, 182, 212, 0.3);
-  }
-  100% {
-    opacity: 0;
-    transform: scale(1.035);
-    box-shadow: 0 0 4px rgba(6, 182, 212, 0.04);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .db-timer-ring-container::before {
-    animation: none;
-    opacity: 0;
-  }
-}
-
-
-/* ── Stopwatch ring: brief glow, then a clean static ring ───────────────── */
 .db-timer-ring-container {
+  position: relative;
   isolation: isolate;
-}
-.db-timer-ring-container::before {
-  content: "";
-  position: absolute;
-  inset: -5px;
-  z-index: -1;
-  border: 1px solid rgba(6, 182, 212, .52);
+  width: 176px;
+  height: 176px;
+  margin: 2px auto 4px;
+  display: grid;
+  place-items: center;
   border-radius: 50%;
-  pointer-events: none;
-  opacity: 0;
-  box-shadow: 0 0 0 1px rgba(99, 102, 241, .12), 0 0 18px rgba(6, 182, 212, .28);
-  animation: dbTimerRingGlow 2.2s ease-out 1 both;
+  transition: box-shadow .45s ease;
 }
+
+.db-timer-ring-container.is-running { box-shadow: 0 0 26px rgba(6, 182, 212, .14); }
+.db-timer-ring-container.is-complete { box-shadow: 0 0 26px rgba(16, 185, 129, .18); }
+
+.db-timer-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  transform: rotate(-90deg);
+}
+
+.db-timer-track,
+.db-timer-progress { fill: none; stroke-width: 7; }
+
 .db-timer-track {
-  stroke: rgba(148, 163, 184, .28);
+  stroke: rgba(148, 163, 184, .2);
   transition: stroke 300ms ease;
 }
-.db-timer-ring-container:focus-within::before,
-.db-timer-ring-container:hover::before {
-  animation: none;
-  opacity: .3;
-  box-shadow: 0 0 10px rgba(6, 182, 212, .16);
-}
-@keyframes dbTimerRingGlow {
-  0% { opacity: 0; transform: scale(.94); box-shadow: 0 0 0 rgba(6, 182, 212, 0); }
-  22% { opacity: .9; transform: scale(1); box-shadow: 0 0 22px rgba(6, 182, 212, .3); }
-  100% { opacity: 0; transform: scale(1.035); box-shadow: 0 0 4px rgba(6, 182, 212, .04); }
-}
-@media (prefers-reduced-motion: reduce) {
-  .db-timer-ring-container::before { animation: none; opacity: 0; }
-}
 
-
-/* Focus timer: thin progress ring with a short-lived halo, inspired by the reference */
-.db-timer-ring-container { isolation: isolate; }
 .db-timer-progress {
-  stroke: var(--accent2, #06b6d4); stroke-linecap: round;
-  stroke-dasharray: 515.22; stroke-dashoffset: 515.22;
-  transform-origin: 100px 100px; transform: rotate(-90deg);
-  transition: stroke-dashoffset .35s linear; filter: drop-shadow(0 0 5px rgba(6,182,212,.24));
+  stroke: url(#dbTimerRingGradient);
+  stroke-linecap: round;
+  stroke-dasharray: 515.22;
+  stroke-dashoffset: 515.22;
+  transition: stroke-dashoffset .45s linear;
+  filter: drop-shadow(0 0 6px rgba(6, 182, 212, .26));
 }
+
+.db-timer-ring-container.is-running .db-timer-progress {
+  filter: drop-shadow(0 0 8px rgba(6, 182, 212, .4));
+}
+
 .db-timer-glow-dot {
-  position: absolute; left: 50%; bottom: 15%; width: 8px; height: 8px; border-radius: 50%;
-  background: #fff; transform: translateX(-50%);
-  box-shadow: 0 0 8px 3px rgba(255,255,255,.5), 0 0 20px 6px rgba(6,182,212,.25);
-  animation: careerDeskTimerDotPulse 2s ease-in-out infinite; pointer-events: none;
+  position: absolute;
+  left: 50%;
+  bottom: 9%;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #fff;
+  transform: translate(-50%, 50%);
+  pointer-events: none;
+  opacity: .32;
+  transition: opacity .3s ease;
+  box-shadow: 0 0 7px 3px rgba(255, 255, 255, .5), 0 0 18px 6px rgba(6, 182, 212, .22);
 }
-.db-timer-ring-container::before {
-  content: ""; position: absolute; inset: -5px; border: 1px solid rgba(6,182,212,.5);
-  border-radius: 50%; pointer-events: none; opacity: 0;
-  animation: careerDeskTimerRingGlow 2.2s ease-out 1 both;
+
+.db-timer-ring-container.is-running .db-timer-glow-dot {
+  opacity: 1;
+  animation: careerDeskTimerDotPulse 2s ease-in-out infinite;
 }
-.db-timer-ring-container:focus-within::before, .db-timer-ring-container:hover::before { animation: none; opacity: .22; }
+
+.db-timer-center-content {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  padding: 0 10px;
+  text-align: center;
+}
+
+.db-timer-digits {
+  font-family: var(--font-display, 'Outfit', sans-serif);
+  font-size: 32px;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -.03em;
+  font-variant-numeric: tabular-nums;
+  color: var(--text, #f8fafc);
+}
+
+.db-timer-ring-label {
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--text-soft, #94a3b8);
+}
+
+.db-timer-ring-meta {
+  font-size: 10px;
+  font-weight: 600;
+  color: color-mix(in srgb, var(--text-soft, #94a3b8) 78%, transparent);
+}
+
+html[data-theme="light"] .db-timer-track { stroke: rgba(100, 116, 139, .22); }
+
+@media (max-width: 520px) {
+  .db-timer-ring-container { width: 164px; height: 164px; }
+  .db-timer-digits { font-size: 30px; }
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .db-timer-ring-container::before, .db-timer-glow-dot { animation: none; }
   .db-timer-progress { transition: none; }
+  .db-timer-ring-container.is-running .db-timer-glow-dot { animation: none; }
 }

@@ -1,0 +1,333 @@
+/* ==========================================================================
+   CareerDesk — Color Plate (Brand Palette)
+   --------------------------------------------------------------------------
+   One source of truth for the indigo + cyan identity. Loaded last in the
+   master manifest, so buttons, chips, links, focus rings and accent surfaces
+   all resolve to these values.
+
+   BRAND — Indigo
+     50  #EEF0FF      200 #C7CDFF      500 #6366F1  ← primary
+     100 #E0E3FF      300 #A5ADFF      600 #4F46E5
+                      400 #8B90FB      700 #4338CA   800 #3730A3   900 #272365
+
+   SUPPORT — Cyan
+     50  #ECFEFF      200 #A5F3FC      500 #06B6D4
+     100 #CFFAFE      300 #67E8F9      600 #0891B2   700 #0E7490
+                      400 #22D3EE      800 #155E75   900 #164E63
+
+   NEUTRALS (unchanged app scale)
+     ink #0B0F19 · slate-900 #0F172A · slate-500 #64748B
+     slate-400 #94A3B8 · slate-200 #E2E8F0 · white #FFFFFF
+
+   SEMANTIC
+     success #10B981 / #059669     warning #F59E0B / #D97706
+     danger  #F43F5E / #E11D48     info    #06B6D4
+
+   USAGE
+     Primary action ......... brand gradient 600 → 700, white label
+     Selected / active ...... same brand gradient (one "on" colour everywhere)
+     Support / progress ..... cyan (rings, badges, data highlights)
+     Breaks ................. warning amber gradient
+     Destructive ............ danger rose gradient
+   ========================================================================== */
+
+:root {
+  /* ── Brand indigo scale ─────────────────────────────────────────────── */
+  --cdp-brand-50: #EEF0FF;
+  --cdp-brand-100: #E0E3FF;
+  --cdp-brand-200: #C7CDFF;
+  --cdp-brand-300: #A5ADFF;
+  --cdp-brand-400: #8B90FB;
+  --cdp-brand-500: #6366F1;
+  --cdp-brand-600: #4F46E5;
+  --cdp-brand-700: #4338CA;
+  --cdp-brand-800: #3730A3;
+  --cdp-brand-900: #272365;
+
+  /* ── Support cyan scale ─────────────────────────────────────────────── */
+  --cdp-cyan-50: #ECFEFF;
+  --cdp-cyan-100: #CFFAFE;
+  --cdp-cyan-200: #A5F3FC;
+  --cdp-cyan-300: #67E8F9;
+  --cdp-cyan-400: #22D3EE;
+  --cdp-cyan-500: #06B6D4;
+  --cdp-cyan-600: #0891B2;
+  --cdp-cyan-700: #0E7490;
+  --cdp-cyan-800: #155E75;
+  --cdp-cyan-900: #164E63;
+
+  /* ── Semantic ───────────────────────────────────────────────────────── */
+  --cdp-success: #10B981;
+  --cdp-success-strong: #059669;
+  --cdp-warning: #F59E0B;
+  --cdp-warning-strong: #D97706;
+  --cdp-danger: #F43F5E;
+  --cdp-danger-strong: #E11D48;
+  --cdp-info: var(--cdp-cyan-500);
+
+  /* ── Role tokens ────────────────────────────────────────────────────── */
+  --cdp-cta-from: var(--cdp-brand-600);
+  --cdp-cta-to: var(--cdp-brand-700);
+  --cdp-cta-shadow: rgba(67, 56, 202, .34);
+  --cdp-cta-shadow-hover: rgba(67, 56, 202, .44);
+  --cdp-ring-start: #FFFFFF;
+  --cdp-ring-end: var(--cdp-cyan-400);
+}
+
+/* ── Theme token remap ─────────────────────────────────────────────────────
+   Re-points the app's existing accent tokens at the plate, so every border,
+   glow, tint and accent-tinted surface inherits the palette. */
+html[data-theme="dark"] {
+  --accent1: var(--cdp-brand-400);
+  --accent2: var(--cdp-cyan-400);
+  --accent3: var(--cdp-danger);
+  --gold: var(--cdp-warning);
+  --border-glow: rgba(99, 102, 241, .42);
+  --cd-primary: var(--cdp-brand-500);
+  --cd-primary-strong: var(--cdp-brand-600);
+  --cd-accent: var(--cdp-cyan-400);
+
+  /* Surfaces pick up brand indigo instead of flat slate. */
+  --surface: rgba(24, 32, 60, .84);
+  --surface-strong: #18203C;
+  --surface-hover: #1E2749;
+  --border: rgba(129, 140, 248, .17);
+  --select-bg: #131A31;
+  --select-option-bg: #18203C;
+  --select-border: rgba(129, 140, 248, .24);
+  --card-quote-a: #171C44;
+  --card-quote-b: #0D2B41;
+}
+
+html[data-theme="light"] {
+  --accent1: var(--cdp-brand-600);
+  --accent2: var(--cdp-cyan-600);
+  --accent3: var(--cdp-danger-strong);
+  --gold: var(--cdp-warning-strong);
+  --border-glow: rgba(79, 70, 229, .25);
+  --cd-primary: var(--cdp-brand-600);
+  --cd-primary-strong: var(--cdp-brand-700);
+  --cd-accent: var(--cdp-cyan-700);
+
+  /* Light cards stay white with indigo-tinted borders. */
+  --surface: rgba(255, 255, 255, .90);
+  --surface-strong: #F7F9FF;
+  --surface-hover: #FFFFFF;
+  --border: rgba(79, 70, 229, .15);
+  --select-bg: #FFFFFF;
+  --select-option-bg: #F7F9FF;
+  --select-border: rgba(79, 70, 229, .20);
+  --card-quote-a: #EEF1FF;
+  --card-quote-b: #E9FAFF;
+}
+
+/* ── Primary actions ──────────────────────────────────────────────────────
+   Brand indigo gradient instead of the old indigo-to-cyan sweep, so primary
+   buttons read as one deliberate CTA colour. */
+button.solid,
+.btn.solid,
+.primary-btn,
+.btn-primary,
+.pill.solid,
+button.pill.solid,
+.db-timer-btn-start {
+  border-color: transparent;
+  background-color: var(--cdp-cta-to);
+  background-image: linear-gradient(135deg, var(--cdp-cta-from), var(--cdp-cta-to));
+  color: #FFFFFF;
+  box-shadow: 0 8px 22px var(--cdp-cta-shadow);
+}
+
+button.solid:hover,
+.btn.solid:hover,
+.primary-btn:hover,
+.btn-primary:hover,
+.pill.solid:hover,
+button.pill.solid:hover,
+.db-timer-btn-start:hover {
+  background-image: linear-gradient(135deg, var(--cdp-brand-600), var(--cdp-brand-700));
+  box-shadow: 0 10px 28px var(--cdp-cta-shadow-hover);
+  filter: brightness(1.07);
+}
+
+/* Feature CTAs that carry their own !important pairing in module styles. */
+.modal-card .pill.solid,
+.modal-overlay .pill.solid,
+.modal-card button[type="submit"],
+.modal-card #btnConfirmSubmitExam,
+.modal-card #btnVerificationLogin,
+#confirmOnboardingSubjectsBtn,
+.fab-btn,
+.btn-edit-profile-main,
+#monthlyRoutineBtn.active,
+.filter-pill.active,
+.groupchat-filter-pill.active {
+  background-image: linear-gradient(135deg, var(--cdp-cta-from), var(--cdp-cta-to)) !important;
+  color: #FFFFFF !important;
+  border-color: transparent !important;
+}
+
+.modal-card .pill.solid:hover,
+.modal-overlay .pill.solid:hover,
+.modal-card button[type="submit"]:hover,
+.modal-card #btnConfirmSubmitExam:hover,
+.modal-card #btnVerificationLogin:hover,
+#confirmOnboardingSubjectsBtn:hover,
+.fab-btn:hover,
+.btn-edit-profile-main:hover {
+  background-image: linear-gradient(135deg, var(--cdp-brand-600), var(--cdp-brand-700)) !important;
+  filter: brightness(1.07);
+}
+
+/* Destructive: stop / cancel actions stay rose. */
+.db-timer-btn-stop {
+  background-color: var(--cdp-danger-strong);
+  background-image: linear-gradient(135deg, var(--cdp-danger), var(--cdp-danger-strong));
+}
+
+.db-timer-btn-stop:hover {
+  background-image: linear-gradient(135deg, #FB7185, var(--cdp-danger-strong));
+  box-shadow: 0 12px 28px rgba(244, 63, 94, .34);
+}
+
+button.pill.danger {
+  color: var(--cdp-danger);
+  border-color: color-mix(in srgb, var(--cdp-danger) 32%, transparent);
+}
+
+button.pill.danger:hover {
+  background: color-mix(in srgb, var(--cdp-danger) 12%, transparent);
+  border-color: var(--cdp-danger);
+  box-shadow: 0 4px 14px rgba(244, 63, 94, .22);
+}
+
+/* ── Selected / active controls ───────────────────────────────────────────
+   One "on" treatment for navigation, theme chips, timer modes and durations. */
+.tab-btn.active,
+.nav-link.active,
+.chip.active,
+.timer-mode-chip.active,
+.db-timer-mode-btn.active {
+  background: linear-gradient(135deg, var(--cdp-brand-600), var(--cdp-brand-700));
+  border-color: transparent;
+  color: #FFFFFF;
+  box-shadow: 0 6px 16px var(--cdp-cta-shadow);
+}
+
+/* Profile segmented switches ship their own !important pairing. */
+.segmented-toggle-group .chip.active {
+  background: linear-gradient(135deg, var(--cdp-brand-600), var(--cdp-brand-700)) !important;
+  color: #FFFFFF !important;
+}
+
+/* Breaks use the warning hue so study (indigo) and break (amber) read apart. */
+#breakDurationOptions .chip.active,
+.db-timer-durations[data-dashboard-break-control] .db-timer-mode-btn.active {
+  background: linear-gradient(135deg, var(--cdp-warning), var(--cdp-warning-strong));
+  color: #FFFFFF;
+  box-shadow: 0 6px 16px rgba(245, 158, 11, .28);
+}
+
+/* ── Secondary controls ───────────────────────────────────────────────────
+   Neutral by default; brand colour only on hover/focus. */
+button.pill:not(.solid):not(.danger):hover,
+.pill:not(.solid):not(.danger):hover {
+  border-color: color-mix(in srgb, var(--cdp-brand-500) 55%, transparent);
+  box-shadow: 0 4px 14px rgba(99, 102, 241, .16);
+}
+
+button.pill.solid:hover,
+.pill.solid:hover {
+  border-color: transparent;
+}
+
+/* ── Form focus ───────────────────────────────────────────────────────────*/
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: var(--cdp-brand-500);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--cdp-brand-500) 16%, transparent);
+}
+
+/* ── Timer clocks ─────────────────────────────────────────────────────────
+   White → cyan head, matching the palette's progress/support colour. */
+.timer-ring-stop-start { stop-color: var(--cdp-ring-start); }
+.timer-ring-stop-end { stop-color: var(--cdp-ring-end); }
+
+html[data-theme="light"] .timer-ring-stop-start { stop-color: var(--cdp-brand-600); }
+html[data-theme="light"] .timer-ring-stop-end { stop-color: var(--cdp-cyan-600); }
+
+/* ── Backdrop ─────────────────────────────────────────────────────────────
+   Indigo wash at the top-left, cyan at the top-right: the app's own light. */
+body {
+  background:
+    radial-gradient(ellipse at 12% -6%, color-mix(in srgb, var(--cdp-brand-500) 18%, transparent), transparent 42%),
+    radial-gradient(ellipse at 92% 2%, color-mix(in srgb, var(--cdp-cyan-400) 10%, transparent), transparent 38%),
+    var(--bg, #0B0F19);
+}
+
+html[data-theme="light"] body {
+  background:
+    radial-gradient(ellipse at 6% -4%, color-mix(in srgb, var(--cdp-brand-500) 9%, transparent), transparent 40%),
+    radial-gradient(ellipse at 94% 0%, color-mix(in srgb, var(--cdp-cyan-600) 6%, transparent), transparent 36%),
+    var(--bg, #F4F7FB);
+}
+
+/* Drifting backdrop blobs: brand indigo + cyan only, amber retired. */
+.aurora span:nth-child(1) { background: var(--cdp-brand-500); opacity: .42; }
+.aurora span:nth-child(2) { background: var(--cdp-cyan-500); opacity: .30; }
+.aurora span:nth-child(3) { background: var(--cdp-brand-800); opacity: .30; }
+
+/* ── Cards ────────────────────────────────────────────────────────────────
+   Glass cards keep their translucency but pick up a brand-tinted sheen. */
+.glass {
+  background:
+    linear-gradient(158deg, color-mix(in srgb, var(--cdp-brand-500) 8%, transparent), transparent 46%),
+    var(--surface);
+}
+
+html[data-theme="light"] .glass {
+  background:
+    linear-gradient(158deg, color-mix(in srgb, var(--cdp-brand-500) 4%, transparent), transparent 46%),
+    var(--surface);
+}
+
+/* ── Floating header ──────────────────────────────────────────────────────
+   The masthead is the plate's strongest glass surface: indigo tint, cyan
+   whisper, and an indigo hairline instead of a neutral one. */
+header.main-header,
+header.masthead {
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--cdp-brand-500) 16%, transparent), color-mix(in srgb, var(--cdp-cyan-400) 6%, transparent)),
+    rgba(13, 20, 36, .86) !important;
+  border-color: color-mix(in srgb, var(--cdp-brand-400) 24%, transparent) !important;
+  box-shadow:
+    0 16px 40px rgba(0, 0, 0, .35),
+    inset 0 1px 0 rgba(255, 255, 255, .08),
+    0 0 0 1px color-mix(in srgb, var(--cdp-brand-500) 10%, transparent) !important;
+}
+
+html[data-theme="light"] header.main-header,
+html[data-theme="light"] header.masthead {
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--cdp-brand-500) 6%, transparent), color-mix(in srgb, var(--cdp-cyan-600) 4%, transparent)),
+    rgba(255, 255, 255, .94) !important;
+  border-color: color-mix(in srgb, var(--cdp-brand-500) 20%, transparent) !important;
+}
+
+/* Nav strip inside the header. */
+header.main-header nav.tabs,
+header.masthead nav.tabs,
+header.main-header .nav-menu,
+header.masthead .nav-menu {
+  background: color-mix(in srgb, var(--cdp-brand-500) 7%, transparent) !important;
+  border-color: color-mix(in srgb, var(--cdp-brand-400) 16%, transparent) !important;
+}
+
+html[data-theme="light"] header.main-header nav.tabs,
+html[data-theme="light"] header.masthead nav.tabs,
+html[data-theme="light"] header.main-header .nav-menu,
+html[data-theme="light"] header.masthead .nav-menu {
+  background: color-mix(in srgb, var(--cdp-brand-500) 4%, transparent) !important;
+  border-color: color-mix(in srgb, var(--cdp-brand-500) 12%, transparent) !important;
+}

@@ -29,3 +29,6 @@
 
 /* CareerDesk modern responsive redesign overrides */
 @import url('careerdesk-redesign.css');
+
+/* CareerDesk brand color plate: load last so buttons and accents resolve to it */
+@import url('palette.css');
