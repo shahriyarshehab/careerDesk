@@ -936,3 +936,29 @@ html[data-theme="light"] .db-plan-row {
 @media (prefers-reduced-motion: reduce) {
   .db-timer-ring-container::before { animation: none; opacity: 0; }
 }
+
+
+/* Focus timer: thin progress ring with a short-lived halo, inspired by the reference */
+.db-timer-ring-container { isolation: isolate; }
+.db-timer-progress {
+  stroke: var(--accent2, #06b6d4); stroke-linecap: round;
+  stroke-dasharray: 515.22; stroke-dashoffset: 515.22;
+  transform-origin: 100px 100px; transform: rotate(-90deg);
+  transition: stroke-dashoffset .35s linear; filter: drop-shadow(0 0 5px rgba(6,182,212,.24));
+}
+.db-timer-glow-dot {
+  position: absolute; left: 50%; bottom: 15%; width: 8px; height: 8px; border-radius: 50%;
+  background: #fff; transform: translateX(-50%);
+  box-shadow: 0 0 8px 3px rgba(255,255,255,.5), 0 0 20px 6px rgba(6,182,212,.25);
+  animation: careerDeskTimerDotPulse 2s ease-in-out infinite; pointer-events: none;
+}
+.db-timer-ring-container::before {
+  content: ""; position: absolute; inset: -5px; border: 1px solid rgba(6,182,212,.5);
+  border-radius: 50%; pointer-events: none; opacity: 0;
+  animation: careerDeskTimerRingGlow 2.2s ease-out 1 both;
+}
+.db-timer-ring-container:focus-within::before, .db-timer-ring-container:hover::before { animation: none; opacity: .22; }
+@media (prefers-reduced-motion: reduce) {
+  .db-timer-ring-container::before, .db-timer-glow-dot { animation: none; }
+  .db-timer-progress { transition: none; }
+}
