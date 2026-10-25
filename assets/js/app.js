@@ -340,6 +340,24 @@ function initCommandPalette() {
   syncThemeButtons();
   initMonthDropdown();
   renderDateSlider();
+  // Load default routine if none exists
+  if (!state.routine || state.routine.length === 0) {
+    const todayTarget = dateKey(Date.now());
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (stored) {
+      const data = JSON.parse(stored);
+      const yesterdayTarget = dateKey(Date.now() - 86400000);
+      const yesterdayR = data.routine && data.routine.find(r => r.date === yesterdayTarget);
+      if (yesterdayR) {
+        state.routine = [yesterdayR];
+        saveData();
+      }
+    }
+    if (!state.routine || state.routine.length === 0) {
+      state.routine = buildDefaultRoutine(todayTarget);
+      saveData();
+    }
+  }
   renderRoutine();
   renderQuote();
   renderQuoteManager();

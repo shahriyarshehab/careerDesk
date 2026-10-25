@@ -682,6 +682,41 @@ document.addEventListener('click', (e) => {
     saveData();
     renderRoutine();
     if (typeof showToast === 'function') showToast('Recommended BCS routine loaded for today!');
+  } else if (e.target.closest('#routineLoadDefaultsBtn')) {
+    const todayTarget = routineDateFilter || dateKey(Date.now());
+    if (!Array.isArray(state.routine)) state.routine = [];
+    const yesterdayTarget = dateKey(Date.now() - 86400000);
+    const yesterdayRoutine = localStorage.getItem('jobprep-dashboard-data-v2');
+    if (yesterdayRoutine) {
+      const data = JSON.parse(yesterdayRoutine);
+      if (data.routine && data.routine.length > 0) {
+        const yesterdayR = data.routine.find(r => r.date === yesterdayTarget);
+        if (yesterdayR) {
+          state.routine = [yesterdayR];
+          saveData();
+          renderRoutine();
+          if (typeof showToast === 'function') showToast('Routine loaded from yesterday!');
+        } else {
+          const defaults = buildDefaultRoutine(todayTarget);
+          state.routine = [...defaults];
+          saveData();
+          renderRoutine();
+          if (typeof showToast === 'function') showToast('No routine found for yesterday. Default routine loaded.');
+        }
+      } else {
+        const defaults = buildDefaultRoutine(todayTarget);
+        state.routine = [...defaults];
+        saveData();
+        renderRoutine();
+        if (typeof showToast === 'function') showToast('No routine found for yesterday. Default routine loaded.');
+      }
+    } else {
+      const defaults = buildDefaultRoutine(todayTarget);
+      state.routine = [...defaults];
+      saveData();
+      renderRoutine();
+      if (typeof showToast === 'function') showToast('No routine found for yesterday. Default routine loaded.');
+    }
   } else if (e.target.closest('#emptyAddBlockBtn')) {
     const inlineAdd = document.getElementById('inlineAddRowBtn');
     if (inlineAdd) inlineAdd.click();

@@ -56,6 +56,7 @@
         aria-label="Syllabus"><i data-lucide="list-checks"></i><span>Syllabus</span></button>
       <button class="tab-btn nav-link" data-tab="groupchat" role="tab" aria-selected="false" title="Group Chat"
         aria-label="Group Chat"><i data-lucide="messages-square"></i><span>Chat</span></button>
+      <button class="tab-btn nav-link" data-tab="colorplate" role="tab" aria-selected="false" title="Color Plate" aria-label="Color Plate"><i data-lucide="sparkles"></i><span>Palette</span></button>
 
     </nav>
 
@@ -94,6 +95,9 @@
       </button>
       <button class="tab-btn nav-link sidebar-settings-link" data-tab="settings" type="button" title="Settings &amp; Sync" aria-label="Settings and sync">
         <i data-lucide="settings-2"></i><span>Settings &amp; Sync</span>
+      </button>
+      <button class="pill solid" title="Color Plate" aria-label="Color Plate" style="flex-shrink:0;">
+        <i data-lucide="sparkles"></i><span>Palette</span>
       </button>
       <button class="icon-action-btn watch-action" id="watchFullscreenToggle" type="button" title="Enter fullscreen" aria-label="Toggle Fullscreen" style="display:none;">
         <i data-lucide="maximize"></i>
@@ -289,7 +293,7 @@
               <button class="db-timer-mode-btn" data-dashboard-timer-duration="15" type="button">15m</button>
               <button class="db-timer-mode-btn" data-dashboard-timer-duration="25" type="button">25m</button>
               <button class="db-timer-mode-btn" data-dashboard-timer-duration="45" type="button">45m</button>
-              <button class="db-timer-mode-btn" data-dashboard-timer-duration="60" type="button">60m</button>
+              <button class="db-timer-mode-btn" data-dashboard-timer-duration="60" type="button">1h</button>
             </div>
             <div class="db-timer-modes db-timer-durations" data-dashboard-break-control hidden aria-label="Break duration">
               <button class="db-timer-mode-btn active" data-dashboard-timer-duration="5" type="button">5m</button>
@@ -386,7 +390,14 @@
               </div>
 
               <!-- Compact Header Action Buttons -->
-              <div class="routine-actions" style="display:none;"></div>
+              <div class="routine-actions" style="display:flex; gap:8px;">
+                <button type="button" class="pill subtle" id="routineLoadDefaultsBtn" title="Load Default Routine" aria-label="Load default routine">
+                  <i data-lucide="layout-dashboard"></i> Default
+                </button>
+                <button type="button" class="pill subtle" id="routineSameDayBtn" title="Same as Yesterday" aria-label="Same as yesterday routine">
+                  <i data-lucide="calendar"></i> Same Day
+                </button>
+              </div>
             </div>
           </div>
 
@@ -446,7 +457,7 @@
             <div class="timer-duration-group" id="studyDurationOptions">
               <button class="chip timer-dur-chip active" data-duration="0" type="button">Stopwatch</button>
               <button class="chip timer-dur-chip" data-duration="30" type="button">30m</button>
-              <button class="chip timer-dur-chip" data-duration="60" type="button">60m</button>
+              <button class="chip timer-dur-chip" data-duration="60" type="button">1h</button>
               <button class="chip timer-dur-chip" data-duration="90" type="button">1.5h</button>
               <button class="chip timer-dur-chip" data-duration="120" type="button">2h</button>
             </div>

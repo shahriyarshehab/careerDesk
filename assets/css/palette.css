@@ -97,6 +97,18 @@ html[data-theme="dark"] {
   --select-border: rgba(129, 140, 248, .24);
   --card-quote-a: #171C44;
   --card-quote-b: #0D2B41;
+
+  /* Legacy refresh tokens used by the home cards and header. */
+  --cd-panel: rgba(24, 32, 60, .84);
+  --cd-panel-solid: #18203C;
+  --cd-line: rgba(129, 140, 248, .17);
+  --cd-blue: var(--cdp-brand-400);
+  --cd-mint: var(--cdp-cyan-400);
+  --cd-border: rgba(129, 140, 248, .17);
+  --cd-border-strong: rgba(129, 140, 248, .26);
+  --cd-surface: rgba(24, 32, 60, .84);
+  --cd-surface-raised: #18203C;
+  --cd-surface-soft: rgba(24, 32, 60, .72);
 }
 
 html[data-theme="light"] {
@@ -119,6 +131,17 @@ html[data-theme="light"] {
   --select-border: rgba(79, 70, 229, .20);
   --card-quote-a: #EEF1FF;
   --card-quote-b: #E9FAFF;
+
+  --cd-panel: rgba(255, 255, 255, .92);
+  --cd-panel-solid: #FFFFFF;
+  --cd-line: rgba(79, 70, 229, .15);
+  --cd-blue: var(--cdp-brand-600);
+  --cd-mint: var(--cdp-cyan-600);
+  --cd-border: rgba(79, 70, 229, .14);
+  --cd-border-strong: rgba(79, 70, 229, .22);
+  --cd-surface: #FFFFFF;
+  --cd-surface-raised: #F7F9FF;
+  --cd-surface-soft: rgba(255, 255, 255, .88);
 }
 
 /* ── Primary actions ──────────────────────────────────────────────────────
@@ -259,7 +282,7 @@ html[data-theme="light"] .timer-ring-stop-end { stop-color: var(--cdp-cyan-600);
 
 /* ── Backdrop ─────────────────────────────────────────────────────────────
    Indigo wash at the top-left, cyan at the top-right: the app's own light. */
-body {
+html[data-theme="dark"] body {
   background:
     radial-gradient(ellipse at 12% -6%, color-mix(in srgb, var(--cdp-brand-500) 18%, transparent), transparent 42%),
     radial-gradient(ellipse at 92% 2%, color-mix(in srgb, var(--cdp-cyan-400) 10%, transparent), transparent 38%),

@@ -69,7 +69,7 @@
     width: 14px;
     height: 14px;
     border-radius: 3.5px;
-    background: rgba(255, 255, 255, 0.04);
+    background: var(--surface-strong)
     border: 1px solid rgba(255, 255, 255, 0.06);
     cursor: pointer;
     transition: transform 0.12s ease, border-color 0.12s ease;
@@ -83,49 +83,49 @@
   }
 
   .heatmap-cell.lvl-0 {
-    background: rgba(255, 255, 255, 0.04);
+    background: var(--surface-strong);
   }
 
   .heatmap-cell.lvl-1 {
-    background: rgba(6, 182, 212, 0.28);
-    border-color: rgba(6, 182, 212, 0.4);
+    background: color-mix(in srgb, var(--cdp-cyan-400) 28%, transparent);
+    border-color: color-mix(in srgb, var(--cdp-cyan-400) 40%, transparent);
   }
 
   .heatmap-cell.lvl-2 {
-    background: rgba(6, 182, 212, 0.55);
-    border-color: rgba(6, 182, 212, 0.7);
+    background: color-mix(in srgb, var(--cdp-cyan-400) 55%, transparent);
+    border-color: color-mix(in srgb, var(--cdp-cyan-400) 70%, transparent);
   }
 
   .heatmap-cell.lvl-3 {
-    background: rgba(99, 102, 241, 0.82);
+    background: color-mix(in srgb, var(--cdp-brand-800) 22%, transparent);
     border-color: var(--accent1);
   }
 
   .heatmap-cell.lvl-4 {
-    background: linear-gradient(135deg, #00e5ff, #6366f1);
+    background: linear-gradient(135deg, var(--cdp-cyan-400), var(--cdp-brand-500));
     border-color: #ffffff;
-    box-shadow: 0 0 8px rgba(0, 229, 255, 0.45);
+    box-shadow: 0 0 8px var(--cdp-cyan-500);
   }
 
   html[data-theme="light"] .heatmap-cell.lvl-0 {
-    background: rgba(0, 0, 0, 0.04);
+    background: var(--surface-strong);
     border-color: rgba(0, 0, 0, 0.06);
   }
 
   html[data-theme="light"] .heatmap-cell.lvl-1 {
-    background: rgba(8, 145, 178, 0.25);
+    background: color-mix(in srgb, var(--cdp-cyan-500) 25%, transparent);
   }
 
   html[data-theme="light"] .heatmap-cell.lvl-2 {
-    background: rgba(8, 145, 178, 0.52);
+    background: color-mix(in srgb, var(--cdp-cyan-500) 52%, transparent);
   }
 
   html[data-theme="light"] .heatmap-cell.lvl-3 {
-    background: rgba(79, 70, 229, 0.8);
+    background: color-mix(in srgb, var(--cdp-brand-400) 80%, transparent);
   }
 
   html[data-theme="light"] .heatmap-cell.lvl-4 {
-    background: linear-gradient(135deg, #0891b2, #4f46e5);
+    background: linear-gradient(135deg, var(--cdp-cyan-600), var(--cdp-brand-600));
   }
 
   .heatmap-footer {
@@ -159,8 +159,8 @@
     padding: 36px 20px;
     text-align: center;
     border-radius: 16px;
-    background: var(--surface);
-    border: 1px dashed var(--border);
+    background: var(--cd-panel);
+    border: 1px dashed var(--cd-border);
     margin: 10px 0;
   }
 
@@ -168,8 +168,8 @@
     width: 48px;
     height: 48px;
     border-radius: 14px;
-    background: rgba(99, 102, 241, 0.12);
-    color: var(--accent1);
+    background: color-mix(in srgb, var(--cdp-brand-500) 12%, transparent);
+    color: var(--cdp-brand-400);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -250,11 +250,11 @@
 
   .icon-action-btn:hover,
   .watch-action:hover {
-    background: var(--surface-hover);
+    background: var(--cd-surface-hover);
     border-color: var(--accent1);
     color: var(--text);
     transform: translateY(-1px);
-    box-shadow: 0 4px 14px rgba(99, 102, 241, 0.22);
+    box-shadow: 0 4px 14px color-mix(in srgb, var(--cdp-brand-500) 22%, transparent);
   }
 
   .icon-action-btn:active,
@@ -274,7 +274,7 @@
     background: #ffffff;
     border-color: var(--accent1);
     color: var(--accent1);
-    box-shadow: 0 4px 14px rgba(79, 70, 229, 0.16);
+    box-shadow: 0 4px 14px color-mix(in srgb, var(--cdp-cyan-500) 16%, transparent);
   }
 
   .watch-action:focus-visible,
@@ -306,7 +306,7 @@
   }
 
   .timer-mode-chip.active {
-    background: linear-gradient(135deg, var(--accent1), var(--accent2));
+    background: linear-gradient(135deg, var(--cdp-brand-600), var(--cdp-brand-700));
     color: #fff;
     box-shadow: 0 4px 12px rgba(6, 182, 212, 0.2);
   }
@@ -379,9 +379,8 @@
 #panel-tracker .session-card,
 #panel-tracker .target-card,
 #panel-tracker > .glass {
-  border-radius: 24px;
-  border-color: rgba(148,163,184,.18);
-  box-shadow: 0 16px 38px rgba(2,6,23,.14), inset 0 1px rgba(255,255,255,.06);
+  border-radius: 24px;border-color: var(--cd-border);
+  box-shadow: 0 16px 38px rgba(2,6,23,.14), inset 0 1px var(--cd-surface-soft);
 }
 
 #panel-tracker .session-card {
@@ -393,7 +392,7 @@
 
 #panel-tracker .target-card {
   padding: 26px;
-  background: linear-gradient(145deg, rgba(6,182,212,.10), var(--surface) 54%);
+  background: linear-gradient(145deg, color-mix(in srgb, var(--cdp-cyan-400) 10%, transparent), var(--cd-surface));
 }
 
 #panel-tracker .timer-mode-selector,
@@ -419,8 +418,7 @@
 
 #panel-tracker .activity-box,
 #panel-tracker .heatmap-stat-pill {
-  border-radius: 16px;
-  border-color: rgba(148,163,184,.18);
+  border-radius: 16px;border-color: var(--cd-border);
   background: rgba(255,255,255,.035);
 }
 
@@ -446,7 +444,7 @@
   border-radius: inherit;}
 
 .subj-plan-track {
-  background: color-mix(in srgb, var(--accent2) 18%, var(--surface-strong));}
+  background: color-mix(in srgb, var(--cdp-cyan-400) 18%, var(--cd-surface-raised));}
 
 .subj-plan-fill {
   background: linear-gradient(90deg, var(--accent2), var(--accent1));
@@ -628,7 +626,7 @@
     inset: -3px;
     border-radius: 50%;
     z-index: -1;
-    background: conic-gradient(from 0deg, var(--accent1), var(--accent2), var(--gold), var(--accent1));
+    conic-gradient(from 0deg, var(--cdp-brand-600), var(--cdp-cyan-500), var(--cdp-warning-strong), var(--cdp-brand-600));
     opacity: 0.55;
     filter: blur(0.5px);
   }
@@ -691,7 +689,7 @@
     width: 9px;
     height: 9px;
     border-radius: 50%;
-    background: var(--accent3);
+    background: var(--cdp-danger);
     margin-right: 6px;
     animation: pulse 1.1s ease-in-out infinite;
   }
@@ -944,7 +942,7 @@
 
   .session-item .s-del-btn:hover {
     color: #f43f5e;
-    background: rgba(244, 63, 94, 0.15);
+    background: color-mix(in srgb, var(--cdp-danger-strong) 15%, transparent);
   }
 
   .session-item .s-progress {
@@ -1177,7 +1175,7 @@
     border-radius: 20px;
     background: var(--surface-strong);
     border: 1px solid var(--border);
-    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55), 0 0 40px rgba(99, 102, 241, 0.18);
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55), 0 0 40px color-mix(in srgb, var(--cdp-brand-800) 18%, transparent);
   }
 
   .onboarding-subject-grid {
@@ -1202,13 +1200,13 @@
 
   .onboarding-subject-item:hover {
     border-color: rgba(99, 102, 241, 0.5);
-    background: rgba(99, 102, 241, 0.06);
+    background: var(--cd-border);
     transform: translateY(-1px);
   }
 
   .onboarding-subject-item.selected {
     border-color: var(--accent1);
-    background: rgba(99, 102, 241, 0.12);
+    background: color-mix(in srgb, var(--cdp-brand-500) 12%, transparent);
     box-shadow: 0 4px 14px rgba(99, 102, 241, 0.15);
   }
 
@@ -1269,8 +1267,8 @@
 
 /* Shared gradient stops for the tracker and dashboard clock SVGs. */
 .timer-ring-stop-start { stop-color: #ffffff; }
-.timer-ring-stop-end { stop-color: var(--accent2, #06b6d4); }
-html[data-theme="light"] .timer-ring-stop-start { stop-color: var(--accent1, #6366f1); }
+.timer-ring-stop-end { stop-color: var(--cdp-cyan-500); }
+html[data-theme="light"] .timer-ring-stop-start { stop-color: var(--cdp-brand-600); }
 
 #panel-tracker .clock-orb {
   position: relative;
@@ -1283,7 +1281,7 @@ html[data-theme="light"] .timer-ring-stop-start { stop-color: var(--accent1, #63
   margin: 18px auto 10px;
   border: 0;
   border-radius: 50%;
-  background: radial-gradient(circle at 50% 42%, color-mix(in srgb, var(--surface-strong) 86%, transparent) 0%, transparent 72%);
+  radial-gradient(circle at 50% 42%, color-mix(in srgb, var(--cd-surface-raised) 86%, transparent) 0%, transparent 72%);
   box-shadow: none;
   transition: box-shadow .45s ease;
 }
@@ -1299,8 +1297,8 @@ html[data-theme="light"] .timer-ring-stop-start { stop-color: var(--accent1, #63
   animation: none;
 }
 
-#panel-tracker .clock-orb.is-running { box-shadow: 0 0 30px rgba(6, 182, 212, .16); }
-#panel-tracker .clock-orb.is-complete { box-shadow: 0 0 30px rgba(16, 185, 129, .2); }
+#panel-tracker .clock-orb.is-running { box-shadow: 0 0 30px color-mix(in srgb, var(--cdp-cyan-500) 16%, transparent); }
+#panel-tracker .clock-orb.is-complete { box-shadow: 0 0 30px color-mix(in srgb, var(--cdp-success-strong) 20%, transparent); }
 
 #panel-tracker .tracker-timer-svg {
   position: absolute;
@@ -1341,7 +1339,7 @@ html[data-theme="light"] .timer-ring-stop-start { stop-color: var(--accent1, #63
   pointer-events: none;
   opacity: .32;
   transition: opacity .3s ease;
-  box-shadow: 0 0 8px 3px rgba(255, 255, 255, .55), 0 0 20px 6px rgba(6, 182, 212, .25);
+  box-shadow: 0 0 8px 3px var(--cdp-white), 0 0 20px 6px var(--cdp-cyan-500);
 }
 
 #panel-tracker .clock-orb.is-running .tracker-timer-glow-dot {
@@ -1381,7 +1379,7 @@ html[data-theme="light"] .timer-ring-stop-start { stop-color: var(--accent1, #63
 }
 
 html[data-theme="light"] #panel-tracker .clock-orb {
-  background: radial-gradient(circle at 50% 42%, rgba(255, 255, 255, .95) 0%, transparent 72%);
+  radial-gradient(circle at 50% 42%, rgba(255, 255, 255, .95) 0%, transparent 72%);
 }
 
 html[data-theme="light"] #panel-tracker .tracker-timer-track { stroke: rgba(100, 116, 139, .22); }

@@ -53,6 +53,13 @@ document.addEventListener('click', event => {
 
 function activateTab(rawTabName, persist = false) {
   const tabName = normalizeTabName(rawTabName);
+  // Color plate: navigate to separate palette page
+  if (tabName === 'colorplate') {
+    try {
+      window.open('../docs/palette.html', '_blank');
+      return;
+    } catch (e) {}
+  }
   const targetPanel = document.getElementById('panel-' + tabName) ||
     (tabName === 'quiz' ? document.getElementById('panel-flashcards') : null);
   if (!targetPanel) return;

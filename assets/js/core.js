@@ -52,10 +52,9 @@ function fmtHM(mins) {
   return h > 0 ? (`${h}h ${m}m`) : (`${m}m`);
 }
 function fmtClock(secs) {
-  const h = String(Math.floor(secs / 3600)).padStart(2, '0');
   const m = String(Math.floor((secs % 3600) / 60)).padStart(2, '0');
   const s = String(Math.floor(secs % 60)).padStart(2, '0');
-  return h + ':' + m + ':' + s;
+  return m + ':' + s;
 }
 
 

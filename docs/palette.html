@@ -388,6 +388,12 @@
       color: #FFFFFF;
     }
 
+    .demo-chip.ring {
+      border-color: transparent;
+      background: linear-gradient(135deg, var(--cdp-ring-start), var(--cdp-ring-end));
+      color: #FFFFFF;
+    }
+
     .demo-clock { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
 
     .clock {
@@ -811,6 +817,16 @@
             <span class="demo-chip active">25m</span>
             <span class="demo-chip">45m</span>
             <span class="demo-chip break">5m break</span>
+          </div>
+        </div>
+
+        <div class="demo">
+          <h3>Progress Ring</h3>
+          <div class="demo-row">
+            <button class="demo-chip ring" type="button">25m</button>
+            <button class="demo-chip ring active" type="button">45m</button>
+            <button class="demo-chip ring" type="button">1h</button>
+            <button class="demo-chip ring break" type="button">5m break</button>
           </div>
         </div>
 
