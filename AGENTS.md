@@ -36,8 +36,6 @@ CareerDesk/
 │       ├── features/        # User-facing feature modules
 │       ├── integrations/    # Firebase and security modules
 │       └── lucide.min.js
-├── docs/architecture/       # Graphify report and visualizations
-├── scripts/build_graphify.py
 ├── AGENTS.md
 ├── .github/copilot-instructions.md
 └── README.md

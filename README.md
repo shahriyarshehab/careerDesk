@@ -81,17 +81,7 @@ careerDesk/
 │       ├── features/              # Dashboard, routine, tracker, MCQ, syllabus, etc.
 │       ├── integrations/          # Firebase sync/configuration and security
 │       └── lucide.min.js          # Bundled icon library
-├── docs/
-│   └── architecture/
-│       ├── GRAPHIFY_SETUP.md      # Graph generation and publishing guide
-│       ├── GRAPH_REPORT.md        # Generated architecture analysis
-│       ├── graph.html             # Interactive dependency map
-│       └── graph.json             # Machine-readable dependency graph
-├── scripts/
-│   └── build_graphify.py          # Regenerates architecture visualizations
 ├── .github/
-│   ├── workflows/
-│   │   └── graphify.yml           # Graph generation CI
 │   └── copilot-instructions.md
 ├── AGENTS.md                      # Contributor and agent architecture guide
 ├── .cursorrules                   # Editor guidance
@@ -106,8 +96,6 @@ careerDesk/
 ├── LICENSE
 └── README.md
 ```
-
-Graphify also writes local working artifacts to the ignored `graphify-out/` directory. Published graph files live in `docs/architecture/`.
 
 ## Getting started
 
@@ -181,13 +169,6 @@ This project has a few important repository-specific conventions:
 
 The main application state is stored locally under `jobprep-dashboard-data-v2`. Firebase sync is optional and should not be required for normal local use.
 
-## Architecture & Codebase Map
-
-An interactive AST dependency map and architectural report are generated via Graphify:
-- **Interactive Visual Map:** Open [`docs/architecture/graph.html`](docs/architecture/graph.html) in any browser to explore modules, functions, and cross-file dependencies.
-- **Architecture Report:** See [`docs/architecture/GRAPH_REPORT.md`](docs/architecture/GRAPH_REPORT.md) for core hub abstractions and community cohesion.
-- **Regeneration Guide:** See [`docs/architecture/GRAPHIFY_SETUP.md`](docs/architecture/GRAPHIFY_SETUP.md) for setup and build instructions.
-
 ## Important files to know
 
 - `index.html` — app shell and entry page
@@ -196,8 +177,6 @@ An interactive AST dependency map and architectural report are generated via Gra
 - `assets/js/app.js` — app bootstrap, tab/router setup, command palette
 - `assets/js/features/` — feature modules for the dashboard, study tools, and exam preparation
 - `assets/js/integrations/` — Firebase sync/configuration and security logic
-- `docs/architecture/graph.html` — interactive visual dependency map
-- `scripts/build_graphify.py` — deterministic code-graph generation
 
 ## License
 
