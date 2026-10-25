@@ -299,9 +299,11 @@
               <button class="db-timer-mode-btn" data-dashboard-timer-duration="30" type="button">30m</button>
             </div>
             <div class="db-timer-ring-container">
-              <svg class="db-timer-svg" viewBox="0 0 200 200">
+              <svg class="db-timer-svg" viewBox="0 0 200 200" aria-hidden="true">
                 <circle class="db-timer-track" cx="100" cy="100" r="82" fill="none" stroke-width="8"></circle>
+                <circle class="db-timer-progress" data-careerdesk-timer-ring cx="100" cy="100" r="82" fill="none" stroke-width="8"></circle>
               </svg>
+              <span class="db-timer-glow-dot" aria-hidden="true"></span>
               <div class="db-timer-center-content">
                 <div class="db-timer-digits" id="dbTimerDigits">00:00:00</div>
               </div>
@@ -446,6 +448,11 @@
             </div>
           </div>
           <div class="clock-orb" id="clockOrb" style="margin-top:16px;">
+            <svg class="tracker-timer-svg" viewBox="0 0 200 200" aria-hidden="true">
+              <circle class="tracker-timer-track" cx="100" cy="100" r="82"></circle>
+              <circle class="tracker-timer-progress" data-careerdesk-timer-ring cx="100" cy="100" r="82"></circle>
+            </svg>
+            <span class="tracker-timer-glow-dot" aria-hidden="true"></span>
             <div class="timer-display" id="timerDisplay">00:00:00</div>
           </div>
           <div class="timer-sub" id="timerSub">Select a subject and duration to begin focus session</div>
