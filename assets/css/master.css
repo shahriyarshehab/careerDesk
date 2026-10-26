@@ -38,3 +38,6 @@
 
 /* Desk hero (reading-room backdrop, focus ring, mini calendar) */
 @import url('desk.css');
+
+/* Routine page — minimal theme-aligned redesign (loads last, scoped to #panel-routine) */
+@import url('routine-minimal.css');

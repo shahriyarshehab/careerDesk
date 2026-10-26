@@ -1,0 +1,446 @@
+/* ==========================================================================
+   CareerDesk — Routine Page: Minimal Theme-Aligned Redesign
+   Loads last to override any previous routine styles.
+   Scoped exclusively to #panel-routine and its children.
+   ========================================================================== */
+
+/* ── 1. Outer card shell — flat, no glow ────────────────────────────────── */
+
+#panel-routine #homeRoutineSection {
+  padding: 0;
+  background: var(--surface-strong);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  box-shadow: none;
+  overflow: hidden;
+}
+
+html[data-theme="light"] #panel-routine #homeRoutineSection {
+  background: #ffffff;
+  box-shadow: none;
+}
+
+/* ── 2. Header row ───────────────────────────────────────────────────────── */
+
+#panel-routine .routine-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 16px 20px 14px;
+  border-bottom: 1px solid var(--border);
+  background: transparent;
+}
+
+/* Icon badge */
+#panel-routine .routine-title-icon {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  background: rgba(6, 182, 212, 0.10);
+  color: var(--accent2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+#panel-routine .routine-title-icon svg,
+#panel-routine .routine-title-icon .lucide {
+  width: 15px;
+  height: 15px;
+}
+
+/* Title */
+#panel-routine .routine-main-title {
+  font-size: 14.5px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--text);
+}
+
+/* Auto-save badge */
+#panel-routine .routine-autosave-lead {
+  font-size: 10px;
+  color: #10b981;
+  gap: 3px;
+  margin-top: 1px;
+}
+
+/* ── 3. Daily / Monthly toggle — no shadow ───────────────────────────────── */
+
+#panel-routine .routine-mode-toggle-group {
+  padding: 2px;
+  border-radius: 10px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  box-shadow: none !important;
+}
+
+#panel-routine .routine-mode-toggle-group .btn-mode-switch {
+  padding: 5px 12px !important;
+  font-size: 12px !important;
+  border-radius: 8px !important;
+  gap: 5px !important;
+  box-shadow: none !important;
+}
+
+/* Active mode button — no shadow */
+#panel-routine .routine-mode-toggle-group .btn-mode-switch.active {
+  box-shadow: none !important;
+}
+
+/* ── 4. Date slider row — flush strip, no border box ────────────────────── */
+
+#panel-routine .date-slider-row,
+#panel-routine .home-routine-card .date-slider-row {
+  margin: 0 !important;
+  padding: 8px 16px !important;
+  border: none !important;
+  border-bottom: 1px solid var(--border) !important;
+  border-radius: 0 !important;
+  background: rgba(0, 0, 0, 0.05) !important;
+  box-shadow: none !important;
+}
+
+html[data-theme="light"] #panel-routine .date-slider-row,
+html[data-theme="light"] #panel-routine .home-routine-card .date-slider-row {
+  background: rgba(241, 245, 249, 0.7) !important;
+}
+
+/* Nav arrow buttons */
+#panel-routine .date-nav-btn {
+  width: 32px !important;
+  height: 32px !important;
+  border-radius: 8px !important;
+  border: 1px solid var(--border) !important;
+  background: transparent !important;
+  color: var(--text-soft) !important;
+  transition: border-color 0.15s ease, color 0.15s ease !important;
+  flex-shrink: 0 !important;
+  box-shadow: none !important;
+}
+
+#panel-routine .date-nav-btn:hover {
+  border-color: var(--accent1) !important;
+  color: var(--accent1) !important;
+  background: transparent !important;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+#panel-routine .date-nav-btn svg,
+#panel-routine .date-nav-btn .lucide {
+  width: 14px;
+  height: 14px;
+}
+
+/* ── 5. Date chips — transparent, minimal ────────────────────────────────── */
+
+#panel-routine .date-slider {
+  gap: 4px !important;
+  padding: 2px !important;
+}
+
+#panel-routine .date-chip {
+  min-width: 50px !important;
+  padding: 6px 5px 8px !important;
+  border-radius: 10px !important;
+  border: 1px solid transparent !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  transition: background 0.12s ease, border-color 0.12s ease !important;
+}
+
+#panel-routine .date-chip:hover {
+  background: var(--surface) !important;
+  border-color: var(--border) !important;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+#panel-routine .date-chip .dc-day {
+  font-size: 9px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.05em !important;
+  text-transform: uppercase;
+  color: var(--text-muted) !important;
+}
+
+#panel-routine .date-chip .dc-num {
+  font-size: 14px !important;
+  font-weight: 700 !important;
+  margin-top: 2px !important;
+}
+
+/* Active chip — gradient, no shadow */
+#panel-routine .date-chip.active {
+  background: linear-gradient(135deg, var(--accent1), var(--accent2)) !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+}
+
+#panel-routine .date-chip.active .dc-day {
+  color: rgba(255, 255, 255, 0.75) !important;
+}
+
+#panel-routine .date-chip.active .dc-num {
+  color: #ffffff !important;
+}
+
+/* Routine dot */
+#panel-routine .date-chip.has-routine::after {
+  width: 4px !important;
+  height: 4px !important;
+  bottom: 3px !important;
+  background: var(--accent2) !important;
+  box-shadow: none !important;
+}
+
+#panel-routine .date-chip.active.has-routine::after {
+  background: rgba(255, 255, 255, 0.8) !important;
+  box-shadow: none !important;
+}
+
+/* ── 6. Routine table card — flat ────────────────────────────────────────── */
+
+#panel-routine .routine-card {
+  padding: 10px 16px 16px !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+}
+
+/* Table */
+#panel-routine table.routine {
+  border-spacing: 0 4px !important;
+}
+
+/* Column headers */
+#panel-routine table.routine thead th {
+  font-size: 9px !important;
+  letter-spacing: 0.08em !important;
+  font-weight: 700 !important;
+  color: var(--text-muted) !important;
+  padding: 3px 10px 5px !important;
+  text-transform: uppercase !important;
+}
+
+/* Reset button in thead */
+#panel-routine .routine-table-reset-btn {
+  font-size: 10px !important;
+  padding: 2px 6px !important;
+  border-radius: 5px !important;
+  opacity: 0.55;
+  box-shadow: none !important;
+  transition: opacity 0.15s ease, color 0.15s ease, border-color 0.15s ease !important;
+}
+
+#panel-routine .routine-table-reset-btn:hover {
+  opacity: 1;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+/* Table rows — no shadow, border only */
+#panel-routine table.routine tbody tr {
+  background: var(--surface) !important;
+  box-shadow: none !important;
+  transition: background 0.12s ease !important;
+}
+
+#panel-routine table.routine tbody tr:hover {
+  background: var(--surface-hover) !important;
+  box-shadow: none !important;
+}
+
+#panel-routine table.routine td {
+  padding: 4px 8px !important;
+  border-top: 1px solid var(--border) !important;
+  border-bottom: 1px solid var(--border) !important;
+  transition: border-color 0.12s ease !important;
+}
+
+#panel-routine table.routine td:first-child {
+  border-left: 1px solid var(--border) !important;
+  border-radius: 9px 0 0 9px !important;
+}
+
+#panel-routine table.routine td:last-child {
+  border-right: 1px solid var(--border) !important;
+  border-radius: 0 9px 9px 0 !important;
+}
+
+/* Hover row border accent */
+#panel-routine table.routine tbody tr:hover td {
+  border-color: color-mix(in srgb, var(--accent1) 28%, var(--border)) !important;
+}
+
+ 
+/* ── 8. Action cell buttons ──────────────────────────────────────────────── */
+
+#panel-routine .del-row {
+  width: 26px !important;
+  height: 26px !important;
+  border-radius: 7px !important;
+  box-shadow: none !important;
+}
+
+#panel-routine .del-row:hover {
+  box-shadow: none !important;
+}
+
+#panel-routine .routine-syllabus-btn {
+  width: 26px !important;
+  height: 26px !important;
+  border-radius: 7px !important;
+}
+
+/* ── 9. Floating add button — no glow ────────────────────────────────────── */
+
+#panel-routine .routine-floating-add-dock {
+  margin-top: -12px !important;
+}
+
+#panel-routine .routine-floating-add-circle {
+  width: 30px !important;
+  height: 30px !important;
+  box-shadow: none !important;
+}
+
+#panel-routine .routine-floating-add-circle:hover {
+  box-shadow: none !important;
+  transform: scale(1.1) translateY(-1px) !important;
+}
+
+/* ── 10. Pill buttons in this panel — no blur, minimal shadow ────────────── */
+
+#panel-routine button.pill,
+#panel-routine .pill {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  box-shadow: none !important;
+}
+
+#panel-routine button.pill:hover,
+#panel-routine .pill:hover {
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+#panel-routine button.pill.solid,
+#panel-routine .pill.solid {
+  box-shadow: none !important;
+}
+
+#panel-routine button.pill.solid:hover,
+#panel-routine .pill.solid:hover {
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+/* ── 11. Empty state card ────────────────────────────────────────────────── */
+
+#panel-routine .routine-empty-card {
+  padding: 40px 24px !important;
+  text-align: center;
+  border: 1px dashed var(--border) !important;
+  border-radius: 14px !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  margin: 8px 0 4px !important;
+}
+
+#panel-routine .routine-empty-card h4 {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0 0 6px;
+}
+
+#panel-routine .routine-empty-card p {
+  font-size: 13px;
+  color: var(--text-soft);
+  margin: 0 auto 20px;
+  max-width: 360px;
+}
+
+#panel-routine .routine-empty-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+#panel-routine .routine-empty-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: rgba(99, 102, 241, 0.09);
+  color: var(--accent1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 14px;
+}
+
+#panel-routine .routine-empty-icon svg,
+#panel-routine .routine-empty-icon .lucide {
+  width: 20px;
+  height: 20px;
+}
+
+/* ── 12. Monthly routine cards ───────────────────────────────────────────── */
+
+#panel-routine .monthly-routines {
+  padding: 14px 18px 20px !important;
+}
+
+#panel-routine .monthly-routine-card {
+  border: 1px solid var(--border) !important;
+  border-radius: 12px !important;
+  padding: 13px 15px !important;
+  margin-bottom: 8px !important;
+  background: var(--surface) !important;
+  box-shadow: none !important;
+  transition: border-color 0.15s ease !important;
+}
+
+#panel-routine .monthly-routine-card:hover {
+  border-color: color-mix(in srgb, var(--accent1) 35%, var(--border)) !important;
+  background: var(--surface) !important;
+  box-shadow: none !important;
+}
+
+#panel-routine .monthly-routine-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+/* ── 13. Responsive ──────────────────────────────────────────────────────── */
+
+@media (max-width: 768px) {
+  #panel-routine .routine-card-header {
+    padding: 12px 14px 10px !important;
+  }
+
+  #panel-routine .date-slider-row,
+  #panel-routine .home-routine-card .date-slider-row {
+    padding: 7px 10px !important;
+  }
+
+  #panel-routine .routine-card {
+    padding: 8px 10px 14px !important;
+  }
+
+  #panel-routine .date-chip {
+    min-width: 44px !important;
+    padding: 5px 3px 7px !important;
+  }
+}
