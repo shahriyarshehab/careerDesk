@@ -3,8 +3,11 @@
    ========================================================================== */
 
 // ===== Theme settings =====
+// One glass theme ships with the app, in a dark and a light mode: anything
+// other than 'light' resolves to the dark default, so no stale value (a saved
+// theme name, an old link) can put the app in a theme that no longer exists.
 function setTheme(newTheme) {
-  state.theme = newTheme;
+  state.theme = newTheme === 'light' ? 'light' : 'dark';
   document.documentElement.setAttribute('data-theme', state.theme);
   syncThemeButtons();
   saveData();
@@ -22,39 +25,12 @@ function syncThemeButtons() {
     lightBtn.classList.toggle('active-theme', !isDark);
     lightBtn.setAttribute('aria-pressed', String(!isDark));
   }
-  // Synchronize all theme cards in settings gallery
-  document.querySelectorAll('.theme-card[data-set-theme]').forEach(card => {
-    const themeName = card.getAttribute('data-set-theme');
-    const isActive = themeName === currentTheme;
-    card.classList.toggle('active-theme', isActive);
-    card.setAttribute('aria-pressed', String(isActive));
-  });
   syncWatchControls();
 }
 const darkBtn = document.getElementById('themeDarkBtn');
 if (darkBtn) darkBtn.addEventListener('click', () => setTheme('dark'));
 const lightBtn = document.getElementById('themeLightBtn');
 if (lightBtn) lightBtn.addEventListener('click', () => setTheme('light'));
-
-// Global theme gallery card click handler
-document.addEventListener('click', (e) => {
-  const themeCard = e.target.closest('[data-set-theme]');
-  if (themeCard) {
-    const targetTheme = themeCard.getAttribute('data-set-theme');
-    if (targetTheme) {
-      setTheme(targetTheme);
-      if (typeof showToast === 'function') {
-        const themeLabels = {
-          vision: 'Vision Frosted (Obsidian Glass) Theme Active',
-          synaptix: 'Synaptix Cyber (Deep Violet) Theme Active',
-          dark: 'Classic Cyber Indigo Theme Active',
-          light: 'Frosted White (Light) Theme Active'
-        };
-        showToast(themeLabels[targetTheme] || 'Theme Updated!');
-      }
-    }
-  }
-});
 
 // ===== Fullscreen & Theme watch controls =====
 function syncWatchControls() {
@@ -137,7 +113,7 @@ function initCommandPalette() {
     { id: 'tab-quiz', category: 'Navigation', icon: 'brain', title: 'Go to BCS & Govt MCQ Quiz', subtitle: 'Practice randomized MCQs & model tests', action: () => activateTab('quiz', true) },
     { id: 'tab-countdown', category: 'Navigation', icon: 'calendar-clock', title: 'Go to Exam Targets', subtitle: 'Exam countdowns & milestones', action: () => activateTab('countdown', true) },
     { id: 'tab-syllabus', category: 'Navigation', icon: 'list-checks', title: 'Go to Syllabus', subtitle: 'BCS syllabus & topic progress', action: () => activateTab('syllabus', true) },
-    { id: 'tab-subjects', category: 'Navigation', icon: 'layers', title: 'Go to Subject Manager', subtitle: 'Manage subjects across study tools', action: () => activateTab('subjects', true) },
+    { id: 'tab-subjects', category: 'Navigation', icon: 'layers', title: 'Open Subject Manager', subtitle: 'Manage subjects from Settings', action: () => { activateTab('settings', true); setTimeout(() => document.getElementById('profileSubjectsCockpitCard')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 120); } },
     { id: 'tab-profile', category: 'Navigation', icon: 'user', title: 'Go to User Profile', subtitle: 'Personal profile, study track & subjects', action: () => activateTab('profile', true) },
     { id: 'tab-settings', category: 'Navigation', icon: 'settings-2', title: 'Go to Settings & Sync', subtitle: 'Workspace preferences, cloud sync & backups', action: () => activateTab('settings', true) },
     { id: 'tab-groupchat', category: 'Navigation', icon: 'messages-square', title: 'Go to Group Chat', subtitle: 'Join public study groups and chat in real time', action: () => activateTab('groupchat', true) },
@@ -171,19 +147,11 @@ function initCommandPalette() {
       }
     },
     {
-      id: 'act-theme-vision', category: 'Themes', icon: 'sparkles', title: 'Theme: Vision Frosted (Netflix Glass)', subtitle: 'Obsidian charcoal glass with crimson & emerald accents',
-      action: () => setTheme('vision')
-    },
-    {
-      id: 'act-theme-synaptix', category: 'Themes', icon: 'zap', title: 'Theme: Synaptix Cyber (Deep Violet)', subtitle: 'Deep midnight violet with electric purple & cyan glows',
-      action: () => setTheme('synaptix')
-    },
-    {
-      id: 'act-theme-dark', category: 'Themes', icon: 'moon', title: 'Theme: Classic Cyber Indigo (Dark)', subtitle: 'Deep navy glassmorphism with indigo & cyan',
+      id: 'act-theme-dark', category: 'Themes', icon: 'moon', title: 'Theme: Dark', subtitle: 'Default navy glassmorphism with indigo & cyan',
       action: () => setTheme('dark')
     },
     {
-      id: 'act-theme-light', category: 'Themes', icon: 'sun', title: 'Theme: Frosted White (Light)', subtitle: 'Clean daytime frosted glass with crisp borders',
+      id: 'act-theme-light', category: 'Themes', icon: 'sun', title: 'Theme: Light', subtitle: 'Daytime frosted glass with crisp borders',
       action: () => setTheme('light')
     },
     {
@@ -375,12 +343,11 @@ function initCommandPalette() {
   try {
     const urlParams = new URLSearchParams(window.location.search);
     const urlTheme = urlParams.get('theme');
-    if (urlTheme && ['dark', 'light', 'vision', 'synaptix'].includes(urlTheme)) {
+    if (urlTheme && ['dark', 'light'].includes(urlTheme)) {
       state.theme = urlTheme;
     }
   } catch (e) {}
   document.documentElement.setAttribute('data-theme', state.theme || 'dark');
-  if (typeof initSettingsCockpit === 'function') initSettingsCockpit();
   await initAutoSync();
   syncThemeButtons();
   initMonthDropdown();
@@ -460,69 +427,167 @@ function initKeyboardShortcutsPanel() {
   const body = document.getElementById('shortcutsModalBody');
   const closeBtn = document.getElementById('closeShortcutsModal');
   const triggerBtn = document.getElementById('shortcutsHelpBtn');
+  const searchInput = document.getElementById('shortcutSearchInput');
+  const searchClear = document.getElementById('shortcutSearchClear');
   if (!modal || !body) return;
 
   const SHORTCUT_GROUPS = [
     {
       group: 'Navigation',
+      icon: 'compass',
       shortcuts: [
-        { keys: ['Alt', '1'], desc: 'Go to Home & Daily Routine' },
-        { keys: ['Alt', '2'], desc: 'Go to Tracker & Focus' },
-        { keys: ['Alt', '3'], desc: 'Go to Quiz & Flashcards' },
-        { keys: ['Alt', '4'], desc: 'Go to Exam Targets' },
-        { keys: ['Alt', '5'], desc: 'Go to Syllabus' },
-        { keys: ['Alt', '6'], desc: 'Go to Profile' },
-        { keys: ['Alt', '7'], desc: 'Go to Settings & Sync' },
+        { keys: ['Alt', '1'], desc: 'Go to Home & Daily Routine', run: () => activateTab('home', true) },
+        { keys: ['Alt', '2'], desc: 'Go to Tracker & Focus', run: () => activateTab('tracker', true) },
+        { keys: ['Alt', '3'], desc: 'Go to Quiz & Flashcards', run: () => activateTab('quiz', true) },
+        { keys: ['Alt', '4'], desc: 'Go to Exam Targets', run: () => activateTab('countdown', true) },
+        { keys: ['Alt', '5'], desc: 'Go to Syllabus', run: () => activateTab('syllabus', true) },
+        { keys: ['Alt', '6'], desc: 'Go to Profile', run: () => activateTab('profile', true) },
+        { keys: ['Alt', '7'], desc: 'Go to Settings & Sync', run: () => activateTab('settings', true) },
       ]
     },
     {
       group: 'Quick Actions',
+      icon: 'zap',
       shortcuts: [
-        { keys: ['Alt', '/'], desc: 'Open Command Palette' },
-        { keys: ['?'], desc: 'Open Keyboard Shortcuts Panel' },
-        { keys: ['F'], desc: 'Toggle Fullscreen' },
-        { keys: ['T'], desc: 'Toggle Dark / Light Theme' },
+        { keys: ['Alt', '/'], desc: 'Open Command Palette', run: () => document.getElementById('paletteSearchInput')?.focus() },
+        { keys: ['?'], desc: 'Open Keyboard Shortcuts Panel', run: () => openShortcuts() },
+        {
+          keys: ['F'], desc: 'Toggle Fullscreen',
+          run: () => { if (typeof toggleFullscreen === 'function') toggleFullscreen(); }
+        },
+        {
+          keys: ['T'], desc: 'Toggle Dark / Light Theme',
+          run: () => setTheme((document.documentElement.getAttribute('data-theme') === 'dark') ? 'light' : 'dark')
+        },
       ]
     },
     {
       group: 'Study Timer',
+      icon: 'timer',
       shortcuts: [
-        { keys: ['Space'], desc: 'Start / Stop focus timer (when on Tracker tab)' },
-        { keys: ['Escape'], desc: 'Close any open modal or overlay' },
+        {
+          keys: ['Space'], desc: 'Start / Stop focus timer (when on Tracker tab)',
+          run: () => {
+            activateTab('tracker', true);
+            setTimeout(() => {
+              const start = document.getElementById('startBtn');
+              const stop = document.getElementById('stopBtn');
+              if (start && start.offsetParent !== null) start.click();
+              else if (stop && stop.offsetParent !== null) stop.click();
+            }, 80);
+          }
+        },
+        { keys: ['Escape'], desc: 'Close any open modal or overlay', run: () => {} },
       ]
     }
   ];
 
+  /* Rows are runnable: clicking one performs what the keys would do, then the
+     panel closes. Matching is by the original group/shortcut index so filtering
+     never shifts the action attached to a row. */
+  const matchesQuery = (shortcut, query) => !query
+    || [shortcut.desc, ...shortcut.keys].join(' ').toLowerCase().includes(query);
+
   function renderShortcutsBody() {
-    body.innerHTML = SHORTCUT_GROUPS.map(grp => `
-      <div style="margin-bottom:18px;">
-        <div style="font-size:11px; text-transform:uppercase; letter-spacing:0.06em; font-weight:700; color:var(--text-muted); margin-bottom:10px;">${escapeHtml(grp.group)}</div>
-        <div style="display:flex; flex-direction:column; gap:7px;">
+    const query = (searchInput && searchInput.value ? searchInput.value : '').trim().toLowerCase();
+    const groups = SHORTCUT_GROUPS
+      .map((grp, gi) => ({
+        group: grp.group,
+        icon: grp.icon,
+        gi,
+        shortcuts: grp.shortcuts
+          .map((s, si) => ({ ...s, si }))
+          .filter(s => matchesQuery(s, query))
+      }))
+      .filter(grp => grp.shortcuts.length);
+
+    if (!groups.length) {
+      body.innerHTML = `
+        <div class="shortcut-empty">
+          <i data-lucide="search-x" aria-hidden="true"></i>
+          <p>No shortcut matches <b>“${escapeHtml(query)}”</b></p>
+          <span>Try a key such as <kbd class="keycap keycap-inline">Alt</kbd> or a word like “theme”.</span>
+        </div>`;
+      if (window.lucide) lucide.createIcons();
+      return;
+    }
+
+    body.innerHTML = groups.map(grp => `
+      <section class="shortcut-group">
+        <div class="shortcut-group-head">
+          <span class="shortcut-group-icon" aria-hidden="true"><i data-lucide="${grp.icon}"></i></span>
+          <span class="shortcut-group-title">${escapeHtml(grp.group)}</span>
+          <span class="shortcut-group-count">${grp.shortcuts.length}</span>
+        </div>
+        <div class="shortcut-list">
           ${grp.shortcuts.map(s => `
-            <div style="display:flex; justify-content:space-between; align-items:center; padding:7px 10px; border-radius:9px; background:var(--surface); border:1px solid var(--border);">
-              <span style="font-size:13px; color:var(--text);">${escapeHtml(s.desc)}</span>
-              <div style="display:flex; gap:4px; flex-shrink:0;">
-                ${s.keys.map(k => `<kbd style="font-family:var(--font-mono); font-size:11px; font-weight:700; padding:3px 7px; border-radius:6px; border:1px solid var(--border); background:var(--surface-strong); color:var(--text); box-shadow:0 1px 3px rgba(0,0,0,0.12);">${escapeHtml(k)}</kbd>`).join('<span style="font-size:12px; color:var(--text-muted); align-self:center;">+</span>')}
-              </div>
-            </div>
+            <button type="button" class="shortcut-row" data-group="${grp.gi}" data-shortcut="${s.si}" title="Run this shortcut">
+              <span class="shortcut-desc">${escapeHtml(s.desc)}</span>
+              <span class="shortcut-keys">
+                ${s.keys.map((k, i) => `${i ? '<span class="shortcut-plus" aria-hidden="true">+</span>' : ''}<kbd class="keycap">${escapeHtml(k)}</kbd>`).join('')}
+              </span>
+            </button>
           `).join('')}
         </div>
-      </div>
+      </section>
     `).join('');
+    if (window.lucide) lucide.createIcons();
   }
 
   function openShortcuts() {
+    if (searchInput) {
+      searchInput.value = '';
+      if (searchClear) searchClear.hidden = true;
+    }
     renderShortcutsBody();
     modal.style.display = 'flex';
     void modal.offsetWidth;
     modal.classList.add('open');
     if (window.lucide) lucide.createIcons();
+    if (searchInput) setTimeout(() => { if (modal.classList.contains('open')) searchInput.focus(); }, 60);
   }
 
   function closeShortcuts() {
     modal.classList.remove('open');
     setTimeout(() => { if (!modal.classList.contains('open')) modal.style.display = 'none'; }, 180);
   }
+
+  if (searchInput) {
+    searchInput.addEventListener('input', () => {
+      if (searchClear) searchClear.hidden = !searchInput.value;
+      renderShortcutsBody();
+    });
+    searchInput.addEventListener('keydown', e => {
+      if (e.key !== 'Escape') return;
+      e.stopPropagation();
+      if (searchInput.value) {
+        searchInput.value = '';
+        if (searchClear) searchClear.hidden = true;
+        renderShortcutsBody();
+      } else {
+        closeShortcuts();
+      }
+    });
+  }
+
+  if (searchClear && searchInput) {
+    searchClear.addEventListener('click', () => {
+      searchInput.value = '';
+      searchClear.hidden = true;
+      renderShortcutsBody();
+      searchInput.focus();
+    });
+  }
+
+  body.addEventListener('click', e => {
+    const row = e.target.closest('.shortcut-row');
+    if (!row) return;
+    const grp = SHORTCUT_GROUPS[Number(row.dataset.group)];
+    const shortcut = grp && grp.shortcuts[Number(row.dataset.shortcut)];
+    if (!shortcut) return;
+    closeShortcuts();
+    if (typeof shortcut.run === 'function') setTimeout(() => shortcut.run(), 120);
+  });
 
   if (triggerBtn) triggerBtn.addEventListener('click', openShortcuts);
   if (closeBtn) closeBtn.addEventListener('click', closeShortcuts);

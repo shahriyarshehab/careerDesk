@@ -272,7 +272,7 @@ button.pill.danger:hover {
        segmented mode toggles, track pills) and the timer chips, whose
        geometry the sliding switch bubble measures.
    Those still get the transformation from the second rule set below. */
-html[data-theme] :is(button, a.pill, label.pill):not(.solid):not(.primary):not(.primary-btn):not(.btn-primary):not(.danger):not(.active):not(.active-theme):not(.tab-btn):not(.nav-link):not(.mobile-more-trigger):not(.mobile-more-link):not(.btn-mode-switch):not(.track-lang-btn):not(.track-role-btn):not(.track-sector-btn):not(.db-timer-mode-btn):not(.db-timer-btn-start):not(.db-timer-btn-stop):not(.quiz-opt-btn):not(.groupchat-send-btn):not(.btn-submit):not(.btn-social):not(.theme-card) {
+html[data-theme] :is(button, a.pill, label.pill):not(.solid):not(.primary):not(.primary-btn):not(.btn-primary):not(.danger):not(.active):not(.active-theme):not(.tab-btn):not(.nav-link):not(.mobile-more-trigger):not(.mobile-more-link):not(.btn-mode-switch):not(.track-lang-btn):not(.track-role-btn):not(.track-sector-btn):not(.db-timer-mode-btn):not(.db-timer-btn-start):not(.db-timer-btn-stop):not(.quiz-opt-btn):not(.groupchat-send-btn):not(.btn-submit):not(.btn-social):not(.shortcut-row):not(.desk-mini-cal):not(.desk-focus-ring):not(.desk-progress):not(.desk-fullscreen-btn):not(.desk-avatar) {
   background-color: var(--surface);
   background-image: none;
   border-color: var(--border);
@@ -283,7 +283,7 @@ html[data-theme] :is(button, a.pill, label.pill):not(.solid):not(.primary):not(.
               box-shadow .1s ease, transform .1s var(--cd-ease, cubic-bezier(.2, .8, .2, 1)) !important;
 }
 
-html[data-theme] :is(button, a.pill, label.pill):not(.solid):not(.primary):not(.primary-btn):not(.btn-primary):not(.danger):not(.active):not(.active-theme):not(.tab-btn):not(.nav-link):not(.mobile-more-trigger):not(.mobile-more-link):not(.btn-mode-switch):not(.track-lang-btn):not(.track-role-btn):not(.track-sector-btn):not(.db-timer-mode-btn):not(.db-timer-btn-start):not(.db-timer-btn-stop):not(.quiz-opt-btn):not(.groupchat-send-btn):not(.btn-submit):not(.btn-social):not(.theme-card):hover:not(:disabled) {
+html[data-theme] :is(button, a.pill, label.pill):not(.solid):not(.primary):not(.primary-btn):not(.btn-primary):not(.danger):not(.active):not(.active-theme):not(.tab-btn):not(.nav-link):not(.mobile-more-trigger):not(.mobile-more-link):not(.btn-mode-switch):not(.track-lang-btn):not(.track-role-btn):not(.track-sector-btn):not(.db-timer-mode-btn):not(.db-timer-btn-start):not(.db-timer-btn-stop):not(.quiz-opt-btn):not(.groupchat-send-btn):not(.btn-submit):not(.btn-social):not(.shortcut-row):not(.desk-mini-cal):not(.desk-focus-ring):not(.desk-progress):not(.desk-fullscreen-btn):not(.desk-avatar):hover:not(:disabled) {
   background-color: var(--surface-hover);
   border-color: color-mix(in srgb, var(--accent1) 55%, transparent);
   color: var(--text);
@@ -291,7 +291,7 @@ html[data-theme] :is(button, a.pill, label.pill):not(.solid):not(.primary):not(.
   box-shadow: 0 10px 22px -12px var(--border-glow, rgba(99, 102, 241, .42));
 }
 
-html[data-theme] :is(button, a.pill, label.pill):not(.solid):not(.primary):not(.primary-btn):not(.btn-primary):not(.danger):not(.active):not(.active-theme):not(.tab-btn):not(.nav-link):not(.mobile-more-trigger):not(.mobile-more-link):not(.btn-mode-switch):not(.track-lang-btn):not(.track-role-btn):not(.track-sector-btn):not(.db-timer-mode-btn):not(.db-timer-btn-start):not(.db-timer-btn-stop):not(.quiz-opt-btn):not(.groupchat-send-btn):not(.btn-submit):not(.btn-social):not(.theme-card):active:not(:disabled) {
+html[data-theme] :is(button, a.pill, label.pill):not(.solid):not(.primary):not(.primary-btn):not(.btn-primary):not(.danger):not(.active):not(.active-theme):not(.tab-btn):not(.nav-link):not(.mobile-more-trigger):not(.mobile-more-link):not(.btn-mode-switch):not(.track-lang-btn):not(.track-role-btn):not(.track-sector-btn):not(.db-timer-mode-btn):not(.db-timer-btn-start):not(.db-timer-btn-stop):not(.quiz-opt-btn):not(.groupchat-send-btn):not(.btn-submit):not(.btn-social):not(.shortcut-row):not(.desk-mini-cal):not(.desk-focus-ring):not(.desk-progress):not(.desk-fullscreen-btn):not(.desk-avatar):active:not(:disabled) {
   transform: translateY(0) scale(.96);
   box-shadow: 0 2px 8px -6px var(--border-glow, rgba(99, 102, 241, .42));
 }

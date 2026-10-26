@@ -1,0 +1,1760 @@
+/* ==========================================================================
+   CareerDesk — Desk hero
+   A CSS-illustrated reading room (shelf, window light, lamp pool, desk plane)
+   with a live focus ring on the left and a mini calendar on the right. Loaded
+   after the palette so the scene keeps its warm tones in every theme.
+   ========================================================================== */
+
+.desk-hero {
+  /* Height of the desk surface along the bottom. The scene and the content grid
+     both read it, so the copy band always rests on the desk itself. */
+  --desk-ledge: clamp(64px, 15vh, 156px);
+  --desk-band: calc(var(--desk-ledge) + 18px);
+  /* Room palette. The desk script stamps data-phase from the clock (night is the
+     resting value) and the light theme re-points the same tokens, so one scene
+     follows both the hour and the active theme. */
+  --desk-sky-top: #162033;
+  --desk-sky-mid: #0e1524;
+  --desk-sky-bottom: #0a0f1a;
+  --desk-glow-warm: rgba(250, 204, 121, 0.26);
+  --desk-glow-cool: rgba(99, 102, 241, 0.24);
+  --desk-window-a: rgba(255, 231, 176, 0.42);
+  --desk-window-b: rgba(255, 197, 120, 0.1);
+  --desk-window-c: rgba(255, 197, 120, 0.04);
+  --desk-window-ring: rgba(255, 226, 170, 0.24);
+  --desk-window-glow: rgba(255, 205, 130, 0.22);
+  --desk-mullion: rgba(12, 18, 30, 0.55);
+  --desk-beam: rgba(255, 219, 158, 0.22);
+  --desk-lamp: 255, 208, 136;
+  --desk-lamp-alpha: 0.34;
+  --desk-stars: 1;
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  margin-bottom: 18px;
+  border-radius: 22px;
+  border: 1px solid var(--border);
+  background:
+    radial-gradient(120% 140% at 84% -14%, var(--desk-glow-warm), transparent 58%),
+    radial-gradient(95% 130% at 10% 112%, var(--desk-glow-cool), transparent 62%),
+    linear-gradient(160deg, var(--desk-sky-top) 0%, var(--desk-sky-mid) 54%, var(--desk-sky-bottom) 100%);
+  box-shadow:
+    0 22px 60px rgba(4, 8, 18, 0.42),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+/* Soft scrim so the copy stays legible over the scene. */
+.desk-hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: linear-gradient(96deg, rgba(7, 11, 19, 0.78) 0%, rgba(7, 11, 19, 0.44) 44%, rgba(7, 11, 19, 0.06) 78%);
+}
+
+.desk-hero-scene {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  /* Stars only show at night; the opacity token drops them out by day. */
+  background-repeat: no-repeat;
+  background-image:
+    radial-gradient(1.6px 1.6px at 11% 21%, rgba(238, 245, 255, var(--desk-stars)), transparent 65%),
+    radial-gradient(1.4px 1.4px at 21% 9%, rgba(238, 245, 255, calc(var(--desk-stars) * 0.8)), transparent 65%),
+    radial-gradient(1.8px 1.8px at 30% 27%, rgba(238, 245, 255, calc(var(--desk-stars) * 0.7)), transparent 65%),
+    radial-gradient(1.3px 1.3px at 46% 12%, rgba(238, 245, 255, calc(var(--desk-stars) * 0.9)), transparent 65%),
+    radial-gradient(1.5px 1.5px at 57% 24%, rgba(238, 245, 255, calc(var(--desk-stars) * 0.6)), transparent 65%),
+    radial-gradient(1.7px 1.7px at 65% 7%, rgba(238, 245, 255, calc(var(--desk-stars) * 0.85)), transparent 65%),
+    radial-gradient(1.3px 1.3px at 74% 30%, rgba(238, 245, 255, calc(var(--desk-stars) * 0.7)), transparent 65%),
+    radial-gradient(1.6px 1.6px at 86% 15%, rgba(238, 245, 255, calc(var(--desk-stars) * 0.75)), transparent 65%),
+    radial-gradient(1.4px 1.4px at 93% 29%, rgba(238, 245, 255, calc(var(--desk-stars) * 0.6)), transparent 65%),
+    radial-gradient(1.2px 1.2px at 7% 34%, rgba(238, 245, 255, calc(var(--desk-stars) * 0.55)), transparent 65%),
+    radial-gradient(1.5px 1.5px at 41% 33%, rgba(238, 245, 255, calc(var(--desk-stars) * 0.6)), transparent 65%);
+}
+
+/* ---------- Window with warm daylight ---------- */
+.desk-scene-window {
+  position: absolute;
+  top: 6%;
+  left: 35%;
+  width: 24%;
+  max-width: 320px;
+  height: 38%;
+  border: 5px solid rgba(46, 34, 24, 0.72);
+  border-radius: 14px 14px 5px 5px;
+  background:
+    linear-gradient(90deg, transparent calc(50% - 1px), var(--desk-mullion) calc(50% - 1px) calc(50% + 1px), transparent calc(50% + 1px)),
+    linear-gradient(180deg, transparent calc(38% - 1px), var(--desk-mullion) calc(38% - 1px) calc(38% + 1px), transparent calc(38% + 1px)),
+    linear-gradient(180deg, var(--desk-window-a), var(--desk-window-b) 62%, var(--desk-window-c));
+  box-shadow:
+    0 0 0 1px var(--desk-window-ring),
+    0 0 46px var(--desk-window-glow);
+}
+
+.desk-scene-window::before {
+  content: '';
+  position: absolute;
+  left: -7%;
+  right: -7%;
+  bottom: -9px;
+  height: 9px;
+  border-radius: 2px;
+  background: linear-gradient(180deg, rgba(214, 170, 120, 0.8), rgba(90, 60, 38, 0.92));
+  box-shadow: 0 7px 18px rgba(0, 0, 0, 0.4);
+}
+
+.desk-scene-window::after {
+  content: '';
+  position: absolute;
+  left: -40%;
+  top: 30%;
+  width: 190%;
+  height: 110%;
+  background: linear-gradient(102deg, var(--desk-beam), transparent 62%);
+  clip-path: polygon(38% 0, 100% 0, 62% 100%, 0 100%);
+  filter: blur(6px);
+  opacity: 0.75;
+}
+
+/* ---------- Framed prints on the right-hand wall ---------- */
+.desk-scene-art {
+  position: absolute;
+  border: 5px solid rgba(58, 43, 30, 0.7);
+  border-radius: 3px;
+  opacity: 0.85;
+  background:
+    radial-gradient(circle at 52% 40%, rgba(255, 219, 168, 0.62) 0 13%, rgba(255, 219, 168, 0) 13.6%),
+    radial-gradient(125% 58% at 24% 98%, rgba(104, 72, 47, 0.5) 0 60%, rgba(104, 72, 47, 0) 60.6%),
+    radial-gradient(135% 62% at 86% 106%, rgba(70, 47, 31, 0.62) 0 60%, rgba(70, 47, 31, 0) 60.6%),
+    linear-gradient(180deg, rgba(246, 228, 201, 0.3), rgba(233, 196, 152, 0.16));
+  box-shadow:
+    0 16px 34px rgba(2, 5, 10, 0.4),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+}
+
+/* Inner mat, so the print reads as framed paper rather than a flat panel. */
+.desk-scene-art::after {
+  content: '';
+  position: absolute;
+  inset: 8%;
+  border: 1px solid rgba(255, 240, 214, 0.16);
+  border-radius: 1px;
+}
+
+.desk-scene-art--main {
+  top: 16%;
+  left: 66%;
+  width: 10%;
+  height: 19%;
+}
+
+.desk-scene-art--small {
+  top: 27%;
+  left: 78.5%;
+  width: 6%;
+  height: 10.5%;
+  opacity: 0.68;
+}
+
+/* ---------- Bookshelves ---------- */
+.desk-scene-shelf {
+  position: absolute;
+  left: 3%;
+  width: 20%;
+  max-width: 230px;
+  height: 62px;
+  border-radius: 3px;
+  opacity: 0.5;
+  background-image: repeating-linear-gradient(90deg,
+      rgba(248, 186, 124, 0.55) 0 5px,
+      rgba(122, 162, 244, 0.45) 5px 9px,
+      rgba(196, 144, 246, 0.4) 9px 13px,
+      rgba(253, 219, 155, 0.5) 13px 19px,
+      rgba(88, 202, 190, 0.38) 19px 23px,
+      transparent 23px 26px);
+  background-size: 100% 40px;
+  background-position: bottom left;
+  background-repeat: no-repeat;
+}
+
+.desk-scene-shelf::after {
+  content: '';
+  position: absolute;
+  left: -3%;
+  right: -3%;
+  bottom: 0;
+  height: 7px;
+  border-radius: 2px;
+  background: linear-gradient(180deg, rgba(196, 148, 102, 0.85), rgba(84, 54, 34, 0.9));
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.4);
+}
+
+.desk-scene-shelf--top {
+  top: 15%;
+}
+
+.desk-scene-shelf--mid {
+  top: 31%;
+  left: 5%;
+  width: 17%;
+  height: 52px;
+  opacity: 0.3;
+}
+
+.desk-scene-shelf--low {
+  top: 47%;
+  left: 3.6%;
+  width: 15%;
+  height: 46px;
+  opacity: 0.2;
+}
+
+/* A soft shadow where the wall meets the desk grounds the surface. */
+.desk-hero-scene::before {
+  content: '';
+  position: absolute;
+  inset: auto 0 0;
+  height: calc(var(--desk-ledge) + 90px);
+  background: linear-gradient(180deg, transparent, rgba(4, 7, 12, 0.5));
+}
+
+/* ---------- Desk lamp pool ---------- */
+.desk-scene-lamp {
+  position: absolute;
+  left: 12%;
+  bottom: calc(var(--desk-ledge) - 60px);
+  width: 46%;
+  max-width: 560px;
+  height: 330px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 62%, rgba(var(--desk-lamp), var(--desk-lamp-alpha)), rgba(var(--desk-lamp), calc(var(--desk-lamp-alpha) * 0.3)) 46%, transparent 72%);
+  filter: blur(6px);
+}
+
+/* ---------- Desk plane ---------- */
+.desk-scene-desk {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: var(--desk-ledge);
+  border-top: 1px solid rgba(255, 214, 160, 0.3);
+  background:
+    linear-gradient(180deg, rgba(255, 208, 152, 0.18), rgba(255, 208, 152, 0) 42%),
+    repeating-linear-gradient(90deg, rgba(0, 0, 0, 0.05) 0 3px, transparent 3px 9px),
+    linear-gradient(180deg, rgba(126, 86, 54, 0.6) 0%, rgba(78, 52, 34, 0.78) 38%, rgba(26, 17, 11, 0.92) 100%);
+  box-shadow: inset 0 1px 0 rgba(255, 217, 168, 0.22);
+}
+
+/* The front lip of the desk, so the surface reads as a solid object. */
+.desk-scene-desk::after {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto;
+  height: 22%;
+  background: linear-gradient(180deg, rgba(255, 205, 148, 0.14), transparent 90%);
+}
+
+/* ==========================================================================
+   Content grid
+   Time sits top-left, the routine's mini calendar top-right, the running
+   routine subject in the middle, and the focus progress bar + account chip
+   along the bottom edge above the desk surface.
+   ========================================================================== */
+.desk-hero-inner {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  align-items: start;
+  flex: 1 1 auto;
+  min-height: 0;
+  column-gap: clamp(16px, 3vw, 40px);
+  row-gap: clamp(14px, 2vh, 26px);
+  padding:
+    clamp(16px, 3vh, 30px) clamp(18px, 3vw, 40px) var(--desk-band);
+}
+
+/* Time on the left, calendar and the fullscreen toggle on the right. */
+.desk-room-head {
+  grid-column: 1 / -1;
+  grid-row: 1;
+  align-self: start;
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
+  gap: 16px;
+}
+
+/* Same glass skin as every app button: one --surface wash, the theme border
+   and the shared 14px blur with a saturation lift. */
+.desk-clock {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+  padding: 10px 15px 11px;
+  border-radius: 14px;
+  border: 1px solid var(--border, rgba(255, 255, 255, 0.12));
+  background: var(--surface, rgba(255, 255, 255, 0.04));
+  backdrop-filter: blur(14px) saturate(150%);
+  -webkit-backdrop-filter: blur(14px) saturate(150%);
+  box-shadow: 0 14px 32px rgba(4, 8, 18, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.desk-clock-time {
+  font-family: var(--font-mono);
+  font-size: clamp(26px, 2.6vw, 40px);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.01em;
+  color: #f4f7fb;
+  font-variant-numeric: tabular-nums;
+  text-shadow: 0 2px 18px rgba(0, 0, 0, 0.35);
+}
+
+.desk-clock-date {
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(226, 234, 246, 0.6);
+}
+
+/* The running routine block owns the middle of the room. */
+.desk-hero-copy {
+  grid-column: 1 / -1;
+  grid-row: 2;
+  align-self: center;
+  justify-self: start;
+  max-width: min(62ch, 78%);
+  text-align: left;
+}
+
+/* Progress bar bottom-left, small account chip bottom-right. */
+.desk-hero-foot {
+  grid-column: 1 / -1;
+  grid-row: 3;
+  align-self: end;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: clamp(14px, 3vw, 32px);
+}
+
+html[data-theme="light"] .desk-clock-time {
+  color: #1b2434;
+  text-shadow: 0 1px 10px rgba(255, 255, 255, 0.7);
+}
+
+html[data-theme="light"] .desk-clock-date {
+  color: rgba(60, 72, 92, 0.7);
+}
+
+.desk-hero-eyebrow {
+  display: block;
+  font-size: 9.5px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(255, 231, 190, 0.72);
+  margin-bottom: 5px;
+}
+
+.desk-hero-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(24px, 2.3vw, 36px);
+  line-height: 1.15;
+  letter-spacing: -0.015em;
+  color: #f4f7fb;
+}
+
+/* Topic / task line: deliberately close to the subject size so the running
+   block reads at a glance from across the room. */
+.desk-hero-sub {
+  margin: 8px 0 0;
+  font-size: clamp(17px, 1.55vw, 24px);
+  font-weight: 600;
+  line-height: 1.35;
+  letter-spacing: -0.01em;
+  color: rgba(226, 234, 246, 0.82);
+  max-width: 44ch;
+}
+
+.desk-hero-meta {
+  margin: 6px 0 0;
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(226, 234, 246, 0.5);
+}
+
+.desk-hero-chips {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-top: 11px;
+}
+
+.desk-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: rgba(226, 234, 246, 0.78);
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  white-space: nowrap;
+}
+
+.desk-chip svg {
+  width: 12px;
+  height: 12px;
+}
+
+.desk-chip--live {
+  color: #6ee7b7;
+  background: rgba(52, 211, 153, 0.14);
+  border-color: rgba(52, 211, 153, 0.36);
+}
+
+/* ==========================================================================
+   Focus progress bar
+   ========================================================================== */
+.desk-progress {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: min(420px, 58%);
+  padding: 12px 15px 13px;
+  border: 1px solid var(--border, rgba(255, 255, 255, 0.12));
+  background: var(--surface, rgba(255, 255, 255, 0.04));
+  backdrop-filter: blur(14px) saturate(150%);
+  -webkit-backdrop-filter: blur(14px) saturate(150%);
+  cursor: pointer;
+  text-align: left;
+  color: var(--text, #f4f7fb);
+  box-shadow: 0 14px 32px rgba(4, 8, 18, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  transition:
+    background-color 0.1s ease,
+    border-color 0.1s ease,
+    color 0.1s ease,
+    box-shadow 0.1s ease,
+    transform 0.1s var(--cd-ease, cubic-bezier(0.2, 0.8, 0.2, 1));
+}
+
+/* The shared button skin sets its own radius; the bar keeps a softer corner. */
+#deskHero .desk-progress {
+  border-radius: 14px;
+}
+
+/* Hover and press follow the universal button rule: accent rim, glass lifts
+   two pixels, then squashes on click. */
+.desk-progress:hover {
+  background: var(--surface-hover, rgba(255, 255, 255, 0.08));
+  border-color: color-mix(in srgb, var(--accent1) 55%, transparent);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 22px -12px var(--border-glow, rgba(99, 102, 241, 0.42));
+}
+
+.desk-progress:active {
+  transform: translateY(0) scale(0.96);
+  box-shadow: 0 2px 8px -6px var(--border-glow, rgba(99, 102, 241, 0.42));
+}
+
+.desk-progress:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--accent2) 75%, transparent);
+  outline-offset: 2px;
+}
+
+.desk-progress-top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.desk-progress-label {
+  font-size: 9.5px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(255, 231, 190, 0.72);
+}
+
+.desk-progress-pct {
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--text, #f4f7fb);
+  font-variant-numeric: tabular-nums;
+}
+
+.desk-progress-track {
+  display: block;
+  width: 100%;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--border, rgba(255, 255, 255, 0.14));
+  border: 1px solid var(--border, rgba(255, 255, 255, 0.08));
+  overflow: hidden;
+}
+
+.desk-progress-fill {
+  display: block;
+  width: 0;
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--accent1), var(--accent2));
+  box-shadow: 0 0 10px color-mix(in srgb, var(--accent2) 50%, transparent);
+  transition: width 0.5s ease, opacity 0.3s ease;
+}
+
+.desk-hero.is-active .desk-progress-fill {
+  animation: deskProgressGlow 2.2s ease-in-out infinite;
+}
+
+.desk-progress-caption {
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  color: var(--text-soft, rgba(226, 234, 246, 0.62));
+}
+
+.desk-hero.is-active .desk-progress-caption {
+  color: #6ee7b7;
+}
+
+@keyframes deskProgressGlow {
+  0%, 100% { filter: brightness(1); }
+  50% { filter: brightness(1.28); }
+}
+
+/* Small account chip in the bottom-right corner. */
+.desk-profile-slot {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-left: auto;
+  flex: 0 0 auto;
+  min-width: 0;
+}
+
+.desk-profile-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  align-items: flex-end;
+  min-width: 0;
+  text-align: right;
+}
+
+.desk-profile-name {
+  max-width: 150px;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.2;
+  color: #f4f7fb;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.desk-profile-hint {
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(226, 234, 246, 0.5);
+}
+
+#deskHero .desk-mini-cal {
+  border-radius: 14px;
+}
+
+/* ==========================================================================
+   Mini calendar
+   ========================================================================== */
+/* Styled like the app's buttons: theme surface, border and lift. */
+.desk-mini-cal {
+  display: block;
+  width: 204px;
+  flex-shrink: 0;
+  margin-left: auto;
+  padding: 10px 11px 11px;
+  border-radius: 14px;
+  border: 1px solid var(--border, rgba(255, 255, 255, 0.12));
+  background: var(--surface, rgba(255, 255, 255, 0.04));
+  backdrop-filter: blur(14px) saturate(150%);
+  -webkit-backdrop-filter: blur(14px) saturate(150%);
+  cursor: pointer;
+  text-align: left;
+  color: var(--text, #f4f7fb);
+  box-shadow: 0 14px 32px rgba(4, 8, 18, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  transition:
+    background-color 0.1s ease,
+    border-color 0.1s ease,
+    color 0.1s ease,
+    box-shadow 0.1s ease,
+    transform 0.1s var(--cd-ease, cubic-bezier(0.2, 0.8, 0.2, 1));
+}
+
+.desk-mini-cal:hover {
+  background: var(--surface-hover, rgba(255, 255, 255, 0.08));
+  border-color: color-mix(in srgb, var(--accent1) 55%, transparent);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 22px -12px var(--border-glow, rgba(99, 102, 241, 0.42));
+}
+
+.desk-mini-cal:active {
+  transform: translateY(0) scale(0.96);
+  box-shadow: 0 2px 8px -6px var(--border-glow, rgba(99, 102, 241, 0.42));
+}
+
+.desk-mini-cal:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--accent2) 75%, transparent);
+  outline-offset: 2px;
+}
+
+.desk-cal-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 7px;
+}
+
+.desk-cal-month {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text, #f4f7fb);
+}
+
+.desk-cal-today {
+  font-size: 10.5px;
+  font-weight: 800;
+  color: var(--accent2);
+}
+
+.desk-cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+}
+
+.desk-cal-dow {
+  font-size: 8px;
+  font-weight: 800;
+  text-align: center;
+  text-transform: uppercase;
+  color: var(--text-muted, rgba(226, 234, 246, 0.55));
+  padding-bottom: 2px;
+}
+
+.desk-cal-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 20px;
+  border-radius: 5px;
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--text-soft, rgba(226, 234, 246, 0.7));
+}
+
+.desk-cal-cell.is-empty {
+  background: transparent;
+}
+
+.desk-cal-cell.is-today {
+  background: linear-gradient(135deg, var(--accent1), var(--accent2));
+  color: #fff;
+  font-weight: 800;
+  box-shadow: 0 2px 8px color-mix(in srgb, var(--accent1) 45%, transparent);
+}
+
+/* ==========================================================================
+   Light theme: turn the scene into a sunlit study room
+   ========================================================================== */
+html[data-theme="light"] .desk-hero {
+  --desk-sky-top: #faf4e9;
+  --desk-sky-mid: #f3ebdd;
+  --desk-sky-bottom: #eee3d2;
+  --desk-glow-warm: rgba(251, 191, 106, 0.34);
+  --desk-glow-cool: rgba(129, 140, 248, 0.22);
+  --desk-window-a: rgba(255, 216, 148, 0.85);
+  --desk-window-b: rgba(255, 190, 105, 0.3);
+  --desk-window-c: rgba(255, 190, 105, 0.15);
+  --desk-window-ring: rgba(184, 142, 84, 0.35);
+  --desk-window-glow: rgba(255, 196, 120, 0.42);
+  --desk-mullion: rgba(120, 96, 66, 0.35);
+  --desk-beam: rgba(255, 226, 174, 0.4);
+  --desk-lamp: 255, 205, 140;
+  --desk-stars: 0;
+  box-shadow:
+    0 18px 44px rgba(76, 63, 45, 0.16),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+html[data-theme="light"] .desk-hero::before {
+  background: linear-gradient(96deg, rgba(255, 250, 240, 0.86) 0%, rgba(255, 250, 240, 0.5) 44%, rgba(255, 250, 240, 0.05) 78%);
+}
+
+html[data-theme="light"] .desk-scene-window {
+  box-shadow:
+    0 0 0 1px var(--desk-window-ring),
+    0 0 42px var(--desk-window-glow);
+}
+
+html[data-theme="light"] .desk-scene-art {
+  border-color: rgba(150, 110, 72, 0.42);
+  background:
+    radial-gradient(circle at 52% 40%, rgba(255, 206, 132, 0.95) 0 13%, rgba(255, 206, 132, 0) 13.6%),
+    radial-gradient(125% 58% at 24% 98%, rgba(214, 176, 130, 0.9) 0 60%, rgba(214, 176, 130, 0) 60.6%),
+    radial-gradient(135% 62% at 86% 106%, rgba(186, 146, 102, 0.95) 0 60%, rgba(186, 146, 102, 0) 60.6%),
+    linear-gradient(180deg, #fbf0dd, #f2e0c4);
+  box-shadow:
+    0 12px 26px rgba(120, 90, 55, 0.16),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.5);
+}
+
+html[data-theme="light"] .desk-scene-art::after {
+  border-color: rgba(150, 110, 72, 0.2);
+}
+
+html[data-theme="light"] .desk-scene-shelf {
+  opacity: 0.72;
+}
+
+html[data-theme="light"] .desk-hero-scene::before {
+  background: linear-gradient(180deg, transparent, rgba(150, 110, 72, 0.18));
+}
+
+html[data-theme="light"] .desk-scene-window::before {
+  background: linear-gradient(180deg, rgba(206, 168, 120, 0.95), rgba(150, 110, 72, 0.95));
+  box-shadow: 0 6px 16px rgba(120, 90, 55, 0.28);
+}
+
+html[data-theme="light"] .desk-scene-desk {
+  border-top-color: rgba(150, 110, 72, 0.4);
+  background:
+    linear-gradient(180deg, rgba(255, 242, 218, 0.6), rgba(255, 242, 218, 0) 42%),
+    repeating-linear-gradient(90deg, rgba(94, 64, 38, 0.13) 0 2px, transparent 2px 8px),
+    linear-gradient(180deg, #d9b389 0%, #c3925f 42%, #a06e3d 100%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
+}
+
+html[data-theme="light"] .desk-scene-window {
+  border-color: rgba(150, 110, 72, 0.5);
+}
+
+html[data-theme="light"] .desk-hero-eyebrow {
+  color: rgba(146, 104, 52, 0.85);
+}
+
+html[data-theme="light"] .desk-hero-title,
+html[data-theme="light"] .desk-progress-pct,
+html[data-theme="light"] .desk-profile-name {
+  color: #1b2434;
+}
+
+html[data-theme="light"] .desk-hero-sub {
+  color: rgba(45, 55, 72, 0.86);
+}
+
+html[data-theme="light"] .desk-hero-meta {
+  color: rgba(60, 72, 92, 0.6);
+}
+
+html[data-theme="light"] .desk-progress {
+  background: var(--surface, rgba(255, 255, 255, 0.75));
+  border-color: rgba(148, 121, 84, 0.24);
+  color: #1b2434;
+}
+
+html[data-theme="light"] .desk-progress:hover {
+  background: var(--surface-hover, #ffffff);
+}
+
+html[data-theme="light"] .desk-progress-label,
+html[data-theme="light"] .desk-hero-eyebrow {
+  color: rgba(146, 104, 52, 0.85);
+}
+
+html[data-theme="light"] .desk-progress-caption {
+  color: rgba(60, 72, 92, 0.7);
+}
+
+html[data-theme="light"] .desk-progress-track {
+  background: rgba(30, 41, 59, 0.12);
+  border-color: rgba(148, 121, 84, 0.16);
+}
+
+html[data-theme="light"] .desk-profile-hint {
+  color: rgba(60, 72, 92, 0.5);
+}
+
+html[data-theme="light"] .desk-chip {
+  color: rgba(45, 55, 72, 0.86);
+  background: rgba(255, 255, 255, 0.66);
+  border-color: rgba(148, 121, 84, 0.24);
+}
+
+html[data-theme="light"] .desk-chip--live {
+  color: #047857;
+  background: rgba(16, 185, 129, 0.14);
+  border-color: rgba(16, 185, 129, 0.32);
+}
+
+html[data-theme="light"] .desk-mini-cal {
+  background: var(--surface, rgba(255, 255, 255, 0.75));
+  border-color: rgba(148, 121, 84, 0.24);
+  color: #1b2434;
+}
+
+html[data-theme="light"] .desk-mini-cal:hover {
+  background: var(--surface-hover, #ffffff);
+}
+
+html[data-theme="light"] .desk-cal-month {
+  color: rgba(60, 72, 92, 0.75);
+}
+
+html[data-theme="light"] .desk-cal-dow {
+  color: rgba(60, 72, 92, 0.45);
+}
+
+html[data-theme="light"] .desk-cal-cell {
+  color: rgba(45, 55, 72, 0.8);
+}
+
+
+
+/* ==========================================================================
+   Time of day
+   data-phase is stamped from the clock: dawn, day, dusk, night. Each phase only
+   re-points the room tokens, so the window, light beam, lamp pool and stars all
+   follow the hour while the content stays exactly where it is.
+   ========================================================================== */
+.desk-hero[data-phase="dawn"] {
+  --desk-lamp-alpha: 0.22;
+  --desk-sky-top: #2c2436;
+  --desk-sky-mid: #1b2030;
+  --desk-sky-bottom: #0c0f1a;
+  --desk-glow-warm: rgba(255, 172, 150, 0.26);
+  --desk-glow-cool: rgba(122, 120, 220, 0.22);
+  --desk-window-a: rgba(255, 206, 182, 0.44);
+  --desk-window-b: rgba(255, 152, 140, 0.12);
+  --desk-window-c: rgba(255, 140, 150, 0.05);
+  --desk-window-ring: rgba(255, 200, 180, 0.22);
+  --desk-window-glow: rgba(255, 172, 150, 0.2);
+  --desk-beam: rgba(255, 190, 172, 0.2);
+  --desk-lamp: 255, 198, 162;
+  --desk-stars: 0.3;
+}
+
+.desk-hero[data-phase="day"] {
+  --desk-lamp-alpha: 0.1;
+  --desk-sky-top: #2b3f5c;
+  --desk-sky-mid: #1c2c46;
+  --desk-sky-bottom: #0f1a2b;
+  --desk-glow-warm: rgba(255, 232, 180, 0.42);
+  --desk-glow-cool: rgba(96, 140, 230, 0.22);
+  --desk-window-a: rgba(255, 249, 222, 0.8);
+  --desk-window-b: rgba(255, 238, 196, 0.26);
+  --desk-window-c: rgba(255, 232, 178, 0.1);
+  --desk-window-ring: rgba(255, 248, 212, 0.42);
+  --desk-window-glow: rgba(255, 242, 196, 0.4);
+  --desk-beam: rgba(255, 244, 206, 0.38);
+  --desk-lamp: 255, 224, 170;
+  --desk-stars: 0;
+}
+
+.desk-hero[data-phase="dusk"] {
+  --desk-lamp-alpha: 0.3;
+  --desk-sky-top: #322031;
+  --desk-sky-mid: #201a2a;
+  --desk-sky-bottom: #0b0c16;
+  --desk-glow-warm: rgba(255, 150, 90, 0.3);
+  --desk-glow-cool: rgba(140, 100, 220, 0.22);
+  --desk-window-a: rgba(255, 190, 120, 0.55);
+  --desk-window-b: rgba(255, 120, 80, 0.14);
+  --desk-window-c: rgba(200, 90, 120, 0.05);
+  --desk-window-ring: rgba(255, 180, 130, 0.26);
+  --desk-window-glow: rgba(255, 150, 90, 0.26);
+  --desk-beam: rgba(255, 170, 110, 0.24);
+  --desk-lamp: 255, 186, 120;
+  --desk-stars: 0.18;
+}
+
+/* Light theme keeps the room sunlit at every hour, only the colour of the light
+   shifts — cool moonlight at night, amber at dawn and dusk. */
+html[data-theme="light"] .desk-hero[data-phase="night"] {
+  --desk-lamp-alpha: 0.24;
+  --desk-sky-top: #eef1f8;
+  --desk-sky-mid: #e8e9f0;
+  --desk-sky-bottom: #e2e1e3;
+  --desk-glow-warm: rgba(233, 226, 214, 0.3);
+  --desk-glow-cool: rgba(150, 170, 225, 0.26);
+  --desk-window-a: rgba(214, 226, 248, 0.92);
+  --desk-window-b: rgba(178, 196, 232, 0.34);
+  --desk-window-c: rgba(178, 196, 232, 0.16);
+  --desk-window-ring: rgba(150, 168, 205, 0.4);
+  --desk-window-glow: rgba(186, 202, 236, 0.45);
+  --desk-mullion: rgba(120, 126, 145, 0.35);
+  --desk-beam: rgba(214, 226, 250, 0.42);
+  --desk-lamp: 255, 214, 170;
+}
+
+html[data-theme="light"] .desk-hero[data-phase="dawn"] {
+  --desk-sky-top: #fdf1e8;
+  --desk-sky-mid: #f8e7dd;
+  --desk-sky-bottom: #f1ded2;
+  --desk-glow-warm: rgba(255, 196, 158, 0.4);
+  --desk-glow-cool: rgba(168, 158, 224, 0.2);
+  --desk-window-a: rgba(255, 220, 196, 0.9);
+  --desk-window-b: rgba(255, 180, 150, 0.32);
+  --desk-window-c: rgba(255, 176, 150, 0.16);
+  --desk-window-ring: rgba(206, 156, 120, 0.38);
+  --desk-window-glow: rgba(255, 190, 150, 0.5);
+  --desk-mullion: rgba(150, 108, 82, 0.32);
+  --desk-beam: rgba(255, 220, 200, 0.46);
+  --desk-lamp: 255, 206, 168;
+}
+
+html[data-theme="light"] .desk-hero[data-phase="dusk"] {
+  --desk-sky-top: #fbeadf;
+  --desk-sky-mid: #f4ddcf;
+  --desk-sky-bottom: #ecd2c2;
+  --desk-glow-warm: rgba(255, 178, 120, 0.4);
+  --desk-glow-cool: rgba(176, 146, 220, 0.2);
+  --desk-window-a: rgba(255, 208, 152, 0.92);
+  --desk-window-b: rgba(255, 168, 120, 0.34);
+  --desk-window-c: rgba(255, 168, 120, 0.16);
+  --desk-window-ring: rgba(206, 148, 96, 0.38);
+  --desk-window-glow: rgba(255, 178, 120, 0.5);
+  --desk-mullion: rgba(150, 104, 72, 0.32);
+  --desk-beam: rgba(255, 206, 160, 0.46);
+  --desk-lamp: 255, 198, 150;
+}
+
+/* ==========================================================================
+   Responsive
+   ========================================================================== */
+@media (max-width: 860px) {
+  .desk-hero-inner {
+    gap: 12px;
+    padding: 18px 18px calc(var(--desk-band) + 2px);
+  }
+
+  .desk-hero-copy {
+    max-width: 100%;
+  }
+
+  .desk-mini-cal {
+    width: 196px;
+  }
+
+  .desk-cal-cell {
+    height: 22px;
+    font-size: 10.5px;
+  }
+
+  .desk-cal-dow {
+    font-size: 8.5px;
+  }
+
+  .desk-progress {
+    width: min(360px, 62%);
+  }
+}
+
+@media (max-width: 560px) {
+  .desk-hero {
+    --desk-ledge: 62px;
+    --desk-band: 78px;
+    border-radius: 18px;
+  }
+
+  .desk-hero-inner {
+    gap: 10px 12px;
+    padding: 16px 16px calc(var(--desk-band) + 2px);
+  }
+
+  .desk-room-head {
+    gap: 10px;
+  }
+
+  .desk-clock {
+    flex: 0 0 auto;
+    padding: 9px 12px 10px;
+    border-radius: 12px;
+  }
+
+  .desk-clock-time {
+    font-size: 22px;
+  }
+
+  .desk-clock-date {
+    font-size: 9px;
+    letter-spacing: 0.1em;
+  }
+
+  .desk-mini-cal {
+    flex: 1 1 auto;
+    width: auto;
+    min-width: 0;
+    max-width: 176px;
+    padding: 9px 9px 10px;
+  }
+
+  /* Phone widths: the toggle collapses to its icon, like the app's pill rows. */
+  .desk-fullscreen-btn {
+    padding: 9px;
+  }
+
+  .desk-fullscreen-btn .desk-fs-enter > span,
+  .desk-fullscreen-btn .desk-fs-exit > span {
+    display: none !important;
+  }
+
+  .desk-hero-title {
+    font-size: 20px;
+  }
+
+  .desk-hero-sub {
+    font-size: 11.5px;
+    margin-top: 4px;
+  }
+
+  .desk-hero-eyebrow {
+    font-size: 9px;
+    margin-bottom: 3px;
+  }
+
+  .desk-hero-chips {
+    margin-top: 8px;
+    gap: 4px;
+  }
+
+  .desk-chip {
+    font-size: 9.5px;
+    padding: 3px 7px;
+    gap: 3px;
+  }
+
+  .desk-cal-cell {
+    height: 19px;
+    font-size: 9.5px;
+  }
+
+  .desk-scene-window,
+  .desk-scene-art {
+    display: none;
+  }
+
+  .desk-progress {
+    flex: 1 1 auto;
+    width: auto;
+    padding: 10px 12px 11px;
+  }
+
+  .desk-hero-foot {
+    align-items: flex-end;
+    gap: 10px;
+  }
+
+  .desk-profile-meta {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .desk-hero.is-active .desk-progress-fill {
+    animation: none;
+  }
+
+  .desk-progress-fill {
+    transition: none;
+  }
+}
+
+/* ==========================================================================
+   Desk mode
+   Clicking Desk collapses the left rail, hides the old profile cards and turns
+   the reading room into the whole screen. The rail and the page frame animate
+   in and out over the same curve so the switch reads as one movement.
+   ========================================================================== */
+
+/* Fullscreen toggle: the last item of the room head, so it never covers the
+   calendar. Once the browser takes the screen the same button is the way out. */
+.desk-fullscreen-btn {
+  display: inline-flex;
+  align-items: center;
+  flex: 0 0 auto;
+  padding: 8px 13px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(9, 13, 22, 0.55);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  color: #eef2f8;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.1s ease, border-color 0.1s ease;
+}
+
+.desk-fullscreen-btn:hover {
+  background: rgba(6, 182, 212, 0.18);
+  border-color: color-mix(in srgb, var(--accent2) 60%, transparent);
+}
+
+/* In fullscreen the same button is the exit, so it warms to the danger hue. */
+.desk-fullscreen-btn.is-fullscreen:hover {
+  background: rgba(244, 63, 94, 0.18);
+  border-color: rgba(244, 63, 94, 0.45);
+}
+
+.desk-fullscreen-btn svg {
+  width: 14px;
+  height: 14px;
+}
+
+.desk-fullscreen-btn .desk-fs-enter,
+.desk-fullscreen-btn .desk-fs-exit {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  white-space: nowrap;
+}
+
+.desk-fullscreen-btn .desk-fs-exit {
+  display: none;
+}
+
+.desk-fullscreen-btn.is-fullscreen .desk-fs-enter {
+  display: none;
+}
+
+.desk-fullscreen-btn.is-fullscreen .desk-fs-exit {
+  display: inline-flex;
+}
+
+html[data-theme="light"] .desk-fullscreen-btn {
+  background: rgba(255, 255, 255, 0.74);
+  border-color: rgba(148, 121, 84, 0.3);
+  color: #1b2434;
+}
+
+/* Smooth for both directions: the rail leaves when Desk opens and slides back
+   when it closes, whatever breakpoint the app is running at. */
+html body header.main-header.masthead,
+html body header.masthead {
+  transition:
+    transform 0.36s cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 0.24s ease,
+    width 0.36s cubic-bezier(0.16, 1, 0.3, 1),
+    max-width 0.36s cubic-bezier(0.16, 1, 0.3, 1),
+    padding 0.36s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+html body main,
+html body body.tab-groupchat-active main {
+  transition:
+    margin-left 0.36s cubic-bezier(0.16, 1, 0.3, 1),
+    width 0.36s cubic-bezier(0.16, 1, 0.3, 1),
+    padding 0.36s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+html body.desk-mode {
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  overflow: hidden !important;
+}
+
+/* The page reserves a scrollbar gutter on <html>; the desk needs every pixel. */
+html:has(body.desk-mode) {
+  scrollbar-gutter: auto;
+  overflow: hidden;
+}
+
+/* Left rail out of the way, even while hovered or focused. */
+html body.desk-mode header.main-header.masthead,
+html body.desk-mode header.masthead,
+html body.desk-mode header.main-header.masthead:hover,
+html body.desk-mode header.main-header.masthead:focus-within,
+html body.desk-mode header.masthead:hover,
+html body.desk-mode header.masthead:focus-within {
+  transform: translateX(-104%) !important;
+  opacity: 0 !important;
+  width: 0 !important;
+  min-width: 0 !important;
+  max-width: 0 !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  box-shadow: none !important;
+  pointer-events: none !important;
+}
+
+html body.desk-mode header.main-header .topbar,
+html body.desk-mode .mobile-dock,
+html body.desk-mode .mobile-more-menu {
+  display: none !important;
+}
+
+/* Phone layouts park the nav bar in normal flow above the page instead of in a
+   side rail — there is nothing to slide, so it simply leaves with the dock. */
+@media (max-width: 760px) {
+  html body.desk-mode header.main-header,
+  html body.desk-mode header.masthead {
+    display: none !important;
+  }
+}
+
+/* The page frame widens to the full viewport. */
+html body.desk-mode main,
+html body.desk-mode body.tab-groupchat-active main {
+  width: 100% !important;
+  max-width: none !important;
+  min-height: 100dvh !important;
+  height: 100dvh !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+/* Only the reading room stays; the old identity deck and cockpit step aside. */
+html body.desk-mode #panel-profile {
+  display: flex !important;
+  flex-direction: column !important;
+  flex: 1 1 auto !important;
+  width: 100% !important;
+  max-width: none !important;
+  height: 100dvh !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+}
+
+html body.desk-mode #deskHero {
+  --desk-ledge: clamp(90px, 17vh, 200px);
+  flex: 1 1 auto !important;
+  display: flex !important;
+  height: 100dvh !important;
+  min-height: 0 !important;
+  margin: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  animation: deskRoomExpand 0.36s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+html body.desk-mode .desk-hero-inner {
+  flex: 1 1 auto !important;
+  width: 100% !important;
+  max-width: 1520px !important;
+  margin: 0 auto !important;
+  padding: clamp(24px, 6vh, 72px) clamp(20px, 5vw, 72px) var(--desk-band) !important;
+  grid-template-columns: minmax(0, 1fr) auto !important;
+  grid-template-rows: auto minmax(0, 1fr) auto !important;
+  gap: clamp(20px, 3.5vw, 56px) !important;
+  align-items: start !important;
+}
+
+html body.desk-mode .desk-clock-time {
+  font-size: clamp(34px, 3.4vw, 56px);
+}
+
+html body.desk-mode .desk-clock-date {
+  font-size: 12px;
+}
+
+html body.desk-mode .desk-hero-eyebrow {
+  font-size: 11px;
+}
+
+html body.desk-mode .desk-hero-copy {
+  max-width: min(64ch, 78%);
+}
+
+html body.desk-mode .desk-hero-title {
+  font-size: clamp(34px, 3.6vw, 60px);
+}
+
+html body.desk-mode .desk-hero-sub {
+  font-size: clamp(22px, 2.2vw, 36px);
+  max-width: 52ch;
+}
+
+html body.desk-mode .desk-hero-meta {
+  font-size: 13px;
+}
+
+html body.desk-mode .desk-chip {
+  font-size: 12.5px;
+  padding: 6px 12px;
+}
+
+html body.desk-mode .desk-progress {
+  width: clamp(320px, 34vw, 540px);
+  padding: 16px 18px 17px;
+  gap: 10px;
+}
+
+html body.desk-mode .desk-progress-pct {
+  font-size: clamp(18px, 1.6vw, 24px);
+}
+
+html body.desk-mode .desk-progress-track {
+  height: 10px;
+}
+
+html body.desk-mode .desk-progress-caption {
+  font-size: 13px;
+}
+
+html body.desk-mode .desk-profile-name {
+  max-width: 220px;
+  font-size: 14px;
+}
+
+html body.desk-mode .desk-mini-cal {
+  width: clamp(250px, 22vw, 340px);
+  padding: 14px 15px 16px;
+}
+
+html body.desk-mode .desk-cal-month {
+  font-size: 11px;
+}
+
+html body.desk-mode .desk-cal-today {
+  font-size: 12px;
+}
+
+html body.desk-mode .desk-cal-dow {
+  font-size: 9px;
+}
+
+html body.desk-mode .desk-cal-cell {
+  height: 26px;
+  font-size: 11.5px;
+}
+
+html body.desk-mode .desk-scene-window {
+  top: 6%;
+  left: 39%;
+  width: 23%;
+  max-width: 400px;
+  height: 40%;
+}
+
+html body.desk-mode .desk-scene-shelf {
+  height: 96px;
+  background-size: 100% 58px;
+}
+
+/* Keep the shelves clear of the portrait, which sits higher in desk mode. */
+html body.desk-mode .desk-scene-shelf--top {
+  top: 18%;
+}
+
+html body.desk-mode .desk-scene-shelf--mid {
+  top: 33%;
+}
+
+html body.desk-mode .desk-scene-shelf--low {
+  top: 44%;
+}
+
+@keyframes deskRoomExpand {
+  from {
+    opacity: 0.35;
+    transform: scale(0.986);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (max-width: 860px) {
+  html body.desk-mode .desk-hero-inner {
+    gap: 16px !important;
+    padding: 22px 18px calc(var(--desk-band) + 2px) !important;
+  }
+
+  html body.desk-mode .desk-hero-copy {
+    max-width: 100%;
+  }
+
+  html body.desk-mode .desk-progress {
+    width: min(420px, 64%);
+  }
+}
+
+@media (max-width: 560px) {
+  html body.desk-mode .desk-progress {
+    flex: 1 1 auto;
+    width: auto;
+  }
+
+  html body.desk-mode .desk-profile-meta {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html body header.main-header,
+  html body header.masthead,
+  html body main {
+    transition: none !important;
+  }
+
+  html body.desk-mode #deskHero {
+    animation: none;
+  }
+}
+
+/* ==========================================================================
+   Desk page shell
+   The reading room is the only thing this page holds now, so it owns the whole
+   area: full width of the page frame and full height of the window.
+   ========================================================================== */
+/* Scoped to the active panel: only the open tab may claim layout space, or the
+   always-on shell would push every later panel (Subjects, Settings) off-screen. */
+#panel-profile.active {
+  display: flex !important;
+  flex-direction: column !important;
+  min-height: calc(100dvh - var(--cd-topbar-height, 68px) - 16px);
+  padding-bottom: 0 !important;
+}
+
+#panel-profile > .desk-hero {
+  flex: 1 1 auto;
+  margin-bottom: 0;
+}
+
+/* ==========================================================================
+   Profile portrait
+   A compact account chip in the bottom-right corner: small portrait plus the
+   signed-in name.
+   ========================================================================== */
+.desk-avatar {
+  position: relative;
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  padding: 0;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  border-radius: 50%;
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.04));
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  cursor: pointer;
+  box-shadow: 0 10px 24px rgba(4, 8, 18, 0.42), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  transition: transform 0.1s ease, border-color 0.1s ease, box-shadow 0.1s ease;
+}
+
+#deskHero .desk-avatar {
+  border-radius: 50%;
+}
+
+.desk-avatar:hover {
+  transform: translateY(-2px);
+  border-color: color-mix(in srgb, var(--accent2) 62%, transparent);
+  box-shadow: 0 12px 28px rgba(4, 8, 18, 0.48), 0 0 0 3px color-mix(in srgb, var(--accent2) 18%, transparent);
+}
+
+.desk-avatar:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--accent2) 75%, transparent);
+  outline-offset: 3px;
+}
+
+.desk-avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.desk-avatar-initial {
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 800;
+  line-height: 1;
+  color: #f4f7fb;
+}
+
+html[data-theme="light"] .desk-avatar {
+  border-color: rgba(148, 121, 84, 0.42);
+  background: linear-gradient(145deg, #ffffff, #efe6d8);
+  box-shadow: 0 10px 22px rgba(76, 63, 45, 0.2), inset 0 1px 0 #ffffff;
+}
+
+html[data-theme="light"] .desk-avatar-initial {
+  color: #1b2434;
+}
+
+html body.desk-mode .desk-avatar {
+  width: 56px;
+  height: 56px;
+}
+
+html body.desk-mode .desk-avatar-initial {
+  font-size: 21px;
+}
+
+@media (max-width: 860px) {
+  html body.desk-mode .desk-avatar {
+    width: 48px;
+    height: 48px;
+  }
+}
+
+@media (max-width: 480px) {
+  .desk-avatar {
+    width: 40px;
+    height: 40px;
+  }
+
+  .desk-avatar-initial {
+    font-size: 15px;
+  }
+}
+
+@media (max-width: 760px) {
+  /* Top bar (62) + page padding (14/22) + dock clearance (84) = 182px of chrome. */
+  #panel-profile.active {
+    min-height: calc(100dvh - 182px);
+  }
+}
+
+/* The page no longer carries the old cards, so the desk-mode hide rules and the
+   bespoke 100dvh mount are all that remain. */
+
+/* ==========================================================================
+   Profile popover
+   A compact identity card above the portrait: who is signed in, today's
+   numbers, and the account actions. It is anchored inside the room, so it
+   never opens a second full-screen modal.
+   ========================================================================== */
+#deskProfilePopover {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 12px);
+  z-index: 6;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  width: min(286px, calc(100vw - 32px));
+  padding: 16px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(12, 18, 30, 0.94);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  box-shadow: 0 26px 64px rgba(2, 5, 12, 0.58), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  color: #f4f7fb;
+  transform-origin: bottom right;
+  animation: deskPopoverIn 0.16s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+#deskProfilePopover[hidden] {
+  display: none;
+}
+
+@keyframes deskPopoverIn {
+  from { opacity: 0; transform: translateY(6px) scale(0.97); }
+  to { opacity: 1; transform: none; }
+}
+
+#deskProfilePopover .desk-popover-head {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  min-width: 0;
+}
+
+#deskProfilePopover .desk-popover-avatar {
+  width: 42px;
+  height: 42px;
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background-color: rgba(255, 255, 255, 0.1);
+  background-size: cover;
+  background-position: center;
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 800;
+  color: #f4f7fb;
+}
+
+#deskProfilePopover .desk-popover-identity {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+#deskProfilePopover .desk-popover-identity strong {
+  font-size: 13.5px;
+  font-weight: 700;
+  line-height: 1.25;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+#deskProfilePopover .desk-popover-identity span {
+  font-size: 11px;
+  line-height: 1.3;
+  color: rgba(226, 234, 246, 0.58);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+#deskProfilePopover .desk-popover-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+  padding: 10px 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.09);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.09);
+}
+
+#deskProfilePopover .desk-popover-stats > div {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+#deskProfilePopover .desk-popover-stats span {
+  font-size: 8.5px;
+  font-weight: 800;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: rgba(226, 234, 246, 0.48);
+}
+
+#deskProfilePopover .desk-popover-stats strong {
+  font-size: 13px;
+  font-weight: 800;
+  color: #f4f7fb;
+  font-variant-numeric: tabular-nums;
+}
+
+#deskProfilePopover .desk-popover-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+#deskProfilePopover .desk-popover-btn {
+  flex: 1 1 auto;
+  padding: 9px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.07);
+  color: #eef2f8;
+  font-family: var(--font-sans, inherit);
+  font-size: 11.5px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color 0.1s ease, border-color 0.1s ease, transform 0.1s ease;
+}
+
+#deskProfilePopover .desk-popover-btn:hover {
+  background: rgba(255, 255, 255, 0.13);
+  border-color: rgba(255, 255, 255, 0.24);
+  transform: translateY(-1px);
+}
+
+#deskProfilePopover .desk-popover-btn:first-child:not([hidden]) {
+  border-color: transparent;
+  background: linear-gradient(135deg, var(--accent1), var(--accent2));
+  color: #fff;
+  box-shadow: 0 8px 20px color-mix(in srgb, var(--accent1) 32%, transparent);
+}
+
+#deskProfilePopover .desk-popover-btn.danger {
+  border-color: rgba(244, 63, 94, 0.32);
+  background: rgba(244, 63, 94, 0.14);
+  color: #fda4af;
+}
+
+#deskProfilePopover .desk-popover-btn.danger:hover {
+  background: rgba(244, 63, 94, 0.24);
+}
+
+html[data-theme="light"] #deskProfilePopover {
+  border-color: rgba(148, 121, 84, 0.26);
+  background: rgba(255, 253, 248, 0.97);
+  color: #1b2434;
+  box-shadow: 0 24px 54px rgba(76, 63, 45, 0.26), inset 0 1px 0 #fff;
+}
+
+html[data-theme="light"] #deskProfilePopover .desk-popover-avatar {
+  border-color: rgba(148, 121, 84, 0.35);
+  background-color: #efe6d8;
+  color: #1b2434;
+}
+
+html[data-theme="light"] #deskProfilePopover .desk-popover-identity span,
+html[data-theme="light"] #deskProfilePopover .desk-popover-stats span {
+  color: rgba(60, 72, 92, 0.6);
+}
+
+html[data-theme="light"] #deskProfilePopover .desk-popover-identity strong,
+html[data-theme="light"] #deskProfilePopover .desk-popover-stats strong {
+  color: #1b2434;
+}
+
+html[data-theme="light"] #deskProfilePopover .desk-popover-stats {
+  border-color: rgba(148, 121, 84, 0.18);
+}
+
+html[data-theme="light"] #deskProfilePopover .desk-popover-btn {
+  border-color: rgba(148, 121, 84, 0.26);
+  background: #fff;
+  color: #1b2434;
+}
+
+html[data-theme="light"] #deskProfilePopover .desk-popover-btn:first-child:not([hidden]) {
+  border-color: transparent;
+  background: linear-gradient(135deg, var(--accent1), var(--accent2));
+  color: #fff;
+}
+
+@media (max-width: 560px) {
+  #deskProfilePopover {
+    width: min(264px, calc(100vw - 28px));
+    padding: 14px;
+  }
+
+  #deskProfilePopover .desk-popover-identity span {
+    max-width: 160px;
+  }
+}

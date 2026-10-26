@@ -11,9 +11,8 @@
 /* Soften the opaque surface token so any card still driven by it follows the
    same rule automatically. The --cd-* tokens are left alone on purpose: they
    also paint selects, <option> popups and small controls, which need a solid
-   fill to stay readable.
-   Vision and Synaptix already ship a translucent tinted --surface, so only
-   the opaque dark/light tokens need softening here. */
+   fill to stay readable. Both themes ship an opaque token, so dark and light
+   are softened here. */
 html[data-theme="dark"] {
   --surface-strong: rgba(255, 255, 255, 0.055);
 }
@@ -26,12 +25,16 @@ html[data-theme="light"] {
    The html[data-theme] body prefix keeps this above the class-level
    !important fills in profile.css (e.g. .settings-sync-card,
    .subjects-manager-card and its light-theme variant). */
+/* The MCQ hero and question card and the routine header card carry the themed
+   design on purpose, so the shared `.glass` fill skips them and they keep the
+   gradients their own stylesheets paint. */
 html[data-theme] body :is(
   /* Shared shells */
-  .glass, .card, .section-shell, .entry-form,
+  .glass:not(.mcq-card):not(.home-routine-card),
+  .card, .section-shell, .entry-form,
   /* Dashboard & home */
   .home-hero, .home-card, .home-widget, .home-stat-card, .home-pillar-card,
-  .home-routine-card, .home-timeline-item, .home-mistake-item,
+  .home-timeline-item, .home-mistake-item,
   .home-next-routine-strip, .home-motivation-strip, .home-quote-command,
   .review-card, .notes-v2-hero,
   .db-kpi-card, .db-plan-card, .db-timer-card, .db-plan-row,
@@ -45,8 +48,8 @@ html[data-theme] body :is(
   /* Exam countdown */
   .countdown-card, .exam-card, .exam-summary-wrapper, .time-box,
   /* Quiz & flashcards */
-  .mcq-v2-hero, .mcq-v2-switch-row, .mcq-top-bar, .filter-bar, .stat-card,
-  .mcq-card, .mistake-card, .exam-score-hero, .exam-stat-box,
+  .mcq-v2-switch-row, .mcq-top-bar, .filter-bar, .stat-card,
+  .mistake-card, .exam-score-hero, .exam-stat-box,
   .mcq-palette-container,
   /* Syllabus */
   .syllabus-card, .category-card, .syllabus-create-card, .syllabus-tip-card,
@@ -62,7 +65,7 @@ html[data-theme] body :is(
   .cloud-backup-banner, .data-management-card, .settings-row, .settings-sync-card,
   .settings-snapshots-card, .settings-json-card, .settings-center-header,
   .settings-danger-zone, .subjects-page-hero, .subjects-manager-card,
-  .subject-manager-row, .theme-card,
+  .subject-manager-row,
   /* Notes & security */
   .note-card, .security-card, .security-module-card, .security-vault-card,
   .security-trust-strip, .security-audit-item, .privacy-lock-card,

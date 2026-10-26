@@ -216,7 +216,31 @@ function formatTime12(t) {
 }
 window.formatTime12 = formatTime12;
 
-const ROUTINE_HEAD = '<thead><tr><th style="width:16%">Start</th><th style="width:16%">End</th><th style="width:24%">Subject</th><th>Topic / Task</th><th style="width:78px; text-align:right;"><button type="button" class="routine-table-reset-btn" id="resetRoutineBtn" title="Reset to recommended daily routine"><i data-lucide="rotate-ccw" style="width:12px; height:12px; vertical-align:middle; margin-right:3px;"></i><span>Reset</span></button></th></tr></thead>';
+const ROUTINE_HEAD = '<thead><tr><th style="width:16%">Start</th><th style="width:16%">End</th><th style="width:24%" class="routine-subject-head" title="Subject">Subject</th><th>Topic / Task</th><th style="width:78px; text-align:right;"><button type="button" class="routine-table-reset-btn" id="resetRoutineBtn" title="Reset to recommended daily routine"><i data-lucide="rotate-ccw" style="width:12px; height:12px; vertical-align:middle; margin-right:3px;"></i><span>Reset</span></button></th></tr></thead>';
+
+/* The Subject column header names the subject of the row being edited, so the
+   table always says what you picked. An empty row falls back to "Subject", and
+   the full name stays available in the tooltip when the cell has to shorten. */
+const ROUTINE_SUBJECT_HEAD_MAX = 22;
+
+function updateRoutineSubjectHead(input) {
+  if (!input || input.dataset.field !== 'subject') return;
+  const table = input.closest('table.routine');
+  const head = table ? table.querySelector('th.routine-subject-head') : null;
+  if (!head) return;
+
+  const name = typeof getSubjectDisplayName === 'function'
+    ? String(getSubjectDisplayName(input.value) || '').trim()
+    : String(input.value || '').trim();
+  const shown = name.length > ROUTINE_SUBJECT_HEAD_MAX
+    ? name.slice(0, ROUTINE_SUBJECT_HEAD_MAX - 1).trimEnd() + '…'
+    : name;
+
+  head.textContent = shown || 'Subject';
+  head.title = name || 'Subject';
+  head.classList.toggle('is-named', !!name);
+}
+window.updateRoutineSubjectHead = updateRoutineSubjectHead;
 
 function routineTopicIsInSyllabus(row) {
   const subject = typeof canonicalSubjectName === 'function'
@@ -421,6 +445,16 @@ document.addEventListener('input', (e) => {
       updateRoutineSyllabusAction(row, t.closest('tr')?.querySelector('.routine-syllabus-btn'));
       saveData();
     }
+    if (t.dataset.field === 'subject') updateRoutineSubjectHead(t);
+  }
+});
+
+/* Opening a subject field shows that row's subject name in the column header
+   straight away — before a single key is typed. */
+document.addEventListener('focusin', (e) => {
+  const t = e.target;
+  if (t && t.closest && t.closest('#routineCardWrap') && t.dataset && t.dataset.field === 'subject') {
+    updateRoutineSubjectHead(t);
   }
 });
 

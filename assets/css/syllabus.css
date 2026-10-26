@@ -1080,3 +1080,81 @@
       justify-content: flex-end;
     }
   }
+
+/* ==========================================================================
+   Unified workspace shell — Syllabus now mirrors the Subject Manager layout:
+   same hero, same card header, same add bar and list surface.
+   ========================================================================== */
+#panel-syllabus {
+  max-width: 1180px;
+}
+
+#panel-syllabus .syllabus-manager-card .syllabus-progress-strip {
+  margin: 0 0 16px;
+}
+
+#panel-syllabus .syllabus-manager-card .syllabus-progress-track {
+  height: 8px;
+  margin: 0;
+  overflow: hidden;
+  border: 0;
+  border-radius: 999px;
+  background: var(--surface-strong);
+}
+
+#panel-syllabus .syllabus-manager-card .syllabus-add-bar {
+  margin: 0 0 14px;
+}
+
+#panel-syllabus .syllabus-manager-card .syllabus-add-bar #addCategoryBtn {
+  flex: 0 0 auto;
+  height: 40px;
+  padding: 0 14px;
+  border-radius: 12px;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+#panel-syllabus .syllabus-manager-card .syllabus-roadmap-hint {
+  display: inline-flex;
+  align-items: center;
+  margin: 0 0 14px;
+}
+
+#panel-syllabus .syllabus-manager-card .syllabus-category-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: start;
+  gap: 11px;
+}
+
+#panel-syllabus .syllabus-manager-card .category-card {
+  padding: 14px;
+  border-color: color-mix(in srgb, var(--accent1) 15%, var(--border));
+  background: linear-gradient(145deg, color-mix(in srgb, var(--surface) 88%, var(--accent1)), var(--surface));
+}
+
+html[data-theme="light"] #panel-syllabus .syllabus-manager-card .category-card {
+  border-color: rgba(77, 99, 144, .16);
+  background: linear-gradient(145deg, #fff, #f8faff);
+}
+
+@media (max-width: 760px) {
+  #panel-syllabus .syllabus-manager-card {
+    padding: 16px !important;
+    border-radius: 18px !important;
+  }
+
+  #panel-syllabus .syllabus-manager-card .syllabus-add-bar {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  #panel-syllabus .syllabus-manager-card .syllabus-add-bar #addCategoryBtn {
+    width: 100%;
+  }
+
+  #panel-syllabus .syllabus-manager-card .syllabus-category-grid {
+    grid-template-columns: 1fr;
+  }
+}

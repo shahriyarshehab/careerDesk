@@ -397,7 +397,7 @@ async function loadData() {
       state.customQuotes = normalizeCustomQuotes(Array.isArray(p.customQuotes) ? p.customQuotes : []);
       state.quoteIdx = typeof p.quoteIdx === 'number' ? p.quoteIdx : 0;
       state.quoteSource = p.quoteSource || 'all';
-      const validThemes = ['dark', 'light', 'vision', 'synaptix'];
+      const validThemes = ['dark', 'light'];
       state.theme = (p && validThemes.includes(p.theme)) ? p.theme : 'dark';
       state.sessions = Array.isArray(p.sessions) ? p.sessions : [];
       state.activeSession = p.activeSession || null;
@@ -960,7 +960,6 @@ function setSubjectLanguage(lang) {
   track.subjectLanguage = cleanLang;
   saveUserTrack(track);
   syncAllSubjectSelects();
-  if (typeof renderProfileTrackCard === 'function') renderProfileTrackCard();
   if (typeof renderProfileAspirantHub === 'function') renderProfileAspirantHub();
   if (typeof renderRoutine === 'function') renderRoutine();
   if (typeof renderCategories === 'function') renderCategories();
@@ -1124,7 +1123,6 @@ function deleteSubject(subj) {
 
   saveData();
   syncAllSubjectSelects();
-  if (typeof renderProfileTrackCard === 'function') renderProfileTrackCard();
   if (typeof renderProfileAspirantHub === 'function') renderProfileAspirantHub();
   showToast(`"${subj}" archived to Inactive Subjects.`);
 }
@@ -1151,7 +1149,6 @@ function restoreSubject(subj) {
   }
   saveData();
   syncAllSubjectSelects();
-  if (typeof renderProfileTrackCard === 'function') renderProfileTrackCard();
   if (typeof renderProfileAspirantHub === 'function') renderProfileAspirantHub();
   if (typeof renderSubjectManager === 'function') renderSubjectManager();
   showToast(`"${canonical}" restored to active subjects.`);
@@ -1222,7 +1219,6 @@ function permanentlyDeleteSubject(subj) {
   renderCategories();
   if (typeof renderFlashcards === 'function') renderFlashcards();
   if (typeof renderTrackerRoutinePreview === 'function') renderTrackerRoutinePreview();
-  if (typeof renderProfileTrackCard === 'function') renderProfileTrackCard();
   if (typeof renderProfileAspirantHub === 'function') renderProfileAspirantHub();
   if (typeof renderSubjectManager === 'function') renderSubjectManager();
   showToast(`"${subj}" permanently deleted. Data cannot be restored.`);
@@ -1274,7 +1270,6 @@ function permanentlyDeleteAllInactiveSubjects() {
   renderCategories();
   if (typeof renderFlashcards === 'function') renderFlashcards();
   if (typeof renderTrackerRoutinePreview === 'function') renderTrackerRoutinePreview();
-  if (typeof renderProfileTrackCard === 'function') renderProfileTrackCard();
   if (typeof renderProfileAspirantHub === 'function') renderProfileAspirantHub();
   if (typeof renderSubjectManager === 'function') renderSubjectManager();
   showToast(`All ${count} inactive subjects permanently deleted.`);

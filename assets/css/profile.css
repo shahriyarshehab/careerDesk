@@ -6695,13 +6695,15 @@ html[data-theme="light"] .profile-cover-banner {
   line-height: 1.5;
 }
 
-.settings-center-nav {
-  position: sticky;
-  top: 76px;
+/* Single-page settings: every section stacked on one scrollable page. */
+.settings-center-content {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
 }
 
 .settings-center-content .cockpit-pane {
-  margin-top: 16px;
+  margin-top: 0;
 }
 
 .settings-center-content #dataManagementCard,
@@ -7168,5 +7170,411 @@ html[data-theme="light"] .subjects-manager-card .subject-manager-row {
 
   .settings-center-content .data-action-buttons > * {
     flex: 1 1 auto;
+  }
+}
+
+/* ==========================================================================
+   Subject display language switch in the Subject Manager header
+   (moved here from the retired Curriculum & Track workspace)
+   ========================================================================== */
+.subjects-manager-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.subject-lang-switch {
+  flex-shrink: 0;
+}
+
+.subject-lang-bn-mark {
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+/* ==========================================================================
+   AUTH PANEL V2
+   The old two-panel login (marketing visual + form) is retired. The sign-in
+   flow is now one compact card that follows the active theme: gradient brand
+   mark, glass inputs, gradient segmented switch and one primary action.
+   ========================================================================== */
+#authModal .auth-modal-card {
+  display: block;
+  width: min(440px, calc(100vw - 28px));
+  max-width: 440px !important;
+  padding: 0 !important;
+  border-radius: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background:
+    radial-gradient(120% 90% at 50% -12%, rgba(99, 102, 241, 0.28), transparent 62%),
+    #0d1422 !important;
+  box-shadow:
+    0 32px 80px rgba(2, 6, 16, 0.62),
+    0 0 0 1px rgba(255, 255, 255, 0.03) inset !important;
+  overflow: hidden;
+}
+
+html[data-theme="light"] #authModal .auth-modal-card {
+  border-color: rgba(148, 121, 84, 0.24);
+  background:
+    radial-gradient(120% 90% at 50% -12%, rgba(99, 102, 241, 0.14), transparent 62%),
+    #fffdf8 !important;
+  box-shadow:
+    0 28px 64px rgba(76, 63, 45, 0.22),
+    0 0 0 1px rgba(255, 255, 255, 0.8) inset !important;
+}
+
+#authModal .auth-form-panel {
+  position: relative;
+  padding: 24px 30px 24px;
+}
+
+#authModal .auth-modal-close-btn {
+  top: 18px;
+  right: 18px;
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
+  color: rgba(226, 234, 246, 0.6);
+}
+
+#authModal .auth-brand-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-right: 38px;
+}
+
+#authModal .auth-brand-mark {
+  width: 38px;
+  height: 38px;
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--accent1), var(--accent2));
+  color: #fff;
+  box-shadow: 0 10px 22px rgba(99, 102, 241, 0.34);
+}
+
+#authModal .auth-brand-mark svg {
+  width: 19px;
+  height: 19px;
+}
+
+#authModal .auth-brand-name {
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: #f4f7fb;
+}
+
+#authModal .auth-brand-tag {
+  margin-left: auto;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(226, 234, 246, 0.44);
+}
+
+html[data-theme="light"] #authModal .auth-brand-name {
+  color: #1b2434;
+}
+
+html[data-theme="light"] #authModal .auth-brand-tag {
+  color: rgba(60, 72, 92, 0.5);
+}
+
+#authModal .auth-header {
+  padding: 20px 34px 16px 0;
+  text-align: left;
+  background: none;
+}
+
+#authModal .auth-header h2 {
+  margin: 0 0 5px;
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: -0.035em;
+  line-height: 1.15;
+  color: #f4f7fb;
+}
+
+#authModal .auth-header p {
+  margin: 0;
+  max-width: none;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: rgba(226, 234, 246, 0.58);
+}
+
+html[data-theme="light"] #authModal .auth-header h2 {
+  color: #1b2434;
+}
+
+html[data-theme="light"] #authModal .auth-header p {
+  color: rgba(60, 72, 92, 0.68);
+}
+
+#authModal .auth-mode-wrapper {
+  padding: 0;
+  margin: 0 0 18px;
+}
+
+#authModal .auth-mode-wrapper .segmented-toggle-group {
+  display: flex;
+  width: 100%;
+  padding: 4px;
+  gap: 4px;
+  border-radius: 13px;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  background: rgba(255, 255, 255, 0.045);
+}
+
+html[data-theme="light"] #authModal .auth-mode-wrapper .segmented-toggle-group {
+  border-color: rgba(148, 121, 84, 0.18);
+  background: rgba(148, 121, 84, 0.06);
+}
+
+#authModal .auth-switch-btn {
+  flex: 1 1 0;
+  min-width: 0;
+  padding: 9px 12px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: rgba(226, 234, 246, 0.62);
+  font-size: 12.5px;
+  font-weight: 700;
+  gap: 7px;
+}
+
+#authModal .auth-switch-btn:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: #f4f7fb;
+}
+
+#authModal .auth-switch-btn.active {
+  background: linear-gradient(135deg, var(--accent1), var(--accent2));
+  color: #fff !important;
+  box-shadow: 0 8px 20px rgba(99, 102, 241, 0.32);
+}
+
+html[data-theme="light"] #authModal .auth-switch-btn {
+  color: rgba(60, 72, 92, 0.7);
+}
+
+html[data-theme="light"] #authModal .auth-switch-btn:hover {
+  background: rgba(148, 121, 84, 0.08);
+  color: #1b2434;
+}
+
+#authModal .auth-body {
+  padding: 0;
+}
+
+#authModal .form-group {
+  margin-bottom: 12px;
+  gap: 5px;
+}
+
+#authModal .auth-input-label {
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: rgba(226, 234, 246, 0.68);
+}
+
+html[data-theme="light"] #authModal .auth-input-label {
+  color: rgba(60, 72, 92, 0.78);
+}
+
+#authModal .input-icon-left {
+  left: 14px;
+  color: rgba(226, 234, 246, 0.42);
+}
+
+#authModal .auth-input {
+  padding: 11px 14px 11px 41px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.045);
+  color: #f4f7fb;
+  font-size: 13px;
+}
+
+#authModal .auth-input::placeholder {
+  color: rgba(226, 234, 246, 0.32);
+}
+
+#authModal .auth-input:focus {
+  border-color: color-mix(in srgb, var(--accent2) 70%, transparent) !important;
+  background: rgba(255, 255, 255, 0.07) !important;
+  box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.16) !important;
+}
+
+html[data-theme="light"] #authModal .auth-input {
+  border-color: rgba(148, 121, 84, 0.22);
+  background: #fff;
+  color: #1b2434;
+}
+
+html[data-theme="light"] #authModal .auth-input::placeholder {
+  color: rgba(60, 72, 92, 0.42);
+}
+
+html[data-theme="light"] #authModal .auth-input:focus {
+  background: #fff !important;
+}
+
+#authModal .btn-submit {
+  margin-top: 4px;
+  padding: 12px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--accent1), var(--accent2));
+  font-size: 13.5px;
+  font-weight: 700;
+  box-shadow: 0 10px 24px rgba(99, 102, 241, 0.3);
+}
+
+#authModal .btn-submit:hover {
+  background: linear-gradient(135deg, #4f46e5, #0891b2);
+  box-shadow: 0 12px 28px rgba(99, 102, 241, 0.38);
+}
+
+#authModal .auth-divider {
+  margin: 16px 0 12px;
+}
+
+#authModal .auth-divider-line {
+  background: rgba(255, 255, 255, 0.09);
+}
+
+#authModal .auth-divider-text {
+  font-size: 9px;
+  color: rgba(226, 234, 246, 0.42);
+}
+
+html[data-theme="light"] #authModal .auth-divider-line {
+  background: rgba(148, 121, 84, 0.18);
+}
+
+html[data-theme="light"] #authModal .auth-divider-text {
+  color: rgba(60, 72, 92, 0.55);
+}
+
+#authModal .social-auth-grid {
+  gap: 9px;
+  margin-top: 0;
+}
+
+#authModal .btn-social {
+  padding: 10px 12px;
+  border-radius: 11px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.045);
+  color: #eef2f8;
+  font-size: 12px;
+}
+
+#authModal .btn-social:hover {
+  background: rgba(255, 255, 255, 0.09);
+  border-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-1px);
+}
+
+html[data-theme="light"] #authModal .btn-social {
+  border-color: rgba(148, 121, 84, 0.22);
+  background: #fff;
+  color: #1b2434;
+}
+
+html[data-theme="light"] #authModal .btn-social:hover {
+  background: #fffdf8;
+  border-color: rgba(148, 121, 84, 0.38);
+}
+
+#authModal .btn-forgot {
+  font-size: 11px;
+  color: var(--accent2);
+}
+
+#authModal .auth-status-msg {
+  margin-top: 10px;
+}
+
+#authModal .btn-toggle-pass {
+  color: rgba(226, 234, 246, 0.45);
+}
+
+html[data-theme="light"] #authModal .btn-toggle-pass {
+  color: rgba(60, 72, 92, 0.55);
+}
+
+#authModal .auth-trust-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 6px 14px;
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  font-size: 10px;
+  font-weight: 600;
+  color: rgba(226, 234, 246, 0.42);
+}
+
+#authModal .auth-trust-row span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+#authModal .auth-trust-row svg {
+  width: 12px;
+  height: 12px;
+  color: var(--accent2);
+}
+
+html[data-theme="light"] #authModal .auth-trust-row {
+  border-top-color: rgba(148, 121, 84, 0.16);
+  color: rgba(60, 72, 92, 0.55);
+}
+
+#authModal .verification-view {
+  padding: 52px 30px 34px;
+}
+
+#authModal .verification-view .btn-submit {
+  width: auto;
+  min-width: 170px;
+  margin: 0 auto;
+  padding: 11px 20px;
+}
+
+@media (max-width: 480px) {
+  #authModal .auth-form-panel {
+    padding: 20px 18px 20px;
+  }
+
+  #authModal .auth-header {
+    padding: 18px 28px 14px 0;
+  }
+
+  #authModal .auth-header h2 {
+    font-size: 23px;
+  }
+
+  #authModal .auth-brand-tag {
+    display: none;
+  }
+
+  #authModal .verification-view {
+    padding: 44px 22px 28px;
   }
 }

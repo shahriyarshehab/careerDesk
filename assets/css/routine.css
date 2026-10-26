@@ -28,20 +28,40 @@
     white-space: nowrap;
   }
 
+  /* Subject column header: it names the subject of the row being edited, so
+     it grows into an accent label while that row has a subject. */
+  table.routine thead th.routine-subject-head {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transition: color 0.1s ease;
+  }
+
+  table.routine thead th.routine-subject-head.is-named {
+    color: var(--accent1);
+  }
+
   table.routine tbody tr {
     background: var(--surface-strong);
     box-shadow: 0 5px 16px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.04);
-    transition: background .15s ease;
+    transition: background .15s ease, box-shadow .15s ease;
   }
 
+  /* Hover: the block lifts clear of the resting rows and its outline picks up
+     the accent, so the row being read stands apart from the plain ones. */
   table.routine tbody tr:hover {
     background: var(--surface-hover);
+    box-shadow: 0 10px 26px -14px var(--border-glow, rgba(99, 102, 241, .42));
+  }
+
+  table.routine tbody tr:hover td {
+    border-color: color-mix(in srgb, var(--accent1) 42%, var(--border));
   }
 
   table.routine td {
     padding: 7px 10px;
     border-top: 1px solid var(--border);
     border-bottom: 1px solid var(--border);
+    transition: border-color .15s ease;
   }
 
   table.routine td:first-child {
@@ -465,3 +485,20 @@ html[data-theme="light"] .routine-table-reset-btn:hover {
 .routine-floating-add-circle:active {
   transform: scale(0.96);
 }
+
+/* ==========================================================================
+   Routine page pattern
+   Like the MCQ page: the header block keeps the themed design, while the table
+   and its rows stay plain transparent glass (the shared --surface wash with the
+   app's 14px blur, painted by transparent-surfaces.css).
+   ========================================================================== */
+html:has(#panel-routine.active) #panel-routine :is(
+  .routine-table-container,
+  .routine-card,
+  .routine-empty-card
+) {
+  background: var(--surface, rgba(255, 255, 255, 0.04));
+  background-image: none;
+  border-color: var(--border, rgba(255, 255, 255, 0.08));
+}
+

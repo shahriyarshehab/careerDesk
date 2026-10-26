@@ -3,53 +3,38 @@
 function normalizeTabName(tabName) {
   if (!tabName) return 'home';
   if (tabName === 'dashboard') return 'home';
+  // The Desk is the former profile panel; '#desk' is its public route.
+  if (tabName === 'desk') return 'profile';
   if (tabName === 'routine' || tabName === 'rutine') return 'routine';
   if (tabName === 'flashcards' || tabName === 'quiz' || tabName === 'mcq') return 'quiz';
   if (tabName === 'exams') return 'countdown';
+  // Subject manager now lives inside Settings.
+  if (tabName === 'subjects') return 'settings';
   if (tabName === 'auth' || tabName === 'login' || tabName === 'signup' || tabName === 'register') return 'profile';
   return tabName;
 }
 
-function switchSubjectsWorkspaceTab(viewName, persist = true) {
-  const activeView = viewName === 'curriculum' ? 'curriculum' : 'manager';
-  document.querySelectorAll('#subjectsWorkspaceNav [data-subjects-view]').forEach(button => {
-    const isActive = button.dataset.subjectsView === activeView;
-    button.classList.toggle('active', isActive);
-    button.setAttribute('aria-selected', String(isActive));
-  });
-
+/* The subjects page has a single workspace now that the curriculum track tab is
+   gone; the function is kept so existing callers still land on the manager. */
+function switchSubjectsWorkspaceTab(_viewName, persist = true) {
   const managerView = document.getElementById('subjectsManagerView');
-  const curriculumView = document.getElementById('subjectsCurriculumView');
-  [[managerView, 'manager'], [curriculumView, 'curriculum']].forEach(([view, key]) => {
-    if (!view) return;
-    const isActive = key === activeView;
-    view.hidden = !isActive;
-    view.classList.toggle('active', isActive);
-  });
+  if (managerView) {
+    managerView.hidden = false;
+    managerView.classList.add('active');
+  }
 
   if (persist) {
     try {
-      localStorage.setItem('careerdesk_subjects_workspace_view', activeView);
-    } catch (error) {
-      console.warn('[CareerDesk] Could not save subject workspace view:', error);
-    }
+      localStorage.removeItem('careerdesk_subjects_workspace_view');
+    } catch (error) { }
   }
 
-  if (activeView === 'curriculum') {
-    if (typeof renderProfileTrackCard === 'function') renderProfileTrackCard();
-  } else if (typeof renderSubjectManager === 'function') {
-    renderSubjectManager();
-  }
+  if (typeof renderSubjectManager === 'function') renderSubjectManager();
 
   if (window.lucide && typeof window.lucide.createIcons === 'function') {
     window.lucide.createIcons();
   }
 }
-
-document.addEventListener('click', event => {
-  const tab = event.target.closest('#subjectsWorkspaceNav [data-subjects-view]');
-  if (tab) switchSubjectsWorkspaceTab(tab.dataset.subjectsView);
-});
 
 /* The bubble only animates real switches, not the tab restored on page load. */
 let navTabBubblesEnabled = false;
@@ -100,7 +85,8 @@ function activateTab(rawTabName, persist = false) {
   if (persist) {
     try { localStorage.setItem(ACTIVE_TAB_KEY, tabName); } catch (error) { }
     try {
-      if (window.location.hash !== '#' + tabName) history.replaceState(null, '', '#' + tabName);
+      const hashName = tabName === 'profile' ? 'desk' : tabName;
+      if (window.location.hash !== '#' + hashName) history.replaceState(null, '', '#' + hashName);
     } catch (error) { }
   }
 
@@ -125,18 +111,11 @@ function activateTab(rawTabName, persist = false) {
   }
 
   if (tabName === 'settings') {
-    try { if (typeof initSettingsCockpit === 'function') initSettingsCockpit(); } catch (error) { console.error('[CareerDesk] initSettingsCockpit error:', error); }
     try { if (typeof renderQuoteManager === 'function') renderQuoteManager(); } catch (error) { console.error('[CareerDesk] renderQuoteManager error:', error); }
-  }
-
-  if (tabName === 'subjects') {
-    let savedView = 'manager';
-    try {
-      savedView = localStorage.getItem('careerdesk_subjects_workspace_view') || savedView;
-    } catch (error) {
-      console.warn('[CareerDesk] Could not read subject workspace view:', error);
+    try { if (typeof renderSubjectManager === 'function') renderSubjectManager(); } catch (error) { console.error('[CareerDesk] renderSubjectManager error:', error); }
+    if (rawTabName === 'subjects' || window.location.hash === '#subjects') {
+      setTimeout(() => document.getElementById('profileSubjectsCockpitCard')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 140);
     }
-    switchSubjectsWorkspaceTab(savedView, false);
   }
 
   if (tabName === 'tracker') renderTrackerAll();
@@ -215,10 +194,17 @@ try {
   const savedTab = localStorage.getItem(ACTIVE_TAB_KEY);
   const initialTab = normalizeTabName(hashTab || savedTab || 'home');
   if (initialTab) activateTab(initialTab, false);
+  // Land on the Desk's public route even for old '#profile' links.
+  if (initialTab === 'profile' && hashTab && hashTab !== 'desk') {
+    history.replaceState(null, '', '#desk');
+  }
 } catch (error) { }
 navTabBubblesEnabled = true;
 
 window.addEventListener('hashchange', () => {
   const rawTab = window.location.hash ? window.location.hash.replace('#', '') : 'home';
   activateTab(normalizeTabName(rawTab), false);
+  if (normalizeTabName(rawTab) === 'profile' && rawTab !== 'desk') {
+    history.replaceState(null, '', '#desk');
+  }
 });

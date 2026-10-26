@@ -2,182 +2,99 @@
    CareerDesk — Quotes Module: Motivation Ticker, Carousel & Wallpaper
    ========================================================================== */
 
-const ownQuotes = [
-  'Discipline is the bridge between goals and accomplishment.',
-  'Small daily improvements over time lead to stunning results.',
-  'Push yourself because no one else is going to do it for you.',
-  'Success does not come from what you do occasionally; it comes from what you do consistently.',
-  'Focus on the process, and the results will take care of themselves.',
-  'Your future is created by what you do today, not tomorrow.',
-  'Hard work beats talent when talent fails to work hard.',
-  'Study while others are sleeping; prepare while others are playing.',
-  'Do not decrease the goal. Increase the effort.',
-  'Every expert was once a beginner.',
-  'Believe you can and you are halfway there.',
-  'It always seems impossible until it is done.',
-  'The secret of getting ahead is getting started.',
-  'The harder you work for something, the greater you will feel when you achieve it.',
-  'Wake up with determination. Go to bed with satisfaction.',
-  'Do something today that your future self will thank you for.'
-];
-
-const famousQuotes = [
-  { q: 'Believe you can and you are halfway there.', a: 'Theodore Roosevelt' },
-  { q: 'Success is the sum of small efforts, repeated day in and day out.', a: 'Robert Collier' },
-  { q: 'The best way to predict the future is to create it.', a: 'Abraham Lincoln' },
-  { q: 'Do not let what you cannot do interfere with what you can do.', a: 'John Wooden' },
-  { q: 'The only way to do great work is to love what you do.', a: 'Steve Jobs' },
-  { q: 'Start where you are. Use what you have. Do what you can.', a: 'Arthur Ashe' },
-  { q: 'There are no secrets to success. It is the result of preparation, hard work, and learning from failure.', a: 'Colin Powell' },
-  { q: 'The secret of getting ahead is getting started.', a: 'Mark Twain' },
-  { q: 'There is no substitute for hard work.', a: 'Thomas Edison' },
-  { q: 'Success is the progressive realization of a worthy goal.', a: 'Earl Nightingale' },
-  { q: 'A person who never made a mistake never tried anything new.', a: 'Albert Einstein' },
-  { q: 'Education is the most powerful weapon which you can use to change the world.', a: 'Nelson Mandela' },
-  { q: 'We are what we repeatedly do. Excellence, then, is not an act, but a habit.', a: 'Aristotle' },
-  { q: 'The way to get started is to quit talking and begin doing.', a: 'Walt Disney' },
-  { q: 'Whether you think you can or think you cannot, you are right.', a: 'Henry Ford' },
-  { q: 'Success is not final, failure is not fatal: It is the courage to continue that counts.', a: 'Winston Churchill' },
-  { q: 'I have failed over and over again in my life. And that is why I succeed.', a: 'Michael Jordan' },
-  { q: 'The future belongs to those who believe in the beauty of their dreams.', a: 'Eleanor Roosevelt' },
-  { q: 'It does not matter how slowly you go as long as you do not stop.', a: 'Confucius' },
-  { q: 'Whatever the mind of man can conceive and believe, it can achieve.', a: 'Napoleon Hill' }
-];
-
-const BILINGUAL_QUOTES = [
+/* --------------------------------------------------------------------------
+   Curated quote pool — single source of truth for every quote surface:
+   - Home motivational ticker / carousel (English text)
+   - Settings quote manager (English text)
+   - Profile hero typewriter (English -> বাংলা)
+   -------------------------------------------------------------------------- */
+const CURATED_QUOTES = [
   {
-    en: "Discipline is the bridge between goals and accomplishment.",
-    bn: "শৃঙ্খলা হলো লক্ষ্য এবং অর্জনের মধ্যে সেতুবন্ধন।",
-    author: "Jim Rohn"
+    en: 'Education is the passport to the future, for tomorrow belongs to those who prepare for it today.',
+    bn: 'শিক্ষাই ভবিষ্যতের পাসপোর্ট, কারণ আগামীকাল তাদেরই যারা আজই প্রস্তুতি নেয়।',
+    author: 'Malcolm X'
   },
   {
-    en: "Small daily improvements over time lead to stunning results.",
-    bn: "প্রতিদিনের ছোট ছোট উন্নতি একসময় অবিশ্বাস্য সাফল্য এনে দেয়।",
-    author: "Robin Sharma"
+    en: 'The beautiful thing about learning is that no one can take it away from you.',
+    bn: 'শেখার সবচেয়ে সুন্দর দিক হলো, অর্জিত জ্ঞান কেউ আপনার কাছ থেকে কেড়ে নিতে পারে না।',
+    author: 'B.B. King'
   },
   {
-    en: "Push yourself because no one else is going to do it for you.",
-    bn: "নিজেকে নিজেই তাগিদ দিন, কারণ অন্য কেউ আপনার হয়ে স্বপ্ন পূরণ করবে না।",
-    author: "CareerDesk"
+    en: "Believe you can and you're halfway there.",
+    bn: 'নিজের ওপর বিশ্বাস রাখুন, তাতেই অর্ধেক পথ পেরিয়ে যাবেন।',
+    author: 'Theodore Roosevelt'
   },
   {
-    en: "Success does not come from what you do occasionally; it comes from what you do consistently.",
-    bn: "সাফল্য কখনো কখনো করা কাজ থেকে আসে না; এটি আসে নিয়মিত অনুশীলনের মাধ্যমে।",
-    author: "Marie Forleo"
+    en: "Hard work beats talent when talent doesn't work hard.",
+    bn: 'পরিশ্রম প্রতিভাকে হারিয়ে দেয়, যখন প্রতিভা কঠোর পরিশ্রম করতে চায় না।',
+    author: 'Tim Notke'
   },
   {
-    en: "Focus on the process, and the results will take care of themselves.",
-    bn: "প্রক্রিয়া এবং অভ্যাসে মনোযোগ দিন, ফলাফল নিজের থেকেই ধরা দেবে।",
-    author: "CareerDesk"
+    en: "It always seems impossible until it's done.",
+    bn: 'কাজটি সম্পন্ন হওয়ার আগ পর্যন্ত সবকিছুই অসম্ভব বলেই মনে হয়।',
+    author: 'Nelson Mandela'
   },
   {
-    en: "Your future is created by what you do today, not tomorrow.",
-    bn: "আপনার ভবিষ্যৎ গড়ে উঠবে আজকের কাজের মাধ্যমে, আগামীকালের ওপর নয়।",
-    author: "Robert Kiyosaki"
+    en: 'A person who never made a mistake never tried anything new.',
+    bn: 'যে ব্যক্তি কখনো ভুল করেনি, সে কখনো নতুন কিছু করার চেষ্টাও করেনি।',
+    author: 'Albert Einstein'
   },
   {
-    en: "Hard work beats talent when talent fails to work hard.",
-    bn: "পরিশ্রম সবসময় প্রতিভাকে হারিয়ে দেয়, যখন প্রতিভা কঠোর পরিশ্রম করতে ব্যর্থ হয়।",
-    author: "Tim Notke"
+    en: "You don't have to see the whole staircase, just take the first step.",
+    bn: 'গোটা সিঁড়িটা দেখতে হবে না, শুধু প্রথম ধাপটি ফেলুন।',
+    author: 'Martin Luther King Jr.'
   },
   {
-    en: "Study while others are sleeping; prepare while others are playing.",
-    bn: "অন্যরা যখন ঘুমাচ্ছে তখন আপনি পড়ুন; অন্যরা যখন অলস সময় কাটাচ্ছে তখন আপনি প্রস্তুতি নিন।",
-    author: "William Arthur Ward"
+    en: 'Doubt kills more dreams than failure ever will.',
+    bn: 'ব্যর্থতার চেয়ে সন্দেহই বেশি স্বপ্ন নষ্ট করে।',
+    author: 'Suzy Kassem'
   },
   {
-    en: "Do not decrease the goal. Increase the effort.",
-    bn: "লক্ষ্য ছোট করবেন না; নিজের প্রচেষ্টাকে বহুগুণ বাড়িয়ে দিন।",
-    author: "Grant Cardone"
+    en: 'There are no shortcuts to any place worth going.',
+    bn: 'যে গন্তব্যে পৌঁছানোর মতো মূল্য আছে, সেখানে পৌঁছানোর কোনো শর্টকাট নেই।',
+    author: 'Beverly Sills'
   },
   {
-    en: "Every expert was once a beginner.",
-    bn: "প্রতিটি দক্ষ মানুষই জীবনের শুরুতে একজন অনভিজ্ঞ শিক্ষার্থী ছিলেন।",
-    author: "Helen Hayes"
+    en: 'Success is not final; failure is not fatal: It is the courage to continue that counts.',
+    bn: 'সাফল্যই শেষ কথা নয়, ব্যর্থতাও প্রাণঘাতী নয়; লড়াই চালিয়ে যাওয়ার সাহসই আসল।',
+    author: 'Winston S. Churchill'
   },
   {
-    en: "Believe you can and you are halfway there.",
-    bn: "বিশ্বাস করুন আপনি পারবেন, তবেই আপনার পথচলার অর্ধেক কাজ সম্পন্ন হয়ে যাবে।",
-    author: "Theodore Roosevelt"
+    en: "Whether you think you can or think you can't, you're right.",
+    bn: 'আপনি পারেন বলে ভাবুন বা না পারেন বলে ভাবুন — দুটোতেই আপনি সঠিক।',
+    author: 'Henry Ford'
   },
   {
-    en: "It always seems impossible until it is done.",
-    bn: "যতক্ষণ পর্যন্ত কাজ সম্পন্ন না হয়, ততক্ষণ পর্যন্ত এটি অসম্ভব বলেই মনে হয়।",
-    author: "Nelson Mandela"
+    en: 'Success is the sum of small efforts, repeated day-in and day-out.',
+    bn: 'প্রতিদিনের ছোট ছোট প্রচেষ্টার যোগফলই একদিন সাফল্য হয়ে ধরা দেয়।',
+    author: 'Robert Collier'
   },
   {
-    en: "The secret of getting ahead is getting started.",
-    bn: "এগিয়ে যাওয়ার একমাত্র গোপন চাবিকাঠি হলো কাজ অবিলম্বে শুরু করে দেওয়া।",
-    author: "Mark Twain"
+    en: 'The only way to do great work is to love what you do.',
+    bn: 'মহৎ কাজ করার একমাত্র উপায় হলো যা করছেন তা অন্তর থেকে ভালোবাসা।',
+    author: 'Steve Jobs'
   },
   {
-    en: "Wake up with determination. Go to bed with satisfaction.",
-    bn: "দৃঢ় সংকল্প নিয়ে সকালে ঘুম থেকে উঠুন, রাতে পরম তৃপ্তি নিয়ে ঘুমাতে যান।",
-    author: "George Horace Lorimer"
+    en: "Opportunities don't happen. You create them.",
+    bn: 'সুযোগ নিজে থেকে আসে না; আপনাকে তা তৈরি করতে হয়।',
+    author: 'Chris Grosser'
   },
   {
-    en: "The only way to do great work is to love what you do.",
-    bn: "মহৎ কাজ করার একমাত্র উপায় হলো আপনি যা করেন তাকে অন্তর থেকে ভালোবাসা।",
-    author: "Steve Jobs"
+    en: 'Action breeds confidence and courage. If you want to conquer fear, do not sit at home and think about it. Go out and get busy.',
+    bn: 'কর্মই আত্মবিশ্বাস ও সাহস সৃষ্টি করে। ভয়কে জয় করতে চাইলে ঘরে বসে ভাবনার সময় নষ্ট করবেন না; বেরিয়ে পড়ুন এবং কাজে লেগে যান।',
+    author: 'Dale Carnegie'
   },
   {
-    en: "Start where you are. Use what you have. Do what you can.",
-    bn: "আপনি যেখানে আছেন সেখান থেকেই শুরু করুন। যা আছে তা ব্যবহার করুন। যা পারেন তা করে যান।",
-    author: "Arthur Ashe"
+    en: 'We are what we repeatedly do. Excellence, then, is not an act, but a habit.',
+    bn: 'আমরা যা বারবার করি, তাই আমাদের পরিচয়। তাই উৎকর্ষ কোনো একক কাজ নয়, এটি একটি অভ্যাস।',
+    author: 'Aristotle'
   },
   {
-    en: "Education is the most powerful weapon which you can use to change the world.",
-    bn: "শিক্ষাই হলো সবচেয়ে শক্তিশালী অস্ত্র, যা দিয়ে আপনি সারা পৃথিবীকে বদলে দিতে পারেন।",
-    author: "Nelson Mandela"
-  },
-  {
-    en: "We are what we repeatedly do. Excellence, then, is not an act, but a habit.",
-    bn: "আমরা প্রতিদিন যা বারবার করি, তাই আমাদের পরিচয়। উৎকর্ষতা কোনো কাজ নয়, এটি একটি অভ্যাস।",
-    author: "Aristotle"
-  },
-  {
-    en: "Success is not final, failure is not fatal: It is the courage to continue that counts.",
-    bn: "সাফল্যই শেষ কথা নয়, ব্যর্থতাও কোনো সমাপ্তি নয়: লড়াই চালিয়ে যাওয়ার সাহসই আসল বিষয়।",
-    author: "Winston Churchill"
-  },
-  {
-    en: "It does not matter how slowly you go as long as you do not stop.",
-    bn: "আপনি কতটা ধীরে এগোচ্ছেন তা মুখ্য নয়, যতক্ষণ না আপনি থেমে যাচ্ছেন।",
-    author: "Confucius"
-  },
-  {
-    en: "There are no secrets to success. It is the result of preparation, hard work, and learning from failure.",
-    bn: "সাফল্যের কোনো গোপন রহস্য নেই। এটি হলো প্রস্তুতি, কঠোর পরিশ্রম এবং ভুল থেকে শেখার ফলাফল।",
-    author: "Colin Powell"
-  },
-  {
-    en: "There is no substitute for hard work.",
-    bn: "কঠোর পরিশ্রমের কোনো বিকল্প নেই।",
-    author: "Thomas Edison"
-  },
-  {
-    en: "Your pace is allowed to be slow. Your direction must stay clear.",
-    bn: "আপনার গতি ধীর হতে পারে, কিন্তু আপনার দিকনির্দেশনা স্পষ্ট থাকা চাই।",
-    author: "CareerDesk"
-  },
-  {
-    en: "One focused hour can change the shape of an entire day.",
-    bn: "একটি মনোযোগী ঘণ্টা পুরো দিনের গতিপথ বদলে দিতে পারে।",
-    author: "CareerDesk"
-  },
-  {
-    en: "Make progress visible, then make it repeatable.",
-    bn: "অগ্রগতিকে দৃশ্যমান করুন, তারপর সেটিকে অভ্যাসে পরিণত করুন।",
-    author: "CareerDesk"
-  },
-  {
-    en: "You do not need a perfect plan. You need the next honest step.",
-    bn: "আপনার নিখুঁত পরিকল্পনা দরকার নেই; দরকার পরবর্তী সৎ পদক্ষেপটি।",
-    author: "CareerDesk"
+    en: 'The first step toward success is taken when you refuse to be a captive of the environment in which you first find yourself.',
+    bn: 'সাফল্যের প্রথম ধাপ শুরু হয় তখনই, যখন আপনি যে পরিবেশে আছেন তার বন্দি হতে অস্বীকার করেন।',
+    author: 'Mark Caine'
   }
 ];
-
-
 
 // ===== Quotes Manager =====
 const quoteTextEl = document.getElementById('quoteText');
@@ -197,23 +114,15 @@ function quoteManagerEntries() {
     source: 'custom'
   })).filter(e => !deleted.has(e.id));
 
-  // 2. Curated routine quotes
-  const ownEntries = ownQuotes.map((q, i) => ({
-    id: `builtin-own-${i}`,
-    text: typeof q === 'string' ? q : q.text,
-    author: 'CareerDesk',
-    source: 'builtin'
+  // 2. Curated bilingual quotes (English text is listed here)
+  const curatedEntries = CURATED_QUOTES.map((q, i) => ({
+    id: `builtin-curated-${i}`,
+    text: q.en,
+    author: q.author,
+    source: 'curated'
   })).filter(e => !deleted.has(e.id));
 
-  // 3. Famous figures quotes
-  const famousEntries = famousQuotes.map((q, i) => ({
-    id: `builtin-famous-${i}`,
-    text: q.q,
-    author: q.a,
-    source: 'famous'
-  })).filter(e => !deleted.has(e.id));
-
-  return [...customEntries, ...ownEntries, ...famousEntries];
+  return [...customEntries, ...curatedEntries];
 }
 
 function currentPool() {
@@ -263,8 +172,8 @@ function renderQuoteManager() {
   }
 
   list.innerHTML = entries.map(entry => {
-    const badgeClass = entry.source === 'custom' ? 'badge-custom' : (entry.source === 'famous' ? 'badge-famous' : 'badge-builtin');
-    const badgeText = entry.source === 'custom' ? 'Custom' : (entry.source === 'famous' ? 'Famous' : 'Curated');
+    const badgeClass = entry.source === 'custom' ? 'badge-custom' : 'badge-builtin';
+    const badgeText = entry.source === 'custom' ? 'Custom' : 'Curated';
     const authorText = entry.author ? escapeHtml(entry.author) : 'CareerDesk';
 
     return `
@@ -508,7 +417,9 @@ function getRealisticTypingDelay(currentChar, nextChar) {
 }
 
 function getBilingualQuotesPool() {
-  const pool = (typeof BILINGUAL_QUOTES !== 'undefined' && Array.isArray(BILINGUAL_QUOTES)) ? BILINGUAL_QUOTES : [];
+  const pool = (typeof CURATED_QUOTES !== 'undefined' && Array.isArray(CURATED_QUOTES))
+    ? CURATED_QUOTES.filter((q, i) => !((state && state.deletedQuotes) || []).includes(`builtin-curated-${i}`))
+    : [];
   const custom = (state && Array.isArray(state.customQuotes)) ? state.customQuotes : [];
   const deleted = new Set((state && state.deletedQuotes) || []);
 
@@ -520,6 +431,65 @@ function getBilingualQuotesPool() {
 
   const combined = [...pool, ...activeCustom];
   return combined.length > 0 ? combined : [{ en: "Small daily improvements over time lead to stunning results.", bn: "প্রতিদিনের ছোট ছোট উন্নতি একসময় অবিশ্বাস্য সাফল্য এনে দেয়।", author: "CareerDesk" }];
+}
+
+/* --------------------------------------------------------------------------
+   Dashboard quote card: author portrait replaces the static quote icon.
+   Portraits are hard-coded Wikimedia images (public domain / CC) so they stay
+   stable without a lookup API. Authors with no known portrait use `null` and
+   fall back to the generic author avatar in .quote-author-avatar-fallback.
+   -------------------------------------------------------------------------- */
+const AUTHOR_PHOTOS = {
+  'Malcolm X': 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/33/Malcolm_X_1964_press_photo_%28cropped%29_%28lighting_diff%29.jpg/330px-Malcolm_X_1964_press_photo_%28cropped%29_%28lighting_diff%29.jpg',
+  'B.B. King': 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a7/Bbking.jpg/330px-Bbking.jpg',
+  'Theodore Roosevelt': 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2b/Theodore_Roosevelt_by_the_Pach_Bros_%284x5_cropped%29_%283%29.jpg/330px-Theodore_Roosevelt_by_the_Pach_Bros_%284x5_cropped%29_%283%29.jpg',
+  'Tim Notke': null,
+  'Nelson Mandela': 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/02/Nelson_Mandela_1994.jpg/330px-Nelson_Mandela_1994.jpg',
+  'Albert Einstein': 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/28/Albert_Einstein_Head_cleaned.jpg/330px-Albert_Einstein_Head_cleaned.jpg',
+  'Martin Luther King Jr.': 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/ce/Martin_Luther_King%2C_Jr._and_Lyndon_Johnson_%28cropped%29.jpg/330px-Martin_Luther_King%2C_Jr._and_Lyndon_Johnson_%28cropped%29.jpg',
+  'Suzy Kassem': 'https://upload.wikimedia.org/wikipedia/commons/1/15/Suzy-kassem.jpg',
+  'Beverly Sills': 'https://upload.wikimedia.org/wikipedia/commons/0/04/Beverly_Sills_by_Van_Vechten.jpg',
+  'Winston S. Churchill': 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/58/Winston_Churchill_As_Prime_Minister_1940-1945_MH26392.jpg/330px-Winston_Churchill_As_Prime_Minister_1940-1945_MH26392.jpg',
+  'Henry Ford': 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/27/Henry_Ford_portrait_1915_original_%283x4_cropped%29.png/330px-Henry_Ford_portrait_1915_original_%283x4_cropped%29.png',
+  'Robert Collier': null,
+  'Steve Jobs': 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/51/Steve_Jobs_Headshot_2010_%28cropped_4%29.jpg/330px-Steve_Jobs_Headshot_2010_%28cropped_4%29.jpg',
+  'Chris Grosser': null,
+  'Dale Carnegie': 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a8/Dale_Carnegie_%281937%29.jpg/330px-Dale_Carnegie_%281937%29.jpg',
+  'Aristotle': 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/ae/Aristotle_Altemps_Inv8575.jpg/330px-Aristotle_Altemps_Inv8575.jpg',
+  'Mark Caine': null
+};
+
+function updateQuoteAuthorAvatar(author) {
+  const badge = document.getElementById('homeQuoteAuthorAvatar');
+  if (!badge) return;
+
+  const name = String(author || 'CareerDesk').trim() || 'CareerDesk';
+  if (badge.dataset.author === name) return;
+  badge.dataset.author = name;
+  badge.title = name;
+
+  const fallback = badge.querySelector('.quote-author-avatar-fallback');
+  const existing = badge.querySelector('img');
+  const src = Object.prototype.hasOwnProperty.call(AUTHOR_PHOTOS, name) ? AUTHOR_PHOTOS[name] : null;
+
+  if (!src) {
+    if (existing) existing.remove();
+    if (fallback) fallback.style.display = '';
+    return;
+  }
+
+  if (fallback) fallback.style.display = 'none';
+  if (existing && existing.getAttribute('src') === src) return;
+  const img = existing || document.createElement('img');
+  img.alt = name;
+  img.decoding = 'async';
+  img.loading = 'lazy';
+  img.addEventListener('error', () => {
+    img.remove();
+    if (fallback) fallback.style.display = '';
+  }, { once: true });
+  img.src = src;
+  if (!existing) badge.prepend(img);
 }
 
 function stopQuoteTypewriter() {
@@ -550,6 +520,8 @@ function renderQuoteFrame() {
   const pool = getBilingualQuotesPool();
   const currentQuote = pool[((quoteActiveIndex % pool.length) + pool.length) % pool.length];
   if (!currentQuote) return;
+
+  updateQuoteAuthorAvatar(currentQuote.author);
 
   // Determine current text
   const rawText = (quoteActiveLang === 'en' ? currentQuote.en : currentQuote.bn) || currentQuote.en || '';

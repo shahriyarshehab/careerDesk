@@ -511,13 +511,40 @@
   height: 32px;
   border-radius: 10px;
   background: rgba(99, 102, 241, 0.12);
-  border: 1px solid rgba(99, 102, 241, 0.25);
+  /* Border is drawn with an inset ring so a portrait can fill the whole tile. */
+  border: none;
+  box-shadow: inset 0 0 0 1px rgba(99, 102, 241, 0.25), 0 2px 8px rgba(99, 102, 241, 0.2);
   color: var(--accent1);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 14px;
   flex-shrink: 0;
+  overflow: hidden;
+  padding: 0;
+}
+
+#homeQuoteCommand .quote-command-v2-mark img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+  object-position: center 22%;
+  border-radius: inherit;
+}
+
+#homeQuoteCommand .quote-author-avatar-fallback {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  color: var(--accent1);
+}
+
+#homeQuoteCommand .quote-author-avatar-fallback svg {
+  width: 55%;
+  height: 55%;
+  display: block;
 }
 
 #homeQuoteCommand .quote-command-v2-copy .profile-quote-phrase {

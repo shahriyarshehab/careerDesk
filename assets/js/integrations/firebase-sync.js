@@ -1035,6 +1035,7 @@ async function signOutUser() {
   }
 
   renderUserProfileUI();
+  if (typeof renderSidebarAuthControl === 'function') renderSidebarAuthControl();
   showToast('Signed out. Personal study data cleaned from this browser.');
 }
 
@@ -1845,9 +1846,6 @@ async function updateUserProfile(newName, newPhotoUrl, newUsername, newPhoneNumb
   }
 
   renderUserProfileUI();
-  if (typeof renderProfileTrackCard === 'function') {
-    renderProfileTrackCard();
-  }
   if (typeof renderHomeDashboard === 'function') {
     renderHomeDashboard();
   }
@@ -1896,6 +1894,8 @@ const githubIconSvg = `
  * Renders the User Profile & Cloud Hub into #userProfileCard
  */
 function renderUserProfileUI() {
+  // The retired profile card is gone; its avatar lives on inside the Desk hero.
+  if (typeof renderDeskAvatar === 'function') renderDeskAvatar();
   const container = document.getElementById('userProfileCard');
   if (!container) return;
 
@@ -3079,7 +3079,11 @@ function handleAuthError(err, providerName = 'Google') {
   }
 
   if (code === 'auth/configuration-not-found' || code === 'auth/operation-not-allowed') {
-    openProviderDisabledModal(providerName);
+    if (typeof openProviderDisabledModal === 'function') {
+      openProviderDisabledModal(providerName);
+    } else {
+      showToast(`${providerName} sign-in is not enabled for this project. Turn it on in Firebase Console → Authentication → Sign-in method.`, true);
+    }
     return;
   }
 
@@ -3235,14 +3239,29 @@ function closeUnauthorizedDomainModal() {
   setTimeout(() => modal.style.display = 'none', 200);
 }
 
+/* The provider-disabled guidance dialog is optional markup: closeProviderDisabledModal
+   used to be called by the global Escape handler without existing, which threw a
+   ReferenceError on every Escape press and aborted the rest of that handler. */
+function closeProviderDisabledModal() {
+  const modal = document.getElementById('providerDisabledModal');
+  if (!modal) return;
+  modal.classList.remove('open');
+  setTimeout(() => modal.style.display = 'none', 200);
+}
+
 // Global Escape Key Listener for Modals
+// Closes every dialog that exists; optional ones are skipped instead of throwing.
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') {
-    closeEditProfileModal();
-    closeFirebaseConfigModal();
-    closeProtocolHelpModal();
-    closeProviderDisabledModal();
-    closeUnauthorizedDomainModal();
+    [
+      closeEditProfileModal,
+      closeFirebaseConfigModal,
+      closeProtocolHelpModal,
+      closeProviderDisabledModal,
+      closeUnauthorizedDomainModal
+    ].forEach((closeModal) => {
+      if (typeof closeModal === 'function') closeModal();
+    });
   }
 });
 
@@ -4659,7 +4678,7 @@ async function deleteCloudDataForUser(targetUid, options = {}) {
       refreshAllDashboardPanels();
       if (typeof syncAllSubjectSelects === 'function') syncAllSubjectSelects();
       if (typeof renderUserProfileUI === 'function') renderUserProfileUI();
-      if (typeof renderProfileTrackCard === 'function') renderProfileTrackCard();
+      if (typeof renderSubjectManager === 'function') renderSubjectManager();
       if (typeof renderProfileAspirantHub === 'function') renderProfileAspirantHub();
       if (typeof renderCloudSnapshotsList === 'function') renderCloudSnapshotsList();
     } catch (bulkErr) {
@@ -4824,7 +4843,7 @@ async function deleteCloudDataForUser(targetUid, options = {}) {
     refreshAllDashboardPanels();
     if (typeof syncAllSubjectSelects === 'function') syncAllSubjectSelects();
     if (typeof renderUserProfileUI === 'function') renderUserProfileUI();
-    if (typeof renderProfileTrackCard === 'function') renderProfileTrackCard();
+    if (typeof renderSubjectManager === 'function') renderSubjectManager();
     if (typeof renderProfileAspirantHub === 'function') renderProfileAspirantHub();
     if (typeof renderCloudSnapshotsList === 'function') renderCloudSnapshotsList();
   } catch (e) { }
@@ -4894,11 +4913,87 @@ function initCloudBackupEvents() {
   }
 }
 
-// Auto-initialize cloud backup controls on DOM ready
+/**
+ * Sidebar account action: "Log in" when signed out, "Log out" when signed in.
+ * Logging out runs signOutUser(), which cleans the local workspace data.
+ */
+function renderSidebarAuthControl() {
+  const buttons = document.querySelectorAll('[data-auth-action]');
+  if (!buttons.length) return;
+  const user = typeof getCachedAuthUser === 'function' ? getCachedAuthUser() : null;
+  const isAuthed = !!user;
+  const title = isAuthed
+    ? 'Log out' + (user.displayName ? ' — ' + user.displayName : '')
+    : 'Log in to sync your workspace';
+  buttons.forEach((btn) => {
+    btn.classList.toggle('is-authed', isAuthed);
+    btn.title = title;
+    btn.setAttribute('aria-label', title);
+    const label = btn.querySelector('.sidebar-auth-label');
+    if (label) label.textContent = isAuthed ? 'Log out' : 'Log in';
+  });
+}
+window.renderSidebarAuthControl = renderSidebarAuthControl;
+
+function initSidebarAuthControl() {
+  if (window._sidebarAuthBound) return;
+  window._sidebarAuthBound = true;
+
+  document.addEventListener('click', (event) => {
+    const btn = event.target.closest('[data-auth-action]');
+    if (!btn) return;
+
+    if (typeof setMobileMoreMenuOpen === 'function') {
+      setMobileMoreMenuOpen(false);
+    } else {
+      const menu = document.getElementById('mobileMoreMenu');
+      if (menu) menu.hidden = true;
+    }
+
+    const user = typeof getCachedAuthUser === 'function' ? getCachedAuthUser() : null;
+    if (!user) {
+      if (typeof openAuthModal === 'function') openAuthModal('login');
+      return;
+    }
+
+    const confirmed = window.confirm("Log out and clear this browser's study data? Your cloud backup stays safe.");
+    if (!confirmed) return;
+    if (typeof signOutUser === 'function') signOutUser();
+  });
+
+  window.addEventListener('careerdesk-auth-state-changed', renderSidebarAuthControl);
+  renderSidebarAuthControl();
+}
+window.initSidebarAuthControl = initSidebarAuthControl;
+
+/**
+ * Offline resilience: local data is always stored first. When the connection
+ * returns, push the latest workspace bundle back up to Firestore.
+ */
+if (typeof window !== 'undefined') {
+  window.addEventListener('offline', () => {
+    if (isExplicitlySignedOut || !getCachedAuthUser()) return;
+    const badge = document.getElementById('cloudSyncLiveBadge');
+    if (badge) badge.textContent = 'Offline — saved locally';
+  });
+
+  window.addEventListener('online', () => {
+    if (isExplicitlySignedOut || !getCachedAuthUser()) return;
+    const badge = document.getElementById('cloudSyncLiveBadge');
+    if (badge) badge.textContent = 'Reconnected — syncing...';
+    if (typeof scheduleFirestoreSync === 'function') scheduleFirestoreSync();
+  });
+}
+
+// Auto-initialize cloud backup & sidebar auth controls on DOM ready
 if (typeof document !== 'undefined') {
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initCloudBackupEvents);
-  } else {
+  const initAuthSurfaces = () => {
     initCloudBackupEvents();
+    initSidebarAuthControl();
+  };
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initAuthSurfaces);
+  } else {
+    initAuthSurfaces();
   }
 }

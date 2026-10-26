@@ -56,6 +56,8 @@
         aria-label="Syllabus"><i data-lucide="list-checks"></i><span>Syllabus</span></button>
       <button class="tab-btn nav-link" data-tab="groupchat" role="tab" aria-selected="false" title="Group Chat"
         aria-label="Group Chat"><i data-lucide="messages-square"></i><span>Chat</span></button>
+      <button class="tab-btn nav-link" data-tab="profile" role="tab" aria-selected="false" title="Desk"
+        aria-label="Desk"><i data-lucide="user"></i><span>Desk</span></button>
 
     </nav>
 
@@ -86,14 +88,13 @@
 
     <!-- Header Actions (Figma Style) -->
     <div class="header-actions brand-actions watch-actions" aria-label="Quick controls">
-      <button class="tab-btn nav-link sidebar-profile-link" data-tab="profile" type="button" title="Profile" aria-label="Profile">
-        <i data-lucide="user"></i><span>Profile</span>
-      </button>
-      <button class="tab-btn nav-link sidebar-subjects-link" data-tab="subjects" type="button" title="Subject Manager" aria-label="Subject Manager">
-        <i data-lucide="layers"></i><span>Subject Manager</span>
-      </button>
       <button class="tab-btn nav-link sidebar-settings-link" data-tab="settings" type="button" title="Settings &amp; Sync" aria-label="Settings and sync">
         <i data-lucide="settings-2"></i><span>Settings &amp; Sync</span>
+      </button>
+      <button class="tab-btn nav-link sidebar-auth-btn" id="sidebarAuthBtn" type="button" data-auth-action title="Log in to sync your workspace" aria-label="Log in to sync your workspace">
+        <i data-lucide="log-in" class="sidebar-auth-icon auth-login-icon" aria-hidden="true"></i>
+        <i data-lucide="log-out" class="sidebar-auth-icon auth-logout-icon" aria-hidden="true"></i>
+        <span class="sidebar-auth-label">Log in</span>
       </button>
       <button class="icon-action-btn watch-action" id="watchFullscreenToggle" type="button" title="Enter fullscreen" aria-label="Toggle Fullscreen" style="display:none;">
         <i data-lucide="maximize"></i>
@@ -130,13 +131,15 @@
       <i data-lucide="messages-square" aria-hidden="true"></i><span>Group chat</span>
     </button>
     <button class="tab-btn mobile-more-link" data-tab="profile" type="button">
-      <i data-lucide="user" aria-hidden="true"></i><span>Profile</span>
-    </button>
-    <button class="tab-btn mobile-more-link" data-tab="subjects" type="button">
-      <i data-lucide="layers" aria-hidden="true"></i><span>Subject manager</span>
+      <i data-lucide="user" aria-hidden="true"></i><span>Desk</span>
     </button>
     <button class="tab-btn mobile-more-link" data-tab="settings" type="button">
       <i data-lucide="settings-2" aria-hidden="true"></i><span>Settings &amp; sync</span>
+    </button>
+    <button class="tab-btn mobile-more-link mobile-auth-link" type="button" data-auth-action title="Log in to sync your workspace" aria-label="Log in to sync your workspace">
+      <i data-lucide="log-in" class="auth-login-icon" aria-hidden="true"></i>
+      <i data-lucide="log-out" class="auth-logout-icon" aria-hidden="true"></i>
+      <span class="sidebar-auth-label">Log in</span>
     </button>
   </nav>
 
@@ -152,7 +155,11 @@
         <section class="home-quote-command quote-command-v2" id="homeQuoteCommand">
           <div class="profile-quote-ticker-top quote-command-v2-stage" id="profileHeroQuoteTicker">
             <div class="profile-quote-ticker-content">
-              <div class="profile-quote-mark-badge quote-command-v2-mark"><i data-lucide="quote"></i></div>
+              <div class="profile-quote-mark-badge quote-command-v2-mark" id="homeQuoteAuthorAvatar">
+                <span class="quote-author-avatar-fallback" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                </span>
+              </div>
               <div class="profile-quote-typing-area quote-command-v2-copy">
                 <span class="profile-quote-phrase"><span class="profile-quote-curly-open">“</span><span class="profile-quote-typed-text" id="profileQuoteTypedText"></span><span class="profile-quote-cursor" id="profileQuoteCursor"></span><span class="profile-quote-curly-close">”</span></span>
                 <span class="profile-quote-author-pill" id="profileQuoteAuthorPill">— CareerDesk</span>
@@ -813,50 +820,52 @@
     </section>
 
     <!-- ===== SYLLABUS ===== -->
-    <section class="panel" id="panel-syllabus">
-      <div class="syllabus-hero">
-        <div>
-          <span class="syllabus-eyebrow"><i data-lucide="route"></i> PREPARATION ROADMAP</span>
-          <h2 class="section-title">Syllabus planner</h2>
+    <section class="panel settings-center-panel" id="panel-syllabus" aria-labelledby="syllabusCenterTitle">
+      <header class="subjects-page-hero">
+        <div class="subjects-page-hero-icon"><i data-lucide="route"></i></div>
+        <div class="subjects-page-hero-copy">
+          <span class="subjects-page-eyebrow">PREPARATION ROADMAP</span>
+          <h2 id="syllabusCenterTitle">Syllabus planner</h2>
           <p>Break your exam preparation into subjects and track each topic as you learn.</p>
         </div>
-        <div class="syllabus-head-mark" aria-hidden="true"><i data-lucide="list-checks"></i></div>
-      </div>
+        <div class="subjects-page-hero-orbit" aria-hidden="true"></div>
+      </header>
 
-      <div class="syllabus-overview-grid">
-        <div class="syllabus-overall glass">
-          <div class="syllabus-summary-top">
-            <span class="syllabus-card-kicker">OVERALL PROGRESS</span>
-            <span class="syllabus-progress-percent" id="syllabusOverallPct">0%</span>
-          </div>
-          <strong class="syllabus-summary-count" id="syllabusOverallLabel">0 / 0 topics completed</strong>
-          <div class="progress-track syllabus-progress-track"><div class="progress-fill" id="syllabusOverallFill" style="width:0%"></div></div>
-          <span class="syllabus-summary-note"><i data-lucide="sparkles"></i> Every topic completed moves you closer to your goal.</span>
-        </div>
-
-        <div class="entry-form syllabus-create-card">
-          <div class="syllabus-create-heading">
-            <span class="syllabus-create-icon"><i data-lucide="folder-plus"></i></span>
+      <div class="glass profile-section-card subjects-manager-card syllabus-manager-card">
+        <div class="section-card-header">
+          <div class="section-card-title-group">
+            <div class="section-card-icon-badge">
+              <i data-lucide="list-checks"></i>
+            </div>
             <div>
-              <h3>Add to your roadmap</h3>
-              <p>Create a subject and optionally start with a topic.</p>
+              <h3 class="section-card-title">
+                <span>Syllabus roadmap</span>
+                <span class="subject-count-badge" id="syllabusOverallPct">0%</span>
+              </h3>
+              <p class="section-card-desc" id="syllabusOverallLabel">0 / 0 topics completed</p>
             </div>
           </div>
-          <div class="syllabus-form-row">
-            <input type="text" id="newCategoryInput" list="appSubjectDatalist" aria-label="Subject or category name" placeholder="Subject or category" class="syllabus-subject-input">
-            <input type="text" id="newTopicInput" aria-label="First topic or topics, optional; separate topics with a vertical bar" placeholder="First topic (optional; use | between topics)" class="syllabus-topic-input">
-            <button class="pill solid" id="addCategoryBtn" type="button"><i data-lucide="plus"></i> <span>Add subject</span></button>
-          </div>
         </div>
-      </div>
 
-      <div class="syllabus-section-heading">
-        <div>
-          <h3>Your subjects</h3>
-          <p>Choose a topic to mark it complete. Double-click a subject or topic to edit.</p>
+        <div class="syllabus-progress-strip">
+          <div class="progress-track syllabus-progress-track"><div class="progress-fill" id="syllabusOverallFill" style="width:0%"></div></div>
         </div>
+
+        <div class="cockpit-subject-add-bar syllabus-add-bar">
+          <div class="cockpit-input-wrap">
+            <i data-lucide="folder-plus" class="input-icon"></i>
+            <input type="text" id="newCategoryInput" list="appSubjectDatalist" aria-label="Subject or category name" placeholder="Subject or category" class="syllabus-subject-input">
+          </div>
+          <div class="cockpit-input-wrap">
+            <i data-lucide="list-plus" class="input-icon"></i>
+            <input type="text" id="newTopicInput" aria-label="First topic or topics, optional; separate topics with a vertical bar" placeholder="First topic (optional; use | between topics)" class="syllabus-topic-input">
+          </div>
+          <button class="pill solid" id="addCategoryBtn" type="button"><i data-lucide="plus"></i> <span>Add subject</span></button>
+        </div>
+
+        <span class="syllabus-summary-note syllabus-roadmap-hint"><i data-lucide="sparkles"></i> Choose a topic to mark it complete. Double-click a subject or topic to edit.</span>
+        <div id="categoryList" class="syllabus-category-grid"></div>
       </div>
-      <div id="categoryList" class="syllabus-category-grid"></div>
     </section>
 
     <!-- ===== GROUP CHAT ===== -->
@@ -1075,37 +1084,109 @@
 
     <!-- ===== USER PROFILE ===== -->
     <section class="panel" id="panel-profile">
-      <!-- 1. Master Profile Identity Deck -->
-      <div class="glass user-profile-card" id="userProfileCard"></div>
+      <!-- 1. Desk hero: reading-room backdrop, focus ring and mini calendar -->
+      <section class="desk-hero" id="deskHero" aria-label="Desk overview">
+        <div class="desk-hero-scene" aria-hidden="true">
+          <span class="desk-scene-window"></span>
+          <span class="desk-scene-art desk-scene-art--main"></span>
+          <span class="desk-scene-art desk-scene-art--small"></span>
+          <span class="desk-scene-shelf desk-scene-shelf--top"></span>
+          <span class="desk-scene-shelf desk-scene-shelf--mid"></span>
+          <span class="desk-scene-shelf desk-scene-shelf--low"></span>
+          <span class="desk-scene-lamp"></span>
+          <span class="desk-scene-desk"></span>
+        </div>
 
-      <!-- 2. Profile & Settings Cockpit Shell -->
-      <div class="profile-cockpit-shell" id="profileCockpitShell">
-        <!-- Cockpit Segmented Navigation Bar -->
-        <nav class="profile-cockpit-nav" id="profileCockpitNav" role="tablist" aria-label="Profile sections">
-          <button type="button" class="cockpit-nav-btn active" data-cockpit-tab="overview" role="tab" aria-selected="true">
-            <i data-lucide="compass"></i>
-            <span>Overview &amp; Insights</span>
-          </button>
-          <button type="button" class="cockpit-nav-btn" data-cockpit-tab="security" role="tab" aria-selected="false">
-            <i data-lucide="shield-check"></i>
-            <span>Security &amp; Privacy</span>
-          </button>
-        </nav>
+        <div class="desk-hero-inner">
+          <header class="desk-room-head">
+            <div class="desk-clock" id="deskClock" role="group" aria-label="Desk clock">
+              <time class="desk-clock-time" id="deskClockTime">--:--</time>
+              <span class="desk-clock-date" id="deskClockDate">—</span>
+            </div>
 
-        <!-- Cockpit Tab Panes -->
-        <div class="profile-cockpit-content" id="profileCockpitContent">
-          <!-- Pane 1: Overview & Aspirant Mission Control -->
-          <div class="cockpit-pane active" id="cockpitPaneOverview" role="tabpanel">
-            <div id="profileAspirantHub"></div>
+            <button type="button" class="desk-mini-cal" id="deskMiniCalendar" aria-label="Open the routine calendar">
+              <span class="desk-cal-head">
+                <span class="desk-cal-month" id="deskCalMonth">—</span>
+                <span class="desk-cal-today" id="deskCalToday">—</span>
+              </span>
+              <span class="desk-cal-grid" id="deskCalGrid"></span>
+            </button>
+
+            <button type="button" class="desk-fullscreen-btn" id="deskFullscreenBtn" title="Full screen"
+              aria-label="Enter full screen" aria-pressed="false">
+              <span class="desk-fs-enter"><i data-lucide="maximize-2" aria-hidden="true"></i><span>Full screen</span></span>
+              <span class="desk-fs-exit"><i data-lucide="minimize-2" aria-hidden="true"></i><span>Exit full screen</span></span>
+            </button>
+          </header>
+
+          <div class="desk-hero-copy">
+            <span class="desk-hero-eyebrow" id="deskHeroGreeting">YOUR DESK</span>
+            <h2 class="desk-hero-title" id="deskRunningSubject">Nothing running</h2>
+            <p class="desk-hero-sub" id="deskRunningTask">Your reading room is ready when you are.</p>
+            <p class="desk-hero-meta" id="deskRunningMeta"></p>
+            <div class="desk-hero-chips" id="deskHeroChips"></div>
           </div>
 
-          <!-- Pane 4: Security & Privacy Vault -->
-          <div class="cockpit-pane" id="cockpitPaneSecurity" role="tabpanel" style="display:none;">
-            <div class="glass profile-section-card" id="securityVaultCard"></div>
-          </div>
+          <footer class="desk-hero-foot">
+            <button type="button" class="desk-progress" id="deskFocusRing" aria-label="Open the focus tracker">
+              <span class="desk-progress-top">
+                <span class="desk-progress-label">TODAY'S FOCUS</span>
+                <strong class="desk-progress-pct" id="deskRingPct">0%</strong>
+              </span>
+              <span class="desk-progress-track">
+                <span class="desk-progress-fill" id="deskRingValue"></span>
+              </span>
+              <span class="desk-progress-caption" id="deskRingCaption">Focus idle</span>
+            </button>
 
+            <div class="desk-profile-slot">
+              <div class="desk-profile-popover" id="deskProfilePopover" role="dialog" aria-label="Profile information" hidden>
+                <div class="desk-popover-head">
+                  <span class="desk-popover-avatar" id="deskPopoverAvatar">G</span>
+                  <div class="desk-popover-identity">
+                    <strong id="deskPopoverName">Guest Aspirant</strong>
+                    <span id="deskPopoverEmail">Not signed in</span>
+                  </div>
+                </div>
+                <div class="desk-popover-stats">
+                  <div><span>Focus today</span><strong id="deskPopoverFocus">0m</strong></div>
+                  <div><span>Sessions</span><strong id="deskPopoverSessions">0</strong></div>
+                  <div><span>Goal</span><strong id="deskPopoverGoal">4h</strong></div>
+                </div>
+                <div class="desk-popover-actions">
+                  <button type="button" class="desk-popover-btn" id="deskPopoverAccountBtn">Sign in</button>
+                  <button type="button" class="desk-popover-btn subtle" id="deskPopoverSettingsBtn">Settings</button>
+                  <button type="button" class="desk-popover-btn danger" id="deskPopoverSignOutBtn" hidden>Sign out</button>
+                </div>
+              </div>
+              <div class="desk-profile-meta">
+                <span class="desk-profile-name" id="deskProfileName">Guest Aspirant</span>
+                <span class="desk-profile-hint">Account</span>
+              </div>
+              <button type="button" class="desk-avatar" id="deskAvatarBtn" title="Open your account" aria-label="Open your account" aria-haspopup="dialog" aria-expanded="false" aria-controls="deskProfilePopover">
+                <img class="desk-avatar-img" id="deskAvatarImg" alt="" hidden>
+                <span class="desk-avatar-initial" id="deskAvatarInitial">A</span>
+              </button>
+            </div>
+          </footer>
+        </div>
+      </section>
+
+
+      <!-- The old profile identity deck and cockpit were retired: the Desk is the reading room. -->
+    </section>
+
+    <section class="panel settings-center-panel" id="panel-settings" aria-labelledby="settingsCenterTitle">
+      <header class="settings-center-header">
+        <div class="settings-center-icon"><i data-lucide="settings-2"></i></div>
+        <div>
+          <h2 id="settingsCenterTitle">Settings &amp; Sync</h2>
+          <p>Manage your subjects, workspace preferences, local data, cloud sync, and backups.</p>
+        </div>
+      </header>
+      <div class="profile-cockpit-content settings-center-content" id="settingsCockpitContent">
           <!-- Pane 5: Cloud Sync & Storage -->
-          <div class="cockpit-pane" id="cockpitPaneCloud" role="tabpanel" style="display:none;">
+          <div class="cockpit-pane" id="cockpitPaneCloud">
             <div class="glass data-management-card" id="dataManagementCard">
               <div class="section-card-header settings-card-heading">
                 <div class="section-card-title-group">
@@ -1197,7 +1278,7 @@
           </div>
 
           <!-- Pane 6: App Preferences & Data Management -->
-          <div class="cockpit-pane" id="cockpitPanePreferences" role="tabpanel" style="display:none;">
+          <div class="cockpit-pane" id="cockpitPanePreferences">
             <div class="glass profile-section-card" id="profilePreferencesCard">
               <div class="section-card-header settings-card-heading">
                 <div class="section-card-title-group">
@@ -1211,12 +1292,12 @@
                 </div>
               </div>
 
-              <!-- Workspace Theme Gallery -->
-              <div class="settings-row" style="flex-direction:column; align-items:flex-start; gap:14px;">
+              <!-- Workspace Theme -->
+              <div class="settings-row" style="align-items:center;">
                 <div style="display:flex; justify-content:space-between; align-items:center; width:100%; flex-wrap:wrap; gap:8px;">
                   <div>
-                    <strong style="font-size:15px; display:block; color:var(--text); margin-bottom:2px;">Workspace Theme Style</strong>
-                    <span style="font-size:12.5px; color:var(--text-soft);">Select your preferred glassmorphism aesthetic and ambient color scheme.</span>
+                    <strong style="font-size:15px; display:block; color:var(--text); margin-bottom:2px;">Workspace Theme</strong>
+                    <span style="font-size:12.5px; color:var(--text-soft);">The app ships one glass theme — switch between dark and light.</span>
                   </div>
                   <div class="theme-mode-toggle-group" role="group" aria-label="Quick theme switch">
                     <button type="button" class="btn-mode-switch" id="themeDarkBtn" aria-pressed="false" title="Dark Mode">
@@ -1225,86 +1306,6 @@
                     <button type="button" class="btn-mode-switch" id="themeLightBtn" aria-pressed="false" title="Light Mode">
                       <i data-lucide="sun" aria-hidden="true"></i><span>Light</span>
                     </button>
-                  </div>
-                </div>
-
-                <div class="settings-theme-gallery" style="width:100%;">
-                  <div class="theme-card-grid">
-                    <!-- 1. Vision Frosted (Netflix Obsidian Glass) -->
-                    <div class="theme-card" data-set-theme="vision" role="button" tabindex="0" aria-label="Select Vision Frosted Theme">
-                      <div class="theme-card-banner theme-preview-vision">
-                        <div class="theme-card-dots">
-                          <span class="theme-dot" style="background:#E50914; color:#E50914;"></span>
-                          <span class="theme-dot" style="background:#10B981; color:#10B981;"></span>
-                          <span class="theme-dot" style="background:#F59E0B; color:#F59E0B;"></span>
-                        </div>
-                        <span class="theme-card-badge">Vision OS</span>
-                      </div>
-                      <div class="theme-card-body">
-                        <div class="theme-card-title">
-                          <span>Vision Frosted</span>
-                          <i data-lucide="check-circle-2" class="theme-card-check"></i>
-                        </div>
-                        <span class="theme-card-desc">Obsidian charcoal frosted glass with specular rims, cinematic red &amp; emerald match accents.</span>
-                      </div>
-                    </div>
-
-                    <!-- 2. Synaptix Cyber (Deep Violet) -->
-                    <div class="theme-card" data-set-theme="synaptix" role="button" tabindex="0" aria-label="Select Synaptix Cyber Theme">
-                      <div class="theme-card-banner theme-preview-synaptix">
-                        <div class="theme-card-dots">
-                          <span class="theme-dot" style="background:#A855F7; color:#A855F7;"></span>
-                          <span class="theme-dot" style="background:#38BDF8; color:#38BDF8;"></span>
-                          <span class="theme-dot" style="background:#EC4899; color:#EC4899;"></span>
-                        </div>
-                        <span class="theme-card-badge">Cyber AI</span>
-                      </div>
-                      <div class="theme-card-body">
-                        <div class="theme-card-title">
-                          <span>Synaptix Cyber</span>
-                          <i data-lucide="check-circle-2" class="theme-card-check"></i>
-                        </div>
-                        <span class="theme-card-desc">Deep midnight violet canvas with electric purple to cyan gradients &amp; glowing neon auras.</span>
-                      </div>
-                    </div>
-
-                    <!-- 3. Classic Cyber Indigo -->
-                    <div class="theme-card" data-set-theme="dark" role="button" tabindex="0" aria-label="Select Classic Indigo Theme">
-                      <div class="theme-card-banner theme-preview-dark">
-                        <div class="theme-card-dots">
-                          <span class="theme-dot" style="background:#6366F1; color:#6366F1;"></span>
-                          <span class="theme-dot" style="background:#06B6D4; color:#06B6D4;"></span>
-                          <span class="theme-dot" style="background:#3B82F6; color:#3B82F6;"></span>
-                        </div>
-                        <span class="theme-card-badge">Default</span>
-                      </div>
-                      <div class="theme-card-body">
-                        <div class="theme-card-title">
-                          <span>Classic Indigo</span>
-                          <i data-lucide="check-circle-2" class="theme-card-check"></i>
-                        </div>
-                        <span class="theme-card-desc">Deep navy glassmorphism with indigo &amp; cyan glowing highlights and ambient mesh lights.</span>
-                      </div>
-                    </div>
-
-                    <!-- 4. Frosted White (Light) -->
-                    <div class="theme-card" data-set-theme="light" role="button" tabindex="0" aria-label="Select Frosted White Theme">
-                      <div class="theme-card-banner theme-preview-light">
-                        <div class="theme-card-dots">
-                          <span class="theme-dot" style="background:#4F46E5; color:#4F46E5;"></span>
-                          <span class="theme-dot" style="background:#0891B2; color:#0891B2;"></span>
-                          <span class="theme-dot" style="background:#94A3B8; color:#94A3B8;"></span>
-                        </div>
-                        <span class="theme-card-badge" style="background:rgba(0,0,0,0.06); color:#334155; border-color:rgba(0,0,0,0.1);">Daylight</span>
-                      </div>
-                      <div class="theme-card-body">
-                        <div class="theme-card-title">
-                          <span>Frosted White</span>
-                          <i data-lucide="check-circle-2" class="theme-card-check"></i>
-                        </div>
-                        <span class="theme-card-desc">Clean daylight frosted white glass with high readability, subtle slate text and indigo borders.</span>
-                      </div>
-                    </div>
                   </div>
                 </div>
               </div>
@@ -1363,95 +1364,58 @@
               </div>
             </div>
           </div>
-        </div>
-      </div>
-    </section>
 
-    <section class="panel settings-center-panel" id="panel-subjects" aria-labelledby="subjectsCenterTitle">
-      <header class="subjects-page-hero">
-        <div class="subjects-page-hero-icon"><i data-lucide="layers"></i></div>
-        <div class="subjects-page-hero-copy">
-          <span class="subjects-page-eyebrow">YOUR STUDY WORKSPACE</span>
-          <h2 id="subjectsCenterTitle">Subjects &amp; Curriculum</h2>
-          <p>Manage your subjects and tailor a study track that fits your goals.</p>
-        </div>
-        <div class="subjects-page-hero-orbit" aria-hidden="true"></div>
-      </header>
-
-      <nav class="subjects-workspace-nav" id="subjectsWorkspaceNav" role="tablist" aria-label="Subject workspace">
-        <button type="button" class="subjects-workspace-tab active" data-subjects-view="manager" role="tab" aria-selected="true" aria-controls="subjectsManagerView">
-          <i data-lucide="layers"></i><span>Subject Manager</span>
-        </button>
-        <button type="button" class="subjects-workspace-tab" data-subjects-view="curriculum" role="tab" aria-selected="false" aria-controls="subjectsCurriculumView">
-          <i data-lucide="graduation-cap"></i><span>Curriculum &amp; Track</span>
-        </button>
-      </nav>
-
-      <div class="subjects-workspace-content">
-        <section class="subjects-workspace-view active" id="subjectsManagerView" role="tabpanel">
-        <div class="glass profile-section-card subjects-manager-card" id="profileSubjectsCockpitCard">
-          <div class="section-card-header">
-            <div class="section-card-title-group">
-              <div class="section-card-icon-badge">
-                <i data-lucide="layers"></i>
+          <!-- Subject manager (moved from the retired Subjects page) -->
+          <div class="glass profile-section-card subjects-manager-card" id="profileSubjectsCockpitCard">
+            <div class="section-card-header">
+              <div class="section-card-title-group">
+                <div class="section-card-icon-badge">
+                  <i data-lucide="layers"></i>
+                </div>
+                <div>
+                  <h3 class="section-card-title">
+                    <span>All Subjects</span>
+                    <span class="subject-count-badge" id="cockpitSubjectCountBadge">0 Active</span>
+                  </h3>
+                  <p class="section-card-desc">Changes here stay synchronized across your study tools.</p>
+                </div>
               </div>
-              <div>
-                <h3 class="section-card-title">
-                  <span>All Subjects</span>
-                  <span class="subject-count-badge" id="cockpitSubjectCountBadge">0 Active</span>
-                </h3>
-                <p class="section-card-desc">Changes here stay synchronized across your study tools.</p>
+              <div class="subjects-manager-header-actions">
+                <div class="track-lang-switch segmented-group subject-lang-switch" id="subjectLangSwitcher" role="group" aria-label="Subject display language">
+                  <button type="button" class="pill track-lang-btn active solid" data-lang="en" title="Show subject names in English" aria-pressed="true">
+                    <i data-lucide="languages"></i> <span>English</span>
+                  </button>
+                  <button type="button" class="pill track-lang-btn" data-lang="bn" title="বিষয়ের নাম বাংলায় দেখান" aria-pressed="false">
+                    <span class="subject-lang-bn-mark">বাং</span> <span>বাংলা</span>
+                  </button>
+                </div>
+                <button class="pill subtle" id="btnResetDefaultSubjectsCockpit" type="button" title="Reset standard Bangladesh curriculum subjects">
+                  <i data-lucide="rotate-ccw"></i> <span>Reset Defaults</span>
+                </button>
               </div>
             </div>
-            <button class="pill subtle" id="btnResetDefaultSubjectsCockpit" type="button" title="Reset standard Bangladesh curriculum subjects">
-              <i data-lucide="rotate-ccw"></i> <span>Reset Defaults</span>
-            </button>
-          </div>
 
-          <div class="cockpit-subject-add-bar">
-            <div class="cockpit-input-wrap">
-              <i data-lucide="plus-circle" class="input-icon"></i>
-              <input type="text" id="cockpitNewSubjectInput" placeholder="Add a subject (e.g. ICT, Higher Math, General Science)..." autocomplete="off">
+            <div class="cockpit-subject-add-bar">
+              <div class="cockpit-input-wrap">
+                <i data-lucide="plus-circle" class="input-icon"></i>
+                <input type="text" id="cockpitNewSubjectInput" placeholder="Add a subject (e.g. ICT, Higher Math, General Science)..." autocomplete="off">
+              </div>
+              <button class="pill solid" id="cockpitAddSubjectBtn" type="button">
+                <i data-lucide="plus"></i> <span>Add Subject</span>
+              </button>
             </div>
-            <button class="pill solid" id="cockpitAddSubjectBtn" type="button">
-              <i data-lucide="plus"></i> <span>Add Subject</span>
-            </button>
-          </div>
 
-          <div id="cockpitSubjectManagerList" class="cockpit-subjects-list"></div>
+            <div id="cockpitSubjectManagerList" class="cockpit-subjects-list"></div>
 
-          <div id="cockpitDeletedSubjectSection" class="cockpit-inactive-section" style="display:none;">
-            <div class="cockpit-inactive-header">
-              <i data-lucide="eye-off"></i>
-              <h4>Inactive / Hidden Subjects</h4>
+            <div id="cockpitDeletedSubjectSection" class="cockpit-inactive-section" style="display:none;">
+              <div class="cockpit-inactive-header">
+                <i data-lucide="eye-off"></i>
+                <h4>Inactive / Hidden Subjects</h4>
+              </div>
+              <div id="cockpitDeletedSubjectList" class="cockpit-subjects-list"></div>
             </div>
-            <div id="cockpitDeletedSubjectList" class="cockpit-subjects-list"></div>
           </div>
-        </div>
-        </section>
-        <section class="subjects-workspace-view" id="subjectsCurriculumView" role="tabpanel" hidden>
-          <div class="glass profile-track-card subjects-track-card" id="profileTrackCard"></div>
-        </section>
       </div>
-    </section>
-
-    <section class="panel settings-center-panel" id="panel-settings" aria-labelledby="settingsCenterTitle">
-      <header class="settings-center-header">
-        <div class="settings-center-icon"><i data-lucide="settings-2"></i></div>
-        <div>
-          <h2 id="settingsCenterTitle">Settings &amp; Sync</h2>
-          <p>Manage your workspace preferences, local data, cloud sync, and backups.</p>
-        </div>
-      </header>
-      <nav class="profile-cockpit-nav settings-center-nav" id="settingsCockpitNav" role="tablist" aria-label="Settings sections">
-        <button type="button" class="cockpit-nav-btn active" data-settings-tab="cloud" role="tab" aria-selected="true">
-          <i data-lucide="cloud"></i><span>Cloud &amp; Backups</span>
-        </button>
-        <button type="button" class="cockpit-nav-btn" data-settings-tab="preferences" role="tab" aria-selected="false">
-          <i data-lucide="sliders-horizontal"></i><span>App Preferences</span>
-        </button>
-      </nav>
-      <div class="profile-cockpit-content settings-center-content" id="settingsCockpitContent"></div>
     </section>
 
   </main>
@@ -1861,40 +1825,46 @@
   </div>
 
   <!-- ===== Keyboard Shortcuts Modal ===== -->
-  <div class="modal-overlay" id="keyboardShortcutsModal" style="display:none;">
-    <div class="glass modal-card" style="max-width:560px; width:94%; padding:0; overflow:hidden; border-radius:18px;">
-      <div style="display:flex; justify-content:space-between; align-items:center; padding:18px 22px; border-bottom:1px solid var(--border); background:var(--surface-strong);">
-        <h3 style="margin:0; font-family:var(--font-display); font-size:17px; color:var(--text); display:flex; align-items:center; gap:9px;">
-          <i data-lucide="keyboard" style="width:18px; height:18px; color:var(--accent1);"></i> Keyboard Shortcuts
-        </h3>
-        <button type="button" id="closeShortcutsModal" style="background:none; border:none; color:var(--text-soft); cursor:pointer; padding:4px; display:flex; align-items:center; justify-content:center; border-radius:8px;" title="Close" aria-label="Close shortcuts panel">
-          <i data-lucide="x" style="width:18px; height:18px;"></i>
+  <div class="modal-overlay" id="keyboardShortcutsModal" style="display:none;" role="dialog" aria-modal="true" aria-labelledby="shortcutsModalTitle">
+    <div class="glass modal-card shortcut-modal">
+      <header class="shortcut-head">
+        <span class="shortcut-head-badge" aria-hidden="true"><i data-lucide="command"></i></span>
+        <div class="shortcut-head-copy">
+          <h3 id="shortcutsModalTitle">Keyboard Shortcuts</h3>
+          <p>Move through CareerDesk without leaving the keys.</p>
+        </div>
+        <button type="button" class="shortcut-close" id="closeShortcutsModal" title="Close (Esc)" aria-label="Close shortcuts panel">
+          <i data-lucide="x"></i>
         </button>
+      </header>
+      <div class="shortcut-search-bar">
+        <label class="shortcut-search" for="shortcutSearchInput">
+          <i data-lucide="search" aria-hidden="true"></i>
+          <input type="search" id="shortcutSearchInput" class="shortcut-search-input" placeholder="Search shortcuts or keys…" autocomplete="off" spellcheck="false" aria-controls="shortcutsModalBody" aria-label="Search shortcuts">
+          <button type="button" class="shortcut-search-clear" id="shortcutSearchClear" aria-label="Clear search" hidden>
+            <i data-lucide="x" aria-hidden="true"></i>
+          </button>
+        </label>
       </div>
-      <div style="padding:18px 22px; max-height:65vh; overflow-y:auto;" id="shortcutsModalBody">
+      <div class="shortcut-body" id="shortcutsModalBody">
         <!-- Populated by JS -->
       </div>
-      <div style="padding:12px 22px; border-top:1px solid var(--border); background:var(--surface); display:flex; align-items:center; gap:8px; font-size:12px; color:var(--text-muted);">
-        <i data-lucide="info" style="width:13px; height:13px; flex-shrink:0;"></i>
-        Press <kbd style="font-family:var(--font-mono); background:var(--surface-strong); padding:2px 6px; border-radius:5px; border:1px solid var(--border); font-size:11px;">?</kbd> anywhere to open this panel.
-      </div>
+      <footer class="shortcut-foot">
+        <i data-lucide="info" aria-hidden="true"></i>
+        <span>Click any row to run it. Press <kbd class="keycap keycap-inline">?</kbd> to open this panel, <kbd class="keycap keycap-inline">Esc</kbd> to close.</span>
+      </footer>
     </div>
   </div>
 
   <!-- ===== Authentication Popup Modal (Login & Sign Up) ===== -->
   <div class="modal-overlay" id="authModal" style="display:none;" role="dialog" aria-modal="true" aria-labelledby="authHeading">
     <div class="auth-card auth-modal-card">
-      <div class="auth-visual-panel">
-        <span class="auth-visual-kicker">CAREERDESK / YOUR NEXT MOVE</span>
-        <div class="auth-visual-orbit"><i data-lucide="sparkles"></i></div>
-        <h3>Turn preparation<br><em>into progress.</em></h3>
-        <p>One calm workspace for your routines, quizzes, goals, and study community.</p>
-        <div class="auth-visual-points">
-          <span><i data-lucide="check"></i> Private by default</span>
-          <span><i data-lucide="check"></i> Built for focused learners</span>
-        </div>
-      </div>
       <div class="auth-form-panel">
+      <div class="auth-brand-row">
+        <span class="auth-brand-mark"><i data-lucide="graduation-cap" aria-hidden="true"></i></span>
+        <span class="auth-brand-name">CareerDesk</span>
+        <span class="auth-brand-tag">Secure workspace</span>
+      </div>
       <!-- Close Button -->
       <button type="button" class="auth-modal-close-btn" id="closeAuthModalBtn" title="Close (Esc)" aria-label="Close authentication modal">
         <i data-lucide="x" style="width:18px; height:18px;"></i>
@@ -2005,6 +1975,11 @@
 
           </form>
         </div>
+      </div>
+
+      <div class="auth-trust-row">
+        <span><i data-lucide="shield-check" aria-hidden="true"></i> Private by default</span>
+        <span><i data-lucide="cloud" aria-hidden="true"></i> Syncs when you sign in</span>
       </div>
       </div>
 

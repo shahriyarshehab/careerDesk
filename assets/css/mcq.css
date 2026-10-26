@@ -1755,3 +1755,33 @@
     align-items: center;
     gap: 4px;
   }
+
+/* ==========================================================================
+   MCQ page pattern
+   Only the first block on the page (the .mcq-v2-hero) and the question card
+   carry the themed design. Every other block — the switch row, the top bar,
+   the exam banner, the stats bar, the filter bar, the mistake cards and the
+   palette — is plain transparent glass: the shared --surface wash with the
+   app's 14px blur and the theme border, no gradients and no accent rims.
+   ========================================================================== */
+#panel-quiz :is(
+  .mcq-v2-switch-row,
+  .mcq-top-bar,
+  .mode-banner,
+  .mcq-palette-container,
+  .mcq-stats-bar,
+  .stat-card,
+  .filter-bar,
+  .mistake-card,
+  .exam-stat-box
+) {
+  background: var(--surface, rgba(255, 255, 255, 0.04));
+  background-image: none;
+  border-color: var(--border, rgba(255, 255, 255, 0.08));
+}
+
+/* The banner keeps its danger tint only as a hairline, so exam mode still
+   reads at a glance without turning the block into a coloured panel. */
+#panel-quiz .mode-banner.active {
+  border-color: rgba(244, 63, 94, 0.28);
+}
