@@ -39,5 +39,9 @@
 /* Desk hero (reading-room backdrop, focus ring, mini calendar) */
 @import url('desk.css');
 
+/* 3D Nature Sanctuary Focus Desk (Ultra-realistic Three.js study sanctuary) */
+@import url('nature-desk-3d.css');
+
 /* Routine page — minimal theme-aligned redesign (loads last, scoped to #panel-routine) */
 @import url('routine-minimal.css');
+

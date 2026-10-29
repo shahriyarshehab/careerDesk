@@ -57,7 +57,7 @@
       <button class="tab-btn nav-link" data-tab="groupchat" role="tab" aria-selected="false" title="Group Chat"
         aria-label="Group Chat"><i data-lucide="messages-square"></i><span>Chat</span></button>
       <button class="tab-btn nav-link" data-tab="profile" role="tab" aria-selected="false" title="Desk"
-        aria-label="Desk"><i data-lucide="user"></i><span>Desk</span></button>
+        aria-label="Desk"><i data-lucide="lamp-desk"></i><span>Desk</span></button>
 
     </nav>
 
@@ -1082,10 +1082,230 @@
       </div>
     </section>
 
-    <!-- ===== USER PROFILE ===== -->
+    <!-- ===== USER PROFILE / DESK ===== -->
     <section class="panel" id="panel-profile">
+      <!-- 3D Nature Sanctuary Focus Desk Engine -->
+      <div id="natureDesk3DContainer" class="nature-desk-3d-container">
+        <!-- 3D WebGL Canvas -->
+        <canvas id="nature-desk-canvas"></canvas>
+
+        <!-- Ambient Rain Effect Overlay -->
+        <div id="natureRainGlassOverlay" class="nature-rain-glass-overlay active"></div>
+
+        <!-- Main HUD Overlay -->
+        <div id="natureDeskHud" class="nature-desk-hud">
+          <!-- Top Navigation Header -->
+          <header class="nature-hud-header">
+            <!-- Mode Switcher & Presets -->
+            <div style="display:flex;align-items:center;flex-wrap:wrap;gap:8px;">
+              <!-- View Mode Toggle (3D Sanctuary vs Classic) -->
+              <div class="nature-desk-mode-toggle" role="group" aria-label="Desk View Mode">
+                <button type="button" id="btnModeNature3D" class="nature-mode-btn active" title="3D Nature Sanctuary Desk">
+                  <i data-lucide="trees"></i><span>3D Sanctuary</span>
+                </button>
+                <button type="button" id="btnModeClassicDesk" class="nature-mode-btn" title="Classic Reading Room">
+                  <i data-lucide="book-open"></i><span>Classic Desk</span>
+                </button>
+              </div>
+
+              <!-- Celestial / Time Presets -->
+              <div class="nature-glass-panel nature-env-presets">
+                <button type="button" id="btnNatureAutoTime" class="nature-glass-btn active" title="Auto Sync with Real Time">
+                  <i data-lucide="clock"></i><span>Auto</span>
+                </button>
+                <button type="button" id="btnNatureEnvDawn" class="nature-glass-btn" title="Dawn (6 AM)">🌅 Dawn</button>
+                <button type="button" id="btnNatureEnvDay" class="nature-glass-btn" title="Day (12 PM)">☀️ Day</button>
+                <button type="button" id="btnNatureEnvSunset" class="nature-glass-btn" title="Sunset (6 PM)">🌇 Sunset</button>
+                <button type="button" id="btnNatureEnvNight" class="nature-glass-btn" title="Night (10 PM)">🌙 Night</button>
+              </div>
+
+              <!-- Feature Toggles -->
+              <div class="nature-tool-toggles">
+                <button type="button" id="btnNatureToggleCalendar" class="nature-glass-panel nature-tool-btn" style="color:#fcd34d;" title="Focus Calendar">
+                  <i data-lucide="calendar"></i>
+                </button>
+                <button type="button" id="btnNatureToggleTimer" class="nature-glass-panel nature-tool-btn" style="color:#34d399;" title="Focus Timer">
+                  <i data-lucide="timer"></i>
+                </button>
+                <button type="button" id="btnNatureToggleTasks" class="nature-glass-panel nature-tool-btn" style="color:#c084fc;" title="Notebook Tasks Board">
+                  <i data-lucide="list-todo"></i>
+                </button>
+                <button type="button" id="btnNatureToggleRain" class="nature-glass-panel nature-tool-btn active" style="color:#67e8f9;" title="Toggle Rain">
+                  <i data-lucide="cloud-rain"></i>
+                </button>
+                <button type="button" id="btnNatureToggleLamp" class="nature-glass-panel nature-tool-btn" style="color:#fbbf24;" title="Toggle Warm Desk Lamp">
+                  <i data-lucide="lightbulb"></i>
+                </button>
+                <button type="button" id="btnNatureToggleAudio" class="nature-glass-panel nature-tool-btn" style="color:#2dd4bf;" title="Soundscape Synthesizer">
+                  <i data-lucide="headphones"></i>
+                </button>
+                <button type="button" id="btnNatureZenMode" class="nature-glass-panel nature-tool-btn" style="color:#cbd5e1;" title="Zen Screen Mode">
+                  <i data-lucide="eye"></i>
+                </button>
+                <button type="button" id="btnNatureFullscreen" class="nature-glass-panel nature-tool-btn" style="color:#818cf8;" title="Full Screen">
+                  <i data-lucide="maximize-2"></i>
+                </button>
+              </div>
+            </div>
+          </header>
+
+          <!-- Center Interaction Hint -->
+          <div id="natureDragHint" class="nature-glass-panel nature-drag-hint">
+            <span class="nature-hint-tag"><i data-lucide="sparkles"></i> Interactive Desk:</span>
+            <span>Click <b>Notebook</b> for Tasks | Click <b>Books</b> for Reading Zoom | Click <b>Window</b> for Sanctuary View</span>
+          </div>
+
+          <!-- Footer HUD -->
+          <footer class="nature-hud-footer">
+            <!-- Dynamic Quote Card -->
+            <div class="nature-glass-panel nature-quote-card">
+              <i data-lucide="quote" style="color:#fb7185;width:20px;height:20px;flex-shrink:0;"></i>
+              <div style="flex:1;min-width:0;">
+                <p id="natureQuoteText" class="nature-quote-text">"Where flowers bloom so does hope."</p>
+                <span id="natureQuoteAuthor" class="nature-quote-author">— Lady Bird Johnson</span>
+              </div>
+              <button type="button" id="btnNatureLangToggle" class="nature-glass-btn" style="padding:4px 8px;font-size:10px;font-weight:700;color:#fda4af;">BN</button>
+              <button type="button" id="btnNatureNextQuote" class="nature-glass-btn" style="padding:4px 8px;" title="Next quote">
+                <i data-lucide="rotate-cw" style="width:13px;height:13px;"></i>
+              </button>
+            </div>
+
+            <!-- Camera View Presets -->
+            <div class="nature-glass-panel nature-cam-presets">
+              <button type="button" id="camNatureOverview" class="nature-glass-btn active" title="Desk Overview">
+                <i data-lucide="monitor" style="width:13px;height:13px;"></i><span>Desk Overview</span>
+              </button>
+              <button type="button" id="camNatureBook" class="nature-glass-btn" title="Reading Zoom">
+                <i data-lucide="book-open" style="width:13px;height:13px;"></i><span>Reading Zoom</span>
+              </button>
+              <button type="button" id="camNatureNotebook" class="nature-glass-btn" title="Notebook To-Do">
+                <i data-lucide="edit-3" style="width:13px;height:13px;"></i><span>Notebook To-Do</span>
+              </button>
+              <button type="button" id="camNatureForest" class="nature-glass-btn" title="Garden Sanctuary View">
+                <i data-lucide="trees" style="width:13px;height:13px;"></i><span>Garden Sanctuary</span>
+              </button>
+            </div>
+          </footer>
+        </div>
+
+        <!-- Floating Widget 1: Focus Calendar -->
+        <div id="natureCalendarWidget" class="nature-glass-panel nature-widget">
+          <div class="nature-widget-header">
+            <h4 class="nature-widget-title" style="color:#fcd34d;">
+              <i data-lucide="calendar" style="width:15px;height:15px;"></i> Focus Calendar
+            </h4>
+            <button type="button" id="btnNatureCloseCalendar" class="nature-widget-close" aria-label="Close Calendar">
+              <i data-lucide="x" style="width:15px;height:15px;"></i>
+            </button>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;padding:0 4px;">
+            <span id="natureCalMonthYear" style="font-weight:600;font-size:12px;color:#e2e8f0;">October 2026</span>
+            <span id="natureCalLiveClock" style="font-family:var(--font-mono, monospace);font-size:12px;color:#34d399;font-weight:700;">20:36:00</span>
+          </div>
+          <div class="nature-cal-grid" style="font-weight:700;margin-bottom:4px;">
+            <span class="nature-cal-dow">SU</span><span class="nature-cal-dow">MO</span><span class="nature-cal-dow">TU</span><span class="nature-cal-dow">WE</span><span class="nature-cal-dow">TH</span><span class="nature-cal-dow">FR</span><span class="nature-cal-dow">SA</span>
+          </div>
+          <div id="natureCalGrid" class="nature-cal-grid"></div>
+        </div>
+
+        <!-- Floating Widget 2: Focus Timer -->
+        <div id="natureTimerWidget" class="nature-glass-panel nature-widget">
+          <div class="nature-widget-header">
+            <h4 class="nature-widget-title" style="color:#34d399;">
+              <i data-lucide="timer" style="width:15px;height:15px;"></i> Desk Focus Timer
+            </h4>
+            <button type="button" id="btnNatureCloseTimer" class="nature-widget-close" aria-label="Close Timer">
+              <i data-lucide="x" style="width:15px;height:15px;"></i>
+            </button>
+          </div>
+          <div class="nature-timer-stage">
+            <div class="nature-timer-ring-wrap">
+              <svg viewBox="0 0 144 144">
+                <circle cx="72" cy="72" r="62" stroke="rgba(255,255,255,0.08)" stroke-width="8" fill="transparent" />
+                <circle id="natureTimerProgressRing" cx="72" cy="72" r="62" stroke="#34d399" stroke-width="8" fill="transparent" stroke-dasharray="389.5" stroke-dashoffset="0" stroke-linecap="round" style="transition:all 0.5s ease;" />
+              </svg>
+              <div class="nature-timer-center">
+                <span id="naturePomoTimeDisplay" class="nature-timer-digits">25:00</span>
+                <span id="naturePomoModeDisplay" class="nature-timer-mode">Focus Session</span>
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;margin-top:14px;">
+              <button type="button" id="btnNaturePomoStart" class="nature-glass-btn" style="background:rgba(16,185,129,0.25);border-color:rgba(52,211,153,0.5);color:#34d399;font-weight:700;">
+                <i data-lucide="play" style="width:13px;height:13px;"></i><span id="naturePomoBtnLabel">Start</span>
+              </button>
+              <button type="button" id="btnNaturePomoReset" class="nature-glass-btn" title="Reset Timer">
+                <i data-lucide="rotate-cw" style="width:13px;height:13px;"></i>
+              </button>
+              <button type="button" id="btnNaturePomoMode" class="nature-glass-btn" style="color:#fcd34d;font-weight:600;">
+                Break
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Floating Widget 3: Notebook Tasks Board -->
+        <div id="natureTasksDrawer" class="nature-glass-panel nature-widget">
+          <div class="nature-widget-header">
+            <h4 class="nature-widget-title" style="color:#c084fc;">
+              <i data-lucide="list-todo" style="width:15px;height:15px;"></i> Notebook Tasks
+            </h4>
+            <button type="button" id="btnNatureCloseTasks" class="nature-widget-close" aria-label="Close Tasks">
+              <i data-lucide="x" style="width:15px;height:15px;"></i>
+            </button>
+          </div>
+          <form id="natureTaskForm" class="nature-task-form">
+            <input type="text" id="natureTaskInput" placeholder="Add study target..." class="nature-task-input">
+            <button type="submit" class="nature-task-btn">+</button>
+          </form>
+          <div id="natureTaskList" class="nature-task-list"></div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px;padding-top:8px;border-top:1px solid rgba(255,255,255,0.1);font-size:11px;color:#94a3b8;">
+            <span id="natureTaskStats">0/0 Completed</span>
+            <button type="button" id="btnNatureClearTasks" style="background:none;border:none;color:#f87171;cursor:pointer;">Clear Completed</button>
+          </div>
+        </div>
+
+        <!-- Floating Widget 4: Garden Soundscape Synthesizer -->
+        <div id="natureAudioDrawer" class="nature-glass-panel nature-widget">
+          <div class="nature-widget-header">
+            <h4 class="nature-widget-title" style="color:#2dd4bf;">
+              <i data-lucide="headphones" style="width:15px;height:15px;"></i> Garden Soundscape
+            </h4>
+            <button type="button" id="btnNatureCloseAudio" class="nature-widget-close" aria-label="Close Audio">
+              <i data-lucide="x" style="width:15px;height:15px;"></i>
+            </button>
+          </div>
+          <div style="font-size:12px;">
+            <div style="background:rgba(255,255,255,0.05);padding:10px 12px;border-radius:14px;margin-bottom:12px;border:1px solid rgba(255,255,255,0.06);">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+                <label for="natureToggleLofi" style="font-weight:600;color:#6ee7b7;display:flex;align-items:center;gap:6px;cursor:pointer;">
+                  <i data-lucide="music" style="width:13px;height:13px;"></i> Lo-Fi Ambient Chords
+                </label>
+                <input type="checkbox" id="natureToggleLofi" style="accent-color:#10b981;cursor:pointer;">
+              </div>
+              <input type="range" id="natureVolLofi" min="0" max="1" step="0.05" value="0.3" class="nature-sound-slider">
+            </div>
+
+            <div class="nature-sound-row">
+              <div class="nature-sound-header">
+                <span style="color:#a5f3fc;">Garden Rain Drops</span>
+                <span id="natureValRain" style="color:#94a3b8;">40%</span>
+              </div>
+              <input type="range" id="natureVolRain" min="0" max="1" step="0.05" value="0.4" class="nature-sound-slider">
+            </div>
+
+            <div class="nature-sound-row">
+              <div class="nature-sound-header">
+                <span style="color:#fbcfe8;">Garden Breeze &amp; Birds</span>
+                <span id="natureValWind" style="color:#94a3b8;">35%</span>
+              </div>
+              <input type="range" id="natureVolWind" min="0" max="1" step="0.05" value="0.35" class="nature-sound-slider">
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- 1. Desk hero: reading-room backdrop, focus ring and mini calendar -->
-      <section class="desk-hero" id="deskHero" aria-label="Desk overview">
+      <section class="desk-hero" id="deskHero" aria-label="Desk overview" style="display: none;">
         <div class="desk-hero-scene" aria-hidden="true">
           <span class="desk-scene-window"></span>
           <span class="desk-scene-art desk-scene-art--main"></span>
@@ -1104,6 +1324,16 @@
               <span class="desk-clock-date" id="deskClockDate">—</span>
             </div>
 
+            <!-- View Mode Switcher in Classic Desk Head -->
+            <div class="nature-desk-mode-toggle" style="margin-left:auto;margin-right:12px;">
+              <button type="button" onclick="document.getElementById('btnModeNature3D')?.click();" class="nature-mode-btn" title="Switch to 3D Sanctuary">
+                <i data-lucide="trees"></i><span>3D Sanctuary</span>
+              </button>
+              <button type="button" class="nature-mode-btn active" title="Classic Desk">
+                <i data-lucide="book-open"></i><span>Classic Desk</span>
+              </button>
+            </div>
+
             <button type="button" class="desk-mini-cal" id="deskMiniCalendar" aria-label="Open the routine calendar">
               <span class="desk-cal-head">
                 <span class="desk-cal-month" id="deskCalMonth">—</span>
@@ -1118,6 +1348,7 @@
               <span class="desk-fs-exit"><i data-lucide="minimize-2" aria-hidden="true"></i><span>Exit full screen</span></span>
             </button>
           </header>
+
 
           <div class="desk-hero-copy">
             <span class="desk-hero-eyebrow" id="deskHeroGreeting">YOUR DESK</span>
@@ -2041,6 +2272,9 @@
 
   <!-- Firebase Phone Auth Recaptcha Container (Invisible reCAPTCHA) -->
   <div id="phoneRecaptchaContainer"></div>
+
+  <!-- Three.js Graphics Engine (for 3D Nature Sanctuary Focus Desk) -->
+  <script src="assets/js/three.min.js"></script>
 
   <!-- Master Application Script (Project File - loads all modular subsystems) -->
   <script defer src="assets/js/master.js"></script>

@@ -1265,6 +1265,10 @@ html body.desk-mode #deskHero {
   animation: deskRoomExpand 0.36s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
+html body.desk-mode #deskHero[style*="display: none"] {
+  display: none !important;
+}
+
 html body.desk-mode .desk-hero-inner {
   flex: 1 1 auto !important;
   width: 100% !important;

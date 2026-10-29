@@ -1,0 +1,710 @@
+/* ==========================================================================
+   CareerDesk — 3D Nature Sanctuary Focus Desk Stylesheet
+   Ultra-realistic 3D study desk with Rose Garden Sanctuary, ambient weather,
+   interactive 3D books & notebook, real-time celestial lighting, and audio soundscapes.
+   ========================================================================== */
+
+/* Container taking full view in Desk panel */
+.nature-desk-3d-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 100dvh;
+  overflow: hidden;
+  background-color: #030712;
+  color: #f1f5f9;
+  font-family: var(--font-sans, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif);
+  user-select: none;
+  -webkit-user-select: none;
+  display: flex;
+  flex-direction: column;
+}
+
+/* WebGL 3D Canvas */
+#nature-desk-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  display: block;
+}
+
+/* Rain on Glass Vignette Overlay */
+.nature-rain-glass-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 2;
+  opacity: 0;
+  transition: opacity 1s ease;
+  background: radial-gradient(circle at 50% 50%, rgba(0,0,0,0) 35%, rgba(0,0,0,0.6) 100%);
+}
+
+.nature-rain-glass-overlay.active {
+  opacity: 1;
+}
+
+/* Glassmorphism Design Tokens for 3D Desk HUD */
+.nature-glass-panel {
+  background: rgba(15, 23, 42, 0.72);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 18px 36px -8px rgba(0, 0, 0, 0.65), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  color: #e2e8f0;
+}
+
+.nature-glass-btn {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  color: #e2e8f0;
+  padding: 6px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.nature-glass-btn:hover {
+  background: rgba(255, 255, 255, 0.18);
+  border-color: rgba(255, 255, 255, 0.32);
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+
+.nature-glass-btn.active {
+  background: rgba(16, 185, 129, 0.22);
+  border-color: rgba(52, 211, 153, 0.55);
+  color: #34d399;
+  box-shadow: 0 0 16px rgba(16, 185, 129, 0.35);
+}
+
+/* Desk Mode Switcher Pill (3D Sanctuary vs Classic Room) */
+.nature-desk-mode-toggle {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px;
+  border-radius: 14px;
+  background: rgba(0, 0, 0, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  backdrop-filter: blur(16px);
+  gap: 3px;
+}
+
+.nature-mode-btn {
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  padding: 6px 12px;
+  border-radius: 10px;
+  font-size: 11.5px;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+}
+
+.nature-mode-btn i,
+.nature-mode-btn svg {
+  width: 14px;
+  height: 14px;
+}
+
+.nature-mode-btn:hover {
+  color: #f8fafc;
+}
+
+.nature-mode-btn.active {
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.85), rgba(6, 182, 212, 0.85));
+  color: #ffffff;
+  box-shadow: 0 2px 10px rgba(99, 102, 241, 0.35);
+}
+
+/* Main HUD Layer */
+.nature-desk-hud {
+  position: relative;
+  z-index: 10;
+  width: 100%;
+  height: 100%;
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: clamp(14px, 2.5vw, 24px);
+  pointer-events: none;
+  box-sizing: border-box;
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+
+.nature-desk-hud.ui-hidden {
+  opacity: 0 !important;
+  pointer-events: none !important;
+  transform: translateY(-12px);
+}
+
+/* Top Navigation Header */
+.nature-hud-header {
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 12px;
+  pointer-events: auto;
+}
+
+.nature-brand-status {
+  padding: 8px 16px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.nature-brand-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
+  background: rgba(244, 63, 94, 0.2);
+  color: #fb7185;
+  border: 1px solid rgba(244, 63, 94, 0.35);
+  font-size: 16px;
+}
+
+.nature-brand-title {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  background: linear-gradient(120deg, #fda4af, #fecdd3, #fde68a);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  line-height: 1.3;
+}
+
+.nature-brand-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  color: #94a3b8;
+}
+
+.nature-status-live {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #34d399;
+  font-weight: 500;
+}
+
+.nature-status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #34d399;
+  box-shadow: 0 0 8px #34d399;
+  animation: naturePulse 2s infinite;
+}
+
+@keyframes naturePulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.85); }
+}
+
+.nature-time-sun {
+  font-family: var(--font-mono, 'JetBrains Mono', monospace);
+  color: #f1f5f9;
+  font-weight: 600;
+}
+
+/* Preset Environment Selector */
+.nature-env-presets {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px;
+  border-radius: 16px;
+}
+
+.nature-tool-toggles {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.nature-tool-btn {
+  width: 38px;
+  height: 38px;
+  border-radius: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  pointer-events: auto;
+}
+
+.nature-tool-btn i,
+.nature-tool-btn svg {
+  width: 17px;
+  height: 17px;
+}
+
+/* Center Interaction Hint */
+.nature-drag-hint {
+  align-self: center;
+  padding: 8px 18px;
+  border-radius: 9999px;
+  font-size: 12px;
+  color: #f1f5f9;
+  pointer-events: auto;
+  transition: opacity 0.8s ease;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid rgba(244, 63, 94, 0.35);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  opacity: 1;
+}
+
+.nature-drag-hint.hint-hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.nature-hint-tag {
+  color: #fb7185;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Footer HUD (Quotes & Camera Presets) */
+.nature-hud-footer {
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 12px;
+  pointer-events: auto;
+}
+
+.nature-quote-card {
+  padding: 12px 16px;
+  border-radius: 18px;
+  max-width: 460px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.nature-quote-text {
+  font-size: 12px;
+  font-style: italic;
+  color: #f1f5f9;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.nature-quote-author {
+  font-size: 10px;
+  color: #fb7185;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  display: block;
+  margin-top: 3px;
+}
+
+.nature-cam-presets {
+  padding: 4px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Interactive Floating Drawers / Widgets */
+.nature-widget {
+  position: fixed;
+  z-index: 40;
+  border-radius: 24px;
+  padding: 18px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.75);
+  transition: all 0.32s cubic-bezier(0.16, 1, 0.3, 1);
+  pointer-events: auto;
+  box-sizing: border-box;
+}
+
+.nature-widget-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.nature-widget-title {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.nature-widget-close {
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.15s ease;
+}
+
+.nature-widget-close:hover {
+  color: #ffffff;
+}
+
+/* Calendar Widget */
+#natureCalendarWidget {
+  top: 80px;
+  left: 24px;
+  width: 290px;
+  transform: translateX(-340px);
+  opacity: 0;
+  pointer-events: none;
+}
+
+#natureCalendarWidget.open {
+  transform: translateX(0);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.nature-cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+  text-align: center;
+}
+
+.nature-cal-dow {
+  font-size: 9.5px;
+  font-weight: 700;
+  color: #94a3b8;
+  padding: 4px 0;
+}
+
+.nature-cal-cell {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  border-radius: 8px;
+  color: #cbd5e1;
+  transition: background 0.15s;
+}
+
+.nature-cal-cell:hover:not(.empty) {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.nature-cal-cell.today {
+  background: #10b981;
+  color: #ffffff;
+  font-weight: 700;
+  box-shadow: 0 0 12px rgba(16, 185, 129, 0.6);
+}
+
+/* Timer Widget */
+#natureTimerWidget {
+  top: 80px;
+  left: 24px;
+  width: 290px;
+  transform: translateX(-340px);
+  opacity: 0;
+  pointer-events: none;
+}
+
+@media (min-width: 680px) {
+  #natureTimerWidget {
+    left: 330px;
+  }
+}
+
+#natureTimerWidget.open {
+  transform: translateX(0);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.nature-timer-stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 6px 0;
+}
+
+.nature-timer-ring-wrap {
+  position: relative;
+  width: 140px;
+  height: 140px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.nature-timer-ring-wrap svg {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+.nature-timer-center {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.nature-timer-digits {
+  font-family: var(--font-mono, monospace);
+  font-size: 32px;
+  font-weight: 700;
+  color: #f8fafc;
+}
+
+.nature-timer-mode {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #34d399;
+  margin-top: 2px;
+}
+
+/* To-Do Tasks Drawer */
+#natureTasksDrawer {
+  top: 80px;
+  right: 24px;
+  width: 320px;
+  transform: translateX(360px);
+  opacity: 0;
+  pointer-events: none;
+}
+
+#natureTasksDrawer.open {
+  transform: translateX(0);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.nature-task-form {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.nature-task-input {
+  flex: 1;
+  background: rgba(0, 0, 0, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 12px;
+  padding: 8px 12px;
+  font-size: 12px;
+  color: #ffffff;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.nature-task-input:focus {
+  border-color: #a855f7;
+}
+
+.nature-task-btn {
+  background: #9333ea;
+  border: none;
+  color: #ffffff;
+  padding: 8px 14px;
+  border-radius: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.nature-task-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 240px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.nature-task-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 9px 12px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  font-size: 12px;
+  color: #e2e8f0;
+}
+
+.nature-task-item.done {
+  text-decoration: line-through;
+  color: #64748b;
+}
+
+/* Audio Synthesizer Drawer */
+#natureAudioDrawer {
+  top: 80px;
+  right: 24px;
+  width: 310px;
+  transform: translateX(360px);
+  opacity: 0;
+  pointer-events: none;
+}
+
+@media (min-width: 768px) {
+  #natureAudioDrawer {
+    right: 360px;
+  }
+}
+
+#natureAudioDrawer.open {
+  transform: translateX(0);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.nature-sound-row {
+  margin-bottom: 14px;
+}
+
+.nature-sound-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+  margin-bottom: 5px;
+}
+
+.nature-sound-slider {
+  width: 100%;
+  accent-color: #34d399;
+  cursor: pointer;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+  .nature-brand-title {
+    font-size: 10px;
+  }
+  .nature-drag-hint {
+    display: none;
+  }
+  .nature-cam-presets {
+    width: 100%;
+    justify-content: space-around;
+  }
+  .nature-quote-card {
+    max-width: 100%;
+  }
+  #natureCalendarWidget,
+  #natureTimerWidget,
+  #natureTasksDrawer,
+  #natureAudioDrawer {
+    left: 12px;
+    right: 12px;
+    width: auto;
+  }
+}
+
+/* ==========================================================================
+   Fullscreen Mode Styles for 3D Sanctuary
+   ========================================================================== */
+.nature-desk-3d-container:fullscreen,
+.nature-desk-3d-container:-webkit-full-screen,
+.nature-desk-3d-container.is-fullscreen {
+  position: fixed !important;
+  inset: 0 !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  min-height: 100vh !important;
+  max-width: none !important;
+  max-height: none !important;
+  z-index: 999999 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  background-color: #030712 !important;
+  border-radius: 0 !important;
+}
+
+body.nature-fullscreen-active {
+  overflow: hidden !important;
+}
+
+body.nature-fullscreen-active header.main-header.masthead,
+body.nature-fullscreen-active header.masthead,
+body.nature-fullscreen-active .mobile-dock,
+body.nature-fullscreen-active .mobile-more-menu {
+  display: none !important;
+}
+
+body.nature-fullscreen-active main {
+  width: 100vw !important;
+  max-width: none !important;
+  height: 100vh !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+}
+
+body.nature-fullscreen-active #panel-profile {
+  display: flex !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+}
+
+/* Highlight active fullscreen button in HUD */
+#btnNatureFullscreen.active {
+  background: rgba(99, 102, 241, 0.45) !important;
+  border-color: rgba(129, 140, 248, 0.75) !important;
+  color: #ffffff !important;
+  box-shadow: 0 0 16px rgba(99, 102, 241, 0.55) !important;
+}
+
