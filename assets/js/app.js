@@ -402,6 +402,19 @@ function initCommandPalette() {
   initKeyboardShortcutsPanel();
 
 
+  // Topbar Profile Logo Button (navigates to Profile & Desk)
+  const topbarProfileBtn = document.getElementById('topbarProfileBtn');
+  if (topbarProfileBtn) {
+    topbarProfileBtn.addEventListener('click', () => {
+      if (typeof activateTab === 'function') {
+        activateTab('profile', true);
+      }
+    });
+  }
+  if (typeof syncTopbarProfileAvatar === 'function') {
+    syncTopbarProfileAvatar();
+  }
+
   // Feature #4: MCQ Quick Subject Pre-Filter
   initMCQQuickFilter();
 })();

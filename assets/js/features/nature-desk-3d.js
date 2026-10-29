@@ -1297,7 +1297,7 @@
   // --- CAMERA MODES & 3D CLICKS ---
   function setCameraMode(mode) {
     state3D.activeCamMode = mode;
-    ['camNatureOverview', 'camNatureBook', 'camNatureNotebook', 'camNatureForest'].forEach(id => {
+    ['camNatureOverview', 'camNatureForest'].forEach(id => {
       const el = document.getElementById(id);
       if (el) el.classList.remove('active');
     });
@@ -1306,14 +1306,6 @@
       targetCamPos.set(0, 3.2, 7.5);
       targetCamLook.set(0, 1.6, 0);
       document.getElementById('camNatureOverview')?.classList.add('active');
-    } else if (mode === 'book') {
-      targetCamPos.set(0, 1.85, 2.2);
-      targetCamLook.set(0, 0.35, 0.4);
-      document.getElementById('camNatureBook')?.classList.add('active');
-    } else if (mode === 'notebook') {
-      targetCamPos.set(2.2, 1.6, 2.0);
-      targetCamLook.set(2.4, 0.2, 0.7);
-      document.getElementById('camNatureNotebook')?.classList.add('active');
     } else if (mode === 'forest') {
       targetCamPos.set(0, 3.8, 0.5);
       targetCamLook.set(0, 3.8, -30.0);
@@ -1351,16 +1343,7 @@
           const obj = intersects[i].object;
 
           if (obj.name === 'openNotebook' || obj.parent?.name === 'openNotebook') {
-            setCameraMode('notebook');
             openWidget('natureTasksDrawer');
-            break;
-          }
-          if (obj.name === 'openBook' || obj.parent?.name === 'openBook') {
-            setCameraMode('book');
-            break;
-          }
-          if (obj.name === 'deskLaptop' || obj.parent?.name === 'deskLaptop' || obj.parent?.parent?.name === 'deskLaptop') {
-            setCameraMode('book');
             break;
           }
           if (obj.name === 'deskLamp' || obj.parent?.name === 'deskLamp' || obj.parent?.parent?.name === 'deskLamp') {
@@ -1697,8 +1680,6 @@
 
     // Camera Presets
     document.getElementById('camNatureOverview')?.addEventListener('click', () => setCameraMode('overview'));
-    document.getElementById('camNatureBook')?.addEventListener('click', () => setCameraMode('book'));
-    document.getElementById('camNatureNotebook')?.addEventListener('click', () => setCameraMode('notebook'));
     document.getElementById('camNatureForest')?.addEventListener('click', () => setCameraMode('forest'));
 
     // Widget Open/Close

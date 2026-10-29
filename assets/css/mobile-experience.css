@@ -349,13 +349,14 @@
   }
 
   .main-header .topbar-clock {
-    min-width: 55px;
-    padding: 8px 9px !important;
-    border: 1px solid var(--cd-border, var(--border, rgba(148, 163, 184, .2))) !important;
-    border-radius: 12px !important;
-    background: var(--cd-surface-raised, var(--surface, rgba(255, 255, 255, .06))) !important;
-    text-align: center;
-    font-size: 12px;
+    display: none !important;
+  }
+
+  .main-header .topbar-profile-btn {
+    width: 34px !important;
+    height: 34px !important;
+    flex: 0 0 34px !important;
+    border-radius: 50% !important;
   }
 
   .main-header .nav-menu,

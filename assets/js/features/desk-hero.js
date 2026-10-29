@@ -322,15 +322,67 @@ function renderDeskCalendar() {
   grid.innerHTML = cells.join('');
 }
 
+function syncTopbarProfileAvatar(name, photo) {
+  const topbarBtn = document.getElementById('topbarProfileBtn');
+  if (!topbarBtn) return;
+  const topbarImg = document.getElementById('topbarAvatarImg');
+  const topbarInitial = document.getElementById('topbarAvatarInitial');
+  const topbarFallback = document.getElementById('topbarAvatarFallback');
+
+  let resolvedName = name;
+  let resolvedPhoto = photo;
+  if (resolvedName === undefined || resolvedPhoto === undefined) {
+    let user = null;
+    let custom = null;
+    try { user = typeof getCachedAuthUser === 'function' ? getCachedAuthUser() : null; } catch (e) { }
+    try { custom = typeof getCustomProfile === 'function' ? getCustomProfile() : null; } catch (e) { }
+    resolvedName = (user && user.displayName)
+      || (custom && (custom.displayName || custom.username))
+      || 'Guest Aspirant';
+    resolvedPhoto = (user && user.photoURL) || (custom && custom.photoURL) || '';
+  }
+
+  const label = (resolvedName && resolvedName !== 'Guest Aspirant') ? resolvedName : 'Profile & Desk';
+  topbarBtn.title = label;
+  topbarBtn.setAttribute('aria-label', 'Open Profile: ' + label);
+
+  if (resolvedPhoto) {
+    if (topbarImg) {
+      if (topbarImg.getAttribute('src') !== resolvedPhoto) topbarImg.src = resolvedPhoto;
+      topbarImg.hidden = false;
+      topbarImg.onerror = () => {
+        topbarImg.hidden = true;
+        if (topbarInitial) topbarInitial.hidden = false;
+        if (topbarFallback) topbarFallback.hidden = true;
+      };
+    }
+    if (topbarInitial) topbarInitial.hidden = true;
+    if (topbarFallback) topbarFallback.hidden = true;
+  } else if (resolvedName && resolvedName !== 'Guest Aspirant') {
+    if (topbarImg) {
+      topbarImg.hidden = true;
+      topbarImg.removeAttribute('src');
+    }
+    const char = (String(resolvedName).trim().charAt(0) || 'A').toUpperCase();
+    if (topbarInitial) {
+      topbarInitial.hidden = false;
+      topbarInitial.textContent = char;
+    }
+    if (topbarFallback) topbarFallback.hidden = true;
+  } else {
+    if (topbarImg) {
+      topbarImg.hidden = true;
+      topbarImg.removeAttribute('src');
+    }
+    if (topbarInitial) topbarInitial.hidden = true;
+    if (topbarFallback) topbarFallback.hidden = false;
+  }
+}
+window.syncTopbarProfileAvatar = syncTopbarProfileAvatar;
+
 /* The avatar is the only remnant of the retired profile card: it shows the
    signed-in photo (or the initial) inside the room and opens the account modal. */
 function renderDeskAvatar() {
-  const btn = document.getElementById('deskAvatarBtn');
-  const img = document.getElementById('deskAvatarImg');
-  const initial = document.getElementById('deskAvatarInitial');
-  const nameEl = document.getElementById('deskProfileName');
-  if (!btn || !img || !initial) return;
-
   let user = null;
   let custom = null;
   try { user = typeof getCachedAuthUser === 'function' ? getCachedAuthUser() : null; } catch (error) { }
@@ -340,6 +392,14 @@ function renderDeskAvatar() {
     || (custom && (custom.displayName || custom.username))
     || 'Guest Aspirant';
   const photo = (user && user.photoURL) || (custom && custom.photoURL) || '';
+
+  syncTopbarProfileAvatar(name, photo);
+
+  const btn = document.getElementById('deskAvatarBtn');
+  const img = document.getElementById('deskAvatarImg');
+  const initial = document.getElementById('deskAvatarInitial');
+  const nameEl = document.getElementById('deskProfileName');
+  if (!btn || !img || !initial) return;
 
   if (photo) {
     if (img.getAttribute('src') !== photo) img.src = photo;

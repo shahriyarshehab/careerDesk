@@ -79,9 +79,14 @@
           <span><kbd>ESC</kbd> Close</span>
         </div>
       </div>
-      <div class="topbar-clock" aria-label="Local time">
-        <time id="topbarClockTime">--:--</time>
-      </div>
+      <!-- Topbar Profile Logo / Avatar Button -->
+      <button type="button" class="topbar-profile-btn" id="topbarProfileBtn" title="Profile &amp; Desk" aria-label="Open Profile and Desk">
+        <img class="topbar-avatar-img" id="topbarAvatarImg" alt="Profile" hidden>
+        <span class="topbar-avatar-initial" id="topbarAvatarInitial" hidden>A</span>
+        <span class="topbar-avatar-fallback" id="topbarAvatarFallback">
+          <i data-lucide="user"></i>
+        </span>
+      </button>
     </div>
 
     <div class="sidebar-tools-label" aria-hidden="true">TOOLS</div>
@@ -1152,7 +1157,7 @@
           <!-- Center Interaction Hint -->
           <div id="natureDragHint" class="nature-glass-panel nature-drag-hint">
             <span class="nature-hint-tag"><i data-lucide="sparkles"></i> Interactive Desk:</span>
-            <span>Click <b>Notebook</b> for Tasks | Click <b>Books</b> for Reading Zoom | Click <b>Window</b> for Sanctuary View</span>
+            <span>Click <b>Notebook</b> for Tasks | Click <b>Window</b> for Sanctuary View</span>
           </div>
 
           <!-- Footer HUD -->
@@ -1174,12 +1179,6 @@
             <div class="nature-glass-panel nature-cam-presets">
               <button type="button" id="camNatureOverview" class="nature-glass-btn active" title="Desk Overview">
                 <i data-lucide="monitor" style="width:13px;height:13px;"></i><span>Desk Overview</span>
-              </button>
-              <button type="button" id="camNatureBook" class="nature-glass-btn" title="Reading Zoom">
-                <i data-lucide="book-open" style="width:13px;height:13px;"></i><span>Reading Zoom</span>
-              </button>
-              <button type="button" id="camNatureNotebook" class="nature-glass-btn" title="Notebook To-Do">
-                <i data-lucide="edit-3" style="width:13px;height:13px;"></i><span>Notebook To-Do</span>
               </button>
               <button type="button" id="camNatureForest" class="nature-glass-btn" title="Garden Sanctuary View">
                 <i data-lucide="trees" style="width:13px;height:13px;"></i><span>Garden Sanctuary</span>
