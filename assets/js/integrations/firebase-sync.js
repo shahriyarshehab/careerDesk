@@ -4922,16 +4922,27 @@ function renderSidebarAuthControl() {
   if (!buttons.length) return;
   const user = typeof getCachedAuthUser === 'function' ? getCachedAuthUser() : null;
   const isAuthed = !!user;
-  const title = isAuthed
-    ? 'Log out' + (user.displayName ? ' — ' + user.displayName : '')
-    : 'Log in to sync your workspace';
+
   buttons.forEach((btn) => {
-    btn.classList.toggle('is-authed', isAuthed);
-    btn.title = title;
-    btn.setAttribute('aria-label', title);
-    const label = btn.querySelector('.sidebar-auth-label');
-    if (label) label.textContent = isAuthed ? 'Log out' : 'Log in';
+    if (isAuthed) {
+      // User is logged in: remove/hide logout menu from side panel completely
+      btn.style.display = 'none';
+      btn.setAttribute('aria-hidden', 'true');
+    } else {
+      btn.style.display = '';
+      btn.removeAttribute('aria-hidden');
+      btn.classList.remove('is-authed');
+      const title = 'Log in to sync your workspace';
+      btn.title = title;
+      btn.setAttribute('aria-label', title);
+      const label = btn.querySelector('.sidebar-auth-label');
+      if (label) label.textContent = 'Log in';
+    }
   });
+
+  if (typeof syncTopbarProfileAvatar === 'function') {
+    syncTopbarProfileAvatar();
+  }
 }
 window.renderSidebarAuthControl = renderSidebarAuthControl;
 
@@ -4955,13 +4966,12 @@ function initSidebarAuthControl() {
       if (typeof openAuthModal === 'function') openAuthModal('login');
       return;
     }
-
-    const confirmed = window.confirm("Log out and clear this browser's study data? Your cloud backup stays safe.");
-    if (!confirmed) return;
-    if (typeof signOutUser === 'function') signOutUser();
   });
 
-  window.addEventListener('careerdesk-auth-state-changed', renderSidebarAuthControl);
+  window.addEventListener('careerdesk-auth-state-changed', () => {
+    renderSidebarAuthControl();
+    if (typeof syncTopbarProfileAvatar === 'function') syncTopbarProfileAvatar();
+  });
   renderSidebarAuthControl();
 }
 window.initSidebarAuthControl = initSidebarAuthControl;

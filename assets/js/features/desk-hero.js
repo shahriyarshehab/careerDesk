@@ -327,24 +327,47 @@ function syncTopbarProfileAvatar(name, photo) {
   if (!topbarBtn) return;
   const topbarImg = document.getElementById('topbarAvatarImg');
   const topbarInitial = document.getElementById('topbarAvatarInitial');
-  const topbarFallback = document.getElementById('topbarAvatarFallback');
+  const topbarLogin = document.getElementById('topbarAvatarLogin');
 
-  let resolvedName = name;
-  let resolvedPhoto = photo;
-  if (resolvedName === undefined || resolvedPhoto === undefined) {
-    let user = null;
-    let custom = null;
-    try { user = typeof getCachedAuthUser === 'function' ? getCachedAuthUser() : null; } catch (e) { }
-    try { custom = typeof getCustomProfile === 'function' ? getCustomProfile() : null; } catch (e) { }
-    resolvedName = (user && user.displayName)
-      || (custom && (custom.displayName || custom.username))
-      || 'Guest Aspirant';
-    resolvedPhoto = (user && user.photoURL) || (custom && custom.photoURL) || '';
+  let user = null;
+  let custom = null;
+  try { user = typeof getCachedAuthUser === 'function' ? getCachedAuthUser() : null; } catch (e) { }
+  try { custom = typeof getCustomProfile === 'function' ? getCustomProfile() : null; } catch (e) { }
+
+  const isAuthed = !!user;
+
+  if (!isAuthed) {
+    // 1. Not Logged In: Show Login Logo
+    topbarBtn.classList.add('is-login-mode');
+    topbarBtn.title = 'Log in to sync workspace';
+    topbarBtn.setAttribute('aria-label', 'Log in to sync workspace');
+
+    if (topbarImg) {
+      topbarImg.hidden = true;
+      topbarImg.removeAttribute('src');
+    }
+    if (topbarInitial) topbarInitial.hidden = true;
+    if (topbarLogin) topbarLogin.hidden = false;
+
+    closeTopbarDeskPopover();
+    return;
   }
 
-  const label = (resolvedName && resolvedName !== 'Guest Aspirant') ? resolvedName : 'Profile & Desk';
-  topbarBtn.title = label;
-  topbarBtn.setAttribute('aria-label', 'Open Profile: ' + label);
+  // 2. Logged In: Show Profile Logo
+  topbarBtn.classList.remove('is-login-mode');
+  if (topbarLogin) topbarLogin.hidden = true;
+
+  const resolvedName = (name !== undefined) ? name : (
+    (user && user.displayName)
+    || (custom && (custom.displayName || custom.username))
+    || 'CareerDesk Aspirant'
+  );
+  const resolvedPhoto = (photo !== undefined) ? photo : (
+    (user && user.photoURL) || (custom && custom.photoURL) || ''
+  );
+
+  topbarBtn.title = resolvedName;
+  topbarBtn.setAttribute('aria-label', 'Account: ' + resolvedName);
 
   if (resolvedPhoto) {
     if (topbarImg) {
@@ -352,13 +375,14 @@ function syncTopbarProfileAvatar(name, photo) {
       topbarImg.hidden = false;
       topbarImg.onerror = () => {
         topbarImg.hidden = true;
-        if (topbarInitial) topbarInitial.hidden = false;
-        if (topbarFallback) topbarFallback.hidden = true;
+        if (topbarInitial) {
+          topbarInitial.hidden = false;
+          topbarInitial.textContent = (String(resolvedName).trim().charAt(0) || 'A').toUpperCase();
+        }
       };
     }
     if (topbarInitial) topbarInitial.hidden = true;
-    if (topbarFallback) topbarFallback.hidden = true;
-  } else if (resolvedName && resolvedName !== 'Guest Aspirant') {
+  } else {
     if (topbarImg) {
       topbarImg.hidden = true;
       topbarImg.removeAttribute('src');
@@ -368,17 +392,156 @@ function syncTopbarProfileAvatar(name, photo) {
       topbarInitial.hidden = false;
       topbarInitial.textContent = char;
     }
-    if (topbarFallback) topbarFallback.hidden = true;
-  } else {
-    if (topbarImg) {
-      topbarImg.hidden = true;
-      topbarImg.removeAttribute('src');
-    }
-    if (topbarInitial) topbarInitial.hidden = true;
-    if (topbarFallback) topbarFallback.hidden = false;
   }
+
+  renderTopbarDeskPopover();
 }
 window.syncTopbarProfileAvatar = syncTopbarProfileAvatar;
+
+/* --------------------------------------------------------------------------
+   Topbar Desk-Type Popover Panel
+   When user is logged in, clicking the topbar profile button opens this desk-type
+   panel showing account details, study stats, and the logout action.
+   -------------------------------------------------------------------------- */
+function renderTopbarDeskPopover() {
+  const popover = document.getElementById('topbarDeskPopover');
+  if (!popover) return;
+
+  let user = null;
+  let custom = null;
+  try { user = typeof getCachedAuthUser === 'function' ? getCachedAuthUser() : null; } catch (e) { }
+  try { custom = typeof getCustomProfile === 'function' ? getCustomProfile() : null; } catch (e) { }
+
+  const name = (user && user.displayName)
+    || (custom && (custom.displayName || custom.username))
+    || 'CareerDesk Aspirant';
+  const photo = (user && user.photoURL) || (custom && custom.photoURL) || '';
+  const email = (user && user.email) || (user && user.phoneNumber) || 'Signed in';
+
+  const nameEl = document.getElementById('topbarPopoverName');
+  const emailEl = document.getElementById('topbarPopoverEmail');
+  const avatarEl = document.getElementById('topbarPopoverAvatar');
+  const focusEl = document.getElementById('topbarPopoverFocus');
+  const sessionsEl = document.getElementById('topbarPopoverSessions');
+  const goalEl = document.getElementById('topbarPopoverGoal');
+
+  if (nameEl) nameEl.textContent = name;
+  if (emailEl) emailEl.textContent = email;
+
+  if (avatarEl) {
+    const initial = (String(name).trim().charAt(0) || 'A').toUpperCase();
+    avatarEl.textContent = photo ? '' : initial;
+    avatarEl.style.backgroundImage = photo ? `url("${String(photo).replace(/"/g, '%22')}")` : 'none';
+  }
+
+  if (focusEl) focusEl.textContent = fmtHM(deskFocusMinutesToday());
+  if (sessionsEl) sessionsEl.textContent = String(deskSessionCountToday());
+  if (goalEl) goalEl.textContent = fmtHM(deskGoalMinutes());
+}
+window.renderTopbarDeskPopover = renderTopbarDeskPopover;
+
+function isTopbarDeskPopoverOpen() {
+  const popover = document.getElementById('topbarDeskPopover');
+  return !!popover && !popover.hidden;
+}
+window.isTopbarDeskPopoverOpen = isTopbarDeskPopoverOpen;
+
+function openTopbarDeskPopover() {
+  const popover = document.getElementById('topbarDeskPopover');
+  const btn = document.getElementById('topbarProfileBtn');
+  if (!popover) return;
+  renderTopbarDeskPopover();
+  popover.hidden = false;
+  if (btn) btn.setAttribute('aria-expanded', 'true');
+}
+window.openTopbarDeskPopover = openTopbarDeskPopover;
+
+function closeTopbarDeskPopover() {
+  const popover = document.getElementById('topbarDeskPopover');
+  const btn = document.getElementById('topbarProfileBtn');
+  if (!popover || popover.hidden) return;
+  popover.hidden = true;
+  if (btn) btn.setAttribute('aria-expanded', 'false');
+}
+window.closeTopbarDeskPopover = closeTopbarDeskPopover;
+
+function toggleTopbarDeskPopover() {
+  if (isTopbarDeskPopoverOpen()) {
+    closeTopbarDeskPopover();
+  } else {
+    openTopbarDeskPopover();
+  }
+}
+window.toggleTopbarDeskPopover = toggleTopbarDeskPopover;
+
+function initTopbarProfileControl() {
+  const btn = document.getElementById('topbarProfileBtn');
+  if (!btn || btn.dataset.bound) return;
+  btn.dataset.bound = 'true';
+
+  btn.addEventListener('click', (event) => {
+    event.stopPropagation();
+    let user = null;
+    try { user = typeof getCachedAuthUser === 'function' ? getCachedAuthUser() : null; } catch (e) { }
+
+    if (!user) {
+      // User is not logged in: clicking the login logo opens login modal
+      if (typeof openAuthModal === 'function') {
+        openAuthModal('login');
+      }
+      return;
+    }
+
+    // User is logged in: clicking the profile logo toggles the desk-type panel
+    toggleTopbarDeskPopover();
+  });
+
+  const deskBtn = document.getElementById('topbarPopoverDeskBtn');
+  if (deskBtn) {
+    deskBtn.addEventListener('click', () => {
+      closeTopbarDeskPopover();
+      if (typeof activateTab === 'function') activateTab('desk', true);
+    });
+  }
+
+  const settingsBtn = document.getElementById('topbarPopoverSettingsBtn');
+  if (settingsBtn) {
+    settingsBtn.addEventListener('click', () => {
+      closeTopbarDeskPopover();
+      if (typeof activateTab === 'function') activateTab('settings', true);
+    });
+  }
+
+  const signOutBtn = document.getElementById('topbarPopoverSignOutBtn');
+  if (signOutBtn) {
+    signOutBtn.addEventListener('click', async () => {
+      const confirmed = window.confirm("Log out and clear this browser's study data? Your cloud backup stays safe.");
+      if (!confirmed) return;
+      closeTopbarDeskPopover();
+      if (typeof signOutUser === 'function') {
+        await signOutUser();
+      }
+      syncTopbarProfileAvatar();
+      if (typeof renderSidebarAuthControl === 'function') renderSidebarAuthControl();
+    });
+  }
+
+  document.addEventListener('click', (event) => {
+    if (!isTopbarDeskPopoverOpen()) return;
+    const target = event.target instanceof Element ? event.target : null;
+    if (target && (target.closest('#topbarDeskPopover') || target.closest('#topbarProfileBtn'))) return;
+    closeTopbarDeskPopover();
+  });
+
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && isTopbarDeskPopoverOpen()) {
+      closeTopbarDeskPopover();
+    }
+  });
+
+  syncTopbarProfileAvatar();
+}
+window.initTopbarProfileControl = initTopbarProfileControl;
 
 /* The avatar is the only remnant of the retired profile card: it shows the
    signed-in photo (or the initial) inside the room and opens the account modal. */

@@ -402,16 +402,10 @@ function initCommandPalette() {
   initKeyboardShortcutsPanel();
 
 
-  // Topbar Profile Logo Button (navigates to Profile & Desk)
-  const topbarProfileBtn = document.getElementById('topbarProfileBtn');
-  if (topbarProfileBtn) {
-    topbarProfileBtn.addEventListener('click', () => {
-      if (typeof activateTab === 'function') {
-        activateTab('profile', true);
-      }
-    });
-  }
-  if (typeof syncTopbarProfileAvatar === 'function') {
+  // Topbar Profile / Login Control & Desk-Type Panel
+  if (typeof initTopbarProfileControl === 'function') {
+    initTopbarProfileControl();
+  } else if (typeof syncTopbarProfileAvatar === 'function') {
     syncTopbarProfileAvatar();
   }
 

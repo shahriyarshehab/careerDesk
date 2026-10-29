@@ -359,6 +359,11 @@
     border-radius: 50% !important;
   }
 
+  .main-header .topbar-desk-popover {
+    width: min(280px, calc(100vw - 20px)) !important;
+    right: -4px !important;
+  }
+
   .main-header .nav-menu,
   .main-header nav.tabs {
     display: none !important;

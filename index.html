@@ -79,14 +79,37 @@
           <span><kbd>ESC</kbd> Close</span>
         </div>
       </div>
-      <!-- Topbar Profile Logo / Avatar Button -->
-      <button type="button" class="topbar-profile-btn" id="topbarProfileBtn" title="Profile &amp; Desk" aria-label="Open Profile and Desk">
-        <img class="topbar-avatar-img" id="topbarAvatarImg" alt="Profile" hidden>
-        <span class="topbar-avatar-initial" id="topbarAvatarInitial" hidden>A</span>
-        <span class="topbar-avatar-fallback" id="topbarAvatarFallback">
-          <i data-lucide="user"></i>
-        </span>
-      </button>
+      <!-- Topbar Profile Logo / Avatar Container & Desk Popover Panel -->
+      <div class="topbar-profile-container" id="topbarProfileContainer">
+        <button type="button" class="topbar-profile-btn is-login-mode" id="topbarProfileBtn" title="Log in to sync workspace" aria-label="Log in to sync workspace" aria-haspopup="dialog" aria-expanded="false" aria-controls="topbarDeskPopover">
+          <img class="topbar-avatar-img" id="topbarAvatarImg" alt="Profile" hidden>
+          <span class="topbar-avatar-initial" id="topbarAvatarInitial" hidden>A</span>
+          <span class="topbar-avatar-login" id="topbarAvatarLogin" title="Log in">
+            <i data-lucide="log-in"></i>
+          </span>
+        </button>
+
+        <!-- Desk Type Panel (Popover attached to topbar profile button) -->
+        <div class="desk-profile-popover topbar-desk-popover" id="topbarDeskPopover" role="dialog" aria-label="Profile and account menu" hidden>
+          <div class="desk-popover-head">
+            <span class="desk-popover-avatar" id="topbarPopoverAvatar">A</span>
+            <div class="desk-popover-identity">
+              <strong id="topbarPopoverName">CareerDesk Aspirant</strong>
+              <span id="topbarPopoverEmail">user@careerdesk.app</span>
+            </div>
+          </div>
+          <div class="desk-popover-stats">
+            <div><span>Focus today</span><strong id="topbarPopoverFocus">0m</strong></div>
+            <div><span>Sessions</span><strong id="topbarPopoverSessions">0</strong></div>
+            <div><span>Goal</span><strong id="topbarPopoverGoal">4h</strong></div>
+          </div>
+          <div class="desk-popover-actions">
+            <button type="button" class="desk-popover-btn" id="topbarPopoverDeskBtn"><i data-lucide="layout-dashboard" style="width:13px;height:13px;display:inline-block;vertical-align:middle;margin-right:4px;"></i>Desk</button>
+            <button type="button" class="desk-popover-btn subtle" id="topbarPopoverSettingsBtn"><i data-lucide="settings" style="width:13px;height:13px;display:inline-block;vertical-align:middle;margin-right:4px;"></i>Settings</button>
+            <button type="button" class="desk-popover-btn danger" id="topbarPopoverSignOutBtn"><i data-lucide="log-out" style="width:13px;height:13px;display:inline-block;vertical-align:middle;margin-right:4px;"></i>Log out</button>
+          </div>
+        </div>
+      </div>
     </div>
 
     <div class="sidebar-tools-label" aria-hidden="true">TOOLS</div>
@@ -98,7 +121,6 @@
       </button>
       <button class="tab-btn nav-link sidebar-auth-btn" id="sidebarAuthBtn" type="button" data-auth-action title="Log in to sync your workspace" aria-label="Log in to sync your workspace">
         <i data-lucide="log-in" class="sidebar-auth-icon auth-login-icon" aria-hidden="true"></i>
-        <i data-lucide="log-out" class="sidebar-auth-icon auth-logout-icon" aria-hidden="true"></i>
         <span class="sidebar-auth-label">Log in</span>
       </button>
       <button class="icon-action-btn watch-action" id="watchFullscreenToggle" type="button" title="Enter fullscreen" aria-label="Toggle Fullscreen" style="display:none;">
@@ -143,7 +165,6 @@
     </button>
     <button class="tab-btn mobile-more-link mobile-auth-link" type="button" data-auth-action title="Log in to sync your workspace" aria-label="Log in to sync your workspace">
       <i data-lucide="log-in" class="auth-login-icon" aria-hidden="true"></i>
-      <i data-lucide="log-out" class="auth-logout-icon" aria-hidden="true"></i>
       <span class="sidebar-auth-label">Log in</span>
     </button>
   </nav>
