@@ -953,6 +953,7 @@ function signInDemoUser(providerName = 'Google') {
   } catch (e) { }
   closeFirebaseConfigModal();
   showToast('Signed in via ' + providerName + ' (Cloud Sync Enabled)');
+  window.dispatchEvent(new CustomEvent('careerdesk-auth-state-changed', { detail: currentAuthUser }));
   renderUserProfileUI();
   setTimeout(() => checkCloudInitialSync(), 500);
 }
@@ -1896,6 +1897,8 @@ const githubIconSvg = `
 function renderUserProfileUI() {
   // The retired profile card is gone; its avatar lives on inside the Desk hero.
   if (typeof renderDeskAvatar === 'function') renderDeskAvatar();
+  // Sync sidebar login button visibility for ALL login paths (Firebase, local, demo)
+  if (typeof renderSidebarAuthControl === 'function') renderSidebarAuthControl();
   const container = document.getElementById('userProfileCard');
   if (!container) return;
 

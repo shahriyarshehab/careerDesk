@@ -405,6 +405,8 @@ function initCommandPalette() {
   // Topbar Profile / Login Control & Desk-Type Panel
   if (typeof initTopbarProfileControl === 'function') {
     initTopbarProfileControl();
+    // Immediately sync in case user has a cached session from previous visit
+    if (typeof syncTopbarProfileAvatar === 'function') syncTopbarProfileAvatar();
   } else if (typeof syncTopbarProfileAvatar === 'function') {
     syncTopbarProfileAvatar();
   }

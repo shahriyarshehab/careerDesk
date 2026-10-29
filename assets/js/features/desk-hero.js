@@ -526,6 +526,12 @@ function initTopbarProfileControl() {
     });
   }
 
+  // Re-sync topbar avatar whenever auth state changes (covers Firebase onAuthStateChanged
+  // AND local/demo sign-in events fired by renderSidebarAuthControl / initSidebarAuthControl)
+  window.addEventListener('careerdesk-auth-state-changed', () => {
+    syncTopbarProfileAvatar();
+  });
+
   document.addEventListener('click', (event) => {
     if (!isTopbarDeskPopoverOpen()) return;
     const target = event.target instanceof Element ? event.target : null;
