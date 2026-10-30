@@ -1899,6 +1899,7 @@ function renderUserProfileUI() {
   if (typeof renderDeskAvatar === 'function') renderDeskAvatar();
   // Sync sidebar login button visibility for ALL login paths (Firebase, local, demo)
   if (typeof renderSidebarAuthControl === 'function') renderSidebarAuthControl();
+  if (typeof syncTopbarProfileAvatar === 'function') syncTopbarProfileAvatar();
   const container = document.getElementById('userProfileCard');
   if (!container) return;
 

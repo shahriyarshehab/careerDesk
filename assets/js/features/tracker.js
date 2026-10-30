@@ -1085,9 +1085,12 @@ if (durationSelector) {
       if (sub) sub.innerHTML = `<strong>${escapeHtml(subject)}</strong> — Stopwatch mode active`;
     } else {
       customCountdownSecs = selectedDuration * 60;
-      const mStr = String(selectedDuration).padStart(2, '0');
-      if (display) display.textContent = `${mStr}:00`;
-      if (sub) sub.innerHTML = `<strong>${escapeHtml(subject)}</strong> — ${selectedDuration} min focus session`;
+      const h = Math.floor(selectedDuration / 60);
+      const m = selectedDuration % 60;
+      const mStr = h > 0 ? `${h}:${String(m).padStart(2, '0')}:00` : `${String(selectedDuration).padStart(2, '0')}:00`;
+      if (display) display.textContent = mStr;
+      const durText = h > 0 ? (m > 0 ? `${h}h ${m}m` : `${h} hour`) : `${selectedDuration} min`;
+      if (sub) sub.innerHTML = `<strong>${escapeHtml(subject)}</strong> — ${durText} focus session`;
     }
     syncTimerRingUI();
     const orb = document.getElementById('clockOrb');
@@ -1163,16 +1166,18 @@ function startCustomCountdown() {
       sub.innerHTML = `<span class="timer-dot"></span> Taking a <strong>${escapeHtml(reason.toLowerCase())}</strong> break (${selectedDuration}m)`;
     } else {
       const subj = currentSubjectValue() || 'General';
-      sub.innerHTML = `<span class="timer-dot"></span> Focusing on <strong>${escapeHtml(subj)}</strong> (${selectedDuration}m)`;
+      const durText = selectedDuration >= 60 ? (selectedDuration % 60 === 0 ? `${selectedDuration / 60}h` : `${Math.floor(selectedDuration / 60)}h ${selectedDuration % 60}m`) : `${selectedDuration}m`;
+      sub.innerHTML = `<span class="timer-dot"></span> Focusing on <strong>${escapeHtml(subj)}</strong> (${durText})`;
     }
   }
 
   customCountdownInterval = setInterval(() => {
     if (customCountdownSecs > 0) {
       customCountdownSecs--;
-      const m = String(Math.floor(customCountdownSecs / 60)).padStart(2, '0');
+      const h = Math.floor(customCountdownSecs / 3600);
+      const m = String(Math.floor((customCountdownSecs % 3600) / 60)).padStart(2, '0');
       const s = String(customCountdownSecs % 60).padStart(2, '0');
-      if (display) display.textContent = `${m}:${s}`;
+      if (display) display.textContent = h > 0 ? `${h}:${m}:${s}` : `${m}:${s}`;
       renderTodaySessions();
       renderProgress();
       syncMiniTimerWidget();
@@ -1294,9 +1299,10 @@ function syncMiniTimerWidget() {
 
   if (window.isCustomCountdownActive && typeof customCountdownSecs === 'number') {
     widget.style.display = 'inline-flex';
-    const m = String(Math.floor(customCountdownSecs / 60)).padStart(2, '0');
+    const h = Math.floor(customCountdownSecs / 3600);
+    const m = String(Math.floor((customCountdownSecs % 3600) / 60)).padStart(2, '0');
     const s = String(customCountdownSecs % 60).padStart(2, '0');
-    if (timeEl) timeEl.textContent = `${m}:${s}`;
+    if (timeEl) timeEl.textContent = h > 0 ? `${h}:${m}:${s}` : `${m}:${s}`;
     if (subjEl) {
       subjEl.textContent = timerMode === 'break' ? 'Break' : (typeof currentSubjectValue === 'function' ? (currentSubjectValue() || 'Focus') : 'Focus');
     }

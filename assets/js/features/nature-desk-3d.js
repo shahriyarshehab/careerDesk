@@ -423,7 +423,118 @@
     }
   }
 
-  // --- PROCEDURAL TEXTURES & MESH HELPERS ---
+  // --- PROCEDURAL TEXTURES & PURE 3D MESH HELPERS ---
+
+  function createWoodDeskTexture() {
+    const canvas = document.createElement('canvas');
+    canvas.width = 1024;
+    canvas.height = 512;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return new THREE.Texture();
+
+    // Warm natural walnut base tone
+    const grad = ctx.createLinearGradient(0, 0, 1024, 0);
+    grad.addColorStop(0, '#382215');
+    grad.addColorStop(0.25, '#4a2c1a');
+    grad.addColorStop(0.5, '#3b2316');
+    grad.addColorStop(0.75, '#4c2e1c');
+    grad.addColorStop(1, '#362013');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, 1024, 512);
+
+    // Fine wood grain fibers
+    ctx.fillStyle = 'rgba(22, 12, 6, 0.12)';
+    for (let i = 0; i < 350; i++) {
+      const y = Math.random() * 512;
+      const h = 0.5 + Math.random() * 2.2;
+      ctx.fillRect(0, y, 1024, h);
+    }
+
+    // Natural undulating wood rings & pores
+    for (let line = 0; line < 48; line++) {
+      ctx.strokeStyle = line % 2 === 0 ? 'rgba(74, 42, 22, 0.32)' : 'rgba(18, 9, 4, 0.28)';
+      ctx.lineWidth = 1 + Math.random() * 2.2;
+      ctx.beginPath();
+      const baseY = (line / 48) * 512;
+      const freq = 0.005 + Math.random() * 0.007;
+      const amp = 6 + Math.random() * 12;
+      ctx.moveTo(0, baseY + Math.sin(0) * amp);
+      for (let x = 0; x <= 1024; x += 16) {
+        const y = baseY + Math.sin(x * freq) * amp + Math.cos(x * freq * 0.6) * 3;
+        ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+    }
+
+    // Subtle natural wood knot
+    const knotX = 760;
+    const knotY = 260;
+    for (let r = 6; r < 36; r += 5) {
+      ctx.strokeStyle = 'rgba(20, 10, 4, 0.35)';
+      ctx.lineWidth = 1.4;
+      ctx.beginPath();
+      ctx.ellipse(knotX, knotY, r * 1.7, r, 0.1, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+
+    const tex = new THREE.CanvasTexture(canvas);
+    tex.wrapS = THREE.RepeatWrapping;
+    tex.wrapT = THREE.RepeatWrapping;
+    tex.repeat.set(1.5, 1.5);
+    tex.anisotropy = 4;
+    return tex;
+  }
+
+  function createLatteArtTexture() {
+    const canvas = document.createElement('canvas');
+    canvas.width = 256;
+    canvas.height = 256;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return new THREE.Texture();
+
+    // Rich dark espresso crema base
+    const grad = ctx.createRadialGradient(128, 128, 20, 128, 128, 128);
+    grad.addColorStop(0, '#582f14');
+    grad.addColorStop(0.7, '#381e0d');
+    grad.addColorStop(1, '#241307');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, 256, 256);
+
+    // Cream foam concentric ring
+    ctx.strokeStyle = 'rgba(235, 218, 190, 0.65)';
+    ctx.lineWidth = 6;
+    ctx.beginPath();
+    ctx.arc(128, 128, 92, 0, Math.PI * 2);
+    ctx.stroke();
+
+    // Delicate latte art heart / leaf rosette
+    ctx.fillStyle = 'rgba(248, 238, 222, 0.88)';
+    const leaves = [
+      { x: 128, y: 168, rx: 14, ry: 9 },
+      { x: 128, y: 144, rx: 20, ry: 13 },
+      { x: 128, y: 118, rx: 25, ry: 16 },
+      { x: 128, y: 92,  rx: 28, ry: 18 },
+      { x: 128, y: 68,  rx: 22, ry: 15 }
+    ];
+    leaves.forEach(l => {
+      ctx.beginPath();
+      ctx.ellipse(l.x, l.y, l.rx, l.ry, 0, 0, Math.PI * 2);
+      ctx.fill();
+    });
+
+    // Stem line through center
+    ctx.strokeStyle = '#582f14';
+    ctx.lineWidth = 3.5;
+    ctx.beginPath();
+    ctx.moveTo(128, 55);
+    ctx.lineTo(128, 190);
+    ctx.stroke();
+
+    const tex = new THREE.CanvasTexture(canvas);
+    tex.anisotropy = 4;
+    return tex;
+  }
+
   function createNotebookPageTexture(isLeft) {
     const canvas = document.createElement('canvas');
     canvas.width = 512;
@@ -434,6 +545,12 @@
     // Ivory Paper
     ctx.fillStyle = '#fdfbf7';
     ctx.fillRect(0, 0, 512, 720);
+
+    // Subtle paper grain shading
+    ctx.fillStyle = 'rgba(15, 23, 42, 0.02)';
+    for (let i = 0; i < 120; i++) {
+      ctx.fillRect(Math.random() * 512, Math.random() * 720, 2, 2);
+    }
 
     // Subtle ruled horizontal lines
     ctx.strokeStyle = 'rgba(148, 163, 184, 0.45)';
@@ -540,28 +657,36 @@
     return tex;
   }
 
+  // --- 1. SLEEK ULTRABOOK LAPTOP WITH BACKLIT KEYBOARD ---
   function createLaptopMesh() {
     const laptopGroup = new THREE.Group();
     laptopGroup.name = 'deskLaptop';
 
     const aluMat = new THREE.MeshStandardMaterial({
       color: 0x334155,
-      roughness: 0.25,
-      metalness: 0.85
+      roughness: 0.22,
+      metalness: 0.88
     });
 
     const keyboardMat = new THREE.MeshStandardMaterial({
-      color: 0x090d16,
-      roughness: 0.55
+      color: 0x070b12,
+      roughness: 0.5,
+      metalness: 0.2
+    });
+
+    const keyCapMat = new THREE.MeshStandardMaterial({
+      color: 0x0f172a,
+      roughness: 0.35,
+      metalness: 0.3
     });
 
     const trackpadMat = new THREE.MeshStandardMaterial({
       color: 0x1e293b,
-      roughness: 0.2,
-      metalness: 0.4
+      roughness: 0.15,
+      metalness: 0.45
     });
 
-    // 1. Base Unibody Wedge Chassis
+    // Base Unibody Wedge Chassis
     const base = new THREE.Mesh(new THREE.BoxGeometry(2.1, 0.045, 1.45), aluMat);
     base.position.y = 0.0225;
     base.castShadow = true;
@@ -569,31 +694,71 @@
     laptopGroup.add(base);
 
     // Keyboard Well
-    const kbWell = new THREE.Mesh(new THREE.BoxGeometry(1.85, 0.005, 0.72), keyboardMat);
+    const kbWell = new THREE.Mesh(new THREE.BoxGeometry(1.86, 0.006, 0.74), keyboardMat);
     kbWell.position.set(0, 0.046, -0.2);
     laptopGroup.add(kbWell);
 
-    // Trackpad
-    const trackpad = new THREE.Mesh(new THREE.BoxGeometry(0.68, 0.005, 0.44), trackpadMat);
+    // Tactile Keycaps Grid (6 rows of discrete 3D keys)
+    const keyRows = 5;
+    const keyCols = 13;
+    const kw = 0.12;
+    const kh = 0.10;
+    const gapX = 0.018;
+    const gapZ = 0.022;
+    const startX = -((keyCols - 1) * (kw + gapX)) / 2;
+    const startZ = -0.2 - ((keyRows - 1) * (kh + gapZ)) / 2;
+
+    for (let r = 0; r < keyRows; r++) {
+      for (let c = 0; c < keyCols; c++) {
+        // Skip spacebar area for single wide bar
+        if (r === keyRows - 1 && (c >= 4 && c <= 8)) continue;
+        const key = new THREE.Mesh(new THREE.BoxGeometry(kw, 0.012, kh), keyCapMat);
+        key.position.set(startX + c * (kw + gapX), 0.052, startZ + r * (kh + gapZ));
+        laptopGroup.add(key);
+      }
+    }
+    // Spacebar
+    const spacebar = new THREE.Mesh(new THREE.BoxGeometry(0.72, 0.012, kh), keyCapMat);
+    spacebar.position.set(0, 0.052, startZ + (keyRows - 1) * (kh + gapZ));
+    laptopGroup.add(spacebar);
+
+    // Trackpad with subtle border bevel
+    const trackpad = new THREE.Mesh(new THREE.BoxGeometry(0.72, 0.006, 0.46), trackpadMat);
     trackpad.position.set(0, 0.046, 0.42);
     laptopGroup.add(trackpad);
 
-    // 2. Open Display Lid (105 degrees open)
+    // Open Display Lid (106 degrees open)
     const lidGroup = new THREE.Group();
     lidGroup.position.set(0, 0.04, -0.72);
-    lidGroup.rotation.x = -0.24;
+    lidGroup.rotation.x = -0.26;
 
     const lidBack = new THREE.Mesh(new THREE.BoxGeometry(2.1, 1.4, 0.035), aluMat);
     lidBack.position.y = 0.7;
     lidBack.castShadow = true;
     lidGroup.add(lidBack);
 
+    // Glowing CareerDesk / Apple emblem on back of lid
+    const logoMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
+    const logoMesh = new THREE.Mesh(new THREE.CircleGeometry(0.065, 16), logoMat);
+    logoMesh.position.set(0, 0.7, -0.019);
+    logoMesh.rotation.y = Math.PI;
+    lidGroup.add(logoMesh);
+
+    // Bezel
     const bezel = new THREE.Mesh(
       new THREE.BoxGeometry(2.05, 1.35, 0.005),
       new THREE.MeshStandardMaterial({ color: 0x020617, roughness: 0.1 })
     );
     bezel.position.set(0, 0.7, 0.02);
     lidGroup.add(bezel);
+
+    // HD Webcam indicator dot
+    const camDot = new THREE.Mesh(
+      new THREE.CircleGeometry(0.01, 12),
+      new THREE.MeshBasicMaterial({ color: 0x10b981 })
+    );
+    camDot.position.set(0, 1.34, 0.024);
+    lidGroup.add(camDot);
 
     // CareerDesk Live Workspace Screen Texture
     const sCanvas = document.createElement('canvas');
@@ -614,7 +779,7 @@
       sCtx.fillStyle = '#10b981';
       sCtx.fillText('● Sync Active', 408, 24);
 
-      // Card 1: Today\'s Routine
+      // Card 1: Today's Routine
       sCtx.fillStyle = '#131b2e';
       sCtx.fillRect(16, 48, 230, 256);
       sCtx.strokeStyle = '#1e293b';
@@ -679,7 +844,435 @@
     return laptopGroup;
   }
 
-  // --- PATIO AND DESK OBJECTS ---
+  // --- 2. PURE 3D POTTED JADE SUCCULENT PLANT ---
+  function createPottedSucculentPlant() {
+    const plantGroup = new THREE.Group();
+    plantGroup.name = 'deskPlant';
+
+    // Terracotta Ceramic Pot
+    const potMat = new THREE.MeshStandardMaterial({
+      color: 0xc86438,
+      roughness: 0.65,
+      metalness: 0.05
+    });
+    const potBody = new THREE.Mesh(new THREE.CylinderGeometry(0.42, 0.30, 0.62, 28), potMat);
+    potBody.castShadow = true;
+    potBody.receiveShadow = true;
+    plantGroup.add(potBody);
+
+    // Raised Terracotta Lip Rim
+    const potLip = new THREE.Mesh(new THREE.CylinderGeometry(0.46, 0.44, 0.12, 28), potMat);
+    potLip.position.y = 0.31;
+    potLip.castShadow = true;
+    plantGroup.add(potLip);
+
+    // Dark Organic Potting Soil
+    const soilMat = new THREE.MeshStandardMaterial({
+      color: 0x1f140e,
+      roughness: 0.95
+    });
+    const soil = new THREE.Mesh(new THREE.CylinderGeometry(0.40, 0.40, 0.03, 28), soilMat);
+    soil.position.y = 0.33;
+    plantGroup.add(soil);
+
+    // Smooth Decorative River Pebbles on Soil
+    const pebbleMats = [
+      new THREE.MeshStandardMaterial({ color: 0xe2e8f0, roughness: 0.3 }),
+      new THREE.MeshStandardMaterial({ color: 0x64748b, roughness: 0.4 }),
+      new THREE.MeshStandardMaterial({ color: 0xd97706, roughness: 0.5 })
+    ];
+    for (let p = 0; p < 7; p++) {
+      const angle = (p / 7) * Math.PI * 2;
+      const dist = 0.22 + (p % 2) * 0.10;
+      const pebble = new THREE.Mesh(
+        new THREE.SphereGeometry(0.045 + (p % 3) * 0.015, 8, 8),
+        pebbleMats[p % pebbleMats.length]
+      );
+      pebble.scale.set(1.4, 0.6, 1.0);
+      pebble.position.set(Math.cos(angle) * dist, 0.35, Math.sin(angle) * dist);
+      pebble.rotation.y = p;
+      plantGroup.add(pebble);
+    }
+
+    // Fleshy 3D Jade Succulent Rosette
+    const leafMat = new THREE.MeshStandardMaterial({
+      color: 0x228b48,
+      roughness: 0.28,
+      metalness: 0.08
+    });
+    const innerLeafMat = new THREE.MeshStandardMaterial({
+      color: 0x3cb371,
+      roughness: 0.24,
+      metalness: 0.05
+    });
+
+    // Tier 1: Outer wide leaves (8 leaves)
+    const t1Count = 8;
+    for (let i = 0; i < t1Count; i++) {
+      const ang = (i / t1Count) * Math.PI * 2;
+      const leaf = new THREE.Mesh(new THREE.SphereGeometry(0.12, 10, 10), leafMat);
+      leaf.scale.set(1.9, 0.48, 0.95);
+      leaf.position.set(Math.cos(ang) * 0.25, 0.38, Math.sin(ang) * 0.25);
+      leaf.rotation.y = -ang + Math.PI / 2;
+      leaf.rotation.z = -0.32;
+      leaf.castShadow = true;
+      plantGroup.add(leaf);
+    }
+
+    // Tier 2: Mid leaves (6 leaves, slightly elevated)
+    const t2Count = 6;
+    for (let i = 0; i < t2Count; i++) {
+      const ang = (i / t2Count) * Math.PI * 2 + 0.3;
+      const leaf = new THREE.Mesh(new THREE.SphereGeometry(0.10, 10, 10), innerLeafMat);
+      leaf.scale.set(1.7, 0.46, 0.88);
+      leaf.position.set(Math.cos(ang) * 0.17, 0.45, Math.sin(ang) * 0.17);
+      leaf.rotation.y = -ang + Math.PI / 2;
+      leaf.rotation.z = -0.42;
+      leaf.castShadow = true;
+      plantGroup.add(leaf);
+    }
+
+    // Tier 3: Center tight bud (4 leaves + center tip)
+    const t3Count = 4;
+    for (let i = 0; i < t3Count; i++) {
+      const ang = (i / t3Count) * Math.PI * 2 + 0.6;
+      const leaf = new THREE.Mesh(new THREE.SphereGeometry(0.075, 8, 8), innerLeafMat);
+      leaf.scale.set(1.4, 0.44, 0.8);
+      leaf.position.set(Math.cos(ang) * 0.08, 0.52, Math.sin(ang) * 0.08);
+      leaf.rotation.y = -ang + Math.PI / 2;
+      leaf.rotation.z = -0.65;
+      plantGroup.add(leaf);
+    }
+
+    // Center emerging sprout
+    const bud = new THREE.Mesh(
+      new THREE.SphereGeometry(0.06, 8, 8),
+      new THREE.MeshStandardMaterial({ color: 0x48bb78, roughness: 0.2 })
+    );
+    bud.position.set(0, 0.57, 0);
+    plantGroup.add(bud);
+
+    return plantGroup;
+  }
+
+  // --- 3. PURE 3D WIREFRAME READING GLASSES ---
+  function createReadingGlassesMesh() {
+    const glassesGroup = new THREE.Group();
+    glassesGroup.name = 'readingGlasses';
+
+    const goldWireMat = new THREE.MeshStandardMaterial({
+      color: 0xd4af37,
+      roughness: 0.2,
+      metalness: 0.95
+    });
+
+    const glassLensMat = new THREE.MeshPhysicalMaterial({
+      color: 0xffffff,
+      transparent: true,
+      opacity: 0.45,
+      roughness: 0.05,
+      transmission: 0.92,
+      reflectivity: 0.8
+    });
+
+    // Left Rim & Lens
+    const rimRadius = 0.16;
+    const rimTube = 0.016;
+    const rimL = new THREE.Mesh(new THREE.TorusGeometry(rimRadius, rimTube, 16, 32), goldWireMat);
+    rimL.position.set(-0.24, 0, 0);
+    rimL.castShadow = true;
+    glassesGroup.add(rimL);
+
+    const lensL = new THREE.Mesh(new THREE.CircleGeometry(rimRadius - 0.005, 24), glassLensMat);
+    lensL.position.set(-0.24, 0, 0);
+    glassesGroup.add(lensL);
+
+    // Right Rim & Lens
+    const rimR = new THREE.Mesh(new THREE.TorusGeometry(rimRadius, rimTube, 16, 32), goldWireMat);
+    rimR.position.set(0.24, 0, 0);
+    rimR.castShadow = true;
+    glassesGroup.add(rimR);
+
+    const lensR = new THREE.Mesh(new THREE.CircleGeometry(rimRadius - 0.005, 24), glassLensMat);
+    lensR.position.set(0.24, 0, 0);
+    glassesGroup.add(lensR);
+
+    // Arched Nose Bridge
+    const bridge = new THREE.Mesh(new THREE.CylinderGeometry(0.014, 0.014, 0.16, 12), goldWireMat);
+    bridge.rotation.z = Math.PI / 2;
+    bridge.position.set(0, 0.04, 0);
+    glassesGroup.add(bridge);
+
+    // Left & Right Temples (Folded along desk)
+    const templeLen = 0.72;
+    const templeL = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.012, templeLen, 12), goldWireMat);
+    templeL.position.set(-0.41, -0.01, -0.34);
+    templeL.rotation.x = Math.PI / 2;
+    templeL.rotation.y = 0.12;
+    glassesGroup.add(templeL);
+
+    const templeR = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.012, templeLen, 12), goldWireMat);
+    templeR.position.set(0.41, -0.01, -0.34);
+    templeR.rotation.x = Math.PI / 2;
+    templeR.rotation.y = -0.12;
+    glassesGroup.add(templeR);
+
+    // Tortoiseshell Earpieces (Curved tips)
+    const earMat = new THREE.MeshStandardMaterial({ color: 0x451a03, roughness: 0.35 });
+    const earTipL = new THREE.Mesh(new THREE.CylinderGeometry(0.016, 0.014, 0.16, 12), earMat);
+    earTipL.position.set(-0.37, -0.06, -0.68);
+    earTipL.rotation.x = Math.PI / 3;
+    glassesGroup.add(earTipL);
+
+    const earTipR = new THREE.Mesh(new THREE.CylinderGeometry(0.016, 0.014, 0.16, 12), earMat);
+    earTipR.position.set(0.37, -0.06, -0.68);
+    earTipR.rotation.x = Math.PI / 3;
+    glassesGroup.add(earTipR);
+
+    // Lay flat on desk
+    glassesGroup.rotation.x = -Math.PI / 2;
+    return glassesGroup;
+  }
+
+  // --- 4. STATIONERY PEN CUP WITH MULTIPLE STUDY INSTRUMENTS ---
+  function createStationeryPenCup() {
+    const cupGroup = new THREE.Group();
+    cupGroup.name = 'penCup';
+
+    const brassCupMat = new THREE.MeshStandardMaterial({
+      color: 0xd4af37,
+      roughness: 0.28,
+      metalness: 0.92
+    });
+
+    // Fluted Brass Cup Body
+    const cupBody = new THREE.Mesh(new THREE.CylinderGeometry(0.32, 0.28, 0.85, 24, 1, true), brassCupMat);
+    cupBody.position.y = 0.425;
+    cupBody.castShadow = true;
+    cupGroup.add(cupBody);
+
+    // Heavy Weighted Base
+    const cupBase = new THREE.Mesh(new THREE.CylinderGeometry(0.30, 0.32, 0.06, 24), brassCupMat);
+    cupBase.position.y = 0.03;
+    cupGroup.add(cupBase);
+
+    // Decorative Beveled Rim
+    const cupRim = new THREE.Mesh(new THREE.TorusGeometry(0.32, 0.022, 16, 24), brassCupMat);
+    cupRim.position.y = 0.85;
+    cupRim.rotation.x = Math.PI / 2;
+    cupGroup.add(cupRim);
+
+    // Inside bottom plug
+    const insideBottom = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.27, 0.27, 0.02, 20),
+      new THREE.MeshStandardMaterial({ color: 0x1f2937, roughness: 0.8 })
+    );
+    insideBottom.position.y = 0.08;
+    cupGroup.add(insideBottom);
+
+    // Instrument 1: Classic Fountain Pen (Midnight Blue + Gold)
+    const fountainPen = new THREE.Group();
+    const fpBody = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.028, 0.028, 1.1, 14),
+      new THREE.MeshStandardMaterial({ color: 0x1e1b4b, roughness: 0.25, metalness: 0.5 })
+    );
+    fpBody.castShadow = true;
+    fountainPen.add(fpBody);
+
+    const fpClip = new THREE.Mesh(new THREE.BoxGeometry(0.012, 0.35, 0.03), brassCupMat);
+    fpClip.position.set(0, 0.28, 0.035);
+    fountainPen.add(fpClip);
+
+    const fpNib = new THREE.Mesh(new THREE.ConeGeometry(0.022, 0.12, 14), brassCupMat);
+    fpNib.position.y = 0.60;
+    fountainPen.add(fpNib);
+
+    fountainPen.position.set(-0.08, 0.62, 0.04);
+    fountainPen.rotation.z = -0.16;
+    fountainPen.rotation.x = 0.12;
+    cupGroup.add(fountainPen);
+
+    // Instrument 2: Sharpened Wooden HB Pencil
+    const pencil1 = new THREE.Group();
+    const p1Body = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.024, 0.024, 1.15, 6),
+      new THREE.MeshStandardMaterial({ color: 0xf59e0b, roughness: 0.45 })
+    );
+    pencil1.add(p1Body);
+
+    const p1Ferrule = new THREE.Mesh(new THREE.CylinderGeometry(0.026, 0.026, 0.08, 12), brassCupMat);
+    p1Ferrule.position.y = -0.56;
+    pencil1.add(p1Ferrule);
+
+    const p1Eraser = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.025, 0.025, 0.08, 12),
+      new THREE.MeshStandardMaterial({ color: 0xf472b6, roughness: 0.6 })
+    );
+    p1Eraser.position.y = -0.63;
+    pencil1.add(p1Eraser);
+
+    const p1WoodCone = new THREE.Mesh(
+      new THREE.ConeGeometry(0.024, 0.10, 12),
+      new THREE.MeshStandardMaterial({ color: 0xfef08a, roughness: 0.5 })
+    );
+    p1WoodCone.position.y = 0.62;
+    pencil1.add(p1WoodCone);
+
+    const p1Lead = new THREE.Mesh(
+      new THREE.ConeGeometry(0.009, 0.035, 12),
+      new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.3 })
+    );
+    p1Lead.position.y = 0.67;
+    pencil1.add(p1Lead);
+
+    pencil1.position.set(0.08, 0.68, -0.06);
+    pencil1.rotation.z = 0.22;
+    pencil1.rotation.x = -0.15;
+    cupGroup.add(pencil1);
+
+    // Instrument 3: Neon Pastel Highlighter
+    const highlighter = new THREE.Group();
+    const hlBody = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.042, 0.042, 0.95, 14),
+      new THREE.MeshStandardMaterial({ color: 0xa3e635, roughness: 0.35 })
+    );
+    highlighter.add(hlBody);
+
+    const hlCap = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.045, 0.045, 0.26, 14),
+      new THREE.MeshStandardMaterial({ color: 0x4d7c0f, roughness: 0.3 })
+    );
+    hlCap.position.y = 0.40;
+    highlighter.add(hlCap);
+
+    highlighter.position.set(0.12, 0.56, 0.08);
+    highlighter.rotation.z = 0.18;
+    highlighter.rotation.x = 0.14;
+    cupGroup.add(highlighter);
+
+    // Instrument 4: Wooden Study Ruler (15cm)
+    const ruler = new THREE.Mesh(
+      new THREE.BoxGeometry(0.12, 1.25, 0.015),
+      new THREE.MeshStandardMaterial({ color: 0xd97706, roughness: 0.45 })
+    );
+    ruler.position.set(-0.06, 0.70, -0.08);
+    ruler.rotation.z = -0.12;
+    ruler.rotation.y = 0.25;
+    cupGroup.add(ruler);
+
+    return cupGroup;
+  }
+
+  // --- 5. STICKY NOTES PAD WITH CURLED TOP SHEET ---
+  function createStickyNotePad() {
+    const padGroup = new THREE.Group();
+    padGroup.name = 'stickyNotes';
+
+    const yellowMat = new THREE.MeshStandardMaterial({
+      color: 0xfef08a,
+      roughness: 0.75
+    });
+
+    // Pad Stack Block
+    const padBase = new THREE.Mesh(new THREE.BoxGeometry(0.68, 0.05, 0.68), yellowMat);
+    padBase.position.y = 0.025;
+    padBase.castShadow = true;
+    padBase.receiveShadow = true;
+    padGroup.add(padBase);
+
+    // Top Sheet with Handwritten Study Formula Note
+    const noteCanvas = document.createElement('canvas');
+    noteCanvas.width = 256;
+    noteCanvas.height = 256;
+    const nCtx = noteCanvas.getContext('2d');
+    if (nCtx) {
+      nCtx.fillStyle = '#fef9c3';
+      nCtx.fillRect(0, 0, 256, 256);
+
+      nCtx.fillStyle = '#1e3a8a';
+      nCtx.font = 'bold 22px system-ui, sans-serif';
+      nCtx.fillText('Daily Goal: 240m', 24, 52);
+
+      nCtx.font = '18px system-ui, sans-serif';
+      nCtx.fillStyle = '#0f172a';
+      nCtx.fillText('★ 75% Target Done', 24, 95);
+      nCtx.fillText('• 15 Missed MCQs', 24, 135);
+      nCtx.fillText('• Deep Focus Only', 24, 175);
+
+      nCtx.fillStyle = '#dc2626';
+      nCtx.font = 'bold 20px system-ui, sans-serif';
+      nCtx.fillText('Keep Pushing! ✓', 24, 222);
+    }
+
+    const noteTex = new THREE.CanvasTexture(noteCanvas);
+    const topSheetMat = new THREE.MeshStandardMaterial({ map: noteTex, roughness: 0.65 });
+    const topSheet = new THREE.Mesh(new THREE.PlaneGeometry(0.66, 0.66), topSheetMat);
+    topSheet.rotation.x = -Math.PI / 2;
+    topSheet.position.set(0, 0.052, 0);
+    // Slight organic curl at bottom edge
+    topSheet.rotation.z = 0.06;
+    padGroup.add(topSheet);
+
+    return padGroup;
+  }
+
+  // --- 6. CERAMIC COFFEE MUG WITH SAUCER & LATTE ART ---
+  function createCoffeeMugAndSaucer() {
+    const mugGroup = new THREE.Group();
+    mugGroup.name = 'coffeeMug';
+
+    const ceramicMat = new THREE.MeshStandardMaterial({
+      color: 0xf8fafc,
+      roughness: 0.12,
+      metalness: 0.05
+    });
+
+    // Shallow Concave Porcelain Saucer Plate
+    const saucer = new THREE.Mesh(new THREE.CylinderGeometry(0.58, 0.46, 0.055, 32), ceramicMat);
+    saucer.position.y = 0.0275;
+    saucer.castShadow = true;
+    saucer.receiveShadow = true;
+    mugGroup.add(saucer);
+
+    const saucerLip = new THREE.Mesh(new THREE.TorusGeometry(0.56, 0.022, 16, 32), ceramicMat);
+    saucerLip.position.y = 0.055;
+    saucerLip.rotation.x = Math.PI / 2;
+    mugGroup.add(saucerLip);
+
+    // Mug Body (Slightly tapered cylinder with smooth beveled rim)
+    const mugBody = new THREE.Mesh(new THREE.CylinderGeometry(0.33, 0.26, 0.64, 32), ceramicMat);
+    mugBody.position.y = 0.37;
+    mugBody.castShadow = true;
+    mugBody.receiveShadow = true;
+    mugGroup.add(mugBody);
+
+    const mugRim = new THREE.Mesh(new THREE.TorusGeometry(0.33, 0.016, 16, 32), ceramicMat);
+    mugRim.position.y = 0.69;
+    mugRim.rotation.x = Math.PI / 2;
+    mugGroup.add(mugRim);
+
+    // Ergonomic 3D Curved Handle
+    const handle = new THREE.Mesh(new THREE.TorusGeometry(0.18, 0.042, 16, 24, Math.PI * 1.05), ceramicMat);
+    handle.position.set(-0.31, 0.36, 0);
+    handle.rotation.z = Math.PI / 2;
+    handle.rotation.y = Math.PI / 2;
+    mugGroup.add(handle);
+
+    // Hot Coffee Liquid with Latte Art Crema
+    const latteArtTex = createLatteArtTexture();
+    const coffeeMat = new THREE.MeshStandardMaterial({
+      map: latteArtTex,
+      roughness: 0.18,
+      metalness: 0.15
+    });
+    const coffee = new THREE.Mesh(new THREE.CylinderGeometry(0.31, 0.31, 0.02, 32), coffeeMat);
+    coffee.position.set(0, 0.64, 0);
+    mugGroup.add(coffee);
+
+    return mugGroup;
+  }
+
+  // --- MAIN PATIO AND 3D STUDY DESK OBJECTS ---
   function createPatioAndDeskObjects() {
     // Patio Floor
     const deckMat = new THREE.MeshStandardMaterial({ color: 0x17120e, roughness: 0.5 });
@@ -716,15 +1309,45 @@
     balconyGlass.name = 'glassPatioWindow';
     patioGroup.add(balconyGlass);
 
-    // Wooden Study Table Top
-    const tableTopMat = new THREE.MeshStandardMaterial({ color: 0x362217, roughness: 0.35, metalness: 0.05 });
-    const tableTop = new THREE.Mesh(new THREE.BoxGeometry(11, 0.35, 4.8), tableTopMat);
+    // --- 1. NATURAL WOOD STUDY TABLE TOP & DRAWERS ---
+    const woodTexture = createWoodDeskTexture();
+    const tableTopMat = new THREE.MeshStandardMaterial({
+      map: woodTexture,
+      roughness: 0.38,
+      metalness: 0.04
+    });
+
+    const tableTop = new THREE.Mesh(new THREE.BoxGeometry(11, 0.36, 4.8), tableTopMat);
     tableTop.position.set(0, 0, 0);
     tableTop.castShadow = true;
     tableTop.receiveShadow = true;
     deskGroup.add(tableTop);
 
-    // Desk Legs
+    // Beveled Edge Perimeter Trim (Catches ambient light highlights)
+    const bevelTrimMat = new THREE.MeshStandardMaterial({ color: 0x2e190e, roughness: 0.4 });
+    const bevelFront = new THREE.Mesh(new THREE.BoxGeometry(11.02, 0.05, 0.06), bevelTrimMat);
+    bevelFront.position.set(0, 0.18, 2.4);
+    deskGroup.add(bevelFront);
+
+    // Under-Desk Dual Drawer Unit (Right Side)
+    const drawerMat = new THREE.MeshStandardMaterial({ color: 0x2a170d, roughness: 0.45 });
+    const drawerCasing = new THREE.Mesh(new THREE.BoxGeometry(2.4, 1.25, 3.8), drawerMat);
+    drawerCasing.position.set(3.8, -0.72, 0.1);
+    drawerCasing.castShadow = true;
+    drawerCasing.receiveShadow = true;
+    deskGroup.add(drawerCasing);
+
+    // Brass Drawer Pull Handles
+    const brassHandleMat = new THREE.MeshStandardMaterial({ color: 0xd4af37, roughness: 0.25, metalness: 0.95 });
+    for (let d = 0; d < 2; d++) {
+      const handleY = -0.45 - d * 0.55;
+      const dHandle = new THREE.Mesh(new THREE.TorusGeometry(0.12, 0.02, 12, 20, Math.PI), brassHandleMat);
+      dHandle.position.set(3.8, handleY, 2.02);
+      dHandle.rotation.x = Math.PI / 2;
+      deskGroup.add(dHandle);
+    }
+
+    // Desk Legs (Matte Midnight Metal with Brass Foot Caps)
     const legMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.2, metalness: 0.85 });
     const leg1 = new THREE.Mesh(new THREE.BoxGeometry(0.35, 2.1, 4.2), legMat);
     leg1.position.set(-4.8, -1.15, 0);
@@ -736,7 +1359,7 @@
     deskGroup.add(leg2);
 
     // Luxury Leather Desk Mat / Blotter
-    const padMat = new THREE.MeshStandardMaterial({ color: 0x18181b, roughness: 0.65, metalness: 0.1 });
+    const padMat = new THREE.MeshStandardMaterial({ color: 0x18181b, roughness: 0.60, metalness: 0.1 });
     const deskPad = new THREE.Mesh(new THREE.BoxGeometry(7.6, 0.02, 3.2), padMat);
     deskPad.position.set(0.1, 0.19, 0.5);
     deskPad.receiveShadow = true;
@@ -751,83 +1374,164 @@
     padInner.position.set(0.1, 0.19, 0.5);
     deskGroup.add(padInner);
 
-    // Stacked Study Books on the Left
-    const bookCoverMat = new THREE.MeshStandardMaterial({ color: 0x854d0e, roughness: 0.6 });
+    // --- 2. THREE STACKED STUDY BOOKS WITH 3D CURVED SPINES ---
+    const pagesTextureMat = new THREE.MeshStandardMaterial({ color: 0xfbf8f1, roughness: 0.85 });
 
-    // Book 1 (Bottom Stacked)
-    const b1 = new THREE.Mesh(new THREE.BoxGeometry(1.5, 0.22, 2.1), bookCoverMat);
-    b1.position.set(-3.2, 0.28, 1.3);
-    b1.rotation.y = 0.12;
-    b1.castShadow = true;
-    deskGroup.add(b1);
+    // Book 1 (Bottom: Rich Burgundy Textured Leather)
+    const b1Group = new THREE.Group();
+    const b1CoverMat = new THREE.MeshStandardMaterial({ color: 0x4a1118, roughness: 0.45 });
+    const b1Pages = new THREE.Mesh(new THREE.BoxGeometry(1.48, 0.20, 2.06), pagesTextureMat);
+    b1Group.add(b1Pages);
+    const b1Spine = new THREE.Mesh(new THREE.CylinderGeometry(0.11, 0.11, 2.12, 16, 1, false, 0, Math.PI), b1CoverMat);
+    b1Spine.position.set(-0.74, 0, 0);
+    b1Spine.rotation.z = Math.PI / 2;
+    b1Group.add(b1Spine);
+    b1Group.position.set(-3.2, 0.29, 1.3);
+    b1Group.rotation.y = 0.12;
+    deskGroup.add(b1Group);
 
-    // Book 2 (Top Stacked with Gold Foil BCS Digest Cover)
+    // Book 2 (Middle: Forest Green Buckram Hardcover)
+    const b2Group = new THREE.Group();
+    const b2CoverMat = new THREE.MeshStandardMaterial({ color: 0x14532d, roughness: 0.55 });
+    const b2Pages = new THREE.Mesh(new THREE.BoxGeometry(1.45, 0.18, 2.04), pagesTextureMat);
+    b2Group.add(b2Pages);
+    const b2Spine = new THREE.Mesh(new THREE.CylinderGeometry(0.10, 0.10, 2.08, 16, 1, false, 0, Math.PI), b2CoverMat);
+    b2Spine.position.set(-0.72, 0, 0);
+    b2Spine.rotation.z = Math.PI / 2;
+    b2Group.add(b2Spine);
+    b2Group.position.set(-3.22, 0.48, 1.32);
+    b2Group.rotation.y = -0.05;
+    deskGroup.add(b2Group);
+
+    // Book 3 (Top: Midnight Navy BCS Digest with Gold Foil Cover)
+    const b3Group = new THREE.Group();
     const bookCoverTexture = createBookCoverTexture();
-    const b2Mat = new THREE.MeshStandardMaterial({
+    const b3Mat = new THREE.MeshStandardMaterial({
       map: bookCoverTexture,
-      roughness: 0.45,
+      roughness: 0.42,
       metalness: 0.1
     });
-    const b2 = new THREE.Mesh(new THREE.BoxGeometry(1.46, 0.2, 2.06), b2Mat);
-    b2.position.set(-3.22, 0.48, 1.32);
-    b2.rotation.y = -0.06;
-    b2.castShadow = true;
-    deskGroup.add(b2);
+    const b3 = new THREE.Mesh(new THREE.BoxGeometry(1.44, 0.18, 2.04), b3Mat);
+    b3.castShadow = true;
+    b3Group.add(b3);
+    b3Group.position.set(-3.21, 0.66, 1.31);
+    b3Group.rotation.y = 0.08;
+    deskGroup.add(b3Group);
 
-    // Red Silk Bookmark Ribbon
-    const ribbonMat = new THREE.MeshStandardMaterial({ color: 0xdc2626, roughness: 0.3 });
-    const ribbon = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.015, 0.4), ribbonMat);
-    ribbon.position.set(-3.2, 0.53, 2.38);
-    ribbon.rotation.x = 0.2;
+    // Red Silk Bookmark Ribbon Spilling from Top Book
+    const ribbonMat = new THREE.MeshStandardMaterial({ color: 0xdc2626, roughness: 0.28 });
+    const ribbon = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.015, 0.46), ribbonMat);
+    ribbon.position.set(-3.18, 0.76, 2.40);
+    ribbon.rotation.x = 0.22;
     deskGroup.add(ribbon);
 
-    // Sleek Open MacBook / Ultrabook Workspace Laptop
+    // --- 3. SLEEK ULTRABOOK WORKSPACE LAPTOP ---
     const laptop = createLaptopMesh();
     laptop.position.set(-1.4, 0.20, 0.45);
     laptop.rotation.y = 0.12;
     deskGroup.add(laptop);
 
-    // Open Spiral Study Notebook with Ruled Notes
+    // --- 4. CURVED OPEN STUDY NOTEBOOK WITH GRAPHITE PENCIL ---
     notebookMesh = new THREE.Group();
     notebookMesh.name = 'openNotebook';
 
-    const nbCoverMat = new THREE.MeshStandardMaterial({ color: 0x581c87, roughness: 0.4 });
+    const nbCoverMat = new THREE.MeshStandardMaterial({ color: 0x3b1261, roughness: 0.4 });
     const nbPageTexL = createNotebookPageTexture(true);
     const nbPageTexR = createNotebookPageTexture(false);
     const nbPageMatL = new THREE.MeshStandardMaterial({ map: nbPageTexL, roughness: 0.85 });
     const nbPageMatR = new THREE.MeshStandardMaterial({ map: nbPageTexR, roughness: 0.85 });
-    const spiralMat = new THREE.MeshStandardMaterial({ color: 0xd4d4d8, metalness: 0.9, roughness: 0.2 });
+    const spiralMat = new THREE.MeshStandardMaterial({ color: 0xd4af37, metalness: 0.95, roughness: 0.2 });
 
+    // Curved Pages (Gently arching up from outer edge to center spiral)
     const nbLeft = new THREE.Mesh(new THREE.BoxGeometry(1.22, 0.04, 1.72), nbCoverMat);
     nbLeft.position.set(-0.62, 0.2, 0);
+    nbLeft.rotation.z = 0.03;
     notebookMesh.add(nbLeft);
 
     const nbRight = new THREE.Mesh(new THREE.BoxGeometry(1.22, 0.04, 1.72), nbCoverMat);
     nbRight.position.set(0.62, 0.2, 0);
+    nbRight.rotation.z = -0.03;
     notebookMesh.add(nbRight);
 
     const nbPagesL = new THREE.Mesh(new THREE.BoxGeometry(1.18, 0.06, 1.66), nbPageMatL);
     nbPagesL.position.set(-0.6, 0.24, 0);
+    nbPagesL.rotation.z = 0.03;
     notebookMesh.add(nbPagesL);
 
     const nbPagesR = new THREE.Mesh(new THREE.BoxGeometry(1.18, 0.06, 1.66), nbPageMatR);
     nbPagesR.position.set(0.6, 0.24, 0);
+    nbPagesR.rotation.z = -0.03;
     notebookMesh.add(nbPagesR);
 
-    // Spiral Metal Rings
-    for (let sp = -0.72; sp <= 0.72; sp += 0.16) {
-      const ring = new THREE.Mesh(new THREE.TorusGeometry(0.065, 0.016, 12, 16), spiralMat);
+    // Gold Metal Spiral Rings
+    for (let sp = -0.74; sp <= 0.74; sp += 0.14) {
+      const ring = new THREE.Mesh(new THREE.TorusGeometry(0.068, 0.016, 12, 16), spiralMat);
       ring.position.set(0, 0.28, sp);
       ring.rotation.y = Math.PI / 2;
       notebookMesh.add(ring);
     }
+
+    // Wooden Graphite Pencil Resting in Notebook Gutter
+    const gutterPencil = new THREE.Group();
+    const gpBody = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.020, 0.020, 0.95, 6),
+      new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.35 })
+    );
+    gpBody.rotation.x = Math.PI / 2;
+    gutterPencil.add(gpBody);
+
+    const gpFerrule = new THREE.Mesh(new THREE.CylinderGeometry(0.022, 0.022, 0.07, 12), spiralMat);
+    gpFerrule.position.z = -0.48;
+    gpFerrule.rotation.x = Math.PI / 2;
+    gutterPencil.add(gpFerrule);
+
+    const gpEraser = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.021, 0.021, 0.06, 12),
+      new THREE.MeshStandardMaterial({ color: 0xf472b6, roughness: 0.6 })
+    );
+    gpEraser.position.z = -0.54;
+    gpEraser.rotation.x = Math.PI / 2;
+    gutterPencil.add(gpEraser);
+
+    const gpTip = new THREE.Mesh(
+      new THREE.ConeGeometry(0.020, 0.08, 12),
+      new THREE.MeshStandardMaterial({ color: 0xfef08a, roughness: 0.45 })
+    );
+    gpTip.position.z = 0.51;
+    gpTip.rotation.x = -Math.PI / 2;
+    gutterPencil.add(gpTip);
+
+    gutterPencil.position.set(-0.06, 0.29, 0.05);
+    notebookMesh.add(gutterPencil);
 
     notebookMesh.position.set(1.4, 0.0, 0.55);
     notebookMesh.rotation.y = -0.12;
     deskGroup.add(notebookMesh);
     mainBookMeshGroup = notebookMesh;
 
-    // 1. Digital Desk OLED Clock / Study Tablet
+    // --- 5. WIREFRAME READING GLASSES ---
+    const glasses = createReadingGlassesMesh();
+    glasses.position.set(0.18, 0.21, 1.72);
+    glasses.rotation.z = -0.18;
+    deskGroup.add(glasses);
+
+    // --- 6. YELLOW STICKY NOTE PAD ---
+    const stickyNotes = createStickyNotePad();
+    stickyNotes.position.set(-0.48, 0.20, 1.68);
+    stickyNotes.rotation.y = 0.15;
+    deskGroup.add(stickyNotes);
+
+    // --- 7. POTTED JADE SUCCULENT PLANT ---
+    const succulentPlant = createPottedSucculentPlant();
+    succulentPlant.position.set(3.9, 0.20, 0.82);
+    deskGroup.add(succulentPlant);
+
+    // --- 8. STATIONERY BRASS PEN CUP ---
+    const penCup = createStationeryPenCup();
+    penCup.position.set(2.65, 0.20, -0.65);
+    deskGroup.add(penCup);
+
+    // --- 9. DIGITAL DESK OLED CLOCK / STUDY TABLET ---
     const clockBodyMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.3, metalness: 0.85 });
     const clockFrame = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.82, 0.45), clockBodyMat);
     clockFrame.position.set(-3.6, 0.55, -0.6);
@@ -836,7 +1540,6 @@
     clockFrame.name = 'digitalClock';
     deskGroup.add(clockFrame);
 
-    // Beveled stand foot
     const clockFoot = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.04, 0.3), clockBodyMat);
     clockFoot.position.set(-3.6, 0.16, -0.55);
     clockFoot.rotation.y = 0.35;
@@ -858,7 +1561,7 @@
       clockCtx.fillStyle = '#060d17';
       clockCtx.fillRect(0, 0, 512, 320);
 
-      // Subtle cyan border
+      // Cyan neon border
       clockCtx.strokeStyle = 'rgba(56, 189, 248, 0.3)';
       clockCtx.lineWidth = 6;
       clockCtx.strokeRect(4, 4, 504, 312);
@@ -899,7 +1602,7 @@
     clockScreen.name = 'digitalClock';
     deskGroup.add(clockScreen);
 
-    // 2. Real Nordic / Architect Articulated Study Lamp
+    // --- 10. REAL NORDIC / ARCHITECT ARTICULATED STUDY LAMP WITH SPRINGS ---
     const lampGroup = new THREE.Group();
     lampGroup.name = 'deskLamp';
 
@@ -934,7 +1637,7 @@
       roughness: 0.1
     });
 
-    // Lamp Base (Two-tier weighted disc with brass bezel & rotary dial)
+    // Lamp Base
     const baseBottom = new THREE.Mesh(new THREE.CylinderGeometry(0.52, 0.56, 0.06, 32), lampMetalMat);
     baseBottom.position.set(3.4, 0.23, -0.2);
     baseBottom.castShadow = true;
@@ -972,6 +1675,16 @@
     rod2.rotation.z = -lowerAngleZ;
     rod2.castShadow = true;
     lampGroup.add(rod2);
+
+    // Architect Tension Springs on Lower Arm
+    const springMat = new THREE.MeshStandardMaterial({ color: 0x94a3b8, metalness: 0.9, roughness: 0.3 });
+    for (let s = 0; s < 2; s++) {
+      const springZ = s === 0 ? -0.23 : -0.17;
+      const spring = new THREE.Mesh(new THREE.CylinderGeometry(0.032, 0.032, 0.55, 12), springMat);
+      spring.position.set(3.30, 0.88, springZ);
+      spring.rotation.z = -lowerAngleZ;
+      lampGroup.add(spring);
+    }
 
     // Center Elbow Hinge
     const elbowHinge = new THREE.Mesh(new THREE.SphereGeometry(0.09, 16, 16), lampBrassMat);
@@ -1046,50 +1759,29 @@
     lampSpotLight.position.set(2.05, 1.65, 0.05);
     lampSpotLight.target = mainBookMeshGroup;
 
-    // 3. Ceramic Coffee Mug with Curved Handle & Liquid
-    const mugGroup = new THREE.Group();
-    const mugMat = new THREE.MeshStandardMaterial({ color: 0xf8fafc, roughness: 0.15 });
-    const mugBody = new THREE.Mesh(new THREE.CylinderGeometry(0.32, 0.26, 0.62, 32), mugMat);
-    mugBody.castShadow = true;
-    mugGroup.add(mugBody);
+    // --- 11. CERAMIC COFFEE MUG WITH SAUCER & LATTE ART ---
+    const coffeeMug = createCoffeeMugAndSaucer();
+    coffeeMug.position.set(-3.5, 0.18, 0.85);
+    deskGroup.add(coffeeMug);
 
-    const handle = new THREE.Mesh(new THREE.TorusGeometry(0.18, 0.045, 16, 24, Math.PI), mugMat);
-    handle.position.set(-0.31, 0, 0);
-    handle.rotation.z = Math.PI / 2;
-    handle.rotation.y = Math.PI / 2;
-    mugGroup.add(handle);
+    // --- 12. IMMERSIVE FOREGROUND STUDY CHAIR SILHOUETTE ---
+    const chairGroup = new THREE.Group();
+    const woodChairMat = new THREE.MeshStandardMaterial({ color: 0x3d2314, roughness: 0.35 });
+    const leatherBackMat = new THREE.MeshStandardMaterial({ color: 0x090d16, roughness: 0.6 });
 
-    const coffeeMat = new THREE.MeshStandardMaterial({ color: 0x1f1105, roughness: 0.1, metalness: 0.3 });
-    const coffee = new THREE.Mesh(new THREE.CylinderGeometry(0.29, 0.29, 0.02, 32), coffeeMat);
-    coffee.position.set(0, 0.26, 0);
-    mugGroup.add(coffee);
+    // Curved Bentwood Backrest
+    const chairBack = new THREE.Mesh(new THREE.CylinderGeometry(1.6, 1.6, 0.5, 32, 1, true, Math.PI * 0.7, Math.PI * 0.6), woodChairMat);
+    chairBack.position.set(0, 0.75, 4.4);
+    chairBack.rotation.y = Math.PI;
+    chairGroup.add(chairBack);
 
-    mugGroup.position.set(-3.5, 0.48, 0.8);
-    deskGroup.add(mugGroup);
+    // Leather Padded Center
+    const leatherPad = new THREE.Mesh(new THREE.CylinderGeometry(1.57, 1.57, 0.44, 32, 1, true, Math.PI * 0.75, Math.PI * 0.5), leatherBackMat);
+    leatherPad.position.set(0, 0.75, 4.4);
+    leatherPad.rotation.y = Math.PI;
+    chairGroup.add(leatherPad);
 
-    // 4. Sleek Metallic Study Pen in Front of Notebook
-    const penGroup = new THREE.Group();
-    const penBody = new THREE.Mesh(
-      new THREE.CylinderGeometry(0.024, 0.024, 1.2, 16),
-      new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.3, metalness: 0.85 })
-    );
-    penBody.rotation.x = Math.PI / 2;
-    penBody.castShadow = true;
-    penGroup.add(penBody);
-
-    const penCap = new THREE.Mesh(new THREE.CylinderGeometry(0.028, 0.028, 0.35, 16), lampBrassMat);
-    penCap.position.z = -0.45;
-    penCap.rotation.x = Math.PI / 2;
-    penGroup.add(penCap);
-
-    const penNib = new THREE.Mesh(new THREE.ConeGeometry(0.024, 0.08, 16), lampBrassMat);
-    penNib.position.z = 0.64;
-    penNib.rotation.x = -Math.PI / 2;
-    penGroup.add(penNib);
-
-    penGroup.position.set(2.2, 0.23, 1.45);
-    penGroup.rotation.y = 0.15;
-    deskGroup.add(penGroup);
+    deskGroup.add(chairGroup);
   }
 
   function initCoffeeSteam() {
@@ -1342,8 +2034,12 @@
         for (let i = 0; i < intersects.length; i++) {
           const obj = intersects[i].object;
 
-          if (obj.name === 'openNotebook' || obj.parent?.name === 'openNotebook') {
+          if (obj.name === 'openNotebook' || obj.parent?.name === 'openNotebook' || obj.parent?.parent?.name === 'openNotebook') {
             openWidget('natureTasksDrawer');
+            break;
+          }
+          if (obj.name === 'deskLaptop' || obj.parent?.name === 'deskLaptop' || obj.parent?.parent?.name === 'deskLaptop') {
+            toggleWidget('natureTimerWidget');
             break;
           }
           if (obj.name === 'deskLamp' || obj.parent?.name === 'deskLamp' || obj.parent?.parent?.name === 'deskLamp') {
@@ -1354,8 +2050,21 @@
             toggleWidget('natureCalendarWidget');
             break;
           }
+          if (obj.name === 'deskPlant' || obj.parent?.name === 'deskPlant' || obj.parent?.parent?.name === 'deskPlant') {
+            openWidget('natureAudioDrawer');
+            if (typeof showToast === 'function') showToast('🌿 Garden Sanctuary soundscape & calming audio opened.');
+            break;
+          }
+          if (obj.name === 'coffeeMug' || obj.parent?.name === 'coffeeMug' || obj.parent?.parent?.name === 'coffeeMug') {
+            if (typeof showToast === 'function') showToast('☕ Fresh hot coffee brewed! Stay focused and hydrated.');
+            break;
+          }
+          if (obj.name === 'stickyNotes' || obj.parent?.name === 'stickyNotes') {
+            openWidget('natureTasksDrawer');
+            break;
+          }
           if (obj.name === 'glassPatioWindow') {
-            setCameraMode('forest');
+            setCameraMode(state3D.activeCamMode === 'overview' ? 'forest' : 'overview');
             break;
           }
         }

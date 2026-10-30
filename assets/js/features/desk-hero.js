@@ -870,7 +870,13 @@ window.renderDeskHero = renderDeskHero;
 window.initDeskHero = initDeskHero;
 
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => setTimeout(initDeskHero, 120));
+  document.addEventListener('DOMContentLoaded', () => {
+    if (typeof initTopbarProfileControl === 'function') initTopbarProfileControl();
+    if (typeof syncTopbarProfileAvatar === 'function') syncTopbarProfileAvatar();
+    setTimeout(initDeskHero, 120);
+  });
 } else {
+  if (typeof initTopbarProfileControl === 'function') initTopbarProfileControl();
+  if (typeof syncTopbarProfileAvatar === 'function') syncTopbarProfileAvatar();
   setTimeout(initDeskHero, 120);
 }

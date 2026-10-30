@@ -10,7 +10,7 @@
       "firestore.rules",
       "package.json",
       "package-lock.json",
-      "serve.js",
+      "server.js",
       "scratch/**",
       "node_modules/**",
       ".git/**",

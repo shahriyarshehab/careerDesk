@@ -100,6 +100,9 @@ function activateTab(rawTabName, persist = false) {
   }
 
   if (tabName === 'profile') {
+    try { if (typeof renderDeskHero === 'function') renderDeskHero(); } catch (error) { }
+    try { if (typeof renderDeskAvatar === 'function') renderDeskAvatar(); } catch (error) { }
+    try { if (typeof syncTopbarProfileAvatar === 'function') syncTopbarProfileAvatar(); } catch (error) { }
     try { if (typeof renderUserProfileUI === 'function') renderUserProfileUI(); } catch (error) { console.error('[CareerDesk] renderUserProfileUI error:', error); }
     try { if (typeof initProfileCockpit === 'function') initProfileCockpit(); } catch (error) { console.error('[CareerDesk] initProfileCockpit error:', error); }
     try { if (typeof renderProfileAspirantHub === 'function') renderProfileAspirantHub(); } catch (error) { console.error('[CareerDesk] renderProfileAspirantHub error:', error); }
