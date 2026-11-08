@@ -85,14 +85,13 @@ function initCommandPalette() {
   let currentItems = [];
 
   const staticCommands = [
-    { id: 'tab-home', category: 'Navigation', icon: 'layout-dashboard', title: 'Go to Dashboard', subtitle: 'Overview, analytics & quick stats', action: () => activateTab('home', true) },
+    { id: 'tab-home', category: 'Navigation', icon: 'lamp-desk', title: 'Go to Desk', subtitle: 'Overview, analytics & quick stats', action: () => activateTab('home', true) },
     { id: 'tab-routine', category: 'Navigation', icon: 'calendar-check', title: 'Go to Rutine', subtitle: 'Daily study schedule', action: () => activateTab('routine', true) },
     { id: 'tab-tracker', category: 'Navigation', icon: 'timer', title: 'Go to Tracker & Focus', subtitle: 'Pomodoro timer & activity stats', action: () => activateTab('tracker', true) },
     { id: 'tab-quiz', category: 'Navigation', icon: 'brain', title: 'Go to BCS & Govt MCQ Quiz', subtitle: 'Practice randomized MCQs & model tests', action: () => activateTab('quiz', true) },
     { id: 'tab-countdown', category: 'Navigation', icon: 'calendar-clock', title: 'Go to Exam Targets', subtitle: 'Exam countdowns & milestones', action: () => activateTab('countdown', true) },
     { id: 'tab-syllabus', category: 'Navigation', icon: 'list-checks', title: 'Go to Syllabus', subtitle: 'BCS syllabus & topic progress', action: () => activateTab('syllabus', true) },
     { id: 'tab-subjects', category: 'Navigation', icon: 'layers', title: 'Open Subject Manager', subtitle: 'Manage subjects from Settings', action: () => { activateTab('settings', true); setTimeout(() => document.getElementById('profileSubjectsCockpitCard')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 120); } },
-    { id: 'tab-profile', category: 'Navigation', icon: 'user', title: 'Go to User Profile', subtitle: 'Personal profile, study track & subjects', action: () => activateTab('profile', true) },
     { id: 'tab-settings', category: 'Navigation', icon: 'settings-2', title: 'Go to Settings & Sync', subtitle: 'Workspace preferences, cloud sync & backups', action: () => activateTab('settings', true) },
     {
       id: 'act-pomodoro', category: 'Actions', icon: 'zap', title: 'Start 25m Pomodoro Focus', subtitle: 'Start 25-min deep focus session',
@@ -407,13 +406,12 @@ function initKeyboardShortcutsPanel() {
       group: 'Navigation',
       icon: 'compass',
       shortcuts: [
-        { keys: ['Alt', '1'], desc: 'Go to Home & Daily Routine', run: () => activateTab('home', true) },
+        { keys: ['Alt', '1'], desc: 'Go to Desk', run: () => activateTab('home', true) },
         { keys: ['Alt', '2'], desc: 'Go to Tracker & Focus', run: () => activateTab('tracker', true) },
         { keys: ['Alt', '3'], desc: 'Go to Quiz & Flashcards', run: () => activateTab('quiz', true) },
         { keys: ['Alt', '4'], desc: 'Go to Exam Targets', run: () => activateTab('countdown', true) },
         { keys: ['Alt', '5'], desc: 'Go to Syllabus', run: () => activateTab('syllabus', true) },
-        { keys: ['Alt', '6'], desc: 'Go to Profile', run: () => activateTab('profile', true) },
-        { keys: ['Alt', '7'], desc: 'Go to Settings & Sync', run: () => activateTab('settings', true) },
+        { keys: ['Alt', '6'], desc: 'Go to Settings & Sync', run: () => activateTab('settings', true) },
       ]
     },
     {
@@ -583,7 +581,7 @@ function initKeyboardShortcutsPanel() {
     }
     // Alt + Number = navigate tabs
     if (e.altKey && !e.ctrlKey && !e.metaKey) {
-      const tabMap = { '1': 'home', '2': 'tracker', '3': 'quiz', '4': 'countdown', '5': 'syllabus', '6': 'profile', '7': 'settings' };
+      const tabMap = { '1': 'home', '2': 'tracker', '3': 'quiz', '4': 'countdown', '5': 'syllabus', '6': 'settings' };
       if (tabMap[e.key]) { e.preventDefault(); activateTab(tabMap[e.key], true); }
     }
   });

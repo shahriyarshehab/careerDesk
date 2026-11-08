@@ -42,8 +42,8 @@
 
     <!-- Nav Menu Pills -->
     <nav class="tabs nav-menu" role="tablist" aria-label="Primary Navigation">
-      <button class="tab-btn nav-link active" data-tab="home" role="tab" aria-selected="true" title="Dashboard — Overview &amp; Analytics"
-        aria-label="Dashboard"><i data-lucide="layout-dashboard"></i><span>Dashboard</span></button>
+      <button class="tab-btn nav-link active" data-tab="home" role="tab" aria-selected="true" title="Desk — Overview &amp; Analytics"
+        aria-label="Desk"><i data-lucide="lamp-desk"></i><span>Desk</span></button>
       <button class="tab-btn nav-link" data-tab="routine" role="tab" aria-selected="false" title="Rutine — Daily Study Routine &amp; Schedule"
         aria-label="Rutine"><i data-lucide="calendar-days"></i><span>Rutine</span></button>
       <button class="tab-btn nav-link" data-tab="tracker" role="tab" aria-selected="false" title="Tracker &amp; Focus"
@@ -54,8 +54,6 @@
         aria-label="Exam Targets"><i data-lucide="calendar-clock"></i><span>Exams</span></button>
       <button class="tab-btn nav-link" data-tab="syllabus" role="tab" aria-selected="false" title="Syllabus"
         aria-label="Syllabus"><i data-lucide="list-checks"></i><span>Syllabus</span></button>
-      <button class="tab-btn nav-link" data-tab="profile" role="tab" aria-selected="false" title="Desk"
-        aria-label="Desk"><i data-lucide="lamp-desk"></i><span>Desk</span></button>
 
     </nav>
 
@@ -102,7 +100,7 @@
             <div><span>Goal</span><strong id="topbarPopoverGoal">4h</strong></div>
           </div>
           <div class="desk-popover-actions">
-            <button type="button" class="desk-popover-btn" id="topbarPopoverDeskBtn"><i data-lucide="layout-dashboard" style="width:13px;height:13px;display:inline-block;vertical-align:middle;margin-right:4px;"></i>Desk</button>
+            <button type="button" class="desk-popover-btn" id="topbarPopoverDeskBtn"><i data-lucide="lamp-desk" style="width:13px;height:13px;display:inline-block;vertical-align:middle;margin-right:4px;"></i>Desk</button>
             <button type="button" class="desk-popover-btn subtle" id="topbarPopoverSettingsBtn"><i data-lucide="settings" style="width:13px;height:13px;display:inline-block;vertical-align:middle;margin-right:4px;"></i>Settings</button>
             <button type="button" class="desk-popover-btn danger" id="topbarPopoverSignOutBtn"><i data-lucide="log-out" style="width:13px;height:13px;display:inline-block;vertical-align:middle;margin-right:4px;"></i>Log out</button>
           </div>
@@ -128,8 +126,8 @@
   </header>
 
   <nav class="mobile-dock" aria-label="Mobile navigation">
-    <button class="tab-btn nav-link" data-tab="home" type="button" aria-label="Dashboard" aria-current="page">
-      <i data-lucide="layout-dashboard" aria-hidden="true"></i><span>Home</span>
+    <button class="tab-btn nav-link" data-tab="home" type="button" aria-label="Desk" aria-current="page">
+      <i data-lucide="lamp-desk" aria-hidden="true"></i><span>Desk</span>
     </button>
     <button class="tab-btn nav-link" data-tab="routine" type="button" aria-label="Routine">
       <i data-lucide="calendar-days" aria-hidden="true"></i><span>Routine</span>
@@ -151,9 +149,6 @@
   <nav class="mobile-more-menu" id="mobileMoreMenu" aria-label="More sections" hidden>
     <button class="tab-btn mobile-more-link" data-tab="countdown" type="button">
       <i data-lucide="calendar-clock" aria-hidden="true"></i><span>Exam targets</span>
-    </button>
-    <button class="tab-btn mobile-more-link" data-tab="profile" type="button">
-      <i data-lucide="user" aria-hidden="true"></i><span>Desk</span>
     </button>
     <button class="tab-btn mobile-more-link" data-tab="settings" type="button">
       <i data-lucide="settings-2" aria-hidden="true"></i><span>Settings &amp; sync</span>
@@ -895,10 +890,6 @@
       </div>
     </section>
 
-    <!-- ===== USER PROFILE / DESK ===== -->
-    <section class="panel" id="panel-profile" aria-label="Aspirant Desk">
-      <div id="profileAspirantHub" class="aspirant-hub-container"></div>
-    </section>
 
     <section class="panel settings-center-panel" id="panel-settings" aria-labelledby="settingsCenterTitle">
       <header class="settings-center-header">

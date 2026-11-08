@@ -2,15 +2,13 @@
 
 function normalizeTabName(tabName) {
   if (!tabName) return 'home';
-  if (tabName === 'dashboard') return 'home';
-  // The Desk is the former profile panel; '#desk' is its public route.
-  if (tabName === 'desk') return 'profile';
+  if (tabName === 'dashboard' || tabName === 'desk' || tabName === 'profile') return 'home';
   if (tabName === 'routine' || tabName === 'rutine') return 'routine';
   if (tabName === 'flashcards' || tabName === 'quiz' || tabName === 'mcq') return 'quiz';
   if (tabName === 'exams') return 'countdown';
   // Subject manager now lives inside Settings.
   if (tabName === 'subjects') return 'settings';
-  if (tabName === 'auth' || tabName === 'login' || tabName === 'signup' || tabName === 'register') return 'profile';
+  if (tabName === 'auth' || tabName === 'login' || tabName === 'signup' || tabName === 'register') return 'settings';
   return tabName;
 }
 
@@ -84,7 +82,7 @@ function activateTab(rawTabName, persist = false) {
   if (persist) {
     try { localStorage.setItem(ACTIVE_TAB_KEY, tabName); } catch (error) { }
     try {
-      const hashName = tabName === 'profile' ? 'desk' : tabName;
+      const hashName = tabName === 'home' ? 'desk' : tabName;
       if (window.location.hash !== '#' + hashName) history.replaceState(null, '', '#' + hashName);
     } catch (error) { }
   }
@@ -98,18 +96,8 @@ function activateTab(rawTabName, persist = false) {
     renderHomeDashboard();
   }
 
-  if (tabName === 'profile') {
-    try { if (typeof renderDeskHero === 'function') renderDeskHero(); } catch (error) { }
-    try { if (typeof renderDeskAvatar === 'function') renderDeskAvatar(); } catch (error) { }
-    try { if (typeof syncTopbarProfileAvatar === 'function') syncTopbarProfileAvatar(); } catch (error) { }
-    try { if (typeof renderUserProfileUI === 'function') renderUserProfileUI(); } catch (error) { console.error('[CareerDesk] renderUserProfileUI error:', error); }
-    try { if (typeof initProfileCockpit === 'function') initProfileCockpit(); } catch (error) { console.error('[CareerDesk] initProfileCockpit error:', error); }
-    try { if (typeof renderProfileAspirantHub === 'function') renderProfileAspirantHub(); } catch (error) { console.error('[CareerDesk] renderProfileAspirantHub error:', error); }
-    try { if (typeof renderSecurityVaultUI === 'function') renderSecurityVaultUI(); } catch (error) { console.error('[CareerDesk] renderSecurityVaultUI error:', error); }
-    try { renderQuoteManager(); } catch (error) { console.error('[CareerDesk] renderQuoteManager error:', error); }
-    if ((rawTabName === 'login' || rawTabName === 'signup') && typeof openAuthModal === 'function') {
-      openAuthModal(rawTabName === 'signup' ? 'signup' : 'login');
-    }
+  if ((rawTabName === 'login' || rawTabName === 'signup') && typeof openAuthModal === 'function') {
+    openAuthModal(rawTabName === 'signup' ? 'signup' : 'login');
   }
 
   if (tabName === 'settings') {

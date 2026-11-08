@@ -179,8 +179,6 @@ suite('HTML Semantic Layout & Core DOM Elements', () => {
     'panel-countdown',
     'panel-quiz',
     'panel-syllabus',
-    'panel-profile',
-    'profileAspirantHub',
     'panel-settings'
   ];
 
