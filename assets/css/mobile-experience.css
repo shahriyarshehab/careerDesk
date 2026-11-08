@@ -630,9 +630,9 @@
 
   .mobile-dock .tab-btn.active,
   .mobile-dock .mobile-more-trigger.active {
-    border-color: color-mix(in srgb, var(--cd-primary, #f59e0b) 26%, transparent) !important;
-    background: color-mix(in srgb, var(--cd-primary, #f59e0b) 15%, transparent) !important;
-    color: var(--cd-primary, #fcd34d) !important;
+    border-color: color-mix(in srgb, var(--cd-primary, #6366f1) 26%, transparent) !important;
+    background: color-mix(in srgb, var(--cd-primary, #6366f1) 15%, transparent) !important;
+    color: var(--cd-primary, #818cf8) !important;
   }
 
   .mobile-more-trigger {
@@ -685,7 +685,7 @@
     flex: 0 0 18px;
     width: 18px;
     height: 18px;
-    color: var(--cd-primary, #fcd34d);
+    color: var(--cd-primary, #818cf8);
   }
 
   .mobile-more-menu .mobile-more-link span {

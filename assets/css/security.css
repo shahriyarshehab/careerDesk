@@ -28,7 +28,7 @@ html[data-theme="light"] .security-vault-card {
   width: 220px;
   height: 220px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(16, 185, 129, 0.15) 0%, rgba(249, 115, 22, 0.05) 70%, transparent 100%);
+  background: radial-gradient(circle, rgba(16, 185, 129, 0.15) 0%, rgba(6, 182, 212, 0.05) 70%, transparent 100%);
   pointer-events: none;
   filter: blur(28px);
 }
@@ -52,7 +52,7 @@ html[data-theme="light"] .security-vault-card {
   width: 38px;
   height: 38px;
   border-radius: 12px;
-  background: linear-gradient(135deg, #10b981, #f97316);
+  background: linear-gradient(135deg, #10b981, #06b6d4);
   color: #fff;
   display: flex;
   align-items: center;
@@ -123,13 +123,13 @@ html[data-theme="light"] .security-audit-item {
 }
 
 .audit-item-icon.shield {
-  background: rgba(249, 115, 22, 0.15);
-  color: #f97316;
+  background: rgba(6, 182, 212, 0.15);
+  color: #06b6d4;
 }
 
 .audit-item-icon.lock {
-  background: rgba(245, 158, 11, 0.15);
-  color: #f59e0b;
+  background: rgba(99, 102, 241, 0.15);
+  color: #6366f1;
 }
 
 .audit-item-icon.tamper {
@@ -172,9 +172,9 @@ html[data-theme="light"] .security-audit-item {
 }
 
 .security-badge.ready {
-  background: rgba(249, 115, 22, 0.15);
-  color: #f97316;
-  border: 1px solid rgba(249, 115, 22, 0.35);
+  background: rgba(6, 182, 212, 0.15);
+  color: #06b6d4;
+  border: 1px solid rgba(6, 182, 212, 0.35);
 }
 
 /* Security Action Bar */
@@ -258,7 +258,7 @@ html[data-theme="light"] .security-audit-item {
   width: 58px;
   height: 58px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #10b981, #f97316);
+  background: linear-gradient(135deg, #10b981, #06b6d4);
   color: #fff;
   display: flex;
   align-items: center;

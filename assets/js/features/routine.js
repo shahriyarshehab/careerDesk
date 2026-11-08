@@ -268,7 +268,7 @@ function updateRoutineSyllabusAction(row, button) {
 }
 
 function routineRowHtml(row) {
-  const meta = typeof getSubjectMeta === 'function' ? getSubjectMeta(row.subject) : { color: '#f59e0b', icon: 'book-open' };
+  const meta = typeof getSubjectMeta === 'function' ? getSubjectMeta(row.subject) : { color: '#6366f1', icon: 'book-open' };
   const topicAdded = routineTopicIsInSyllabus(row);
   const taskReady = !!String(row.subject || '').trim() && !!String(row.task || '').trim();
   return `
@@ -306,7 +306,7 @@ function renderTrackerRoutinePreview() {
 
   const max = Math.max(...entries.map(([, min]) => min));
   const rowsHtml = entries.map(([subj, min]) => {
-    const meta = typeof getSubjectMeta === 'function' ? getSubjectMeta(subj) : { color: '#f59e0b', icon: 'book-open' };
+    const meta = typeof getSubjectMeta === 'function' ? getSubjectMeta(subj) : { color: '#6366f1', icon: 'book-open' };
     return `
       <div class="tracker-routine-item">
         <div class="tracker-routine-details">

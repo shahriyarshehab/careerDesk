@@ -141,7 +141,7 @@ All subjects across **Routine**, **Tracker & Focus**, **Syllabus**, and **Quizze
 ### Color Palette & Theme Tokens
 - Dark Mode: Surface background `#0b0f19`, cards `rgba(255, 255, 255, 0.04)`, border `rgba(255, 255, 255, 0.08)`, strong surface `#0f172a`.
 - Light Mode: Controlled via `html[data-theme="light"]`. Clean white cards, light borders (`#e2e8f0`), soft slate text.
-- Accent Gradients: Primary amber/gold gradient (`var(--accent1): #FBBF24`, `var(--accent2): #FB923C`).
+- Accent Gradients: Primary cyan/indigo gradient (`var(--accent1): #6366f1`, `var(--accent2): #06b6d4`).
 
 ### Universal Component Classes (`assets/css/components.css`)
 - **`.btn-group`**: Universal segmented button group with unified `border-radius: 9px`, subtle outer border, and seamless child divider borders.

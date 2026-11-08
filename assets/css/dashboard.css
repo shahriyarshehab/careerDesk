@@ -38,8 +38,8 @@
   font-size: 11px;
   font-weight: 700;
   color: var(--cdp-cyan-500);
-  background: rgba(249, 115, 22, 0.1);
-  border: 1px solid rgba(249, 115, 22, 0.22);
+  background: rgba(6, 182, 212, 0.1);
+  border: 1px solid rgba(6, 182, 212, 0.22);
   padding: 3px 10px;
   border-radius: 20px;
 }
@@ -90,10 +90,10 @@
   height: 18px;
 }
 
-.db-kpi--time .db-kpi-icon   { color: #fb923c; background: radial-gradient(circle at 35% 35%, rgba(249, 115, 22, 0.32), rgba(249, 115, 22, 0.08)); border: 1px solid rgba(249, 115, 22, 0.38); box-shadow: 0 0 16px rgba(249, 115, 22, 0.28); }
+.db-kpi--time .db-kpi-icon   { color: #22d3ee; background: radial-gradient(circle at 35% 35%, rgba(6, 182, 212, 0.32), rgba(6, 182, 212, 0.08)); border: 1px solid rgba(6, 182, 212, 0.38); box-shadow: 0 0 16px rgba(6, 182, 212, 0.28); }
 .db-kpi--tasks .db-kpi-icon  { color: #34d399; background: radial-gradient(circle at 35% 35%, rgba(16, 185, 129, 0.32), rgba(16, 185, 129, 0.08)); border: 1px solid rgba(16, 185, 129, 0.38); box-shadow: 0 0 16px rgba(16, 185, 129, 0.28); }
 .db-kpi--streak .db-kpi-icon { color: #fbbf24; background: radial-gradient(circle at 35% 35%, rgba(245, 158, 11, 0.32), rgba(245, 158, 11, 0.08)); border: 1px solid rgba(245, 158, 11, 0.38); box-shadow: 0 0 16px rgba(245, 158, 11, 0.28); }
-.db-kpi--score .db-kpi-icon  { color: #fde68a; background: radial-gradient(circle at 35% 35%, rgba(245, 158, 11, 0.32), rgba(245, 158, 11, 0.08)); border: 1px solid rgba(245, 158, 11, 0.38); box-shadow: 0 0 16px rgba(245, 158, 11, 0.28); }
+.db-kpi--score .db-kpi-icon  { color: #a5b4fc; background: radial-gradient(circle at 35% 35%, rgba(99, 102, 241, 0.32), rgba(99, 102, 241, 0.08)); border: 1px solid rgba(99, 102, 241, 0.38); box-shadow: 0 0 16px rgba(99, 102, 241, 0.28); }
 
 .db-kpi-main {
   display: flex;
@@ -141,7 +141,7 @@ html[data-theme="light"] .db-kpi-num {
 .bar-cyan    { background: linear-gradient(90deg, var(--cdp-cyan-500), var(--cdp-brand-500)); }
 .bar-emerald { background: linear-gradient(90deg, var(--cdp-success-strong), var(--cdp-cyan-500)); }
 .bar-amber   { background: linear-gradient(90deg, var(--cdp-warning-strong), var(--cdp-danger-strong)); }
-.bar-blue    { background: linear-gradient(90deg, #f59e0b, #f97316); }
+.bar-blue    { background: linear-gradient(90deg, #6366f1, #8b5cf6); }
 
 /* ══════════════════════════════════════════════════════════════════════════
    4. TWO-COLUMN CORE WORKSPACES (TODAY'S PLAN + FOCUS TIMER)
@@ -216,7 +216,7 @@ html[data-theme="light"] .db-kpi-num {
 }
 
 .db-action-link:hover {
-  background: rgba(245, 158, 11, 0.2);
+  background: rgba(99, 102, 241, 0.2);
   color: #ffffff;
   transform: translateX(2px);
 }
@@ -230,8 +230,8 @@ html[data-theme="light"] .db-kpi-num {
   font-size: 11px;
   font-weight: 700;
   color: var(--cdp-cyan-500);
-  background: rgba(249, 115, 22, 0.1);
-  border: 1px solid rgba(249, 115, 22, 0.22);
+  background: rgba(6, 182, 212, 0.1);
+  border: 1px solid rgba(6, 182, 212, 0.22);
   padding: 3px 10px;
   border-radius: 20px;
 }
@@ -305,10 +305,10 @@ html[data-theme="light"] .db-kpi-num {
 }
 
 .db-status--active {
-  color: #fbbf24;
-  background: rgba(249, 115, 22, 0.16);
-  border: 1px solid rgba(249, 115, 22, 0.35);
-  box-shadow: 0 0 10px rgba(249, 115, 22, 0.25);
+  color: #38bdf8;
+  background: rgba(6, 182, 212, 0.16);
+  border: 1px solid rgba(6, 182, 212, 0.35);
+  box-shadow: 0 0 10px rgba(6, 182, 212, 0.25);
   animation: dbStatusGlow 2s ease-in-out infinite;
 }
 
@@ -320,7 +320,7 @@ html[data-theme="light"] .db-kpi-num {
 
 @keyframes dbStatusGlow {
   0%, 100% { opacity: 0.85; }
-  50% { opacity: 1; filter: drop-shadow(0 0 4px #fbbf24); }
+  50% { opacity: 1; filter: drop-shadow(0 0 4px #38bdf8); }
 }
 
 .db-empty-plan {
@@ -369,9 +369,9 @@ html[data-theme="light"] .db-kpi-num {
 }
 
 .db-timer-mode-btn.active {
-  background: linear-gradient(135deg, #f59e0b, #f97316);
+  background: linear-gradient(135deg, #6366f1, #06b6d4);
   color: #ffffff;
-  box-shadow: 0 4px 14px rgba(245, 158, 11, 0.42), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  box-shadow: 0 4px 14px rgba(99, 102, 241, 0.42), inset 0 1px 0 rgba(255, 255, 255, 0.3);
 }
 
 /* Water bubble that slides from the switch that was on to the one just picked.
@@ -379,7 +379,7 @@ html[data-theme="light"] .db-kpi-num {
    copied from the new switch by slideTimerSwitchBubble() in core.js. */
 .db-timer-bubble {
   border-radius: 5px;
-  background: linear-gradient(135deg, #f59e0b, #f97316);
+  background: linear-gradient(135deg, #6366f1, #06b6d4);
 }
 
 .db-timer-mode-btn[hidden],
@@ -425,8 +425,8 @@ html[data-theme="light"] .db-kpi-num {
   display: grid;
   place-items: center;
   border-radius: 50%;
-  background: radial-gradient(circle at 50% 50%, rgba(245, 158, 11, 0.12) 0%, rgba(249, 115, 22, 0.04) 50%, transparent 72%);
-  filter: drop-shadow(0 0 18px rgba(249, 115, 22, 0.18));
+  background: radial-gradient(circle at 50% 50%, rgba(99, 102, 241, 0.12) 0%, rgba(6, 182, 212, 0.04) 50%, transparent 72%);
+  filter: drop-shadow(0 0 18px rgba(6, 182, 212, 0.18));
 }
 
 .db-timer-svg {
@@ -466,7 +466,7 @@ html[data-theme="light"] .db-kpi-num {
 .db-timer-subject-row input:focus-visible,
 .db-timer-mode-btn:focus-visible,
 .db-timer-btn-start:focus-visible {
-  outline: 2px solid var(--accent2, #f97316);
+  outline: 2px solid var(--accent2, #06b6d4);
   outline-offset: 2px;
 }
 
@@ -496,7 +496,7 @@ html[data-theme="light"] .db-kpi-num {
 
 .db-timer-btn-start:hover {
   transform: translateY(-2px);
-  box-shadow: 0 12px 28px rgba(249, 115, 22, 0.45);
+  box-shadow: 0 12px 28px rgba(6, 182, 212, 0.45);
 }
 
 .db-timer-btn-stop {
@@ -686,7 +686,7 @@ html[data-theme="light"] .db-timer-modes {
 .db-timer-btn-start {
   min-height: 44px;
   border-radius: 12px;
-  background: linear-gradient(115deg, #f59e0b, #ea580c);
+  background: linear-gradient(115deg, #6366f1, #0891b2);
   box-shadow: 0 8px 20px rgba(6,182,212,.2);
 }
 
@@ -783,7 +783,7 @@ html[data-theme="light"] .db-plan-row {
   overflow-y: auto;
   overscroll-behavior: contain;
   scrollbar-width: thin;
-  scrollbar-color: color-mix(in srgb, var(--accent1, #f59e0b) 35%, transparent) transparent;
+  scrollbar-color: color-mix(in srgb, var(--accent1, #6366f1) 35%, transparent) transparent;
 }
 
 .db-plan-row {
@@ -873,7 +873,7 @@ html[data-theme="light"] .db-plan-row {
   transition: box-shadow .45s ease;
 }
 
-.db-timer-ring-container.is-running { box-shadow: 0 0 26px rgba(249, 115, 22, .14); }
+.db-timer-ring-container.is-running { box-shadow: 0 0 26px rgba(6, 182, 212, .14); }
 .db-timer-ring-container.is-complete { box-shadow: 0 0 26px rgba(16, 185, 129, .18); }
 
 .db-timer-svg {
@@ -899,11 +899,11 @@ html[data-theme="light"] .db-plan-row {
   stroke-dasharray: 515.22;
   stroke-dashoffset: 515.22;
   transition: stroke-dashoffset .45s linear;
-  filter: drop-shadow(0 0 6px rgba(249, 115, 22, .26));
+  filter: drop-shadow(0 0 6px rgba(6, 182, 212, .26));
 }
 
 .db-timer-ring-container.is-running .db-timer-progress {
-  filter: drop-shadow(0 0 8px rgba(249, 115, 22, .4));
+  filter: drop-shadow(0 0 8px rgba(6, 182, 212, .4));
 }
 
 .db-timer-center-content {

@@ -81,7 +81,7 @@ function renderProfileAspirantHub() {
     const topClassSubs = (classObj.subjects || []).filter(s => !deletedPillarSet.has(canonicalSubjectName(s).toLowerCase())).slice(0, 4);
     primaryPillars = topClassSubs.map(s => {
       const canon = canonicalSubjectName(s);
-      const meta = typeof getSubjectMeta === 'function' ? getSubjectMeta(canon) : { bn: canon, color: '#f59e0b' };
+      const meta = typeof getSubjectMeta === 'function' ? getSubjectMeta(canon) : { bn: canon, color: '#6366f1' };
       const displayName = typeof getSubjectDisplayName === 'function' ? getSubjectDisplayName(canon, currentLang) : (currentLang === 'bn' ? meta.bn : canon);
       return {
         name: canon,
@@ -95,7 +95,7 @@ function renderProfileAspirantHub() {
     // Exactly the 4 foundational core subjects for Job Seekers (filtered by deletedSubjects)
     primaryPillars = [
       { name: 'Bangla', displayName: currentLang === 'bn' ? 'বাংলা' : 'Bangla', bn: 'বাংলা', color: '#ec4899', bg: 'rgba(236, 72, 153, 0.12)' },
-      { name: 'English', displayName: currentLang === 'bn' ? 'ইংরেজি' : 'English', bn: 'ইংরেজি', color: '#f97316', bg: 'rgba(249, 115, 22, 0.12)' },
+      { name: 'English', displayName: currentLang === 'bn' ? 'ইংরেজি' : 'English', bn: 'ইংরেজি', color: '#06b6d4', bg: 'rgba(6, 182, 212, 0.12)' },
       { name: 'Mathematics', displayName: currentLang === 'bn' ? 'গণিত' : 'Mathematics', bn: 'গণিত', color: '#10b981', bg: 'rgba(16, 185, 129, 0.12)' },
       { name: 'General Knowledge', displayName: currentLang === 'bn' ? 'সাধারণ জ্ঞান' : 'General Knowledge', bn: 'সাধারণ জ্ঞান', color: '#f59e0b', bg: 'rgba(245, 158, 11, 0.12)' }
     ].filter(p => !deletedPillarSet.has(canonicalSubjectName(p.name).toLowerCase()));

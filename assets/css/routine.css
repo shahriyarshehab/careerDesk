@@ -50,7 +50,7 @@
      the accent, so the row being read stands apart from the plain ones. */
   table.routine tbody tr:hover {
     background: var(--surface-hover);
-    box-shadow: 0 10px 26px -14px var(--border-glow, rgba(245, 158, 11, .42));
+    box-shadow: 0 10px 26px -14px var(--border-glow, rgba(99, 102, 241, .42));
   }
 
   table.routine tbody tr:hover td {
@@ -213,7 +213,7 @@
   }
 
   #inlineAddRowBtn {
-    box-shadow: 0 8px 20px rgba(245, 158, 11, 0.22);
+    box-shadow: 0 8px 20px rgba(99, 102, 241, 0.22);
   }
 
   #resetRoutineBtn {
@@ -314,7 +314,7 @@
     transform: translateY(-2px);
     border-color: var(--accent1);
     background: var(--surface-hover);
-    box-shadow: 0 4px 14px rgba(245, 158, 11, 0.16);
+    box-shadow: 0 4px 14px rgba(99, 102, 241, 0.16);
   }
 
   button.pill.solid,
@@ -322,12 +322,12 @@
     background: linear-gradient(135deg, var(--accent1), var(--accent2));
     color: #fff;
     border-color: transparent;
-    box-shadow: 0 4px 16px rgba(245, 158, 11, 0.32);
+    box-shadow: 0 4px 16px rgba(99, 102, 241, 0.32);
   }
 
   button.pill.solid:hover,
   .pill.solid:hover {
-    box-shadow: 0 6px 20px rgba(245, 158, 11, 0.42);
+    box-shadow: 0 6px 20px rgba(99, 102, 241, 0.42);
     transform: translateY(-2px);
   }
 
@@ -458,7 +458,7 @@ html[data-theme="light"] .routine-table-reset-btn:hover {
   background: linear-gradient(135deg, var(--accent1), var(--accent2));
   color: #ffffff;
   border: 2px solid var(--surface-strong);
-  box-shadow: 0 4px 16px rgba(245, 158, 11, 0.4);
+  box-shadow: 0 4px 16px rgba(99, 102, 241, 0.4);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -479,7 +479,7 @@ html[data-theme="light"] .routine-table-reset-btn:hover {
 
 .routine-floating-add-circle:hover {
   transform: scale(1.15) translateY(-2px);
-  box-shadow: 0 6px 24px rgba(245, 158, 11, 0.6);
+  box-shadow: 0 6px 24px rgba(99, 102, 241, 0.6);
 }
 
 .routine-floating-add-circle:active {

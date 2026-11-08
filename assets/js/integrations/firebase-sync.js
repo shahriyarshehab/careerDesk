@@ -1922,12 +1922,12 @@ function renderUserProfileUI() {
     const localPhone = extractLocalBdPhone(effectivePhone);
 
     const presets = [
-      { label: 'Scholar', emoji: '🎓', bg: 'linear-gradient(135deg, #f59e0b, #3b82f6)' },
-      { label: 'Cyber Prodigy', emoji: '⚡', bg: 'linear-gradient(135deg, #f97316, #3b82f6)' },
+      { label: 'Scholar', emoji: '🎓', bg: 'linear-gradient(135deg, #6366f1, #3b82f6)' },
+      { label: 'Cyber Prodigy', emoji: '⚡', bg: 'linear-gradient(135deg, #06b6d4, #3b82f6)' },
       { label: 'Focus Master', emoji: '🎯', bg: 'linear-gradient(135deg, #10b981, #059669)' },
       { label: 'Night Owl', emoji: '🦉', bg: 'linear-gradient(135deg, #8b5cf6, #ec4899)' },
       { label: 'Visionary', emoji: '🚀', bg: 'linear-gradient(135deg, #f59e0b, #ef4444)' },
-      { label: 'Memory Ace', emoji: '🧠', bg: 'linear-gradient(135deg, #f97316, #10b981)' }
+      { label: 'Memory Ace', emoji: '🧠', bg: 'linear-gradient(135deg, #06b6d4, #10b981)' }
     ];
 
     container.innerHTML = `
@@ -2114,8 +2114,8 @@ function renderUserProfileUI() {
         const ctx = canvas.getContext('2d');
 
         const grad = ctx.createLinearGradient(0, 0, 160, 160);
-        grad.addColorStop(0, '#f59e0b');
-        grad.addColorStop(1, '#f97316');
+        grad.addColorStop(0, '#6366f1');
+        grad.addColorStop(1, '#06b6d4');
         ctx.fillStyle = grad;
         ctx.fillRect(0, 0, 160, 160);
 
@@ -2523,7 +2523,7 @@ function renderAuthPageUI() {
     container.innerHTML = `
       <div class="auth-card">
         <div class="auth-card-hero">
-          <div class="auth-hero-icon-wrap" style="background:linear-gradient(135deg, #10b981, #f97316);">
+          <div class="auth-hero-icon-wrap" style="background:linear-gradient(135deg, #10b981, #06b6d4);">
             <i data-lucide="check-circle-2" style="width:28px; height:28px;"></i>
           </div>
           <h2 class="auth-card-title">You're Signed In</h2>

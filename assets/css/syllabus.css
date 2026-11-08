@@ -70,8 +70,8 @@
     border: 1px solid rgba(103, 232, 249, .28);
     border-radius: 18px;
     color: var(--accent2);
-    background: linear-gradient(145deg, rgba(245, 158, 11, .18), rgba(249, 115, 22, .13));
-    box-shadow: 0 14px 36px rgba(249, 115, 22, .12);
+    background: linear-gradient(145deg, rgba(99, 102, 241, .18), rgba(6, 182, 212, .13));
+    box-shadow: 0 14px 36px rgba(6, 182, 212, .12);
   }
 
   .syllabus-head-mark svg { width: 25px; height: 25px; }
@@ -90,8 +90,8 @@
     margin-bottom: 0;
     border: 1px solid rgba(103, 232, 249, .16);
     background:
-      radial-gradient(circle at 90% 0%, rgba(249, 115, 22, .14), transparent 36%),
-      linear-gradient(135deg, rgba(245, 158, 11, .10), rgba(255, 255, 255, .025));
+      radial-gradient(circle at 90% 0%, rgba(6, 182, 212, .14), transparent 36%),
+      linear-gradient(135deg, rgba(99, 102, 241, .10), rgba(255, 255, 255, .025));
   }
 
   .syllabus-overall::after {
@@ -146,7 +146,7 @@
   .syllabus-progress-track .progress-fill {
     border-radius: inherit;
     background: linear-gradient(90deg, var(--accent1), var(--accent2));
-    box-shadow: 0 0 18px rgba(249, 115, 22, .35);
+    box-shadow: 0 0 18px rgba(6, 182, 212, .35);
   }
 
   .syllabus-progress-foot {
@@ -484,7 +484,7 @@
   }
 
   .cat-del-menu-item.item-topics {
-    color: #fbbf24 !important;
+    color: #38bdf8 !important;
   }
 
   .cat-del-menu-item.item-topics:hover {

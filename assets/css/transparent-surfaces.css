@@ -14,7 +14,11 @@
    fill to stay readable. Both themes ship an opaque token, so dark and light
    are softened here. */
 html[data-theme="dark"] {
-  --surface-strong: rgba(255, 245, 225, 0.055);
+  --surface-strong: rgba(255, 255, 255, 0.055);
+}
+
+html[data-theme="light"] {
+  --surface-strong: rgba(255, 255, 255, 0.62);
 }
 
 /* One shared glass surface for every card, panel, widget and row.
