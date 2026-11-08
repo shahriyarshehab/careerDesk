@@ -77,79 +77,43 @@
 /* ── Theme token remap ─────────────────────────────────────────────────────
    Re-points the app's existing accent tokens at the plate, so every border,
    glow, tint and accent-tinted surface inherits the palette. */
-html[data-theme="dark"] {
+html[data-theme="dark"], :root {
   --accent1: var(--cdp-brand-400);
   --accent2: var(--cdp-cyan-400);
   --accent3: var(--cdp-danger);
   --gold: var(--cdp-warning);
-  --border-glow: rgba(99, 102, 241, .42);
+  --border-glow: transparent;
   --cd-primary: var(--cdp-brand-500);
   --cd-primary-strong: var(--cdp-brand-600);
   --cd-accent: var(--cdp-cyan-400);
 
-  /* Authentic Glassmorphism: Translucent dark surface with subtle borders */
-  --surface: rgba(255, 255, 255, 0.04);
+  /* Solid Clean Dark Surfaces — No Glassmorphism */
+  --bg: #0B0F19;
+  --surface: #111827;
   --surface-strong: #0F172A;
-  --surface-hover: rgba(255, 255, 255, 0.08);
-  --border: rgba(255, 255, 255, 0.08);
-  --select-bg: #131A31;
-  --select-option-bg: #18203C;
-  --select-border: rgba(129, 140, 248, .24);
-  --card-quote-a: #171C44;
-  --card-quote-b: #0D2B41;
+  --surface-hover: #1F2937;
+  --border: #1F2937;
+  --select-bg: #111827;
+  --select-option-bg: #1F2937;
+  --select-border: #374151;
+  --card-quote-a: #111827;
+  --card-quote-b: #0F172A;
 
   /* Loading placeholders: base block + sweeping shine */
-  --skeleton-base: rgba(148, 163, 184, .16);
-  --skeleton-shine: rgba(255, 255, 255, .14);
+  --skeleton-base: rgba(148, 163, 184, .12);
+  --skeleton-shine: rgba(255, 255, 255, .06);
 
-  /* Harmonized tokens for glassmorphism home cards, panels, and widgets */
-  --cd-panel: rgba(255, 255, 255, 0.04);
+  /* Harmonized solid tokens for dark home cards, panels, and widgets */
+  --cd-panel: #111827;
   --cd-panel-solid: #0F172A;
-  --cd-line: rgba(255, 255, 255, 0.08);
+  --cd-line: #1F2937;
   --cd-blue: var(--cdp-brand-400);
   --cd-mint: var(--cdp-cyan-400);
-  --cd-border: rgba(255, 255, 255, 0.08);
-  --cd-border-strong: rgba(255, 255, 255, 0.14);
-  --cd-surface: rgba(255, 255, 255, 0.04);
-  --cd-surface-raised: #0F172A;
-  --cd-surface-soft: rgba(255, 255, 255, 0.025);
-}
-
-html[data-theme="light"] {
-  --accent1: var(--cdp-brand-600);
-  --accent2: var(--cdp-cyan-600);
-  --accent3: var(--cdp-danger-strong);
-  --gold: var(--cdp-warning-strong);
-  --border-glow: rgba(79, 70, 229, .25);
-  --cd-primary: var(--cdp-brand-600);
-  --cd-primary-strong: var(--cdp-brand-700);
-  --cd-accent: var(--cdp-cyan-700);
-
-  /* Authentic Glassmorphism: Frosted white cards with subtle borders */
-  --surface: rgba(255, 255, 255, 0.75);
-  --surface-strong: #F8FAFC;
-  --surface-hover: #FFFFFF;
-  --border: rgba(226, 232, 240, 0.85);
-  --select-bg: #FFFFFF;
-  --select-option-bg: #F7F9FF;
-  --select-border: rgba(79, 70, 229, .20);
-  --card-quote-a: #EEF1FF;
-  --card-quote-b: #E9FAFF;
-
-  /* Loading placeholders: base block + sweeping shine */
-  --skeleton-base: rgba(100, 116, 139, .18);
-  --skeleton-shine: rgba(255, 255, 255, .78);
-
-  --cd-panel: rgba(255, 255, 255, 0.75);
-  --cd-panel-solid: #FFFFFF;
-  --cd-line: rgba(226, 232, 240, 0.85);
-  --cd-blue: var(--cdp-brand-600);
-  --cd-mint: var(--cdp-cyan-600);
-  --cd-border: rgba(226, 232, 240, 0.85);
-  --cd-border-strong: rgba(203, 213, 225, 0.9);
-  --cd-surface: rgba(255, 255, 255, 0.75);
-  --cd-surface-raised: #F8FAFC;
-  --cd-surface-soft: rgba(255, 255, 255, 0.65);
+  --cd-border: #1F2937;
+  --cd-border-strong: #374151;
+  --cd-surface: #111827;
+  --cd-surface-raised: #1F2937;
+  --cd-surface-soft: #111827;
 }
 
 /* ── Primary actions ──────────────────────────────────────────────────────
@@ -358,108 +322,56 @@ textarea:focus {
 .timer-ring-stop-start { stop-color: var(--cdp-ring-start); }
 .timer-ring-stop-end { stop-color: var(--cdp-ring-end); }
 
-html[data-theme="light"] .timer-ring-stop-start { stop-color: var(--cdp-brand-600); }
-html[data-theme="light"] .timer-ring-stop-end { stop-color: var(--cdp-cyan-600); }
-
-/* ── Backdrop ─────────────────────────────────────────────────────────────
-   Modern ambient aura mesh: glowing indigo/cyan lights pinned behind glass. */
-html[data-theme="dark"] body {
-  background-color: #060911;
-  background-image:
-    radial-gradient(circle 850px at 18% -5%, rgba(99, 102, 241, 0.32), transparent 70%),
-    radial-gradient(circle 750px at 85% 8%, rgba(6, 182, 212, 0.26), transparent 65%),
-    radial-gradient(circle 950px at 45% 80%, rgba(139, 92, 246, 0.20), transparent 70%),
-    radial-gradient(circle 650px at 88% 85%, rgba(14, 165, 233, 0.18), transparent 65%);
-  background-attachment: fixed;
-  background-repeat: no-repeat;
+/* ── Backdrop: Clean, solid, distraction-free dark background ────────────── */
+html[data-theme="dark"] body,
+body {
+  background-color: #0B0F19 !important;
+  background-image: none !important;
 }
 
-html[data-theme="light"] body {
-  background-color: #F8FAFC;
-  background-image:
-    radial-gradient(circle 800px at 10% -5%, rgba(99, 102, 241, 0.14), transparent 65%),
-    radial-gradient(circle 700px at 90% 5%, rgba(6, 182, 212, 0.12), transparent 60%),
-    radial-gradient(circle 800px at 50% 95%, rgba(79, 70, 229, 0.09), transparent 70%);
-  background-attachment: fixed;
-  background-repeat: no-repeat;
+/* Eliminate drifting backdrop blobs and decorative haze */
+.aurora {
+  display: none !important;
 }
 
-/* Drifting backdrop blobs: brand indigo + cyan only, amber retired. */
-.aurora span:nth-child(1) { background: var(--cdp-brand-500); opacity: .42; }
-.aurora span:nth-child(2) { background: var(--cdp-cyan-500); opacity: .30; }
-.aurora span:nth-child(3) { background: var(--cdp-brand-800); opacity: .30; }
+/* ── Universal Glassmorphism Removal ───────────────────────────────────────
+   Stripping blur filters and translucent glass everywhere across components */
+*, *::before, *::after {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
 
-/* ── Cards ────────────────────────────────────────────────────────────────
-   Modern Glassmorphism: layered specular highlight, deep ambient shadow,
-   and hardware-accelerated 24px blur with saturation boost. */
+/* ── Solid Clean Dark Cards & Containers ─────────────────────────────────── */
 .glass,
 .db-kpi-card,
 .db-plan-card,
 .db-timer-card {
-  background:
-    linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.02) 100%),
-    rgba(15, 23, 42, 0.55);
-  backdrop-filter: blur(24px) saturate(180%);
-  -webkit-backdrop-filter: blur(24px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  box-shadow:
-    0 20px 45px -10px rgba(0, 0, 0, 0.5),
-    inset 0 1px 0 rgba(255, 255, 255, 0.18),
-    inset 0 0 20px rgba(99, 102, 241, 0.04);
-  transition: transform 0.24s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.24s ease, box-shadow 0.24s ease;
+  background: #111827 !important;
+  border: 1px solid #1F2937 !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3) !important;
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-html[data-theme="light"] .glass,
-html[data-theme="light"] .db-kpi-card,
-html[data-theme="light"] .db-plan-card,
-html[data-theme="light"] .db-timer-card {
-  background:
-    linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.82) 100%),
-    rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(24px) saturate(180%);
-  -webkit-backdrop-filter: blur(24px) saturate(180%);
-  border: 1px solid rgba(226, 232, 240, 0.95);
-  box-shadow:
-    0 14px 34px -4px rgba(15, 23, 42, 0.07),
-    inset 0 1px 0 rgba(255, 255, 255, 1);
+.glass:hover,
+.db-kpi-card:hover,
+.db-plan-card:hover,
+.db-timer-card:hover {
+  border-color: #374151 !important;
 }
 
-/* ── Floating header ──────────────────────────────────────────────────────
-   The masthead is the plate's strongest glass surface: indigo tint, cyan
-   whisper, and an indigo hairline instead of a neutral one. */
+/* ── Solid Header Masthead ──────────────────────────────────────────────── */
 header.main-header,
 header.masthead {
-  background:
-    linear-gradient(135deg, color-mix(in srgb, var(--cdp-brand-500) 16%, transparent), color-mix(in srgb, var(--cdp-cyan-400) 6%, transparent)),
-    rgba(13, 20, 36, .86) !important;
-  border-color: color-mix(in srgb, var(--cdp-brand-400) 24%, transparent) !important;
-  box-shadow:
-    0 16px 40px rgba(0, 0, 0, .35),
-    inset 0 1px 0 rgba(255, 255, 255, .08),
-    0 0 0 1px color-mix(in srgb, var(--cdp-brand-500) 10%, transparent) !important;
+  background: #0F172A !important;
+  border-bottom: 1px solid #1E293B !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35) !important;
 }
 
-html[data-theme="light"] header.main-header,
-html[data-theme="light"] header.masthead {
-  background:
-    linear-gradient(135deg, color-mix(in srgb, var(--cdp-brand-500) 6%, transparent), color-mix(in srgb, var(--cdp-cyan-600) 4%, transparent)),
-    rgba(255, 255, 255, .94) !important;
-  border-color: color-mix(in srgb, var(--cdp-brand-500) 20%, transparent) !important;
-}
-
-/* Nav strip inside the header. */
+/* Nav strip inside the header */
 header.main-header nav.tabs,
 header.masthead nav.tabs,
 header.main-header .nav-menu,
 header.masthead .nav-menu {
-  background: color-mix(in srgb, var(--cdp-brand-500) 7%, transparent) !important;
-  border-color: color-mix(in srgb, var(--cdp-brand-400) 16%, transparent) !important;
-}
-
-html[data-theme="light"] header.main-header nav.tabs,
-html[data-theme="light"] header.masthead nav.tabs,
-html[data-theme="light"] header.main-header .nav-menu,
-html[data-theme="light"] header.masthead .nav-menu {
-  background: color-mix(in srgb, var(--cdp-brand-500) 4%, transparent) !important;
-  border-color: color-mix(in srgb, var(--cdp-brand-500) 12%, transparent) !important;
+  background: #111827 !important;
+  border: 1px solid #1F2937 !important;
 }

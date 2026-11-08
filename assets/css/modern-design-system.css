@@ -5,37 +5,21 @@
 
 :root {
   color-scheme: dark;
-  --cd-bg: #0b1020;
-  --cd-surface: #11182a;
-  --cd-surface-raised: #172137;
-  --cd-surface-soft: rgba(23, 33, 55, .72);
-  --cd-border: rgba(157, 177, 214, .15);
-  --cd-border-strong: rgba(157, 177, 214, .25);
+  --cd-bg: #0b0f19;
+  --cd-surface: #111827;
+  --cd-surface-raised: #1f2937;
+  --cd-surface-soft: #111827;
+  --cd-border: #1f2937;
+  --cd-border-strong: #374151;
   --cd-text: #edf2ff;
   --cd-muted: #9aa9c4;
-  --cd-primary: #7c8cff;
-  --cd-primary-strong: #6174f3;
-  --cd-accent: #42d6c5;
+  --cd-primary: #6366f1;
+  --cd-primary-strong: #4f46e5;
+  --cd-accent: #06b6d4;
   --cd-radius: 18px;
   --cd-radius-sm: 12px;
   --cd-shadow: 0 18px 48px rgba(0, 0, 0, .20);
   --cd-ease: cubic-bezier(.2, .75, .25, 1);
-}
-
-html[data-theme="light"], html[data-theme="light"] body {
-  color-scheme: light;
-  --cd-bg: #f4f7fc;
-  --cd-surface: #ffffff;
-  --cd-surface-raised: #f8faff;
-  --cd-surface-soft: rgba(255, 255, 255, .88);
-  --cd-border: rgba(44, 62, 100, .11);
-  --cd-border-strong: rgba(44, 62, 100, .2);
-  --cd-text: #17223b;
-  --cd-muted: #65728b;
-  --cd-primary: #5368e8;
-  --cd-primary-strong: #4054d4;
-  --cd-accent: #078f85;
-  --cd-shadow: 0 16px 40px rgba(37, 55, 94, .08);
 }
 
 html { scroll-padding-top: 100px; }
@@ -56,11 +40,9 @@ body, button, input, select, textarea { font-family: "Plus Jakarta Sans", "Noto 
 
 header.masthead, header.main-header {
   isolation: isolate;
-  background: color-mix(in srgb, var(--cd-surface) 84%, transparent);
+  background: var(--cd-surface);
   border: 1px solid var(--cd-border-strong);
-  box-shadow: var(--cd-shadow), inset 0 1px 0 rgba(255,255,255,.045);
-  backdrop-filter: blur(24px) saturate(150%);
-  -webkit-backdrop-filter: blur(24px) saturate(150%);
+  box-shadow: var(--cd-shadow);
 }
 .brand-mark, .brand-badge { border: 1px solid var(--cd-border-strong); }
 .brand-title, .brand h1, .brand-copy h1 { color: var(--cd-text); font-weight: 800; letter-spacing: -.045em; }
@@ -153,12 +135,11 @@ tr:hover td { background: color-mix(in srgb, var(--cd-primary) 4%, transparent);
 
 
 
-.modal-backdrop, .modal-overlay { backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
+.modal-backdrop, .modal-overlay { background: rgba(0, 0, 0, 0.75); }
 .modal-content, .modal-card { box-shadow: 0 28px 90px rgba(0,0,0,.28); border: 1px solid var(--cd-border-strong); }
 .badge, .tag, .chip { border-radius: 999px; }
 
 @media (max-width: 900px) {
-  header.masthead, header.main-header { backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); }
   .home-container { gap: 16px; }
 }
 @media (max-width: 600px) {

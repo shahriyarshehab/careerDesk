@@ -14,11 +14,7 @@
    fill to stay readable. Both themes ship an opaque token, so dark and light
    are softened here. */
 html[data-theme="dark"] {
-  --surface-strong: rgba(255, 255, 255, 0.055);
-}
-
-html[data-theme="light"] {
-  --surface-strong: rgba(255, 255, 255, 0.62);
+  --surface-strong: #0F172A;
 }
 
 /* One shared glass surface for every card, panel, widget and row.
@@ -71,8 +67,9 @@ html[data-theme] body :is(
   .security-trust-strip, .security-audit-item, .privacy-lock-card
 ) {
   background: var(--surface) !important;
-  backdrop-filter: blur(14px) saturate(150%);
-  -webkit-backdrop-filter: blur(14px) saturate(150%);
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border-color: var(--border) !important;
 }
 
 /* State colours stay meaningful on the transparent surface. */

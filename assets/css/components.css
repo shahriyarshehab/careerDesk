@@ -242,53 +242,6 @@
     color: var(--accent1, #6366f1) !important;
   }
 
-  /* Light Theme Specific Accents for Strong Contrast */
-  html[data-theme="light"] .category-action-group .cat-edit-btn:hover,
-  html[data-theme="light"] .category-action-group .cat-edit-btn.active,
-  html[data-theme="light"] .flashcard-action-group .cat-edit-btn:hover,
-  html[data-theme="light"] .flashcard-action-group .cat-edit-btn.active,
-  html[data-theme="light"] .monthly-routine-actions .action-btn-edit:hover,
-  html[data-theme="light"] .quote-item-actions .edit-btn:hover,
-  html[data-theme="light"] .note-actions .edit-btn:hover,
-  html[data-theme="light"] .subject-row-actions .subject-rename-btn:hover {
-    background: rgba(147, 51, 234, 0.12) !important;
-    color: #7e22ce !important;
-  }
-
-  html[data-theme="light"] .category-action-group .cat-del-trigger:hover,
-  html[data-theme="light"] .category-action-group .cat-del-trigger.menu-open,
-  html[data-theme="light"] .category-action-group .cat-del-trigger.active,
-  html[data-theme="light"] .flashcard-action-group .cat-del-trigger:hover,
-  html[data-theme="light"] .flashcard-action-group .cat-del-trigger.active,
-  html[data-theme="light"] .monthly-routine-actions .action-btn-del:hover,
-  html[data-theme="light"] .quote-item-actions .delete-btn:hover,
-  html[data-theme="light"] .note-actions .del-btn:hover,
-  html[data-theme="light"] .subject-row-actions .subject-delete-btn:hover {
-    background: rgba(225, 29, 72, 0.12) !important;
-    color: #e11d48 !important;
-  }
-
-  html[data-theme="light"] .category-action-group .cat-add-btn:hover,
-  html[data-theme="light"] .category-action-group .cat-add-btn.active,
-  html[data-theme="light"] .flashcard-action-group .cat-add-btn:hover,
-  html[data-theme="light"] .flashcard-action-group .cat-add-btn.active {
-    background: rgba(14, 165, 233, 0.12) !important;
-    color: #0284c7 !important;
-  }
-
-  html[data-theme="light"] .category-action-group .cat-shuffle-btn:hover,
-  html[data-theme="light"] .category-action-group .cat-shuffle-btn.active,
-  html[data-theme="light"] .flashcard-action-group .cat-shuffle-btn:hover,
-  html[data-theme="light"] .flashcard-action-group .cat-shuffle-btn.active {
-    background: rgba(217, 119, 6, 0.12) !important;
-    color: #d97706 !important;
-  }
-
-  html[data-theme="light"] .flashcard-action-group .btn-exam-mode:hover,
-  html[data-theme="light"] .flashcard-action-group .btn-exam-mode.active {
-    background: rgba(99, 102, 241, 0.12) !important;
-    color: #4f46e5 !important;
-  }
 
   .save-note {
     font-size: 12.5px;
@@ -569,43 +522,6 @@
     stroke: #ffffff !important;
   }
 
-  html[data-theme="light"] .segmented-toggle-group,
-  html[data-theme="light"] .mcq-mode-toggle-group,
-  html[data-theme="light"] .routine-mode-toggle-group,
-  html[data-theme="light"] .theme-mode-toggle-group,
-  html[data-theme="light"] .timer-mode-selector,
-  html[data-theme="light"] .quote-source-switch {
-    background: #ffffff;
-    border-color: rgba(226, 232, 240, 0.95);
-    box-shadow: 0 1px 4px rgba(15, 23, 42, 0.05);
-  }
-
-  html[data-theme="light"] .segmented-toggle-group > button:not(.active),
-  html[data-theme="light"] .segmented-toggle-group > .chip:not(.active),
-  html[data-theme="light"] .segmented-toggle-group > .pill:not(.active),
-  html[data-theme="light"] .btn-mode-switch {
-    color: #475569 !important;
-  }
-
-  html[data-theme="light"] .segmented-toggle-group > button:hover:not(.active),
-  html[data-theme="light"] .segmented-toggle-group > .chip:hover:not(.active),
-  html[data-theme="light"] .btn-mode-switch:hover:not(.active) {
-    background: #f1f5f9 !important;
-    color: #0f172a !important;
-  }
-
-  html[data-theme="light"] .segmented-toggle-group > .active,
-  html[data-theme="light"] .btn-mode-switch.active,
-  html[data-theme="light"] .btn-mode-switch.active-theme {
-    background: linear-gradient(135deg, #4f46e5, #0891b2) !important;
-    color: #ffffff !important;
-    box-shadow: 0 2px 8px rgba(79, 70, 229, 0.28) !important;
-  }
-
-  html[data-theme="light"] .segmented-toggle-group > .active svg,
-  html[data-theme="light"] .segmented-toggle-group > .active i[data-lucide],
-  html[data-theme="light"] .btn-mode-switch.active svg,
-  html[data-theme="light"] .btn-mode-switch.active i[data-lucide],
 
 /* Ultra-Modern Form Controls & Global Polishing */
   /* ===== Ultra-Modern Form Controls & Global Polishing ===== */
@@ -772,9 +688,7 @@
     border-radius: 14px;
     background: var(--surface);
     border: 1px solid var(--border);
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.22), inset 0 1px 1.5px rgba(255, 255, 255, 0.12);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
     transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
     user-select: none;
     position: relative;
