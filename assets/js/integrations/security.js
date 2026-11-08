@@ -706,7 +706,7 @@ function openVaultPassphraseModal() {
         ${cfg.enabled ? '<button type="button" class="pill danger" id="btnDisableEncryption">Disable Encryption</button>' : '<span></span>'}
         <div style="display:flex; gap:8px;">
           <button type="button" class="pill" id="btnCancelVaultModal">Cancel</button>
-          <button type="button" class="pill solid" id="btnSaveVaultPassphrase" style="background:linear-gradient(135deg, #10b981, #06b6d4); color:#fff;">
+          <button type="button" class="pill solid" id="btnSaveVaultPassphrase" style="background:linear-gradient(135deg, #10b981, #f97316); color:#fff;">
             <i data-lucide="check"></i> <span>Save &amp; Enable</span>
           </button>
         </div>
@@ -779,7 +779,7 @@ function openSetPinModal() {
     <div class="glass modal-card" style="max-width:440px; width:92%; padding:26px; border-radius:18px;">
       <div class="modal-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
         <h3 class="modal-title" style="margin:0; font-family:var(--font-display); font-size:18px; color:var(--text); display:flex; align-items:center; gap:8px;">
-          <i data-lucide="key-round" style="color:#6366f1; width:20px; height:20px;"></i>
+          <i data-lucide="key-round" style="color:#f59e0b; width:20px; height:20px;"></i>
           Privacy PIN &amp; Auto-Lock
         </h3>
         <button class="modal-close" id="closeSetPinModal" type="button" style="background:none; border:none; color:var(--text-soft); cursor:pointer; padding:4px;">

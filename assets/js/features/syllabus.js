@@ -61,7 +61,7 @@ function renderCategories() {
     const isTopicDelActive = topicDeleteModeCategories.has(String(cat.id));
     const isTopicEditActive = topicEditModeCategories.has(String(cat.id));
     const isSubjectEditing = editingSubjectCategories.has(String(cat.id));
-    const meta = typeof getSubjectMeta === 'function' ? getSubjectMeta(cat.name) : { color: '#6366f1', icon: 'book-open' };
+    const meta = typeof getSubjectMeta === 'function' ? getSubjectMeta(cat.name) : { color: '#f59e0b', icon: 'book-open' };
     const topicsHtml = cat.topics.length ? (
       '<div class="topic-tile-grid">' + cat.topics.map(t => `
         <div class="topic-tile ${t.done ? 'done' : ''} ${isTopicEditActive ? 'topic-edit-target' : ''} ${editingTopicKey === `${cat.id}:${t.id}` ? 'topic-editing' : ''}" data-cat="${cat.id}" data-topic="${t.id}">

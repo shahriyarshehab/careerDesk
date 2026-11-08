@@ -38,7 +38,7 @@ html[data-theme="light"] #panel-routine #homeRoutineSection {
   width: 30px;
   height: 30px;
   border-radius: 8px;
-  background: rgba(6, 182, 212, 0.10);
+  background: rgba(249, 115, 22, 0.10);
   color: var(--accent2);
   display: flex;
   align-items: center;
@@ -379,7 +379,7 @@ html[data-theme="light"] #panel-routine .home-routine-card .date-slider-row {
   width: 42px;
   height: 42px;
   border-radius: 50%;
-  background: rgba(99, 102, 241, 0.09);
+  background: rgba(245, 158, 11, 0.09);
   color: var(--accent1);
   display: flex;
   align-items: center;

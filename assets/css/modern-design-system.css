@@ -5,38 +5,24 @@
 
 :root {
   color-scheme: dark;
-  --cd-bg: #0b1020;
-  --cd-surface: #11182a;
-  --cd-surface-raised: #172137;
-  --cd-surface-soft: rgba(23, 33, 55, .72);
-  --cd-border: rgba(157, 177, 214, .15);
-  --cd-border-strong: rgba(157, 177, 214, .25);
-  --cd-text: #edf2ff;
-  --cd-muted: #9aa9c4;
-  --cd-primary: #7c8cff;
-  --cd-primary-strong: #6174f3;
-  --cd-accent: #42d6c5;
+  --cd-bg: #0d0a06;
+  --cd-surface: #1a1308;
+  --cd-surface-raised: #211a0c;
+  --cd-surface-soft: rgba(28, 20, 8, .72);
+  --cd-border: rgba(166, 144, 112, .15);
+  --cd-border-strong: rgba(166, 144, 112, .25);
+  --cd-text: #fffdf8;
+  --cd-muted: #a69070;
+  --cd-primary: #fbbf24;
+  --cd-primary-strong: #f59e0b;
+  --cd-accent: #fb923c;
   --cd-radius: 18px;
   --cd-radius-sm: 12px;
   --cd-shadow: 0 18px 48px rgba(0, 0, 0, .20);
   --cd-ease: cubic-bezier(.2, .75, .25, 1);
 }
 
-html[data-theme="light"], html[data-theme="light"] body {
-  color-scheme: light;
-  --cd-bg: #f4f7fc;
-  --cd-surface: #ffffff;
-  --cd-surface-raised: #f8faff;
-  --cd-surface-soft: rgba(255, 255, 255, .88);
-  --cd-border: rgba(44, 62, 100, .11);
-  --cd-border-strong: rgba(44, 62, 100, .2);
-  --cd-text: #17223b;
-  --cd-muted: #65728b;
-  --cd-primary: #5368e8;
-  --cd-primary-strong: #4054d4;
-  --cd-accent: #078f85;
-  --cd-shadow: 0 16px 40px rgba(37, 55, 94, .08);
-}
+/* Dark-only app — no light theme overrides needed */
 
 html { scroll-padding-top: 100px; }
 body {

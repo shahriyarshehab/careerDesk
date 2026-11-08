@@ -20,7 +20,7 @@ html[data-theme="dark"] {
   --text: #edf4ff;
   --text-soft: #a7b5cc;
   --text-muted: #8191ab;
-  --accent1: #818cf8;
+  --accent1: #fcd34d;
   --accent2: #2dd4bf;
   --shadow: 0 18px 46px rgba(0, 0, 0, .22);
   background: #080d18;
@@ -34,7 +34,7 @@ html[data-theme="light"] {
   --text: #172238;
   --text-soft: #53627a;
   --text-muted: #5F6F85;
-  --accent1: #4f46e5;
+  --accent1: #d97706;
   --accent2: #0d9488;
   --shadow: 0 16px 38px rgba(30, 41, 59, .075);
   background: #f4f7fb;
@@ -43,7 +43,7 @@ html[data-theme="light"] {
 body {
   color: var(--text);
   background:
-    radial-gradient(ellipse at 8% 0%, rgba(99, 102, 241, .10), transparent 34%),
+    radial-gradient(ellipse at 8% 0%, rgba(245, 158, 11, .10), transparent 34%),
     radial-gradient(ellipse at 92% 8%, rgba(20, 184, 166, .08), transparent 28%),
     var(--bg, transparent);
   line-height: 1.55;
@@ -52,12 +52,12 @@ body {
 
 html[data-theme="light"] body {
   background:
-    radial-gradient(ellipse at 4% 0%, rgba(99, 102, 241, .075), transparent 32%),
+    radial-gradient(ellipse at 4% 0%, rgba(245, 158, 11, .075), transparent 32%),
     radial-gradient(ellipse at 96% 0%, rgba(20, 184, 166, .06), transparent 30%),
     #f4f7fb;
 }
 
-::selection { background: rgba(99, 102, 241, .3); color: var(--text); }
+::selection { background: rgba(245, 158, 11, .3); color: var(--text); }
 
 :where(button, input, textarea, select, a, summary):focus-visible {
   outline: 3px solid rgba(45, 212, 191, .72);
@@ -77,7 +77,7 @@ header.main-header {
 .brand-mark,
 .brand-badge {
   border-radius: 16px !important;
-  box-shadow: 0 8px 22px rgba(99, 102, 241, .22);
+  box-shadow: 0 8px 22px rgba(245, 158, 11, .22);
 }
 
 .brand-title {
@@ -170,7 +170,7 @@ main {
 
 :where(input, textarea, select):focus {
   border-color: var(--accent1) !important;
-  box-shadow: 0 0 0 4px rgba(99, 102, 241, .12) !important;
+  box-shadow: 0 0 0 4px rgba(245, 158, 11, .12) !important;
 }
 
 h2.section-title {

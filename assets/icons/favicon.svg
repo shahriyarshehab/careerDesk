@@ -1,19 +1,52 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
   <defs>
     <linearGradient id="cdLogoGrad" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#4f46e5"/>
-      <stop offset="100%" stop-color="#06b6d4"/>
+      <stop offset="0%" stop-color="#f59e0b"/>
+      <stop offset="100%" stop-color="#d97706"/>
+    </linearGradient>
+    <linearGradient id="cdLampGlow" x1="0.5" y1="0" x2="0.5" y2="1">
+      <stop offset="0%" stop-color="#fbbf24" stop-opacity="0.6"/>
+      <stop offset="100%" stop-color="#f59e0b" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="cdDeskGrad" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#92400e"/>
+      <stop offset="100%" stop-color="#78350f"/>
     </linearGradient>
   </defs>
+
   <!-- Background Rounded Shield -->
-  <rect width="48" height="48" rx="14" fill="url(#cdLogoGrad)"/>
-  <rect x="2" y="2" width="44" height="44" rx="12" fill="none" stroke="#ffffff" stroke-opacity="0.28" stroke-width="1.5"/>
-  <!-- Open Book Left Page -->
-  <path d="M12.5 15.5c4.5-2 8.5-1.2 11.5 1.5v18c-3-2.7-7-3.5-11.5-1.5z" fill="none" stroke="#ffffff" stroke-width="2.6" stroke-linejoin="round"/>
-  <!-- Open Book Right Page -->
-  <path d="M35.5 15.5c-4.5-2-8.5-1.2-11.5 1.5v18c3-2.7 7-3.5 11.5-1.5z" fill="none" stroke="#dffafe" stroke-width="2.6" stroke-linejoin="round"/>
-  <!-- Graduation / Achievement Checkmark -->
-  <path d="m17.5 25 3.4 3.4 9.2-9.2" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-  <!-- North Star Dot -->
-  <circle cx="35.5" cy="12.5" r="2.2" fill="#ffffff"/>
+  <rect width="48" height="48" rx="14" fill="#1a1207"/>
+  <rect x="1" y="1" width="46" height="46" rx="13" fill="none" stroke="url(#cdLogoGrad)" stroke-opacity="0.5" stroke-width="1.2"/>
+
+  <!-- Warm lamp glow cone (behind lamp) -->
+  <path d="M24 16 L16 34 L32 34 Z" fill="url(#cdLampGlow)" opacity="0.5"/>
+
+  <!-- Desk surface -->
+  <rect x="8" y="34" width="32" height="3.5" rx="1.5" fill="url(#cdDeskGrad)" opacity="0.9"/>
+
+  <!-- Lamp arm (angled) -->
+  <line x1="24" y1="13.5" x2="24" y2="28" stroke="#d97706" stroke-width="2.2" stroke-linecap="round"/>
+  <!-- Lamp arm diagonal brace -->
+  <line x1="24" y1="28" x2="24" y2="33.5" stroke="#b45309" stroke-width="2.4" stroke-linecap="round"/>
+
+  <!-- Lamp shade (top) -->
+  <path d="M17.5 13.5 Q24 10 30.5 13.5" stroke="#f59e0b" stroke-width="2.6" fill="none" stroke-linecap="round"/>
+  <!-- Lamp shade fill -->
+  <path d="M17.5 13.5 Q24 10.5 30.5 13.5 L29 15 Q24 12.5 19 15 Z" fill="#f59e0b" opacity="0.85"/>
+
+  <!-- Lamp base -->
+  <ellipse cx="24" cy="34" rx="5" ry="1.5" fill="#b45309"/>
+
+  <!-- Open book on desk -->
+  <path d="M14 30.5c3-1.5 5.5-.8 7.5 1v3c-2-1.8-4.5-2.2-7.5-1z" fill="none" stroke="#fef3c7" stroke-width="1.4" stroke-linejoin="round" opacity="0.7"/>
+  <path d="M28.5 30.5c-3-1.5-5.5-.8-7.5 1v3c2-1.8 4.5-2.2 7.5-1z" fill="none" stroke="#fde68a" stroke-width="1.4" stroke-linejoin="round" opacity="0.7"/>
+
+  <!-- Light bulb dot -->
+  <circle cx="24" cy="15.5" r="1.5" fill="#fbbf24" opacity="0.95"/>
+
+  <!-- Sparkle decorations -->
+  <circle cx="13" cy="11" r="1.1" fill="#fbbf24" opacity="0.55"/>
+  <circle cx="36" cy="10" r="0.8" fill="#fcd34d" opacity="0.45"/>
+  <circle cx="10" cy="22" r="0.7" fill="#f59e0b" opacity="0.35"/>
+  <circle cx="38" cy="20" r="0.9" fill="#fbbf24" opacity="0.4"/>
 </svg>

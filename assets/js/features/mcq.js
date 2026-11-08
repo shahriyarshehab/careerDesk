@@ -15,11 +15,11 @@ const MCQ_STATS_KEY = 'careerdesk_mcq_session_stats';
 
 // BCS 10 Subjects with metadata
 const BCS_SUBJECT_META = {
-  "বাংলা সাহিত্য": { icon: "book-open", color: "#6366f1", label: "বাংলা সাহিত্য" },
-  "বাংলা ব্যাকরণ": { icon: "feather", color: "#8b5cf6", label: "বাংলা ব্যাকরণ" },
+  "বাংলা সাহিত্য": { icon: "book-open", color: "#f59e0b", label: "বাংলা সাহিত্য" },
+  "বাংলা ব্যাকরণ": { icon: "feather", color: "#f97316", label: "বাংলা ব্যাকরণ" },
   "English": { icon: "languages", color: "#3b82f6", label: "English" },
   "বাংলাদেশ বিষয়াবলী": { icon: "map-pin", color: "#10b981", label: "বাংলাদেশ বিষয়াবলী" },
-  "আন্তর্জাতিক বিষয়াবলী": { icon: "globe", color: "#06b6d4", label: "আন্তর্জাতিক বিষয়াবলী" },
+  "আন্তর্জাতিক বিষয়াবলী": { icon: "globe", color: "#f97316", label: "আন্তর্জাতিক বিষয়াবলী" },
   "সাধারণ বিজ্ঞান": { icon: "flask-conical", color: "#ec4899", label: "সাধারণ বিজ্ঞান" },
   "কম্পিউটার ও আইসিটি": { icon: "monitor", color: "#0ea5e9", label: "কম্পিউটার ও আইসিটি" },
   "গণিত": { icon: "calculator", color: "#f59e0b", label: "গণিত" },

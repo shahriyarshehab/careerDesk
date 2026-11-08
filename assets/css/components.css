@@ -238,8 +238,8 @@
   /* Exam Mode inside flashcard-action-group: Indigo / Cyan */
   .flashcard-action-group .btn-exam-mode:hover,
   .flashcard-action-group .btn-exam-mode.active {
-    background: rgba(99, 102, 241, 0.16) !important;
-    color: var(--accent1, #6366f1) !important;
+    background: rgba(245, 158, 11, 0.16) !important;
+    color: var(--accent1, #f59e0b) !important;
   }
 
   /* Light Theme Specific Accents for Strong Contrast */
@@ -286,8 +286,8 @@
 
   html[data-theme="light"] .flashcard-action-group .btn-exam-mode:hover,
   html[data-theme="light"] .flashcard-action-group .btn-exam-mode.active {
-    background: rgba(99, 102, 241, 0.12) !important;
-    color: #4f46e5 !important;
+    background: rgba(245, 158, 11, 0.12) !important;
+    color: #d97706 !important;
   }
 
   .save-note {
@@ -359,7 +359,7 @@
     background: linear-gradient(135deg, var(--accent1), var(--accent2));
     color: #fff;
     border-color: transparent;
-    box-shadow: 0 8px 18px rgba(6, 182, 212, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.24);
+    box-shadow: 0 8px 18px rgba(249, 115, 22, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.24);
   }
 
   .date-chip.active .dc-day {
@@ -406,7 +406,7 @@
     background: var(--surface-strong);
     color: var(--accent1);
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
+    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.2);
   }
 
   .date-nav-btn svg,
@@ -461,12 +461,12 @@
   select:hover {
     border-color: var(--accent1) !important;
     background-color: var(--surface-hover) !important;
-    box-shadow: 0 4px 16px rgba(99, 102, 241, 0.18) !important;
+    box-shadow: 0 4px 16px rgba(245, 158, 11, 0.18) !important;
     transform: translateY(-1px);
   }
 
   select:focus {
-    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.28) !important;
+    box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.28) !important;
     border-color: var(--accent1) !important;
   }
 
@@ -541,7 +541,7 @@
     background: linear-gradient(135deg, var(--accent1), var(--accent2)) !important;
     color: #ffffff !important;
     font-weight: 700 !important;
-    box-shadow: 0 2px 10px rgba(99, 102, 241, 0.32) !important;
+    box-shadow: 0 2px 10px rgba(245, 158, 11, 0.32) !important;
   }
 
   .btn-mode-switch.btn-exam20.active {
@@ -597,9 +597,9 @@
   html[data-theme="light"] .segmented-toggle-group > .active,
   html[data-theme="light"] .btn-mode-switch.active,
   html[data-theme="light"] .btn-mode-switch.active-theme {
-    background: linear-gradient(135deg, #4f46e5, #0891b2) !important;
+    background: linear-gradient(135deg, #d97706, #ea580c) !important;
     color: #ffffff !important;
-    box-shadow: 0 2px 8px rgba(79, 70, 229, 0.28) !important;
+    box-shadow: 0 2px 8px rgba(217, 119, 6, 0.28) !important;
   }
 
   html[data-theme="light"] .segmented-toggle-group > .active svg,
@@ -614,7 +614,7 @@
   textarea:focus {
     outline: none;
     border-color: var(--accent1) !important;
-    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.24) !important;
+    box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.24) !important;
   }
 
   * {
@@ -747,9 +747,9 @@
   }
 
   html[data-theme="light"] .month-nav-btn:hover {
-    background: rgba(79, 70, 229, 0.12) !important;
-    border-color: rgba(79, 70, 229, 0.35) !important;
-    color: #4f46e5 !important;
+    background: rgba(217, 119, 6, 0.12) !important;
+    border-color: rgba(217, 119, 6, 0.35) !important;
+    color: #d97706 !important;
   }
 
   html[data-theme="light"] .subject-restore-btn:hover {
@@ -869,7 +869,7 @@
 .action-group-btn:focus-visible,
 .micro-btn:focus-visible,
 .toggle-form-btn:focus-visible {
-  outline: 2px solid var(--accent2, #06b6d4);
+  outline: 2px solid var(--accent2, #f97316);
   outline-offset: 2px;
 }
 
@@ -899,7 +899,7 @@ html[data-theme="light"] .segmented-toggle-group > .pill:focus-visible,
 html[data-theme="light"] .segmented-toggle-group > .chip:focus-visible,
 html[data-theme="light"] .micro-btn:focus-visible,
 html[data-theme="light"] .toggle-form-btn:focus-visible {
-  outline-color: var(--accent1, #4f46e5);
+  outline-color: var(--accent1, #d97706);
 }
 
 @media (forced-colors: active) {
@@ -987,5 +987,5 @@ html[data-theme="light"] .toggle-form-btn:focus-visible {
    (the mobile dock). */
 .nav-tab-bubble {
   border-radius: 12px;
-  background: linear-gradient(135deg, #6366f1, #06b6d4);
+  background: linear-gradient(135deg, #f59e0b, #f97316);
 }

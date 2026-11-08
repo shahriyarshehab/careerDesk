@@ -78,7 +78,7 @@ function renderSubjectManager() {
   } else {
     activeHtml = activeSubjects.map(s => {
       const stats = getSubjectStats(s);
-      const meta = typeof getSubjectMeta === 'function' ? getSubjectMeta(s) : { color: '#6366f1', icon: 'book-open' };
+      const meta = typeof getSubjectMeta === 'function' ? getSubjectMeta(s) : { color: '#f59e0b', icon: 'book-open' };
       const statPills = [];
       if (stats.totalMin > 0) {
         statPills.push(`<span class="subj-stat-pill" title="Total study logged">${ICON.clock} ${fmtHM(stats.totalMin)}</span>`);
@@ -135,7 +135,7 @@ function renderSubjectManager() {
   let deletedHtml = '';
   if (deletedSubjects.length > 0) {
     deletedHtml = deletedSubjects.map(s => {
-      const meta = typeof getSubjectMeta === 'function' ? getSubjectMeta(s) : { color: '#6366f1', icon: 'book-open' };
+      const meta = typeof getSubjectMeta === 'function' ? getSubjectMeta(s) : { color: '#f59e0b', icon: 'book-open' };
       return `
         <div class="subject-manager-row subject-deleted">
           <div class="subject-info">

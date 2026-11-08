@@ -817,13 +817,13 @@ const BANGLADESH_CURRICULUM_DATA = {
 
 const SUBJECT_METADATA = {
   'Bangla': { bn: 'বাংলা', color: '#ec4899', icon: 'book-open' },
-  'English': { bn: 'ইংরেজি', color: '#06b6d4', icon: 'languages' },
+  'English': { bn: 'ইংরেজি', color: '#f97316', icon: 'languages' },
   'Mathematics': { bn: 'গণিত', color: '#10b981', icon: 'calculator' },
   'General Knowledge': { bn: 'সাধারণ জ্ঞান', color: '#f59e0b', icon: 'globe' },
   'Physics': { bn: 'পদার্থবিজ্ঞান', color: '#8b5cf6', icon: 'atom' },
   'Chemistry': { bn: 'রসায়ন', color: '#14b8a6', icon: 'flask-conical' },
   'Biology': { bn: 'জীববিজ্ঞান', color: '#22c55e', icon: 'dna' },
-  'Higher Mathematics': { bn: 'উচ্চতর গণিত', color: '#6366f1', icon: 'sigma' },
+  'Higher Mathematics': { bn: 'উচ্চতর গণিত', color: '#f59e0b', icon: 'sigma' },
   'General Science': { bn: 'সাধারণ বিজ্ঞান', color: '#3b82f6', icon: 'microscope' },
   'ICT': { bn: 'তথ্য ও যোগাযোগ প্রযুক্তি', color: '#38bdf8', icon: 'cpu' },
   'Computer & ICT': { bn: 'কম্পিউটার ও আইসিটি', color: '#0ea5e9', icon: 'monitor' },
@@ -839,7 +839,7 @@ const SUBJECT_METADATA = {
   'Geography & Environment': { bn: 'ভূগোল ও পরিবেশ', color: '#10b981', icon: 'trees' },
   'Civics': { bn: 'পৌরনীতি ও নাগরিকতা', color: '#64748b', icon: 'shield' },
   'Economics': { bn: 'অর্থনীতি', color: '#eab308', icon: 'trending-up' },
-  'Sociology': { bn: 'সমাজবিজ্ঞান', color: '#06b6d4', icon: 'users' },
+  'Sociology': { bn: 'সমাজবিজ্ঞান', color: '#f97316', icon: 'users' },
   'Logic': { bn: 'যুক্তিবিদ্যা', color: '#a855f7', icon: 'lightbulb' },
   'Mental Ability': { bn: 'মানসিক দক্ষতা', color: '#d946ef', icon: 'brain' },
   'Ethics & Good Governance': { bn: 'নৈতিকতা ও সুশাসন', color: '#475569', icon: 'scale' }
@@ -852,12 +852,12 @@ function getSubjectMeta(subj) {
   // Smart heuristic inference for custom/user-created subjects
   const lower = String(canon).toLowerCase();
   let icon = 'book-open';
-  let color = '#6366f1';
+  let color = '#f59e0b';
 
   if (lower.includes('math') || lower.includes('গণিত') || lower.includes('অঙ্ক') || lower.includes('calcu')) {
     icon = 'calculator'; color = '#10b981';
   } else if (lower.includes('eng') || lower.includes('ইংরেজি') || lower.includes('vocab') || lower.includes('gram') || lower.includes('lang')) {
-    icon = 'languages'; color = '#06b6d4';
+    icon = 'languages'; color = '#f97316';
   } else if (lower.includes('bang') || lower.includes('বাংলা') || lower.includes('সাহিত্য')) {
     icon = 'book-open'; color = '#ec4899';
   } else if (lower.includes('phys') || lower.includes('পদার্থ')) {
@@ -1316,7 +1316,7 @@ function slideSwitchBubble(previousButton, nextButton, bubbleClass) {
   bubble.style.width = fromRect.width + 'px';
   bubble.style.height = fromRect.height + 'px';
   bubble.style.borderRadius = activeLook.borderRadius;
-  bubble.style.backgroundImage = filled ? activeLook.backgroundImage : 'linear-gradient(135deg, #6366f1, #06b6d4)';
+  bubble.style.backgroundImage = filled ? activeLook.backgroundImage : 'linear-gradient(135deg, #f59e0b, #f97316)';
   bubble.style.backgroundColor = filled ? tint : 'transparent';
   bubble.style.boxShadow = activeLook.boxShadow === 'none' ? '' : activeLook.boxShadow;
   if (activeLook.borderStyle !== 'none' && parseFloat(activeLook.borderWidth) > 0) {

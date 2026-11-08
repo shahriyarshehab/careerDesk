@@ -1123,7 +1123,7 @@
   .onboarding-subject-item.selected {
     border-color: var(--accent1);
     background: color-mix(in srgb, var(--cdp-brand-500) 12%, transparent);
-    box-shadow: 0 4px 14px rgba(99, 102, 241, 0.15);
+    box-shadow: 0 4px 14px rgba(245, 158, 11, 0.15);
   }
 
   .onboarding-checkbox {
@@ -1199,8 +1199,8 @@ html[data-theme="light"] .timer-ring-stop-start { stop-color: var(--cdp-brand-60
   margin: 18px auto 10px;
   border: 0;
   border-radius: 50%;
-  background: radial-gradient(circle at 50% 50%, rgba(99, 102, 241, .12) 0%, rgba(6, 182, 212, .04) 50%, transparent 72%);
-  filter: drop-shadow(0 0 18px rgba(6, 182, 212, .18));
+  background: radial-gradient(circle at 50% 50%, rgba(245, 158, 11, .12) 0%, rgba(249, 115, 22, .04) 50%, transparent 72%);
+  filter: drop-shadow(0 0 18px rgba(249, 115, 22, .18));
   box-shadow: none;
   transition: box-shadow .45s ease;
 }
@@ -1216,7 +1216,7 @@ html[data-theme="light"] .timer-ring-stop-start { stop-color: var(--cdp-brand-60
   animation: none;
 }
 
-#panel-tracker .clock-orb.is-running { box-shadow: 0 0 26px rgba(6, 182, 212, .14); }
+#panel-tracker .clock-orb.is-running { box-shadow: 0 0 26px rgba(249, 115, 22, .14); }
 #panel-tracker .clock-orb.is-complete { box-shadow: 0 0 26px rgba(16, 185, 129, .18); }
 
 #panel-tracker .tracker-timer-svg {
@@ -1242,11 +1242,11 @@ html[data-theme="light"] .timer-ring-stop-start { stop-color: var(--cdp-brand-60
   stroke-dasharray: 515.22;
   stroke-dashoffset: 515.22;
   transition: stroke-dashoffset .45s linear;
-  filter: drop-shadow(0 0 6px rgba(6, 182, 212, .26));
+  filter: drop-shadow(0 0 6px rgba(249, 115, 22, .26));
 }
 
 #panel-tracker .clock-orb.is-running .tracker-timer-progress {
-  filter: drop-shadow(0 0 8px rgba(6, 182, 212, .4));
+  filter: drop-shadow(0 0 8px rgba(249, 115, 22, .4));
 }
 
 #panel-tracker .timer-center {

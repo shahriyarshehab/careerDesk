@@ -1,60 +1,60 @@
 /* ==========================================================================
    CareerDesk — Color Plate (Brand Palette)
    --------------------------------------------------------------------------
-   One source of truth for the indigo + cyan identity. Loaded last in the
-   master manifest, so buttons, chips, links, focus rings and accent surfaces
-   all resolve to these values.
+   One source of truth for the amber + gold desk-lamp identity. Loaded last
+   in the master manifest, so buttons, chips, links, focus rings and accent
+   surfaces all resolve to these values.
 
-   BRAND — Indigo
-     50  #EEF0FF      200 #C7CDFF      500 #6366F1  ← primary
-     100 #E0E3FF      300 #A5ADFF      600 #4F46E5
-                      400 #8B90FB      700 #4338CA   800 #3730A3   900 #272365
+   BRAND — Amber (Desk Lamp Gold)
+     50  #FFFBEB      200 #FDE68A      500 #F59E0B  ← primary
+     100 #FEF3C7      300 #FCD34D      600 #D97706
+                      400 #FBBF24      700 #B45309   800 #92400E   900 #78350F
 
-   SUPPORT — Cyan
-     50  #ECFEFF      200 #A5F3FC      500 #06B6D4
-     100 #CFFAFE      300 #67E8F9      600 #0891B2   700 #0E7490
-                      400 #22D3EE      800 #155E75   900 #164E63
+   SUPPORT — Warm Orange
+     50  #FFF7ED      200 #FED7AA      500 #F97316
+     100 #FFEDD5      300 #FDBA74      600 #EA580C   700 #C2410C
+                      400 #FB923C      800 #9A3412   900 #7C2D12
 
-   NEUTRALS (unchanged app scale)
-     ink #0B0F19 · slate-900 #0F172A · slate-500 #64748B
-     slate-400 #94A3B8 · slate-200 #E2E8F0 · white #FFFFFF
+   NEUTRALS (warm-shifted dark scale)
+     ink #0D0A06 · warm-900 #1C1408 · warm-500 #8B7355
+     warm-400 #A69070 · warm-200 #E8DED0 · white #FFFDF8
 
    SEMANTIC
      success #10B981 / #059669     warning #F59E0B / #D97706
-     danger  #F43F5E / #E11D48     info    #06B6D4
+     danger  #F43F5E / #E11D48     info    #F97316
 
    USAGE
      Primary action ......... brand gradient 600 → 700, white label
      Selected / active ...... same brand gradient (one "on" colour everywhere)
-     Support / progress ..... cyan (rings, badges, data highlights)
+     Support / progress ..... warm orange (rings, badges, data highlights)
      Breaks ................. warning amber gradient
      Destructive ............ danger rose gradient
    ========================================================================== */
 
 :root {
-  /* ── Brand indigo scale ─────────────────────────────────────────────── */
-  --cdp-brand-50: #EEF0FF;
-  --cdp-brand-100: #E0E3FF;
-  --cdp-brand-200: #C7CDFF;
-  --cdp-brand-300: #A5ADFF;
-  --cdp-brand-400: #8B90FB;
-  --cdp-brand-500: #6366F1;
-  --cdp-brand-600: #4F46E5;
-  --cdp-brand-700: #4338CA;
-  --cdp-brand-800: #3730A3;
-  --cdp-brand-900: #272365;
+  /* ── Brand amber scale ──────────────────────────────────────────────── */
+  --cdp-brand-50: #FFFBEB;
+  --cdp-brand-100: #FEF3C7;
+  --cdp-brand-200: #FDE68A;
+  --cdp-brand-300: #FCD34D;
+  --cdp-brand-400: #FBBF24;
+  --cdp-brand-500: #F59E0B;
+  --cdp-brand-600: #D97706;
+  --cdp-brand-700: #B45309;
+  --cdp-brand-800: #92400E;
+  --cdp-brand-900: #78350F;
 
-  /* ── Support cyan scale ─────────────────────────────────────────────── */
-  --cdp-cyan-50: #ECFEFF;
-  --cdp-cyan-100: #CFFAFE;
-  --cdp-cyan-200: #A5F3FC;
-  --cdp-cyan-300: #67E8F9;
-  --cdp-cyan-400: #22D3EE;
-  --cdp-cyan-500: #06B6D4;
-  --cdp-cyan-600: #0891B2;
-  --cdp-cyan-700: #0E7490;
-  --cdp-cyan-800: #155E75;
-  --cdp-cyan-900: #164E63;
+  /* ── Support warm orange scale ──────────────────────────────────────── */
+  --cdp-cyan-50: #FFF7ED;
+  --cdp-cyan-100: #FFEDD5;
+  --cdp-cyan-200: #FED7AA;
+  --cdp-cyan-300: #FDBA74;
+  --cdp-cyan-400: #FB923C;
+  --cdp-cyan-500: #F97316;
+  --cdp-cyan-600: #EA580C;
+  --cdp-cyan-700: #C2410C;
+  --cdp-cyan-800: #9A3412;
+  --cdp-cyan-900: #7C2D12;
 
   /* ── Semantic ───────────────────────────────────────────────────────── */
   --cdp-success: #10B981;
@@ -68,9 +68,9 @@
   /* ── Role tokens ────────────────────────────────────────────────────── */
   --cdp-cta-from: var(--cdp-brand-600);
   --cdp-cta-to: var(--cdp-brand-700);
-  --cdp-cta-shadow: rgba(67, 56, 202, .34);
-  --cdp-cta-shadow-hover: rgba(67, 56, 202, .44);
-  --cdp-ring-start: #FFFFFF;
+  --cdp-cta-shadow: rgba(180, 83, 9, .34);
+  --cdp-cta-shadow-hover: rgba(180, 83, 9, .48);
+  --cdp-ring-start: #FFFDF8;
   --cdp-ring-end: var(--cdp-cyan-400);
 }
 
@@ -82,78 +82,41 @@ html[data-theme="dark"] {
   --accent2: var(--cdp-cyan-400);
   --accent3: var(--cdp-danger);
   --gold: var(--cdp-warning);
-  --border-glow: rgba(99, 102, 241, .42);
+  --border-glow: rgba(245, 158, 11, .38);
   --cd-primary: var(--cdp-brand-500);
   --cd-primary-strong: var(--cdp-brand-600);
   --cd-accent: var(--cdp-cyan-400);
 
-  /* Authentic Glassmorphism: Translucent dark surface with subtle borders */
-  --surface: rgba(255, 255, 255, 0.04);
-  --surface-strong: #0F172A;
-  --surface-hover: rgba(255, 255, 255, 0.08);
-  --border: rgba(255, 255, 255, 0.08);
-  --select-bg: #131A31;
-  --select-option-bg: #18203C;
-  --select-border: rgba(129, 140, 248, .24);
-  --card-quote-a: #171C44;
-  --card-quote-b: #0D2B41;
+  /* Authentic Glassmorphism: Warm-tinted dark surface with subtle borders */
+  --surface: rgba(255, 245, 225, 0.04);
+  --surface-strong: #1C1408;
+  --surface-hover: rgba(255, 245, 225, 0.08);
+  --border: rgba(255, 245, 225, 0.08);
+  --select-bg: #1A1308;
+  --select-option-bg: #211A0C;
+  --select-border: rgba(251, 191, 36, .22);
+  --card-quote-a: #1E1705;
+  --card-quote-b: #1A1308;
 
   /* Loading placeholders: base block + sweeping shine */
-  --skeleton-base: rgba(148, 163, 184, .16);
-  --skeleton-shine: rgba(255, 255, 255, .14);
+  --skeleton-base: rgba(139, 115, 85, .18);
+  --skeleton-shine: rgba(255, 250, 240, .14);
 
   /* Harmonized tokens for glassmorphism home cards, panels, and widgets */
-  --cd-panel: rgba(255, 255, 255, 0.04);
-  --cd-panel-solid: #0F172A;
-  --cd-line: rgba(255, 255, 255, 0.08);
+  --cd-panel: rgba(255, 245, 225, 0.04);
+  --cd-panel-solid: #1C1408;
+  --cd-line: rgba(255, 245, 225, 0.08);
   --cd-blue: var(--cdp-brand-400);
   --cd-mint: var(--cdp-cyan-400);
-  --cd-border: rgba(255, 255, 255, 0.08);
-  --cd-border-strong: rgba(255, 255, 255, 0.14);
-  --cd-surface: rgba(255, 255, 255, 0.04);
-  --cd-surface-raised: #0F172A;
-  --cd-surface-soft: rgba(255, 255, 255, 0.025);
-}
-
-html[data-theme="light"] {
-  --accent1: var(--cdp-brand-600);
-  --accent2: var(--cdp-cyan-600);
-  --accent3: var(--cdp-danger-strong);
-  --gold: var(--cdp-warning-strong);
-  --border-glow: rgba(79, 70, 229, .25);
-  --cd-primary: var(--cdp-brand-600);
-  --cd-primary-strong: var(--cdp-brand-700);
-  --cd-accent: var(--cdp-cyan-700);
-
-  /* Authentic Glassmorphism: Frosted white cards with subtle borders */
-  --surface: rgba(255, 255, 255, 0.75);
-  --surface-strong: #F8FAFC;
-  --surface-hover: #FFFFFF;
-  --border: rgba(226, 232, 240, 0.85);
-  --select-bg: #FFFFFF;
-  --select-option-bg: #F7F9FF;
-  --select-border: rgba(79, 70, 229, .20);
-  --card-quote-a: #EEF1FF;
-  --card-quote-b: #E9FAFF;
-
-  /* Loading placeholders: base block + sweeping shine */
-  --skeleton-base: rgba(100, 116, 139, .18);
-  --skeleton-shine: rgba(255, 255, 255, .78);
-
-  --cd-panel: rgba(255, 255, 255, 0.75);
-  --cd-panel-solid: #FFFFFF;
-  --cd-line: rgba(226, 232, 240, 0.85);
-  --cd-blue: var(--cdp-brand-600);
-  --cd-mint: var(--cdp-cyan-600);
-  --cd-border: rgba(226, 232, 240, 0.85);
-  --cd-border-strong: rgba(203, 213, 225, 0.9);
-  --cd-surface: rgba(255, 255, 255, 0.75);
-  --cd-surface-raised: #F8FAFC;
-  --cd-surface-soft: rgba(255, 255, 255, 0.65);
+  --cd-border: rgba(255, 245, 225, 0.08);
+  --cd-border-strong: rgba(255, 245, 225, 0.14);
+  --cd-surface: rgba(255, 245, 225, 0.04);
+  --cd-surface-raised: #1C1408;
+  --cd-surface-soft: rgba(255, 245, 225, 0.025);
 }
 
 /* ── Primary actions ──────────────────────────────────────────────────────
-   Brand indigo gradient instead of the old indigo-to-cyan sweep, so primary
+   Brand amber gradient instead of the old indigo-to-cyan sweep, so primary
    buttons read as one deliberate CTA colour. */
 button.solid,
 .btn.solid,
@@ -250,12 +213,12 @@ button.pill.danger:hover {
   color: #FFFFFF !important;
 }
 
-/* Breaks use the warning hue so study (indigo) and break (amber) read apart. */
+/* Breaks use the warning hue so study (amber) and break (orange) read apart. */
 #breakDurationOptions .chip.active,
 .db-timer-durations[data-dashboard-break-control] .db-timer-mode-btn.active {
-  background: linear-gradient(135deg, var(--cdp-warning), var(--cdp-warning-strong));
+  background: linear-gradient(135deg, var(--cdp-cyan-500), var(--cdp-cyan-600));
   color: #FFFFFF;
-  box-shadow: 0 6px 16px rgba(245, 158, 11, .28);
+  box-shadow: 0 6px 16px rgba(249, 115, 22, .28);
 }
 
 /* ── Universal button skin ────────────────────────────────────────────────
@@ -287,12 +250,12 @@ html[data-theme] :is(button, a.pill, label.pill):not(.solid):not(.primary):not(.
   border-color: color-mix(in srgb, var(--accent1) 55%, transparent);
   color: var(--text);
   transform: translateY(-2px);
-  box-shadow: 0 10px 22px -12px var(--border-glow, rgba(99, 102, 241, .42));
+  box-shadow: 0 10px 22px -12px var(--border-glow, rgba(245, 158, 11, .38));
 }
 
 html[data-theme] :is(button, a.pill, label.pill):not(.solid):not(.primary):not(.primary-btn):not(.btn-primary):not(.danger):not(.active):not(.active-theme):not(.tab-btn):not(.nav-link):not(.mobile-more-trigger):not(.mobile-more-link):not(.btn-mode-switch):not(.track-lang-btn):not(.track-role-btn):not(.track-sector-btn):not(.db-timer-mode-btn):not(.db-timer-btn-start):not(.db-timer-btn-stop):not(.quiz-opt-btn):not(.btn-submit):not(.btn-social):not(.shortcut-row):not(.desk-mini-cal):not(.desk-focus-ring):not(.desk-progress):not(.desk-fullscreen-btn):not(.desk-avatar):active:not(:disabled) {
   transform: translateY(0) scale(.96);
-  box-shadow: 0 2px 8px -6px var(--border-glow, rgba(99, 102, 241, .42));
+  box-shadow: 0 2px 8px -6px var(--border-glow, rgba(245, 158, 11, .38));
 }
 
 button:not(.solid):not(.primary):not(.db-timer-btn-start):not(.db-timer-btn-stop):disabled {
@@ -337,7 +300,7 @@ html[data-theme] body :is(button, a.pill, label.pill, .chip, .filter-pill, .quiz
 button.pill:not(.solid):not(.danger):hover,
 .pill:not(.solid):not(.danger):hover {
   border-color: color-mix(in srgb, var(--cdp-brand-500) 55%, transparent);
-  box-shadow: 0 4px 14px rgba(99, 102, 241, .16);
+  box-shadow: 0 4px 14px rgba(245, 158, 11, .16);
 }
 
 button.pill.solid:hover,
@@ -354,40 +317,28 @@ textarea:focus {
 }
 
 /* ── Timer clocks ─────────────────────────────────────────────────────────
-   White → cyan head, matching the palette's progress/support colour. */
+   White → warm orange head, matching the palette's progress/support colour. */
 .timer-ring-stop-start { stop-color: var(--cdp-ring-start); }
 .timer-ring-stop-end { stop-color: var(--cdp-ring-end); }
 
-html[data-theme="light"] .timer-ring-stop-start { stop-color: var(--cdp-brand-600); }
-html[data-theme="light"] .timer-ring-stop-end { stop-color: var(--cdp-cyan-600); }
-
 /* ── Backdrop ─────────────────────────────────────────────────────────────
-   Modern ambient aura mesh: glowing indigo/cyan lights pinned behind glass. */
+   Modern ambient aura mesh: glowing amber/orange lights pinned behind glass,
+   evoking a warm desk-lamp atmosphere. */
 html[data-theme="dark"] body {
-  background-color: #060911;
+  background-color: #0D0A06;
   background-image:
-    radial-gradient(circle 850px at 18% -5%, rgba(99, 102, 241, 0.32), transparent 70%),
-    radial-gradient(circle 750px at 85% 8%, rgba(6, 182, 212, 0.26), transparent 65%),
-    radial-gradient(circle 950px at 45% 80%, rgba(139, 92, 246, 0.20), transparent 70%),
-    radial-gradient(circle 650px at 88% 85%, rgba(14, 165, 233, 0.18), transparent 65%);
+    radial-gradient(circle 850px at 18% -5%, rgba(245, 158, 11, 0.22), transparent 70%),
+    radial-gradient(circle 750px at 85% 8%, rgba(249, 115, 22, 0.18), transparent 65%),
+    radial-gradient(circle 950px at 45% 80%, rgba(217, 119, 6, 0.14), transparent 70%),
+    radial-gradient(circle 650px at 88% 85%, rgba(251, 191, 36, 0.12), transparent 65%);
   background-attachment: fixed;
   background-repeat: no-repeat;
 }
 
-html[data-theme="light"] body {
-  background-color: #F8FAFC;
-  background-image:
-    radial-gradient(circle 800px at 10% -5%, rgba(99, 102, 241, 0.14), transparent 65%),
-    radial-gradient(circle 700px at 90% 5%, rgba(6, 182, 212, 0.12), transparent 60%),
-    radial-gradient(circle 800px at 50% 95%, rgba(79, 70, 229, 0.09), transparent 70%);
-  background-attachment: fixed;
-  background-repeat: no-repeat;
-}
-
-/* Drifting backdrop blobs: brand indigo + cyan only, amber retired. */
-.aurora span:nth-child(1) { background: var(--cdp-brand-500); opacity: .42; }
-.aurora span:nth-child(2) { background: var(--cdp-cyan-500); opacity: .30; }
-.aurora span:nth-child(3) { background: var(--cdp-brand-800); opacity: .30; }
+/* Drifting backdrop blobs: brand amber + warm orange only. */
+.aurora span:nth-child(1) { background: var(--cdp-brand-500); opacity: .35; }
+.aurora span:nth-child(2) { background: var(--cdp-cyan-500); opacity: .25; }
+.aurora span:nth-child(3) { background: var(--cdp-brand-800); opacity: .25; }
 
 /* ── Cards ────────────────────────────────────────────────────────────────
    Modern Glassmorphism: layered specular highlight, deep ambient shadow,
@@ -397,54 +348,31 @@ html[data-theme="light"] body {
 .db-plan-card,
 .db-timer-card {
   background:
-    linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.02) 100%),
-    rgba(15, 23, 42, 0.55);
+    linear-gradient(135deg, rgba(255, 248, 230, 0.06) 0%, rgba(255, 248, 230, 0.02) 100%),
+    rgba(20, 16, 8, 0.6);
   backdrop-filter: blur(24px) saturate(180%);
   -webkit-backdrop-filter: blur(24px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 245, 225, 0.10);
   box-shadow:
     0 20px 45px -10px rgba(0, 0, 0, 0.5),
-    inset 0 1px 0 rgba(255, 255, 255, 0.18),
-    inset 0 0 20px rgba(99, 102, 241, 0.04);
+    inset 0 1px 0 rgba(255, 248, 230, 0.12),
+    inset 0 0 20px rgba(245, 158, 11, 0.03);
   transition: transform 0.24s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.24s ease, box-shadow 0.24s ease;
 }
 
-html[data-theme="light"] .glass,
-html[data-theme="light"] .db-kpi-card,
-html[data-theme="light"] .db-plan-card,
-html[data-theme="light"] .db-timer-card {
-  background:
-    linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.82) 100%),
-    rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(24px) saturate(180%);
-  -webkit-backdrop-filter: blur(24px) saturate(180%);
-  border: 1px solid rgba(226, 232, 240, 0.95);
-  box-shadow:
-    0 14px 34px -4px rgba(15, 23, 42, 0.07),
-    inset 0 1px 0 rgba(255, 255, 255, 1);
-}
-
 /* ── Floating header ──────────────────────────────────────────────────────
-   The masthead is the plate's strongest glass surface: indigo tint, cyan
-   whisper, and an indigo hairline instead of a neutral one. */
+   The masthead is the plate's strongest glass surface: amber tint, orange
+   whisper, and an amber hairline instead of a neutral one. */
 header.main-header,
 header.masthead {
   background:
-    linear-gradient(135deg, color-mix(in srgb, var(--cdp-brand-500) 16%, transparent), color-mix(in srgb, var(--cdp-cyan-400) 6%, transparent)),
-    rgba(13, 20, 36, .86) !important;
-  border-color: color-mix(in srgb, var(--cdp-brand-400) 24%, transparent) !important;
+    linear-gradient(135deg, color-mix(in srgb, var(--cdp-brand-500) 12%, transparent), color-mix(in srgb, var(--cdp-cyan-400) 5%, transparent)),
+    rgba(16, 12, 6, .88) !important;
+  border-color: color-mix(in srgb, var(--cdp-brand-400) 22%, transparent) !important;
   box-shadow:
     0 16px 40px rgba(0, 0, 0, .35),
-    inset 0 1px 0 rgba(255, 255, 255, .08),
+    inset 0 1px 0 rgba(255, 248, 230, .08),
     0 0 0 1px color-mix(in srgb, var(--cdp-brand-500) 10%, transparent) !important;
-}
-
-html[data-theme="light"] header.main-header,
-html[data-theme="light"] header.masthead {
-  background:
-    linear-gradient(135deg, color-mix(in srgb, var(--cdp-brand-500) 6%, transparent), color-mix(in srgb, var(--cdp-cyan-600) 4%, transparent)),
-    rgba(255, 255, 255, .94) !important;
-  border-color: color-mix(in srgb, var(--cdp-brand-500) 20%, transparent) !important;
 }
 
 /* Nav strip inside the header. */
@@ -452,14 +380,6 @@ header.main-header nav.tabs,
 header.masthead nav.tabs,
 header.main-header .nav-menu,
 header.masthead .nav-menu {
-  background: color-mix(in srgb, var(--cdp-brand-500) 7%, transparent) !important;
-  border-color: color-mix(in srgb, var(--cdp-brand-400) 16%, transparent) !important;
-}
-
-html[data-theme="light"] header.main-header nav.tabs,
-html[data-theme="light"] header.masthead nav.tabs,
-html[data-theme="light"] header.main-header .nav-menu,
-html[data-theme="light"] header.masthead .nav-menu {
-  background: color-mix(in srgb, var(--cdp-brand-500) 4%, transparent) !important;
-  border-color: color-mix(in srgb, var(--cdp-brand-500) 12%, transparent) !important;
+  background: color-mix(in srgb, var(--cdp-brand-500) 6%, transparent) !important;
+  border-color: color-mix(in srgb, var(--cdp-brand-400) 14%, transparent) !important;
 }
