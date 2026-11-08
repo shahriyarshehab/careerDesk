@@ -407,7 +407,7 @@ if (importDataInputEl) {
           customQuotes: Array.isArray(rawState.customQuotes) ? rawState.customQuotes : [],
           quoteIdx: typeof rawState.quoteIdx === 'number' ? rawState.quoteIdx : 0,
           quoteSource: rawState.quoteSource || 'all',
-          theme: rawState.theme === 'light' ? 'light' : 'dark',
+          theme: 'dark',
           sessions: Array.isArray(rawState.sessions) ? rawState.sessions : [],
           activeSession: rawState.activeSession || null,
           dailyTargetMinutes: typeof rawState.dailyTargetMinutes === 'number' ? rawState.dailyTargetMinutes : 240,

@@ -359,11 +359,8 @@ function refreshAllViews(changes) {
   if (typeof renderSubjectManager === 'function') renderSubjectManager();
   if (typeof syncAllSubjectSelects === 'function') syncAllSubjectSelects();
   
-  // Update theme if changed
-  if (changes.includes('theme')) {
-    document.documentElement.setAttribute('data-theme', state.theme);
-    syncThemeButtons();
-  }
+  // Ensure clean dark theme is active
+  document.documentElement.setAttribute('data-theme', 'dark');
 }
 
 // Initialize cross-tab sync after state is defined
@@ -397,8 +394,7 @@ async function loadData() {
       state.customQuotes = normalizeCustomQuotes(Array.isArray(p.customQuotes) ? p.customQuotes : []);
       state.quoteIdx = typeof p.quoteIdx === 'number' ? p.quoteIdx : 0;
       state.quoteSource = p.quoteSource || 'all';
-      const validThemes = ['dark', 'light'];
-      state.theme = (p && validThemes.includes(p.theme)) ? p.theme : 'dark';
+      state.theme = 'dark';
       state.sessions = Array.isArray(p.sessions) ? p.sessions : [];
       state.activeSession = p.activeSession || null;
       state.dailyTargetMinutes = typeof p.dailyTargetMinutes === 'number' ? p.dailyTargetMinutes : 240;
@@ -425,8 +421,7 @@ async function loadData() {
   // Purge legacy notes from this device and persist the notes-free schema.
   delete state.notes;
   await storageAdapter.set(STORAGE_KEY, JSON.stringify(state));
-  document.documentElement.setAttribute('data-theme', state.theme);
-  syncThemeButtons();
+  document.documentElement.setAttribute('data-theme', 'dark');
 }
 
 function migrateRoutine(rows) {

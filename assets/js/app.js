@@ -3,34 +3,12 @@
    ========================================================================== */
 
 // ===== Theme settings =====
-// One glass theme ships with the app, in a dark and a light mode: anything
-// other than 'light' resolves to the dark default, so no stale value (a saved
-// theme name, an old link) can put the app in a theme that no longer exists.
-function setTheme(newTheme) {
-  state.theme = newTheme === 'light' ? 'light' : 'dark';
-  document.documentElement.setAttribute('data-theme', state.theme);
-  syncThemeButtons();
-  saveData();
+// Clean fixed dark theme
+function setTheme() {
+  state.theme = 'dark';
+  document.documentElement.setAttribute('data-theme', 'dark');
 }
-function syncThemeButtons() {
-  const currentTheme = state.theme || 'dark';
-  const darkBtn = document.getElementById('themeDarkBtn');
-  const lightBtn = document.getElementById('themeLightBtn');
-  if (darkBtn && lightBtn) {
-    const isDark = currentTheme !== 'light';
-    darkBtn.classList.toggle('active', isDark);
-    darkBtn.classList.toggle('active-theme', isDark);
-    darkBtn.setAttribute('aria-pressed', String(isDark));
-    lightBtn.classList.toggle('active', !isDark);
-    lightBtn.classList.toggle('active-theme', !isDark);
-    lightBtn.setAttribute('aria-pressed', String(!isDark));
-  }
-  syncWatchControls();
-}
-const darkBtn = document.getElementById('themeDarkBtn');
-if (darkBtn) darkBtn.addEventListener('click', () => setTheme('dark'));
-const lightBtn = document.getElementById('themeLightBtn');
-if (lightBtn) lightBtn.addEventListener('click', () => setTheme('light'));
+function syncThemeButtons() {}
 
 // ===== Fullscreen & Theme watch controls =====
 function syncWatchControls() {
@@ -144,14 +122,6 @@ function initCommandPalette() {
           if (addBtn) addBtn.click();
         }, 150);
       }
-    },
-    {
-      id: 'act-theme-dark', category: 'Themes', icon: 'moon', title: 'Theme: Dark', subtitle: 'Default navy glassmorphism with indigo & cyan',
-      action: () => setTheme('dark')
-    },
-    {
-      id: 'act-theme-light', category: 'Themes', icon: 'sun', title: 'Theme: Light', subtitle: 'Daytime frosted glass with crisp borders',
-      action: () => setTheme('light')
     },
     {
       id: 'act-fullscreen', category: 'Actions', icon: 'maximize', title: 'Toggle Fullscreen', subtitle: 'Distraction-free fullscreen view',
@@ -339,16 +309,9 @@ function initCommandPalette() {
 // ===== Init =====
 (async function init() {
   await loadData();
-  try {
-    const urlParams = new URLSearchParams(window.location.search);
-    const urlTheme = urlParams.get('theme');
-    if (urlTheme && ['dark', 'light'].includes(urlTheme)) {
-      state.theme = urlTheme;
-    }
-  } catch (e) {}
-  document.documentElement.setAttribute('data-theme', state.theme || 'dark');
+  state.theme = 'dark';
+  document.documentElement.setAttribute('data-theme', 'dark');
   await initAutoSync();
-  syncThemeButtons();
   initMonthDropdown();
   renderDateSlider();
   renderRoutine();
@@ -462,10 +425,6 @@ function initKeyboardShortcutsPanel() {
         {
           keys: ['F'], desc: 'Toggle Fullscreen',
           run: () => { if (typeof toggleFullscreen === 'function') toggleFullscreen(); }
-        },
-        {
-          keys: ['T'], desc: 'Toggle Dark / Light Theme',
-          run: () => setTheme((document.documentElement.getAttribute('data-theme') === 'dark') ? 'light' : 'dark')
         },
       ]
     },
@@ -616,10 +575,6 @@ function initKeyboardShortcutsPanel() {
     // F = toggle fullscreen
     if (e.key === 'f' || e.key === 'F') {
       if (!e.ctrlKey && !e.metaKey && !e.altKey) { e.preventDefault(); toggleFullscreen(); }
-    }
-    // T = toggle theme
-    if (e.key === 't' || e.key === 'T') {
-      if (!e.ctrlKey && !e.metaKey && !e.altKey) { e.preventDefault(); setTheme(state.theme === 'dark' ? 'light' : 'dark'); }
     }
     // Escape = close open modals
     if (e.key === 'Escape') {
