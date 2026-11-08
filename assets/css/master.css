@@ -18,7 +18,6 @@
 @import url('profile.css');
 @import url('security.css');
 @import url('modals.css');
-@import url('groupchat.css');
 
 @import url('premium-refresh.css');
 @import url('modern-ui.css');
@@ -33,14 +32,8 @@
 /* CareerDesk brand color plate: load last so buttons and accents resolve to it */
 @import url('palette.css');
 
-/* Transparent glass surfaces: loaded last so every tab shares the Group Chat card fill */
+/* Transparent glass surfaces: loaded last so cards share clean glass fill */
 @import url('transparent-surfaces.css');
-
-/* Desk hero (reading-room backdrop, focus ring, mini calendar) */
-@import url('desk.css');
-
-/* 3D Nature Sanctuary Focus Desk (Ultra-realistic Three.js study sanctuary) */
-@import url('nature-desk-3d.css');
 
 /* Routine page — minimal theme-aligned redesign (loads last, scoped to #panel-routine) */
 @import url('routine-minimal.css');
