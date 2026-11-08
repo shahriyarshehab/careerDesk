@@ -68,10 +68,7 @@ html[data-theme] body :is(
   .subject-manager-row,
   /* Notes & security */
   .note-card, .security-card, .security-module-card, .security-vault-card,
-  .security-trust-strip, .security-audit-item, .privacy-lock-card,
-  /* Group chat */
-  .groupchat-card, .groupchat-info-card, .groupchat-info-hero,
-  .groupchat-group-item, .groupchat-search-item, .groupchat-invite-landing
+  .security-trust-strip, .security-audit-item, .privacy-lock-card
 ) {
   background: var(--surface) !important;
   backdrop-filter: blur(14px) saturate(150%);
@@ -81,7 +78,7 @@ html[data-theme] body :is(
 /* State colours stay meaningful on the transparent surface. */
 html[data-theme] body :is(
   .db-plan-row.is-active, .home-timeline-item.live-now,
-  .groupchat-group-item.active, .track-primary-card.active,
+  .track-primary-card.active,
   .track-subject-chip.active, .stat-streak-card.active-streak
 ) {
   background: color-mix(in srgb, var(--accent2) 12%, var(--surface)) !important;

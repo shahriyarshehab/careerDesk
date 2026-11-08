@@ -164,7 +164,7 @@ This project has a few important repository-specific conventions:
 
 - `core.js` initializes shared state, local persistence, common helpers, and the unified subject system.
 - `app.js` initializes the application shell, shared dialogs, and keyboard shortcuts; `features/navigation.js` owns tab routing.
-- `features/` contains dashboard, routine, focus tracker, syllabus, MCQ, profile, countdown, quotes, group-chat, and navigation modules.
+- `features/` contains dashboard, routine, focus tracker, syllabus, MCQ, profile, countdown, quotes, and navigation modules.
 - `integrations/` contains optional Firebase sync and configuration plus client-side security features.
 
 The main application state is stored locally under `jobprep-dashboard-data-v2`. Firebase sync is optional and should not be required for normal local use.

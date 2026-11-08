@@ -88,9 +88,7 @@ p, .muted, .subtitle, .routine-lead { color: var(--cd-muted); }
 .home-routine-card, .glass, .home-card, .home-widget, .home-stat-card,
 .home-pillar-card, .review-card, .session-card, .target-card, .study-heatmap-card,
 .note-card, .routine-card, .tracker-card, .countdown-card, .syllabus-card,
-.mcq-card, .profile-card, .security-card, .modal-content, .modal-card,
-#panel-groupchat .chat-sidebar, #panel-groupchat .chat-main,
-#panel-groupchat .chat-container, #panel-groupchat .groupchat-container {
+.mcq-card, .profile-card, .security-card, .modal-content, .modal-card {
   border-color: var(--cd-border);
   border-radius: var(--cd-radius);
 }
@@ -153,10 +151,7 @@ th { color: var(--cd-muted); font-weight: 750; }
 td, th { border-color: var(--cd-border); }
 tr:hover td { background: color-mix(in srgb, var(--cd-primary) 4%, transparent); }
 
-#panel-groupchat .chat-message, #panel-groupchat .message { border-radius: 16px; }
-#panel-groupchat textarea { min-height: 46px; }
-#panel-groupchat button { transition: transform .18s var(--cd-ease), background .18s ease, border-color .18s ease; }
-#panel-groupchat button:hover { border-color: color-mix(in srgb, var(--cd-primary) 38%, var(--cd-border)); }
+
 
 .modal-backdrop, .modal-overlay { backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
 .modal-content, .modal-card { box-shadow: 0 28px 90px rgba(0,0,0,.28); border: 1px solid var(--cd-border-strong); }

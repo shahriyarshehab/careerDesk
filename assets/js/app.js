@@ -116,7 +116,6 @@ function initCommandPalette() {
     { id: 'tab-subjects', category: 'Navigation', icon: 'layers', title: 'Open Subject Manager', subtitle: 'Manage subjects from Settings', action: () => { activateTab('settings', true); setTimeout(() => document.getElementById('profileSubjectsCockpitCard')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 120); } },
     { id: 'tab-profile', category: 'Navigation', icon: 'user', title: 'Go to User Profile', subtitle: 'Personal profile, study track & subjects', action: () => activateTab('profile', true) },
     { id: 'tab-settings', category: 'Navigation', icon: 'settings-2', title: 'Go to Settings & Sync', subtitle: 'Workspace preferences, cloud sync & backups', action: () => activateTab('settings', true) },
-    { id: 'tab-groupchat', category: 'Navigation', icon: 'messages-square', title: 'Go to Group Chat', subtitle: 'Join public study groups and chat in real time', action: () => activateTab('groupchat', true) },
     {
       id: 'act-pomodoro', category: 'Actions', icon: 'zap', title: 'Start 25m Pomodoro Focus', subtitle: 'Start 25-min deep focus session',
       action: () => {

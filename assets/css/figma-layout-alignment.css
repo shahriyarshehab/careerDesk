@@ -324,9 +324,7 @@
     opacity: 1 !important;
   }
 
-  main,
-  body.tab-groupchat-active main,
-  main:has(#panel-groupchat.active) {
+  main {
     margin-left: calc(var(--cd-sidebar-collapsed-width) + 24px) !important;
     padding-right: 24px !important;
     transition: margin-left .22s ease !important;
@@ -673,9 +671,7 @@
 
   /* Page content clears the persistent sidebar. */
   body { padding-top: 72px !important; }
-  main,
-  body.tab-groupchat-active main,
-  main:has(#panel-groupchat.active) {
+  main {
     margin-left: calc(var(--cd-sidebar-expanded-width) + 24px) !important;
     padding: 8px 24px 0 0 !important;
     transition: none !important;
@@ -980,9 +976,7 @@
 
   body { padding-top: 0 !important; }
 
-  main,
-  body.tab-groupchat-active main,
-  main:has(#panel-groupchat.active) {
+  main {
     width: calc(100% - 300px) !important;
     max-width: none !important;
     margin: 0 24px 0 276px !important;

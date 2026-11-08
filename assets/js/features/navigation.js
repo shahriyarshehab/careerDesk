@@ -75,7 +75,6 @@ function activateTab(rawTabName, persist = false) {
   document.querySelectorAll('.panel').forEach(panel => {
     panel.classList.toggle('active', panel === targetPanel);
   });
-  document.body.classList.toggle('tab-groupchat-active', tabName === 'groupchat');
   document.dispatchEvent(new CustomEvent('careerdesk:tabchange', { detail: tabName }));
 
   if (rawTabName !== 'routine' && rawTabName !== 'rutine') {
@@ -122,12 +121,6 @@ function activateTab(rawTabName, persist = false) {
   }
 
   if (tabName === 'tracker') renderTrackerAll();
-
-  if (tabName === 'groupchat' && typeof initGroupChat === 'function') {
-    initGroupChat();
-  } else if (tabName !== 'groupchat' && typeof destroyGroupChatListeners === 'function') {
-    destroyGroupChatListeners();
-  }
 
   if (tabName === 'quiz') {
     if (typeof loadQuestionBankForQuiz === 'function') {

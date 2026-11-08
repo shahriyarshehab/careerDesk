@@ -164,8 +164,8 @@ button.solid:hover, .btn.solid:hover { transform: translateY(-1px); }
 .notes-grid { gap: 18px; }
 .note-card { transition: transform .2s var(--cd-ease), box-shadow .2s ease; }
 
-#panel-notes, #panel-tracker, #panel-countdown, #panel-quiz,
-#panel-syllabus, #panel-groupchat {
+#panel-tracker, #panel-countdown, #panel-quiz,
+#panel-syllabus {
   animation: cdPanelEnter .35s var(--cd-ease) both;
 }
 
