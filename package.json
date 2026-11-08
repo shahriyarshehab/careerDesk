@@ -5,7 +5,8 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "test": "node test.js"
+    "test": "node test.js",
+    "deploy": "npx -p firebase-tools firebase deploy"
   },
   "keywords": [
     "careerdesk",
