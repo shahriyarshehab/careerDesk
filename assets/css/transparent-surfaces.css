@@ -3,7 +3,7 @@
    Every content container across the app now shares the same translucent
    surface as the Group Chat cards: one --surface wash (plus blur) instead of
    solid --surface-strong fills and opaque gradients.
-   Loaded last from master.css so it beats the per-tab stylesheets and the
+   Loaded last from index.html so it beats the per-tab stylesheets and the
    theme gallery. Modal and sign-in dialog cards are deliberately left out so
    they keep a readable fill above the dimmed overlay.
    ========================================================================== */

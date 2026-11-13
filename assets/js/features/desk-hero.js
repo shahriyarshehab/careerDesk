@@ -267,7 +267,6 @@ function initTopbarProfileControl() {
         await signOutUser();
       }
       syncTopbarProfileAvatar();
-      if (typeof renderSidebarAuthControl === 'function') renderSidebarAuthControl();
     });
   }
 

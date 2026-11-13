@@ -2,11 +2,11 @@
 
 ## Project overview
 
-CareerDesk is a zero-build, browser-first study and career-prep SPA. It runs as a set of plain HTML/CSS/JS modules in the browser, with optional Firebase sync for cloud backup and multi-device access.
+CareerDesk is a browser-first study and career-prep SPA. Its runtime is static HTML/CSS/JS with generated single-file bundles; optional Firebase provides cloud backup and multi-device sync.
 
 Key entry points:
-- `index.html` loads the app shell and includes `assets/css/master.css` and `assets/js/master.js`.
-- `assets/js/master.js` loads the feature modules in dependency order, so most app work is coordinated through shared globals and initialization.
+- `index.html` loads the app shell and generated bundles from `assets/dist/`.
+- `scripts/build.js` declares ordered modular sources and builds the runtime CSS and JavaScript bundles. Preserve script order because modules share globals.
 - `assets/js/core.js` owns the shared app state, storage adapter, default state, and the unified subject system (`masterSubjectList`, `canonicalSubjectName`, `renameSubject`, `syncAllSubjectSelects`).
 - `assets/js/app.js` handles tab routing, modals, command palette, and app bootstrap.
 - `routine.js`, `tracker.js`, `syllabus.js`, `mcq.js`, `profile.js`, and related modules all operate on the same `state` object instead of separate stores.
@@ -15,17 +15,18 @@ Primary persistence lives in browser `localStorage` under `jobprep-dashboard-dat
 
 ## Build, test, and lint commands
 
-This repo does not define a dedicated test or lint script in `package.json`.
+Run `npm test` to rebuild the bundles and execute the automated suite. The project does not define a separate lint script.
 
 Use these commands instead:
-- `npm start` — serves the app with `node serve.js` at `http://localhost:3000`.
+- `npm start` — serves the app with `node server.js` at `http://localhost:3000`.
+- `npm run build` — generate the runtime bundles and validate concatenated JavaScript syntax.
+- `npm test` — build the bundles and validate source files, bundles, question-bank data, core state, and shared UI classes.
 - `python -m http.server 8000` — lightweight alternative for local browser testing.
-- `node --check assets/js/master.js` — syntax validation for the main entry file.
 - `Get-ChildItem assets/js -Recurse -Filter *.js | ForEach-Object { node --check $_.FullName }` — recursively syntax-check JavaScript modules in PowerShell.
 - `node --check assets/js/<module>.js` — targeted validation while iterating on one module; in the reorganized tree, use the real relative path under `assets/js/`.
 - `firebase login && firebase use careerdesk && firebase deploy` — only for optional Firebase deployment or sync work.
 
-When there is no test/lint script, prefer syntax validation and a quick browser smoke test over adding new tooling.
+Use `npm test` for validation. For visual or interaction changes, also run the app and smoke-test the affected flow in a browser; do not add tooling unless the task needs it.
 
 ## High-level architecture
 

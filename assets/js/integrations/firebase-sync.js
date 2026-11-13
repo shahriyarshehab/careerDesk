@@ -1036,7 +1036,6 @@ async function signOutUser() {
   }
 
   renderUserProfileUI();
-  if (typeof renderSidebarAuthControl === 'function') renderSidebarAuthControl();
   showToast('Signed out. Personal study data cleaned from this browser.');
 }
 
@@ -1897,8 +1896,6 @@ const githubIconSvg = `
 function renderUserProfileUI() {
   // The retired profile card is gone; its avatar lives on inside the Desk hero.
   if (typeof renderDeskAvatar === 'function') renderDeskAvatar();
-  // Sync sidebar login button visibility for ALL login paths (Firebase, local, demo)
-  if (typeof renderSidebarAuthControl === 'function') renderSidebarAuthControl();
   if (typeof syncTopbarProfileAvatar === 'function') syncTopbarProfileAvatar();
   const container = document.getElementById('userProfileCard');
   if (!container) return;
@@ -4918,69 +4915,6 @@ function initCloudBackupEvents() {
 }
 
 /**
- * Sidebar account action: "Log in" when signed out, "Log out" when signed in.
- * Logging out runs signOutUser(), which cleans the local workspace data.
- */
-function renderSidebarAuthControl() {
-  const buttons = document.querySelectorAll('[data-auth-action]');
-  if (!buttons.length) return;
-  const user = typeof getCachedAuthUser === 'function' ? getCachedAuthUser() : null;
-  const isAuthed = !!user;
-
-  buttons.forEach((btn) => {
-    if (isAuthed) {
-      // User is logged in: remove/hide logout menu from side panel completely
-      btn.style.display = 'none';
-      btn.setAttribute('aria-hidden', 'true');
-    } else {
-      btn.style.display = '';
-      btn.removeAttribute('aria-hidden');
-      btn.classList.remove('is-authed');
-      const title = 'Log in to sync your workspace';
-      btn.title = title;
-      btn.setAttribute('aria-label', title);
-      const label = btn.querySelector('.sidebar-auth-label');
-      if (label) label.textContent = 'Log in';
-    }
-  });
-
-  if (typeof syncTopbarProfileAvatar === 'function') {
-    syncTopbarProfileAvatar();
-  }
-}
-window.renderSidebarAuthControl = renderSidebarAuthControl;
-
-function initSidebarAuthControl() {
-  if (window._sidebarAuthBound) return;
-  window._sidebarAuthBound = true;
-
-  document.addEventListener('click', (event) => {
-    const btn = event.target.closest('[data-auth-action]');
-    if (!btn) return;
-
-    if (typeof setMobileMoreMenuOpen === 'function') {
-      setMobileMoreMenuOpen(false);
-    } else {
-      const menu = document.getElementById('mobileMoreMenu');
-      if (menu) menu.hidden = true;
-    }
-
-    const user = typeof getCachedAuthUser === 'function' ? getCachedAuthUser() : null;
-    if (!user) {
-      if (typeof openAuthModal === 'function') openAuthModal('login');
-      return;
-    }
-  });
-
-  window.addEventListener('careerdesk-auth-state-changed', () => {
-    renderSidebarAuthControl();
-    if (typeof syncTopbarProfileAvatar === 'function') syncTopbarProfileAvatar();
-  });
-  renderSidebarAuthControl();
-}
-window.initSidebarAuthControl = initSidebarAuthControl;
-
-/**
  * Offline resilience: local data is always stored first. When the connection
  * returns, push the latest workspace bundle back up to Firestore.
  */
@@ -4999,15 +4933,14 @@ if (typeof window !== 'undefined') {
   });
 }
 
-// Auto-initialize cloud backup & sidebar auth controls on DOM ready
+// Auto-initialize cloud backup controls on DOM ready
 if (typeof document !== 'undefined') {
-  const initAuthSurfaces = () => {
+  const initCloudBackupUI = () => {
     initCloudBackupEvents();
-    initSidebarAuthControl();
   };
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initAuthSurfaces);
+    document.addEventListener('DOMContentLoaded', initCloudBackupUI);
   } else {
-    initAuthSurfaces();
+    initCloudBackupUI();
   }
 }

@@ -3,7 +3,7 @@
    Guarantees that Navigation (Header) and all Content Sections share the
    exact same width, margins, and responsive gutters across all screen sizes.
    Prefers the canonical 1200px section width.
-   Loaded last from master.css to take precedence over all other visual layers.
+   Loaded last from index.html to take precedence over all other visual layers.
    ========================================================================== */
 
 :root {

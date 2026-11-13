@@ -80,39 +80,35 @@ suite('JavaScript Syntax Integrity (node --check)', () => {
 });
 
 // -----------------------------------------------------------------------------
-// Suite 2: Manifest & File Link Integrity
+// Suite 2: Build Sources & Bundle Integrity
 // -----------------------------------------------------------------------------
-suite('Master Manifests & File Links', () => {
-  // Check master.js modules
-  const masterJsPath = path.join(ROOT_DIR, 'assets', 'js', 'master.js');
-  assert(fs.existsSync(masterJsPath), 'assets/js/master.js exists');
-  
-  const masterJsContent = fs.readFileSync(masterJsPath, 'utf8');
-  const moduleMatches = masterJsContent.match(/MODULES\s*=\s*\[([\s\S]*?)\]/);
-  assert(!!moduleMatches, 'MODULES array found in master.js');
-  
-  if (moduleMatches) {
-    const rawList = moduleMatches[1];
-    const modulePaths = [...rawList.matchAll(/['"]([^'"]+\.js)['"]/g)].map(m => m[1]);
-    assert(modulePaths.length > 0, `Found ${modulePaths.length} modules registered in master.js`);
-    
-    for (const mod of modulePaths) {
-      const targetPath = path.join(ROOT_DIR, mod);
-      assert(fs.existsSync(targetPath), `Module file exists: ${mod}`);
-    }
-  }
+suite('Build Sources & Bundle Integrity', () => {
+  const { CSS_FILES, JS_FILES } = require('./scripts/build.js');
+  const cssBundlePath = path.join(ROOT_DIR, 'assets', 'dist', 'careerdesk.css');
+  const jsBundlePath = path.join(ROOT_DIR, 'assets', 'dist', 'careerdesk.js');
+  const htmlPath = path.join(ROOT_DIR, 'index.html');
+  const html = fs.readFileSync(htmlPath, 'utf8');
 
-  // Check master.css imports
-  const masterCssPath = path.join(ROOT_DIR, 'assets', 'css', 'master.css');
-  assert(fs.existsSync(masterCssPath), 'assets/css/master.css exists');
-  
-  const masterCssContent = fs.readFileSync(masterCssPath, 'utf8');
-  const importMatches = [...masterCssContent.matchAll(/@import\s+url\(['"]([^'"]+\.css)['"]\);/g)].map(m => m[1]);
-  assert(importMatches.length > 0, `Found ${importMatches.length} stylesheet imports in master.css`);
-  
-  for (const sheet of importMatches) {
-    const sheetPath = path.join(ROOT_DIR, 'assets', 'css', sheet);
-    assert(fs.existsSync(sheetPath), `Stylesheet file exists: assets/css/${sheet}`);
+  assert(fs.existsSync(cssBundlePath), 'Generated CSS bundle exists');
+  assert(fs.existsSync(jsBundlePath), 'Generated JavaScript bundle exists');
+  assert(html.includes('assets/dist/careerdesk.css'), 'index.html loads the CSS bundle');
+  assert(html.includes('assets/dist/careerdesk.js'), 'index.html loads the JavaScript bundle');
+
+  const cssBundle = fs.readFileSync(cssBundlePath, 'utf8');
+  const jsBundle = fs.readFileSync(jsBundlePath, 'utf8');
+  let lastCssSourceOffset = -1;
+  for (const sourcePath of CSS_FILES) {
+    assert(fs.existsSync(path.join(ROOT_DIR, sourcePath)), `CSS source exists: ${sourcePath}`);
+    const sourceOffset = cssBundle.indexOf(`Source: ${sourcePath}`);
+    assert(sourceOffset > lastCssSourceOffset, `CSS bundle includes ${sourcePath} in cascade order`);
+    lastCssSourceOffset = sourceOffset;
+  }
+  let lastJsSourceOffset = -1;
+  for (const sourcePath of JS_FILES) {
+    assert(fs.existsSync(path.join(ROOT_DIR, sourcePath)), `JavaScript source exists: ${sourcePath}`);
+    const sourceOffset = jsBundle.indexOf(`Source: ${sourcePath}`);
+    assert(sourceOffset > lastJsSourceOffset, `JavaScript bundle includes ${sourcePath} in dependency order`);
+    lastJsSourceOffset = sourceOffset;
   }
 });
 
@@ -162,9 +158,9 @@ suite('HTML Semantic Layout & Core DOM Elements', () => {
 
   const html = fs.readFileSync(htmlPath, 'utf8');
 
-  // Manifest links in index.html
-  assert(html.includes('assets/css/master.css'), 'index.html includes master.css');
-  assert(html.includes('assets/js/master.js'), 'index.html includes master.js');
+  // Generated bundle links in index.html
+  assert(html.includes('assets/dist/careerdesk.css'), 'index.html includes the CSS bundle');
+  assert(html.includes('assets/dist/careerdesk.js'), 'index.html includes the JavaScript bundle');
 
   // Critical DOM anchors for Unified Subject Control System & Panels
   const requiredIds = [

@@ -28,23 +28,24 @@ CareerDesk/
 ├── assets/
 │   ├── css/                 # Modular stylesheets and layout overrides
 │   ├── data/                # Question-bank JSON
+│   ├── dist/                # Generated runtime CSS and JavaScript bundles
 │   ├── icons/
 │   └── js/
-│       ├── master.js        # Ordered script loader
 │       ├── core.js          # Shared state, storage, and utilities
 │       ├── app.js           # Router and bootstrap
 │       ├── features/        # User-facing feature modules
 │       ├── integrations/    # Firebase and security modules
 │       └── lucide.min.js
+├── scripts/
+│   └── build.js             # Ordered sources and static bundle builder
 ├── AGENTS.md
 ├── .github/copilot-instructions.md
 └── README.md
 ```
 
 ### Key File Roles:
-- **`index.html`**: Semantic single-page layout. Loads the CSS manifest, final layout overrides, and JS manifest.
-- **`assets/css/master.css`**: Master Stylesheet Project File. Uses `@import` to load all modular CSS stylesheets.
-- **`assets/js/master.js`**: Master JavaScript Project File. Central manifest that synchronously loads all modular JS engines.
+- **`index.html`**: Semantic single-page layout. Loads the generated CSS and JavaScript bundles.
+- **`scripts/build.js`**: Maintains the ordered CSS and JavaScript source lists and creates the static bundles in `assets/dist/`.
 - **`assets/js/core.js`**: Central storage adapter, state initialization (`getDefaultState`), global utilities (`escapeHtml`, `escapeAttr`, `toBnDigits`, `dateKey`), and the Unified Subject Control System (`masterSubjectList`, `canonicalSubjectName`, `renameSubject`, `syncAllSubjectSelects`).
 - **`assets/js/features/`**: Routine, tracker, quotes, countdown, syllabus, MCQ, profile, dashboard, home, and navigation modules.
 - **`assets/js/integrations/`**: Security and optional Firebase integrations.
@@ -163,6 +164,6 @@ All subjects across **Routine**, **Tracker & Focus**, **Syllabus**, and **Quizze
 ## 🧪 6. Testing & Quality Verification
 
 Before committing changes:
-1. **Syntax Integrity**: Run `node --check assets/js/master.js` and syntax-check feature and integration modules under `assets/js/`.
+1. **Build and syntax integrity**: Run `npm run build`, then `npm test` to validate all source files and generated bundles.
 2. **Headless Browser Verification**: For UI layout, mobile responsive behavior, or timer testing, execute automated CDP scripts using headless Chrome (located in `scratch/`) and verify screenshots.
 3. **Cross-Tab Consistency**: Verify that changing subjects or state in one tab propagates correctly to all dependent components.

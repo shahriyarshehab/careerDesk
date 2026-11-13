@@ -14,8 +14,7 @@
   <link
     href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
     rel="stylesheet">
-  <!-- Master Design System Stylesheet (Project File) -->
-  <link rel="stylesheet" href="assets/css/master.css">
+  <link rel="stylesheet" href="assets/dist/careerdesk.css">
 
   <!-- Firebase SDK (Compat) for Native Web Authentication & Cloud Sync -->
   <script defer src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
@@ -23,9 +22,6 @@
   <script defer src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
   <script defer src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 
-  <!-- Screenshot layout alignment overrides (must load after all inline styles) -->
-  <link rel="stylesheet" href="assets/css/figma-layout-alignment.css?v=8">
-  <link rel="stylesheet" href="assets/css/mobile-experience.css">
 </head>
 
 <body>
@@ -113,10 +109,6 @@
       <button class="tab-btn nav-link sidebar-settings-link" data-tab="settings" type="button" title="Settings &amp; Sync" aria-label="Settings and sync">
         <i data-lucide="settings-2"></i><span>Settings &amp; Sync</span>
       </button>
-      <button class="tab-btn nav-link sidebar-auth-btn" id="sidebarAuthBtn" type="button" data-auth-action title="Log in to sync your workspace" aria-label="Log in to sync your workspace">
-        <i data-lucide="log-in" class="sidebar-auth-icon auth-login-icon" aria-hidden="true"></i>
-        <span class="sidebar-auth-label">Log in</span>
-      </button>
       <button class="icon-action-btn watch-action" id="watchFullscreenToggle" type="button" title="Enter fullscreen" aria-label="Toggle Fullscreen" style="display:none;">
         <i data-lucide="maximize"></i>
       </button>
@@ -150,10 +142,6 @@
     </button>
     <button class="tab-btn mobile-more-link" data-tab="settings" type="button">
       <i data-lucide="settings-2" aria-hidden="true"></i><span>Settings &amp; sync</span>
-    </button>
-    <button class="tab-btn mobile-more-link mobile-auth-link" type="button" data-auth-action title="Log in to sync your workspace" aria-label="Log in to sync your workspace">
-      <i data-lucide="log-in" class="auth-login-icon" aria-hidden="true"></i>
-      <span class="sidebar-auth-label">Log in</span>
     </button>
   </nav>
 
@@ -1741,7 +1729,7 @@
 
   
   <!-- Master Application Script (Project File - loads all modular subsystems) -->
-  <script defer src="assets/js/master.js"></script>
+  <script defer src="assets/dist/careerdesk.js"></script>
 
   
   </body>
