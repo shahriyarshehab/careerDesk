@@ -1,0 +1,303 @@
+/* ==========================================================================
+   CareerDesk — Countdown Module: Target Exam Dates & Countdown Cards
+   ========================================================================== */
+
+  /* ===== Exam mode ===== */
+  .exam-overlay {
+    position: fixed;
+    inset: 0;
+    background: var(--bg);
+    z-index: 80;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    animation: rise .3s ease;
+  }
+
+  .exam-close {
+    position: absolute;
+    top: 22px;
+    right: 24px;
+  }
+
+  .exam-progress {
+    font-size: 13px;
+    color: var(--text-soft);
+    margin-bottom: 6px;
+  }
+
+  .exam-score-live {
+    font-size: 13px;
+    color: var(--text-soft);
+    margin-bottom: 18px;
+  }
+
+  .exam-card {
+    width: min(560px, 90vw);
+    aspect-ratio: 16/9;
+    margin-bottom: 26px;
+  }
+
+  .exam-question-box {
+    width: min(560px, 90vw);
+    min-height: 120px;
+    padding: 30px 26px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    font-family: var(--font-display);
+    font-size: 18px;
+    font-weight: 600;
+    line-height: 1.5;
+  }
+
+  .exam-answer-input {
+    width: min(560px, 90vw);
+    padding: 13px 16px;
+    border-radius: 12px;
+    margin-bottom: 18px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    font-family: var(--font-sans);
+    font-size: 14.5px;
+  }
+
+  .exam-answer-input:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--accent1);
+  }
+
+  .exam-answer-box {
+    width: min(560px, 90vw);
+    padding: 22px 24px;
+    margin-bottom: 22px;
+    text-align: left;
+    font-size: 14.5px;
+    line-height: 1.8;
+  }
+
+  .exam-actions {
+    display: flex;
+    gap: 14px;
+  }
+
+  .exam-summary {
+    text-align: center;
+    max-width: 440px;
+  }
+
+  .exam-summary h3 {
+    font-family: var(--font-display);
+    font-size: 26px;
+    margin: 0 0 10px;
+  }
+
+  .exam-summary p {
+    color: var(--text-soft);
+    margin: 0 0 22px;
+  }
+
+
+  /* ===== Merged Features Styles ===== */
+  .countdown-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+    margin-top: 16px;
+  }
+
+  .countdown-card {
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    transition: transform .25s ease, border-color .25s ease;
+  }
+
+/* ================================================================
+   Countdown V2 — milestone board
+   ================================================================ */
+#panel-countdown {
+  position: relative;
+}
+
+#panel-countdown::before {
+  content: 'Plan the finish line. Own the preparation.';
+  display: block;
+  padding: 28px 30px;
+  margin-bottom: 22px;
+  border-radius: 26px;
+  color: #e0f2fe;
+  font: 800 clamp(24px, 4vw, 38px)/1.05 var(--font-display);
+  letter-spacing: -.045em;
+  background:
+    linear-gradient(120deg, rgba(30,41,59,.95), rgba(49,46,129,.72)),
+    radial-gradient(circle at 90% 10%, rgba(34,211,238,.25), transparent 35%);
+  border: 1px solid rgba(129,140,248,.3);
+  box-shadow: 0 22px 58px rgba(2,6,23,.24);
+}
+
+#panel-countdown .panel-header-row {
+  padding: 16px 18px;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: rgba(255,255,255,.025);
+}
+
+#panel-countdown .countdown-grid {
+  gap: 20px;
+}
+
+#panel-countdown .countdown-card {
+  min-height: 210px;
+  border-radius: 22px;
+  border-color: rgba(148,163,184,.2);
+  background: linear-gradient(145deg, rgba(255,255,255,.06), rgba(255,255,255,.018));
+  box-shadow: 0 15px 34px rgba(2,6,23,.14);
+}
+
+#panel-countdown .countdown-timer-row {
+  padding: 14px 8px;
+  border-radius: 16px;
+  background: rgba(6,182,212,.055);
+}
+
+#panel-countdown .countdown-unit strong {
+  font-size: 30px;
+  letter-spacing: -.06em;
+}
+
+  .countdown-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+  }
+
+  .countdown-head h3 {
+    font-family: var(--font-display);
+    font-size: 17px;
+    font-weight: 700;
+    margin: 0;
+    color: var(--text);
+  }
+
+  .countdown-tag {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 8px;
+    background: rgba(139, 124, 255, 0.15);
+    color: var(--accent1);
+    border: 1px solid var(--accent1);
+  }
+
+  .countdown-timer-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    gap: 8px;
+    text-align: center;
+    margin: 12px 0 6px;
+  }
+
+  .time-box {
+    flex: 1;
+    padding: 10px 4px;
+    border-radius: 12px;
+    background: var(--surface-strong);
+    border: 1px solid var(--border);
+  }
+
+  .time-num {
+    font-family: var(--font-display);
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--accent2);
+    line-height: 1.1;
+    display: block;
+  }
+
+  .time-lbl {
+    font-size: 11px;
+    color: var(--text-soft);
+    margin-top: 2px;
+    display: block;
+  }
+
+  .countdown-head-actions {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+
+  .countdown-del-btn {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text-soft);
+    cursor: pointer;
+    padding: 0;
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    flex-shrink: 0;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .countdown-del-btn svg {
+    width: 13px;
+    height: 13px;
+    display: block;
+  }
+
+  .countdown-del-btn:hover {
+    background: rgba(244, 63, 94, 0.14) !important;
+    border-color: rgba(244, 63, 94, 0.35) !important;
+    color: #f43f5e !important;
+    transform: scale(1.08) translateY(-1px);
+    box-shadow: 0 2px 8px rgba(244, 63, 94, 0.22);
+  }
+
+  /* Edit button for countdown cards */
+  .countdown-edit-btn {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text-soft);
+    cursor: pointer;
+    padding: 0;
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    flex-shrink: 0;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .countdown-edit-btn svg {
+    width: 13px;
+    height: 13px;
+    display: block;
+  }
+
+  .countdown-edit-btn:hover {
+    background: rgba(99, 102, 241, 0.12) !important;
+    border-color: rgba(99, 102, 241, 0.35) !important;
+    color: var(--accent1) !important;
+    transform: scale(1.08) translateY(-1px);
+    box-shadow: 0 2px 8px rgba(99, 102, 241, 0.22);
+  }

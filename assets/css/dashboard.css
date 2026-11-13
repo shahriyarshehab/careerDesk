@@ -1,0 +1,960 @@
+/* ==========================================================================
+   CareerDesk — Modern Dashboard Overview
+   Figma Prototype: CareerDesk — Modern Study Dashboard (node-id=3-2)
+   ========================================================================== */
+
+/* ── Shell ─────────────────────────────────────────────────────────────── */
+.db-shell {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding-bottom: 24px;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   3. "YOUR PROGRESS AT A GLANCE" (4 KPI CARDS)
+   ══════════════════════════════════════════════════════════════════════════ */
+.db-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 4px;
+}
+
+.db-section-title {
+  font-size: 11.5px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-soft, #94a3b8);
+  margin: 0;
+}
+
+.db-section-badge {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--cdp-cyan-500);
+  background: rgba(6, 182, 212, 0.1);
+  border: 1px solid rgba(6, 182, 212, 0.22);
+  padding: 3px 10px;
+  border-radius: 20px;
+}
+
+.db-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+}
+
+.db-kpi-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 20px 20px 18px;
+  border-radius: 18px;
+  background: var(--surface, rgba(255, 255, 255, 0.04));
+  border: 1px solid var(--border, rgba(255, 255, 255, 0.09));
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18);
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.db-kpi-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.db-kpi-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-soft, #94a3b8);
+  letter-spacing: 0.02em;
+}
+
+.db-kpi-icon {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 11px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.db-kpi-icon i {
+  width: 18px;
+  height: 18px;
+}
+
+.db-kpi--time .db-kpi-icon   { color: #22d3ee; background: radial-gradient(circle at 35% 35%, rgba(6, 182, 212, 0.32), rgba(6, 182, 212, 0.08)); border: 1px solid rgba(6, 182, 212, 0.38); box-shadow: 0 0 16px rgba(6, 182, 212, 0.28); }
+.db-kpi--tasks .db-kpi-icon  { color: #34d399; background: radial-gradient(circle at 35% 35%, rgba(16, 185, 129, 0.32), rgba(16, 185, 129, 0.08)); border: 1px solid rgba(16, 185, 129, 0.38); box-shadow: 0 0 16px rgba(16, 185, 129, 0.28); }
+.db-kpi--streak .db-kpi-icon { color: #fbbf24; background: radial-gradient(circle at 35% 35%, rgba(245, 158, 11, 0.32), rgba(245, 158, 11, 0.08)); border: 1px solid rgba(245, 158, 11, 0.38); box-shadow: 0 0 16px rgba(245, 158, 11, 0.28); }
+.db-kpi--score .db-kpi-icon  { color: #a5b4fc; background: radial-gradient(circle at 35% 35%, rgba(99, 102, 241, 0.32), rgba(99, 102, 241, 0.08)); border: 1px solid rgba(99, 102, 241, 0.38); box-shadow: 0 0 16px rgba(99, 102, 241, 0.28); }
+
+.db-kpi-main {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.db-kpi-num {
+  font-family: var(--font-display, 'Outfit', sans-serif);
+  font-size: clamp(23px, 2.2vw, 30px);
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 1.1;
+  background: linear-gradient(180deg, #FFFFFF 30%, #CBD5E1 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+html[data-theme="light"] .db-kpi-num {
+  background: linear-gradient(180deg, #0F172A 30%, #334155 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.db-kpi-sub {
+  font-size: 11.5px;
+  color: var(--text-muted, #94a3b8);
+  font-weight: 600;
+}
+
+.db-kpi-progress {
+  height: 5px;
+  background: var(--surface, rgba(255, 255, 255, 0.06));
+  border-radius: 99px;
+  overflow: hidden;
+  margin-top: 4px;
+}
+
+.db-kpi-progress-bar {
+  height: 100%;
+  border-radius: 99px;
+  transition: width 0.7s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.bar-cyan    { background: linear-gradient(90deg, var(--cdp-cyan-500), var(--cdp-brand-500)); }
+.bar-emerald { background: linear-gradient(90deg, var(--cdp-success-strong), var(--cdp-cyan-500)); }
+.bar-amber   { background: linear-gradient(90deg, var(--cdp-warning-strong), var(--cdp-danger-strong)); }
+.bar-blue    { background: linear-gradient(90deg, #6366f1, #8b5cf6); }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   4. TWO-COLUMN CORE WORKSPACES (TODAY'S PLAN + FOCUS TIMER)
+   ══════════════════════════════════════════════════════════════════════════ */
+.db-core-grid {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr;
+  gap: 16px;
+  align-items: stretch;
+}
+
+.db-plan-card,
+.db-timer-card {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+  height: 100%;
+  box-sizing: border-box;
+  padding: 24px;
+  border-radius: 20px;
+  background: var(--surface, rgba(255, 255, 255, 0.04));
+  border: 1px solid var(--border, rgba(255, 255, 255, 0.09));
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.2);
+}
+
+.db-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.db-card-title-group {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.db-title-icon {
+  width: 18px;
+  height: 18px;
+  color: var(--cdp-brand-600);
+}
+
+.db-card-heading {
+  font-family: var(--font-display, 'Outfit', sans-serif);
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--text, #f8fafc);
+  margin: 0;
+}
+
+.db-action-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--cdp-brand-600);
+  background: color-mix(in srgb, var(--cdp-brand-500) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--cdp-brand-500) 22%, transparent);
+  padding: 5px 12px;
+  border-radius: 9px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.tracker-dashboard-link {
+  align-self: flex-end;
+}
+
+.db-action-link:hover {
+  background: rgba(99, 102, 241, 0.2);
+  color: #ffffff;
+  transform: translateX(2px);
+}
+
+.db-action-link i {
+  width: 13px;
+  height: 13px;
+}
+
+.db-card-badge {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--cdp-cyan-500);
+  background: rgba(6, 182, 212, 0.1);
+  border: 1px solid rgba(6, 182, 212, 0.22);
+  padding: 3px 10px;
+  border-radius: 20px;
+}
+
+/* Today's Study Plan Timeline */
+.db-plan-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 220px;
+}
+
+.db-plan-row {
+  display: grid;
+  grid-template-columns: 95px 1fr auto;
+  align-items: center;
+  gap: 14px;
+  padding: 13px 16px;
+  border-radius: 14px;
+  background: var(--surface-strong, rgba(255, 255, 255, 0.05));
+  border: 1px solid var(--border, rgba(255, 255, 255, 0.08));
+  transition: all 0.2s ease;
+}
+
+.db-plan-time-badge {
+  font-family: var(--font-mono, monospace);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-soft, #94a3b8);
+  white-space: nowrap;
+}
+
+.db-plan-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.db-plan-subject {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--text, #f8fafc);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.db-plan-task {
+  font-size: 11.5px;
+  color: var(--text-muted, #64748b);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.db-status-pill {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  padding: 4px 10px;
+  border-radius: 20px;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.db-status--done {
+  color: #34d399;
+  background: rgba(16, 185, 129, 0.14);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.db-status--active {
+  color: #38bdf8;
+  background: rgba(6, 182, 212, 0.16);
+  border: 1px solid rgba(6, 182, 212, 0.35);
+  box-shadow: 0 0 10px rgba(6, 182, 212, 0.25);
+  animation: dbStatusGlow 2s ease-in-out infinite;
+}
+
+.db-status--upcoming {
+  color: var(--text-muted, #64748b);
+  background: var(--surface-strong, rgba(255, 255, 255, 0.05));
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+@keyframes dbStatusGlow {
+  0%, 100% { opacity: 0.85; }
+  50% { opacity: 1; filter: drop-shadow(0 0 4px #38bdf8); }
+}
+
+.db-empty-plan {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 40px 16px;
+  color: var(--text-muted, #64748b);
+  text-align: center;
+}
+
+.db-empty-plan i {
+  width: 32px;
+  height: 32px;
+  opacity: 0.4;
+}
+
+/* ── Focus Timer Widget ─────────────────────────────────────────────────── */
+.db-timer-modes {
+  position: relative;
+  display: flex;
+  gap: 6px;
+  background: rgba(0, 0, 0, 0.32);
+  padding: 4px;
+  border-radius: 7px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.35);
+}
+
+.db-timer-mode-btn {
+  flex: 1;
+  padding: 6px 10px;
+  /* Squarer chip; !important beats the global button radius token. */
+  border-radius: 5px !important;
+  border: none;
+  background: transparent;
+  color: var(--text-soft, #94a3b8);
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  white-space: nowrap;
+  position: relative;
+}
+
+.db-timer-mode-btn.active {
+  background: linear-gradient(135deg, #6366f1, #06b6d4);
+  color: #ffffff;
+  box-shadow: 0 4px 14px rgba(99, 102, 241, 0.42), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+/* Water bubble that slides from the switch that was on to the one just picked.
+   Position comes from .switch-bubble; its size, colour, radius and shadow are
+   copied from the new switch by slideTimerSwitchBubble() in core.js. */
+.db-timer-bubble {
+  border-radius: 5px;
+  background: linear-gradient(135deg, #6366f1, #06b6d4);
+}
+
+.db-timer-mode-btn[hidden],
+.db-timer-btn-start[hidden],
+[data-dashboard-study-control][hidden],
+[data-dashboard-break-control][hidden],
+.db-timer-subject-row[hidden] {
+  display: none !important;
+}
+
+.db-timer-subject-row {
+  display: flex;
+  gap: 8px;
+}
+
+.db-timer-subject-row select,
+.db-timer-subject-row input {
+  width: 100%;
+  min-width: 0;
+  padding: 9px 11px;
+  border: 1px solid var(--border, rgba(255, 255, 255, 0.09));
+  border-radius: 10px;
+  background: var(--surface-strong, rgba(255, 255, 255, 0.06));
+  color: var(--text, #f8fafc);
+  font: inherit;
+  font-size: 12px;
+}
+
+.db-timer-durations {
+  gap: 4px;
+}
+
+.db-timer-durations .db-timer-mode-btn {
+  padding-inline: 4px;
+  font-size: 10px;
+}
+
+.db-timer-ring-container {
+  position: relative;
+  width: 172px;
+  height: 172px;
+  margin: 6px auto;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 50%, rgba(99, 102, 241, 0.12) 0%, rgba(6, 182, 212, 0.04) 50%, transparent 72%);
+  filter: drop-shadow(0 0 18px rgba(6, 182, 212, 0.18));
+}
+
+.db-timer-svg {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+.db-timer-track {
+  stroke: rgba(255, 255, 255, 0.08);
+}
+
+.db-timer-center-content {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+}
+
+.db-timer-digits {
+  font-family: var(--font-display, 'Outfit', var(--font-mono, monospace));
+  font-size: 38px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  background: linear-gradient(180deg, #FFFFFF 25%, #CBD5E1 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.45));
+}
+
+.db-timer-subject-row select:focus-visible,
+.db-timer-subject-row input:focus-visible,
+.db-timer-mode-btn:focus-visible,
+.db-timer-btn-start:focus-visible {
+  outline: 2px solid var(--accent2, #06b6d4);
+  outline-offset: 2px;
+}
+
+.db-timer-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.db-timer-btn-start {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--cdp-brand-600), var(--cdp-cyan-500));
+  border: none;
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 8px 24px rgba(79, 70, 229, 0.35);
+  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.db-timer-btn-start:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px rgba(6, 182, 212, 0.45);
+}
+
+.db-timer-btn-stop {
+  background: linear-gradient(135deg, var(--cdp-warning-strong), var(--cdp-danger-strong));
+}
+
+.db-timer-btn-stop:hover {
+  box-shadow: 0 12px 28px rgba(239, 68, 68, 0.35);
+}
+
+.db-timer-btn-start i {
+  width: 16px;
+  height: 16px;
+}
+
+html[data-theme="light"] .db-kpi-card,
+html[data-theme="light"] .db-plan-card,
+html[data-theme="light"] .db-timer-card {
+  background: rgba(255, 255, 255, 0.92);
+  border-color: rgba(226, 232, 240, 0.9);
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+}
+
+html[data-theme="light"] .db-plan-row {
+  background: #f8fafc;
+  border-color: #e2e8f0;
+}
+
+html[data-theme="light"] .db-timer-modes {
+  background: #f1f5f9;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   7. RESPONSIVE BREAKPOINTS
+   ══════════════════════════════════════════════════════════════════════════ */
+@media (max-width: 1024px) {
+  .db-kpi-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .db-core-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 680px) {
+  .db-kpi-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .db-plan-row {
+    grid-template-columns: 80px 1fr;
+    gap: 10px;
+  }
+  .db-plan-row .db-status-pill {
+    grid-column: 1 / -1;
+    justify-self: start;
+    margin-top: 4px;
+  }
+}
+
+/* ── Dashboard refresh ──────────────────────────────────────────────────── */
+.db-shell {
+  max-width: 1320px;
+  gap: 20px;
+  padding: 8px 0 32px;
+}
+
+.db-section-header {
+  margin: 2px 2px -5px;
+}
+
+.db-section-title {
+  font-size: 11px;
+  letter-spacing: .12em;
+}
+
+.db-section-badge {
+  padding: 5px 11px;
+  border-radius: 999px;
+}
+
+.db-kpi-grid {
+  gap: 12px;
+}
+
+.db-kpi-card {
+  min-height: 148px;
+  gap: 14px;
+  padding: 18px;
+  border-radius: 18px;
+  background: linear-gradient(145deg, var(--surface, rgba(255,255,255,.04)), color-mix(in srgb, var(--cd-surface, #111827) 78%, transparent));
+  box-shadow: 0 8px 26px rgba(0,0,0,.1);
+}
+
+.db-kpi-label {
+  font-size: 11px;
+  letter-spacing: .015em;
+}
+
+.db-kpi-icon {
+  width: 32px;
+  height: 32px;
+  border: 0;
+}
+
+.db-kpi-num {
+  font-size: clamp(24px, 2.4vw, 31px);
+}
+
+.db-kpi-progress {
+  height: 4px;
+  margin-top: auto;
+  background: color-mix(in srgb, var(--text, #fff) 8%, transparent);
+}
+
+.db-core-grid {
+  grid-template-columns: minmax(0, 1.45fr) minmax(300px, .85fr);
+  gap: 14px;
+}
+
+.db-plan-card,
+.db-timer-card {
+  gap: 18px;
+  padding: 20px;
+  border-radius: 20px;
+  background: linear-gradient(150deg, var(--surface, rgba(255,255,255,.04)), color-mix(in srgb, var(--cd-surface, #111827) 86%, transparent));
+  box-shadow: 0 10px 30px rgba(0,0,0,.13);
+}
+
+.db-card-heading {
+  font-size: 15px;
+}
+
+.db-action-link {
+  border-radius: 10px;
+}
+
+.db-plan-timeline {
+  gap: 8px;
+  min-height: 190px;
+}
+
+.db-plan-row {
+  grid-template-columns: 92px minmax(0, 1fr) auto;
+  gap: 12px;
+  padding: 12px 13px;
+  border-radius: 13px;
+}
+
+.db-plan-time-badge {
+  font-size: 10px;
+}
+
+.db-plan-subject {
+  font-size: 13px;
+}
+
+.db-plan-task {
+  font-size: 11px;
+}
+
+.db-status-pill {
+  font-size: 9px;
+  letter-spacing: .025em;
+}
+
+.db-timer-card {
+  background:
+    radial-gradient(ellipse at 50% 60%, rgba(6,182,212,.08), transparent 48%),
+    linear-gradient(150deg, var(--surface, rgba(255,255,255,.04)), color-mix(in srgb, var(--surface, #111827) 86%, transparent));
+}
+
+.db-timer-modes {
+  background: color-mix(in srgb, var(--text, #fff) 4%, transparent);
+}
+
+.db-timer-ring-container {
+  width: 150px;
+  height: 150px;
+  margin: 0 auto;
+}
+
+.db-timer-digits {
+  font-size: 32px;
+}
+
+.db-timer-btn-start {
+  min-height: 44px;
+  border-radius: 12px;
+  background: linear-gradient(115deg, #6366f1, #0891b2);
+  box-shadow: 0 8px 20px rgba(6,182,212,.2);
+}
+
+html[data-theme="light"] .db-kpi-card,
+html[data-theme="light"] .db-plan-card,
+html[data-theme="light"] .db-timer-card {
+  background: #fff;
+  border-color: #e5eaf2;
+  box-shadow: 0 8px 24px rgba(15,23,42,.045);
+}
+
+html[data-theme="light"] .db-timer-card {
+  background:
+    radial-gradient(ellipse at 50% 60%, rgba(6,182,212,.055), transparent 48%),
+    #fff;
+}
+
+html[data-theme="light"] .db-plan-row {
+  background: #f8fafc;
+  border-color: #e8edf4;
+}
+
+@media (max-width: 1024px) {
+  .db-core-grid {
+    grid-template-columns: minmax(0, 1.2fr) minmax(270px, .8fr);
+  }
+}
+
+@media (max-width: 760px) {
+  .db-shell {
+    gap: 16px;
+    padding-top: 2px;
+  }
+
+  .db-kpi-grid {
+    gap: 9px;
+  }
+
+  .db-kpi-card {
+    min-height: 134px;
+    padding: 14px;
+  }
+
+  .db-core-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 520px) {
+
+  .db-plan-card,
+  .db-timer-card {
+    padding: 16px;
+  }
+
+  .db-plan-row {
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 6px 10px;
+  }
+
+  .db-plan-time-badge {
+    grid-column: 1 / -1;
+  }
+
+  .db-plan-row .db-status-pill {
+    grid-column: 2;
+    grid-row: 2;
+    justify-self: end;
+  }
+
+  .db-plan-info {
+    grid-column: 1;
+    grid-row: 2;
+  }
+
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .db-status--active{
+    animation: none !important;
+  }
+}
+
+
+.db-plan-progress-label {
+  color: var(--text-muted, #64748b);
+  font-size: 10px;
+}
+
+.db-plan-timeline {
+  flex: 1 1 auto;
+  max-height: 390px;
+  min-height: 160px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--accent1, #6366f1) 35%, transparent) transparent;
+}
+
+.db-plan-row {
+  align-items: start;
+  transition: border-color .12s ease, background-color .12s ease;
+}
+
+.db-plan-row.is-active {
+  border-color: color-mix(in srgb, var(--cdp-cyan-500) 42%, var(--cd-border, var(--border, transparent)));
+  background: color-mix(in srgb, var(--cdp-cyan-500) 7%, var(--cd-surface-strong, var(--surface-strong, transparent)));
+}
+
+.db-plan-row[data-tracker-subject] {
+  cursor: pointer;
+}
+
+.db-plan-info {
+  gap: 4px;
+}
+
+.db-plan-progress {
+  height: 4px;
+  margin-top: 5px;
+  overflow: hidden;
+  border-radius: 99px;
+  background: color-mix(in srgb, var(--text, #fff) 9%, transparent);
+}
+
+.db-plan-progress span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--cdp-brand-500), var(--cdp-cyan-500));
+}
+
+.db-status--missed {
+  color: #fbbf8a;
+  border: 1px solid rgba(245, 158, 11, .25);
+  background: color-mix(in srgb, var(--cdp-warning-strong) 10%, transparent);
+}
+
+.db-empty-plan {
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  min-height: 150px;
+  align-content: center;
+  color: var(--text-soft, #94a3b8);
+  text-align: center;
+}
+
+.db-empty-plan > i {
+  width: 22px;
+  height: 22px;
+  color: var(--cdp-brand-600);
+}
+
+.db-empty-plan p {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+@media (max-width: 600px) {
+  .db-plan-timeline {
+    max-height: 340px;
+  }
+}
+
+
+
+/* ══════════════════════════════════════════════════════════════════════════
+   Study Tracker clock — same reference treatment as the Tracker page:
+   gradient arc, soft glow dot and a centered readout. With a duration set the
+   arc depletes, so what is left on the ring is what is left to study.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+.db-timer-ring-container {
+  position: relative;
+  isolation: isolate;
+  width: 176px;
+  height: 176px;
+  margin: 2px auto 4px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  transition: box-shadow .45s ease;
+}
+
+.db-timer-ring-container.is-running { box-shadow: 0 0 26px rgba(6, 182, 212, .14); }
+.db-timer-ring-container.is-complete { box-shadow: 0 0 26px rgba(16, 185, 129, .18); }
+
+.db-timer-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  transform: rotate(-90deg);
+}
+
+.db-timer-track,
+.db-timer-progress { fill: none; stroke-width: 7; }
+
+.db-timer-track {
+  stroke: rgba(148, 163, 184, .2);
+  transition: stroke 300ms ease;
+}
+
+.db-timer-progress {
+  stroke: url(#dbTimerRingGradient);
+  stroke-linecap: round;
+  stroke-dasharray: 515.22;
+  stroke-dashoffset: 515.22;
+  transition: stroke-dashoffset .45s linear;
+  filter: drop-shadow(0 0 6px rgba(6, 182, 212, .26));
+}
+
+.db-timer-ring-container.is-running .db-timer-progress {
+  filter: drop-shadow(0 0 8px rgba(6, 182, 212, .4));
+}
+
+.db-timer-center-content {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  padding: 0 10px;
+  text-align: center;
+}
+
+.db-timer-digits {
+  font-family: var(--font-display, 'Outfit', sans-serif);
+  font-size: 32px;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -.03em;
+  font-variant-numeric: tabular-nums;
+  color: var(--text, #f8fafc);
+}
+
+/* The gradient fill is light-on-dark; flip it so the readout stays legible. */
+html[data-theme="light"] .db-timer-digits {
+  background: linear-gradient(180deg, #0F172A 25%, #475569 100%);
+  filter: drop-shadow(0 2px 8px rgba(15, 23, 42, .18));
+}
+
+.db-timer-ring-label {
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--text-soft, #94a3b8);
+}
+
+.db-timer-ring-meta {
+  font-size: 10px;
+  font-weight: 600;
+  color: color-mix(in srgb, var(--text-soft, #94a3b8) 78%, transparent);
+}
+
+html[data-theme="light"] .db-timer-track { stroke: rgba(100, 116, 139, .22); }
+
+@media (max-width: 520px) {
+  .db-timer-ring-container { width: 164px; height: 164px; }
+  .db-timer-digits { font-size: 30px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .db-timer-progress { transition: none; }
+}

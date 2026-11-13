@@ -1,0 +1,20 @@
+{
+  "name": "careerdesk",
+  "version": "2.0.0",
+  "description": "CareerDesk — High-performance career preparation workspace",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "build": "node scripts/build.js",
+    "test": "npm run build && node test.js",
+    "deploy": "npm run build && npx -p firebase-tools firebase deploy --only hosting"
+  },
+  "keywords": [
+    "careerdesk",
+    "bcs",
+    "jobprep",
+    "study-tracker"
+  ],
+  "author": "CareerDesk",
+  "license": "MIT"
+}
